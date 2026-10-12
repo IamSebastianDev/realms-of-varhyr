@@ -1,0 +1,30 @@
+{
+  "id": "merchant-of-tris-vale",
+  "revision": 1,
+  "name": "Merchant of Tris Vale",
+  "deckLimitKey": "merchant-of-tris-vale",
+  "type": "creature",
+  "factions": [
+    "crownlands"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": true,
+  "rarity": "rare",
+  "cost": {
+    "generic": 0,
+    "factions": {}
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 1,
+    "energyOutputs": [
+      {
+        "crownlands": 2
+      }
+    ]
+  },
+  "abilities": [],
+  "lore": "The merchants of Tris Vale are known for their gold and silver works"
+}

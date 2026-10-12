@@ -1,0 +1,31 @@
+{
+  "id": "runeguard",
+  "revision": 5,
+  "name": "Runeguard",
+  "deckLimitKey": "runeguard",
+  "type": "creature",
+  "factions": [
+    "crownlands"
+  ],
+  "subtypes": [
+    "creature"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "crownlands": 2
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 4,
+    "energyOutputs": [
+      {
+        "crownlands": 1
+      }
+    ]
+  },
+  "abilities": []
+}

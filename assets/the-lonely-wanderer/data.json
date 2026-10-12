@@ -1,0 +1,42 @@
+{
+  "id": "the-lonely-wanderer",
+  "revision": 1,
+  "name": "The lonely wanderer",
+  "deckLimitKey": "the-lonely-wanderer",
+  "type": "creature",
+  "factions": [
+    "neutral"
+  ],
+  "subtypes": [
+    "creature"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 3
+  },
+  "stats": {
+    "attack": 4,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "neutral": 2
+      }
+    ]
+  },
+  "lore": "No lord may claim the wanderers allegiance.",
+  "abilities": [
+    {
+      "id": "armor",
+      "params": {
+        "amount": 2
+      }
+    }, 
+    {
+      "id": "rally",
+      "params": {
+        "amount": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "id": "mercenary-outriders",
+  "revision": 1,
+  "name": "Mercenary Outriders",
+  "deckLimitKey": "mercenary-outriders",
+  "type": "creature",
+  "factions": [
+    "neutral"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 1,
+    "energyOutputs": [
+      {
+        "neutral": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "guard",
+      "params": {}
+    }
+  ]
+}

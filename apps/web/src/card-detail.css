@@ -1,0 +1,54 @@
+/* One card detail layout, shared by the collection inspector and the match preview. */
+.card-detail {display:grid;grid-template-columns:190px minmax(0,1fr);gap:26px;align-items:center;text-align:left}
+.card-detail .card-detail-art {width:190px;height:267px;margin:0;box-shadow:0 8px 28px #0008}
+.card-detail-body {min-width:0}
+.card-detail-body .eyebrow {display:block;font-size:8px;letter-spacing:1.1px;color:#c5c8ab}
+.card-detail-body h2 {font:500 32px/1.05 var(--serif);color:#f5e7c8;margin:10px 0 8px}
+.card-detail-body .cost-bundle {font:700 14px 'Manrope',sans-serif}
+.card-detail-body .card-lore {margin:14px 0}
+.card-detail-body .fact-stats {font-size:10px}
+.card-detail-body .fact-energy {font-size:9px}
+.card-detail-body .detail-timing,.card-detail-state {font-size:10px;line-height:1.6;color:#d1b988;margin:12px 0 0}
+.card-detail-body .gold-button {margin-top:14px;font-size:11px}
+.card-detail-body .subtle-hint {margin:8px 0 0}
+@media(max-width:480px){
+  .card-detail {grid-template-columns:1fr;gap:16px;justify-items:center}
+  .card-detail .card-detail-art {width:155px;height:218px}
+  .card-detail-body {width:100%}
+  .card-detail-body h2 {font-size:28px}
+}
+
+/* Chrome: floating match preview (hover and pinned) */
+.hover-preview {width:min(600px,calc(100vw - 24px));padding:26px 28px;border-radius:6px;box-shadow:0 20px 80px #000a}
+.pinned-preview {padding-top:34px}
+.pinned-preview .card-detail-body .inspect-action {width:100%}
+/* Chrome: collection inspector modal */
+.collection-card-detail {display:block;width:640px;padding:32px}
+@media(max-height:700px) and (min-width:701px){
+  .hover-preview {padding:16px 20px}
+  .card-detail {grid-template-columns:150px minmax(0,1fr);gap:20px}
+  .card-detail .card-detail-art {width:150px;height:211px}
+  .card-detail-body h2 {font-size:26px}
+}
+.hover-preview{z-index:60}
+
+/* Anchor positioning: the preview sits next to the card that opened it.
+   Without support it falls back to the JS-computed --px/--py position. */
+.preview-anchor {position:fixed;pointer-events:none;anchor-name:--preview-anchor}
+.hover-preview {left:var(--px);top:var(--py)}
+@supports (position-area: top) {
+  .hover-preview {
+    left:auto;top:auto;right:auto;bottom:auto;
+    position-anchor:--preview-anchor;
+    position-area:top span-all;
+    margin:12px;
+    max-width:calc(100vw - 24px);
+    position-try-order:most-height;
+    position-try-fallbacks:
+      bottom span-all,
+      right span-all, left span-all,
+      top span-right, top span-left,
+      bottom span-right, bottom span-left,
+      right span-bottom, left span-bottom;
+  }
+}

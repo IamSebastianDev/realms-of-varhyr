@@ -1,0 +1,40 @@
+{
+  "id": "crown-bastion",
+  "revision": 1,
+  "name": "Crown Bastion",
+  "deckLimitKey": "crown-bastion",
+  "type": "bastion",
+  "factions": [
+    "crownlands"
+  ],
+  "subtypes": [
+    "fortification"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 3,
+    "factions": {
+      "crownlands": 1
+    }
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 4
+  },
+  "abilities": [
+    {
+      "id": "war-banner",
+      "params": {
+        "amount": 1
+      }
+    },
+    {
+      "id": "rally",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "lore": "An oath made stone."
+}

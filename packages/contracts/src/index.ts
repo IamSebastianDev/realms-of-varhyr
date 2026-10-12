@@ -1,0 +1,87 @@
+export { deckRules } from './deckRules';
+export { areAdjacent, battlefieldPositions, positionName, positionSlot } from './positions';
+export type { BattlefieldPosition } from './positions';
+
+// Content validates these IDs against its faction configuration. The engine
+// treats them as names so adding a faction never requires changing engine code.
+export type Faction = string;
+export type EnergyType = Faction | 'neutral';
+export type Pool = Record<EnergyType, number>;
+export type Cost = { generic: number; factions: Record<Faction, number> };
+export type PlayerId = 'p1' | 'p2';
+export type AbilityBinding = { id: string; params: Record<string, unknown> };
+export type CardDefinition = {
+  id: string; revision: number; name: string; deckLimitKey: string; type: 'creature' | 'spell' | 'bastion';
+  factions: Faction[]; subtypes: string[]; legendary: boolean; rarity: 'common' | 'rare' | 'legendary';
+  cost: Cost; lore?: string; art: string; animation?: string; abilities: AbilityBinding[];
+  stats?: { attack: number; defense: number; energyOutputs: Pool[] };
+  timing?: ('play' | 'death')[]; cast?: AbilityBinding[];
+};
+export type CardInstance = { id: string; definitionId: string; owner: PlayerId; controller: PlayerId; zone: 'deck' | 'hand' | 'board' | 'discard' | 'choice'; slot: number | null; exhausted: boolean; damage: number };
+export type Player = { id: PlayerId; name: string; life: number; deck: string[]; hand: string[]; board: (string | null)[]; discard: string[]; energy: Pool; deathEnergy: Pool };
+export type Phase = 'draw' | 'play' | 'attack' | 'end';
+export type DeadSnapshot = { card: CardInstance; outputs: Pool[] };
+export type PendingChoice =
+  | { id: string; player: PlayerId; kind: 'draw'; options: string[] }
+  /** Opening hand: the player may return up to `max` cards and draw the same number of new ones. */
+  | { id: string; player: PlayerId; kind: 'mulligan'; options: string[]; max: number }
+  | { id: string; player: PlayerId; kind: 'death-energy'; options: Pool[]; sourceName: string; remaining: DeadSnapshot[] };
+/** `lanes` maps each declared attacker to the enemy position it attacks; `blocks` is derived from it automatically. */
+export type Combat = { stage: 'declare' | 'review' | 'death'; attackers: string[]; lanes: Record<string, number>; blocks: { attacker: string; blocker: string }[]; dead: DeadSnapshot[] };
+export type GameEvent = { seq: number; type: string; message: string; player?: PlayerId; cardId?: string; target?: string; amount?: number; visibility: 'public' | PlayerId; snapshot?: CardInstance };
+export type GameState = {
+  rulesVersion: string; contentVersion: string; seed: number; rng: number; revision: number; sequence: number;
+  turn: number; active: PlayerId; phase: Phase; players: Record<PlayerId, Player>; cards: Record<string, CardInstance>;
+  combat: Combat | null; pending: PendingChoice | null; outcome: PlayerId | 'draw' | null;
+  outcomeReason: 'life' | 'empty-library' | null; events: GameEvent[];
+};
+export type Command =
+  | { type: 'play'; cardId: string; slot?: number; target?: string; consume?: string; payment?: Pool }
+  | { type: 'energy'; cardId: string; option: number }
+  | { type: 'activate'; cardId: string; ability: number; target?: string }
+  /** `lanes` defaults each attacker to its own position. One attacker per target lane. */
+  | { type: 'attack'; attackers: string[]; lanes?: Record<string, number> }
+  | { type: 'confirm-combat' }
+  /** Answers a pending opening-hand choice; an empty list keeps the hand. */
+  | { type: 'mulligan'; cardIds: string[] }
+  /** `other` says where the unchosen drawn card goes: the discard pile (default) or under the library. */
+  | { type: 'choose'; choiceId: string; option: string | number; other?: 'discard' | 'bottom' }
+  | { type: 'end' };
+export type CommandEnvelope = { actor: PlayerId; expectedRevision: number; command: Command; clientActionId?: string };
+export type InternalOrder =
+  | { type: 'damage'; target: string; amount: number; source?: string }
+  | { type: 'heal'; target: PlayerId; amount: number }
+  | { type: 'draw'; player: PlayerId; amount: number }
+  | { type: 'return'; target: string }
+  | { type: 'destroy'; target: string; combat?: boolean };
+export type BeforePayload = { exhausted?: boolean; consume?: boolean; amount?: number; cost?: Cost; output?: Pool };
+export type HookContext = {
+  state: Readonly<GameState>; registry: Registry; source: CardInstance; event: GameEvent; target?: string;
+  issue: (order: InternalOrder) => void;
+};
+export type AbilityExtension = {
+  id: string; version: number; validate: (params: unknown) => void;
+  /** Player-facing templates; {param} placeholders come from the card binding. */
+  name: string; description: string;
+  hooks?: Record<string, (ctx: HookContext, params: Record<string, unknown>) => void>;
+  before?: Record<string, (ctx: HookContext, params: Record<string, unknown>, payload: BeforePayload) => BeforePayload>;
+  static?: (source: CardInstance, target: CardInstance, params: Record<string, unknown>, registry: Registry) => { attack?: number; defense?: number };
+  /** Pure restriction on an attacker/blocker pair; returning false forbids it.
+   * Evaluated on abilities of both participants, with their owning card as source. */
+  canBlock?: (source: CardInstance, attacker: CardInstance, blocker: CardInstance, params: Record<string, unknown>, registry: Registry) => boolean;
+  /** Pure redirect: true if `source` (on its own controller's side) steps in to block `attacker` aimed at `lane`.
+   * Blocking restrictions from canBlock still apply. */
+  intercepts?: (source: CardInstance, attacker: CardInstance, lane: number, params: Record<string, unknown>, registry: Registry) => boolean;
+  /** Activated during the controller's play phase by exhausting the source. */
+  activate?: (ctx: HookContext, params: Record<string, unknown>) => void;
+  cast?: (ctx: HookContext, params: Record<string, unknown>) => void;
+  target?: 'enemy-any' | 'friendly-creature' | 'enemy-creature' | 'friendly-field' | 'enemy-field';
+};
+export type Registry = { version: string; energyTypes: EnergyType[]; cards: Record<string, CardDefinition>; abilities: Record<string, AbilityExtension> };
+export type LegalActions = { actor: PlayerId; playable: { cardId: string; slots: number[]; targets: string[]; consumes: string[]; requiresTarget: boolean }[]; energy: { cardId: string; options: Pool[] }[]; activations: { cardId: string; ability: number; targets: string[]; requiresTarget: boolean }[]; attackers: string[]; /** Positions each legal attacker may target: its own lane and adjacent lanes. */ lanes: Record<string, number[]>; canEnd: boolean };
+export type PlayerView = {
+  rulesVersion: string; contentVersion: string; revision: number; turn: number; active: PlayerId; phase: Phase;
+  players: Record<PlayerId, Omit<Player, 'deck' | 'hand'> & { deckCount: number; handCount: number }>;
+  cards: Record<string, CardInstance>; hand: string[]; pending: PendingChoice | null; combat: Combat | null;
+  outcome: GameState['outcome']; outcomeReason: GameState['outcomeReason']; events: GameEvent[]; legal: LegalActions;
+};

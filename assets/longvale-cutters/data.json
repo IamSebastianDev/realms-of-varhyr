@@ -1,0 +1,30 @@
+{
+  "id": "longvale-cutters",
+  "revision": 4,
+  "name": "Longvale Cutters",
+  "deckLimitKey": "longvale-cutters",
+  "type": "creature",
+  "factions": [
+    "crownlands"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {}
+  },
+  "stats": {
+    "attack": 0,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "crownlands": 1
+      }
+    ]
+  },
+  "abilities": [],
+  "lore": "Even the woods are plentiful"
+}

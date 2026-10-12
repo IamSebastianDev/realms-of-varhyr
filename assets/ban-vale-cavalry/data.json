@@ -1,0 +1,38 @@
+{
+  "id": "ban-vale-cavalry",
+  "revision": 2,
+  "name": "Ban Vale Cavalry",
+  "deckLimitKey": "ban-vale-cavalry",
+  "type": "creature",
+  "factions": [
+    "crownlands"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "crownlands": 1
+    }
+  },
+  "stats": {
+    "attack": 3,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "crownlands": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "adjacent-banner",
+      "params": {
+        "amount": 2
+      }
+    }
+  ]
+}

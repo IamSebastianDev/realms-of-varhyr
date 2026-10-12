@@ -1,0 +1,30 @@
+{
+  "id": "crown-recruit",
+  "revision": 4,
+  "name": "Crownlands Recruit",
+  "deckLimitKey": "crown-recruit",
+  "type": "creature",
+  "factions": [
+    "crownlands"
+  ],
+  "subtypes": [
+    "creature"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {}
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "crownlands": 1
+      }
+    ]
+  },
+  "abilities": [],
+  "lore": "Every kingdom begins with an oath."
+}

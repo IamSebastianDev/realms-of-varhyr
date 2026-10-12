@@ -1,0 +1,39 @@
+{
+  "id": "aldric-runewarden",
+  "revision": 5,
+  "name": "Aldric, the Runewarden",
+  "deckLimitKey": "aldric-runewarden",
+  "type": "creature",
+  "factions": [
+    "crownlands"
+  ],
+  "subtypes": [
+    "creature"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "crownlands": 2
+    }
+  },
+  "stats": {
+    "attack": 3,
+    "defense": 5,
+    "energyOutputs": [
+      {
+        "crownlands": 1
+      }
+    ]
+  },
+  "lore": "The crown endures where its runes still shine.",
+  "abilities": [
+    {
+      "id": "armor",
+      "params": {
+        "amount": 1
+      }
+    }
+  ]
+}

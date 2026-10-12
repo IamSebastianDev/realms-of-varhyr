@@ -1,0 +1,40 @@
+{
+  "id": "tower-of-the-first-morning",
+  "revision": 1,
+  "name": "Tower of the First Morning",
+  "deckLimitKey": "tower-of-the-first-morning",
+  "type": "bastion",
+  "factions": [
+    "crownlands"
+  ],
+  "subtypes": [
+    "fortification"
+  ],
+  "legendary": true,
+  "rarity": "rare",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "crownlands": 2
+    }
+  },
+  "stats": {
+    "attack": 3,
+    "defense": 5
+  },
+  "abilities": [
+    {
+      "id": "armor",
+      "params": {
+        "amount": 2
+      }
+    },
+    {
+      "id": "rally",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "lore": "No one may pass the tower without cleansing."
+}

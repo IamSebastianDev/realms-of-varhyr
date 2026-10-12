@@ -1,0 +1,38 @@
+{
+  "id": "dawn-banner",
+  "revision": 4,
+  "name": "Dawn Standard-bearer",
+  "deckLimitKey": "dawn-banner",
+  "type": "creature",
+  "factions": [
+    "crownlands"
+  ],
+  "subtypes": [
+    "creature"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "crownlands": 1
+    }
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "crownlands": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "war-banner",
+      "params": {
+        "amount": 1
+      }
+    }
+  ]
+}

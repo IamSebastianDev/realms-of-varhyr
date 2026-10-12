@@ -1,0 +1,37 @@
+{
+  "id": "cleansing-light",
+  "revision": 3,
+  "name": "Cleansing Light",
+  "deckLimitKey": "cleansing-light",
+  "type": "spell",
+  "factions": [
+    "crownlands"
+  ],
+  "subtypes": [],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "crownlands": 1
+    }
+  },
+  "abilities": [],
+  "timing": [
+    "play", "death"
+  ],
+  "cast": [
+    {
+      "id": "damage",
+      "params": {
+        "amount": 2
+      }
+    },
+    {
+      "id": "heal",
+      "params": {
+        "amount": 1
+      }
+    }
+  ]
+}

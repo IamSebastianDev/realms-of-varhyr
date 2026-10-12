@@ -1,0 +1,38 @@
+{
+  "id": "first-dawn-regiment",
+  "revision": 1,
+  "name": "First Dawn Regiment",
+  "deckLimitKey": "first-dawn-regiment",
+  "type": "creature",
+  "factions": [
+    "crownlands"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "crownlands": 1
+    }
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "crownlands": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "shield-wall",
+      "params": {
+        "amount": 1
+      }
+    }
+  ]
+}

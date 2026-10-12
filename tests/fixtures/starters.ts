@@ -1,0 +1,4 @@
+export const starterDecks = {
+  verdant: ['forest-sprite','crown-recruit','iron-squire','wayfarer','iron-guard','runeguard','wild-guardian','grove-keeper','dawn-banner','cleansing-light'].flatMap(id => [id,id,id]),
+  hollow: ['ashen-initiate','clan-scout','abyss-imp','wayfarer','abyss-whelp','grave-collector','hollow-devourer','stone-golem','final-bargain','homeward'].flatMap(id => [id,id,id]),
+};

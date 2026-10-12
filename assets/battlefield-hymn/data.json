@@ -1,0 +1,32 @@
+
+{
+  "id": "battlefield-hymn",
+  "revision": 1,
+  "name": "Battlefield Hymn",
+  "deckLimitKey": "battlefield-hymn",
+  "type": "spell",
+  "factions": [
+    "crownlands"
+  ],
+  "subtypes": [],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "crownlands": 1
+    }
+  },
+  "abilities": [],
+  "timing": [
+    "play", "death"
+  ],
+  "cast": [
+    {
+      "id": "draw",
+      "params": {
+        "amount": 2
+      }
+    }
+  ]
+}
