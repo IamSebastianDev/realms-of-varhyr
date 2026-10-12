@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, BookOpen, Check, Gift, Layers, Minus, Plus, Search, Swords, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Check, Crown, Gift, Layers, Minus, Plus, Search, Swords, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { factionInfo, registry } from '../../../packages/content/src';
 import { drawBooster } from '../../../packages/content/src/boosters';
@@ -12,7 +12,7 @@ import { CardDetail } from './CardDetail';
 import { addDeckCard, copyCount, draftKey, parseDeck, removeDeckCard, starterOptions, type CustomDeck } from './decks';
 import { opponentDeck } from './session';
 
-export type Screen='menu'|'cards'|'builder'|'match';
+export type Screen='menu'|'cards'|'builder'|'store'|'match';
 type Mode='practice'|'hotseat';
 type Props={
   reduced:boolean; screen:Exclude<Screen,'match'>; navigate:(screen:Screen)=>void; canResume:boolean; resumeLabel:string;
@@ -83,6 +83,7 @@ export function Lobby(props:Props){
         <button className={screen==='menu'?'active':''} onClick={()=>navigate('menu')}>Menu</button>
         <button className={screen==='cards'?'active':''} onClick={()=>navigate('cards')}><BookOpen size={15}/>Cards</button>
         <button className={screen==='builder'?'active':''} onClick={()=>navigate('builder')}><Layers size={15}/>Deck builder</button>
+        <button className={screen==='store'?'active':''} onClick={()=>navigate('store')}><Gift size={15}/>Store</button>
       </nav>
       {canResume&&<button className="lobby-resume" onClick={()=>navigate('match')}><ArrowLeft size={15}/>Return to match</button>}
     </header>
@@ -101,11 +102,21 @@ export function Lobby(props:Props){
         <div className="menu-links">
           <button className="menu-destination" onClick={()=>navigate('cards')}><BookOpen size={24}/><div><h2>Cards</h2><p>Explore every creature, spell and bastion.</p><span>{Object.keys(registry.cards).length} cards to discover</span></div><ArrowRight size={19}/></button>
           <button className="menu-destination" onClick={()=>navigate('builder')}><Layers size={24}/><div><h2>Deck builder</h2><p>Start with an empty deck or make a starter your own.</p><span>{props.decks.length?`${props.decks.length} saved ${props.decks.length===1?'deck':'decks'}`:'All cards. Your deck. Nothing extra.'}</span></div><ArrowRight size={19}/></button>
+          <button className="menu-destination" onClick={()=>navigate('store')}><Gift size={24}/><div><h2>Store</h2><p>Open boosters to grow your collection.</p><span>{rewards.boostersOpened} opened · {rewardTotal} cards earned</span></div><ArrowRight size={19}/></button>
         </div>
-      </div><div className="booster-toolbar"><button className="gold-button" onClick={openBooster}><Gift size={17}/>Open booster</button><p>Five random cards · free to test<small>{rewards.boostersOpened} opened · {rewardTotal} cards earned</small></p></div><p className="menu-footnote">Your match, decks and booster rewards stay saved on this device.</p>
+      </div><p className="menu-footnote">Your match, decks and booster rewards stay saved on this device.</p>
+    </main>:screen==='store'?<main className="store-page">
+      <div className="collection-heading"><div><span className="eyebrow">THE REALM’S MARKET</span><h1>Store</h1></div><p>Boosters add cards to your collection. Everything is free while we test.</p></div>
+      <section className="store-shelf" aria-label="Boosters">
+        <article className="store-item">
+          <div className="store-pack-stage" aria-hidden="true"><div className="store-pack-glow"/><div className="booster-pack store-pack"><span>REALMS OF VARHYR</span><Crown size={55}/><strong>THE REALM’S<br/>BOUNTY</strong><small>FIVE CARDS</small></div></div>
+          <div className="store-item-body"><h2>The Realm’s Bounty</h2><p>Five random cards from across every faction. Legendaries are rare.</p>
+            <div className="store-buy"><span className="store-price">Free</span><button className="gold-button" onClick={openBooster}><Gift size={17}/>Open booster</button></div>
+            <small>{rewards.boostersOpened} opened · {rewardTotal} cards earned</small></div>
+        </article>
+      </section>
     </main>:<main className={`collection-page ${screen==='builder'?'builder-page':''}`}>
       <div className="collection-heading"><div><span className="eyebrow">{screen==='builder'?'MAKE IT YOUR OWN':'THE CARD COLLECTION'}</span><h1>{screen==='builder'?'Deck builder':'Cards'}</h1></div><p>{screen==='builder'?`${deckRules.minimumCards} cards minimum · ${deckRules.copiesPerCard} copies per card · ${deckRules.copiesPerLegendary} per legendary`:'Read the cards. Learn the energy. Find your next play.'}</p></div>
-      {screen==='cards'&&<div className="booster-toolbar collection-booster-toolbar"><button className="outline-button" onClick={openBooster}><Gift size={17}/>Open booster</button><p>{rewardTotal} cards earned from {rewards.boostersOpened} boosters<small>Free to test · five cards per pack</small></p></div>}
       {screen==='builder'&&<div className="builder-toolbar"><label>Load deck<select aria-label="Load deck" value={props.decks.some(d=>d.id===draft.id)?draft.id:'draft'} onChange={e=>load(e.target.value)}><option value="draft">Current draft</option><optgroup label="Starter decks">{starterOptions.map(d=><option key={d.id} value={d.id}>{d.name}</option>)}</optgroup>{props.decks.length>0&&<optgroup label="Your decks">{props.decks.map(d=><option key={d.id} value={d.id}>{d.name}</option>)}</optgroup>}</select></label><button className="outline-button" onClick={()=>change(emptyDeck())}><Plus size={15}/>New deck</button></div>}
       <div className="collection-columns">
         <section className="all-cards-panel" aria-label="All cards"><div className="collection-panel-heading"><h2>All cards</h2><span>{cards.length} / {Object.keys(registry.cards).length}</span></div>

@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { createPortal } from 'react-dom';
 import { ArrowRight, Crown, X } from 'lucide-react';
 import { registry } from '../../../packages/content/src';
 import type { CardDefinition } from '../../../packages/contracts/src';
 import type { BoosterCardReward } from './boosterRewards';
 import { ArtCard } from './CardPresentation';
+import { CardDetail } from './CardDetail';
 
 export type OpenBooster = { id: string; cards: BoosterCardReward[]; saved: boolean };
 
@@ -14,6 +16,12 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, i
   const [opened, setOpened] = useState(reduced);
   const [revealed, setRevealed] = useState(reduced ? pack.cards.length : 0);
   const [skip, setSkip] = useState(false);
+  const [hover, setHover] = useState<{ card: CardDefinition; rect: DOMRect } | null>(null);
+  const hoverTimer = useRef<number>(0);
+  const showHover = (card: CardDefinition, rect: DOMRect) => { window.clearTimeout(hoverTimer.current); hoverTimer.current = window.setTimeout(() => setHover({ card, rect }), 300); };
+  const hideHover = () => { window.clearTimeout(hoverTimer.current); setHover(null); };
+  useEffect(() => { if (suspended) hideHover(); }, [suspended]);
+  useEffect(() => () => window.clearTimeout(hoverTimer.current), []);
   const dialogRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const complete = revealed === pack.cards.length;
@@ -55,7 +63,7 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, i
             <div className="booster-flip">
               <div className="booster-card-back" aria-hidden="true"><Crown size={32}/><span>V</span></div>
               <div className="booster-card-front" aria-hidden={!visible} inert={!visible}>
-                <ArtCard card={card} reduced={reduced} onClick={()=>inspect(card)} className="booster-card"/>
+                <ArtCard card={card} reduced={reduced} onClick={()=>{hideHover();inspect(card);}} className="booster-card" interaction={{onPointerEnter:e=>{if(e.pointerType!=='touch')showHover(card,e.currentTarget.getBoundingClientRect());},onPointerLeave:hideHover,onFocus:e=>showHover(card,e.currentTarget.getBoundingClientRect()),onBlur:hideHover}}/>
               </div>
             </div>
             <div className={`booster-card-caption ${visible ? '' : 'unrevealed'}`} aria-hidden={!visible}>
@@ -74,5 +82,12 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, i
         <small>Free test booster · duplicates possible</small>
       </footer>
     </section>
+    {hover && !suspended && createPortal(<>
+      <div className="preview-anchor" aria-hidden style={{ left: hover.rect.left, top: hover.rect.top, width: hover.rect.width, height: hover.rect.height }}/>
+      <aside className="hover-preview booster-hover-preview" role="tooltip" aria-label={`${hover.card.name} preview`}
+        style={{ ['--px' as string]: `${Math.max(12, Math.min(window.innerWidth - 612, hover.rect.right + 14))}px`, ['--py' as string]: `${Math.max(12, Math.min(window.innerHeight - 340, hover.rect.top - 40))}px`, width: Math.min(600, window.innerWidth - 24) }}>
+        <CardDetail card={hover.card} animated reduced={reduced}/>
+      </aside>
+    </>, document.body)}
   </div>;
 }

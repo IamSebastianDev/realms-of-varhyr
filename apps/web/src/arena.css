@@ -288,3 +288,51 @@ html,body,#root{overscroll-behavior:none}
 @keyframes action-ring{to{transform:rotate(360deg)}}
 @keyframes action-pulse{0%,100%{opacity:.35}50%{opacity:1}}
 @media(prefers-reduced-motion:reduce){.floating-action .primary-action::before,.floating-action .primary-action::after{animation:none!important}}
+
+/* Phase baubles: main → combat → end, orbiting the advance button (desktop) */
+.phase-orbit{display:none}
+@media(min-width:951px) and (min-aspect-ratio:1/1){
+  .phase-orbit{display:block;position:absolute;inset:0;pointer-events:none}
+  .phase-bauble{position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;display:grid;place-items:center;
+    transform:rotate(var(--a)) translateX(78px) rotate(calc(var(--a) * -1));
+    background:radial-gradient(circle at 35% 30%,#1d3027,#0b1814);color:#6f7d6f;border:1.5px solid #4f5a49;box-shadow:0 0 0 2px #0b1814;
+    transition:background .3s,border-color .3s,box-shadow .3s,transform .3s,color .3s}
+  .phase-bauble svg{width:13px;height:13px;filter:none}
+  .phase-bauble.is-done{background:radial-gradient(circle at 35% 30%,#2b4033,#10211a);color:#c9ae6d;border-color:#8d7a4d}
+  .phase-bauble.is-now{background:radial-gradient(circle at 35% 30%,#fff3c4,#f0cf7e 55%,#b88a34);color:#2a1d07;border-color:#ffe9a8;
+    box-shadow:0 0 0 2px #0b1814,0 0 14px 4px #f1d89acc;transform:rotate(var(--a)) translateX(78px) rotate(calc(var(--a) * -1)) scale(1.2)}
+}
+
+/* Opponent phases: same dial, in red */
+.floating-action .primary-action.is-enemy{color:#fde9e4;text-shadow:0 1px 0 #3a0806;
+  background:radial-gradient(circle at 34% 26%,#ff9a86 0%,#d2493a 38%,#8f1f19 76%,#5e1210 100%);
+  box-shadow:0 0 0 5px #0b1814,0 0 0 6px #e0705f,0 0 0 12px #0b1814,0 0 0 13px #e0705f66,0 16px 30px #000b,inset 0 2px 3px #ffc8bd88,inset 0 -7px 12px #4a0c0acc}
+.floating-action .primary-action.is-enemy svg{filter:drop-shadow(0 1px 0 #3a0806)}
+.floating-action .primary-action.is-enemy::before{background:repeating-conic-gradient(from 0deg,#e8806f 0 1.6deg,transparent 1.6deg 10deg)}
+.floating-action .primary-action.is-enemy::after{box-shadow:0 0 30px 6px #e0503f66}
+.floating-action .primary-action.is-enemy:disabled{color:#d9a9a2;text-shadow:none;
+  background:radial-gradient(circle at 34% 26%,#5a2a27,#2a1210 80%);
+  box-shadow:0 0 0 5px #0b1814,0 0 0 6px #7a403a,0 0 0 12px #0b1814,0 0 0 13px #e0705f22,0 12px 24px #000a,inset 0 2px 3px #ffffff18}
+.floating-action .primary-action.is-enemy:disabled::before{opacity:.22}
+@media(min-width:951px) and (min-aspect-ratio:1/1){
+  .is-enemy .phase-bauble.is-done{background:radial-gradient(circle at 35% 30%,#4a2420,#1d0d0b);color:#e0705f;border-color:#9a463d}
+  .is-enemy .phase-bauble.is-now{background:radial-gradient(circle at 35% 30%,#ffd0c6,#e8604f 55%,#a02a21);color:#2a0604;border-color:#ffb4a6;
+    box-shadow:0 0 0 2px #0b1814,0 0 14px 4px #e0503fcc}
+}
+
+/* Store */
+.store-page{position:relative;z-index:1;width:min(1100px,100%);margin:0 auto;padding:clamp(18px,4vh,40px) 24px 40px}
+.store-shelf{display:flex;flex-wrap:wrap;gap:28px;margin-top:28px}
+.store-item{display:grid;grid-template-columns:auto 1fr;gap:34px;align-items:center;max-width:720px;padding:28px 34px;border:1px solid #dac48b40;border-radius:6px;
+  background:linear-gradient(135deg,#2a4033e8,#14262bf0);box-shadow:0 18px 50px #0009}
+.store-pack-stage{position:relative;display:grid;place-items:center;width:240px;height:320px}
+.store-pack-glow{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(#f6dfa96a,#dab96718 45%,transparent 70%);animation:action-pulse 4s ease-in-out infinite}
+.store-pack{animation:none;transform:rotate(-3deg);transition:transform .25s cubic-bezier(.2,.8,.3,1)}
+.store-item:hover .store-pack{transform:rotate(0) translateY(-6px) scale(1.03)}
+.store-item-body h2{margin:0 0 8px;font:600 30px/1.1 var(--serif);color:#f2e3b3}
+.store-item-body p{margin:0 0 22px;color:#d5dcc6;font-size:13px;line-height:1.6;max-width:36ch}
+.store-buy{display:flex;align-items:center;gap:18px;margin-bottom:12px}
+.store-price{font:600 22px/1 var(--serif);color:#ecd292}
+.store-item-body small{color:#a9baa3;font-size:11px}
+@media(max-width:700px){.store-item{grid-template-columns:1fr;justify-items:center;text-align:center;padding:22px}.store-buy{justify-content:center}.store-item-body p{margin-inline:auto}}
+.store-page .collection-heading{display:block}.store-page .collection-heading p{margin:8px 0 0}
