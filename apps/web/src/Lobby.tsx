@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, BookOpen, Crown, Gift, Layers, Plus, Search, Swords, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Crown, GraduationCap, Gift, Layers, Plus, Search, Swords, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { factionInfo, registry } from '../../../packages/content/src';
 import { boosterPacks, type BoosterPack } from '../../../packages/content/src/boosters';
@@ -14,6 +14,7 @@ import { DustAmount, DustIcon } from './Dust';
 import { DeckBuilder } from './DeckBuilder';
 import { GameSetup, type SetupMode } from './GameSetup';
 import type { RtcRoom } from './multiplayer/RtcRoom';
+import { tutorialKey } from './tutorial';
 
 export type Screen='menu'|'cards'|'builder'|'store'|'multiplayer'|'match';
 type Mode='practice'|'hotseat';
@@ -24,6 +25,8 @@ type Props={
   opponentId:string; setOpponentId:(id:string)=>void;
   seed:string; setSeed:(seed:string)=>void; start:(skirmish:boolean)=>void;
   startOnline:(room:RtcRoom)=>void;
+  /** Starts the guided first match. */
+  learn:()=>void;
 };
 function emptyDeck():CustomDeck{return {id:`custom-${crypto.randomUUID()}`,name:'New deck',cards:[]};}
 function readDraft():CustomDeck {
@@ -31,6 +34,9 @@ function readDraft():CustomDeck {
 }
 export function Lobby(props:Props){
   const {screen,navigate,canResume}=props;
+  // New players are offered the tutorial once. Any answer, or having a match under way, settles it.
+  const [offer,setOffer]=useState(()=>{try{return screen==='menu'&&!canResume&&!localStorage.getItem(tutorialKey);}catch{return false;}});
+  function settleOffer(value:string){try{localStorage.setItem(tutorialKey,value);}catch{/* Optional. */}setOffer(false);}
   const [setup,setSetup]=useState<SetupMode|null>(screen==='multiplayer'?'online':null);
   const setupOrigin=useRef<HTMLElement|null>(null);
   const isHome=screen==='menu'||screen==='multiplayer';
@@ -100,22 +106,23 @@ export function Lobby(props:Props){
       {canResume&&<button className="lobby-resume" onClick={()=>navigate('match')}><ArrowLeft size={15}/>Return to match</button>}
     </header>
     {isHome?<main className="start-menu" inert={setup!==null}>
-      <section className="start-welcome"><span className="eyebrow">TEN LIFE · FIVE LANES · YOUR NEXT MOVE</span><h1>The realm awaits.</h1><p>Your army powers your spells.<br/>Your fallen defenders power your comeback.</p>
+      <section className="start-welcome"><h1>The realm awaits.</h1>
         <button className="gold-button start-play" aria-haspopup="dialog" onClick={()=>openSetup(props.mode)}><Swords size={23}/><span>Play</span><ArrowRight size={21}/></button>
+        <button className="start-learn" onClick={props.learn}><GraduationCap size={17}/>New here? Learn to play</button>
         {canResume&&<button className="start-resume" onClick={()=>navigate('match')}><span><b>Continue match</b><small>{props.resumeLabel}</small></span><ArrowRight size={18}/></button>}
       </section>
       <div className="start-destinations">
-        <button className="menu-destination" onClick={()=>navigate('cards')}><BookOpen size={24}/><div><h2>Cards</h2><p>Explore every creature, spell and bastion.</p><span>{Object.keys(registry.cards).length} cards to discover</span></div><ArrowRight size={19}/></button>
-        <button className="menu-destination" onClick={()=>navigate('builder')}><Layers size={24}/><div><h2>Deck builder</h2><p>Start with an empty deck or make a starter your own.</p><span>{props.decks.length?`${props.decks.length} saved ${props.decks.length===1?'deck':'decks'}`:'All cards. Your deck. Nothing extra.'}</span></div><ArrowRight size={19}/></button>
-        <button className="menu-destination" onClick={()=>navigate('store')}><Gift size={24}/><div><h2>Store</h2><p>Open boosters to grow your collection.</p><span>{boostersAvailable} boosters waiting · {ownedTotal} cards owned</span></div><ArrowRight size={19}/></button>
+        <button className="menu-destination" onClick={()=>navigate('cards')}><BookOpen size={24}/><div><h2>Cards</h2><span>{Object.keys(registry.cards).length} cards</span></div><ArrowRight size={19}/></button>
+        <button className="menu-destination" onClick={()=>navigate('builder')}><Layers size={24}/><div><h2>Deck builder</h2>{props.decks.length>0&&<span>{props.decks.length} saved {props.decks.length===1?'deck':'decks'}</span>}</div><ArrowRight size={19}/></button>
+        <button className="menu-destination" onClick={()=>navigate('store')}><Gift size={24}/><div><h2>Store</h2><span>{boostersAvailable} boosters waiting · {ownedTotal} cards owned</span></div><ArrowRight size={19}/></button>
       </div>
-      <p className="start-footnote">Your match, decks and collection stay saved on this device.</p>
+      
     </main>:screen==='store'?<main className="store-page">
-      <div className="collection-heading"><div><span className="eyebrow">THE REALM’S MARKET</span><h1>Store</h1></div><p>Collect three copies of each card, one of each legendary. Extra copies turn into dust.</p></div>
+      <div className="collection-heading"><div><h1>Store</h1></div></div>
       <section className="dust-vault" aria-label="Dust and boosters">
         <div className="dust-vessel" aria-hidden="true"><div className="dust-vessel-aura"/><DustIcon/><i/><i/><i/></div>
-        <div className="dust-vault-balance"><span className="eyebrow">A LITTLE MAGIC, RECLAIMED</span><DustAmount amount={collection.dust}/><p>Dust becomes your next discovery.</p></div>
-        <div className="dust-vault-packs"><Gift size={24}/><strong>{boostersAvailable}</strong><span>{boostersAvailable===1?'booster waiting':'boosters waiting'}</span><small>Wins earn {collectionRules.victoryDust} dust + one Realm’s Bounty booster.</small></div>
+        <div className="dust-vault-balance"><DustAmount amount={collection.dust}/></div>
+        <div className="dust-vault-packs"><Gift size={24}/><strong>{boostersAvailable}</strong><span>{boostersAvailable===1?'booster waiting':'boosters waiting'}</span></div>
         <button className="dust-debug-button" onClick={()=>{updateCollection(gainDebugDust);setCollectionMessage('Debug grant: +1,000 dust.');}}><Plus size={14}/>Gain 1,000 dust<small>DEBUG</small></button>
       </section>
       <div className="collection-economy-note"><span>Duplicate dust: common {collectionRules.duplicateDust.common} · rare {collectionRules.duplicateDust.rare} · legendary {collectionRules.duplicateDust.legendary}</span><span role="status">{collectionMessage}</span></div>
@@ -127,11 +134,10 @@ export function Lobby(props:Props){
             <div className="store-pack-inventory">{packCount(collection,pack.id)} owned</div>
             <div className="store-buy"><button className="gold-button" aria-label={`Open ${pack.name} booster`} disabled={!packCount(collection,pack.id)} onClick={()=>openBooster(pack)}><Gift size={17}/>Open booster</button><button className="outline-button store-dust-buy" aria-label={`Buy ${pack.name} booster for ${collectionRules.packCost} dust`} disabled={collection.dust<collectionRules.packCost} onClick={()=>buyBooster(pack)}>Buy<DustAmount amount={collectionRules.packCost}/></button></div></div>
         </article>;})}
-        <p className="store-stats">{collection.boostersOpened} opened · {ownedTotal} cards in your collection</p>
       </section>
     </main>:screen==='builder'?<DeckBuilder draft={draft} decks={props.decks} ownedCopies={ownedCopies} message={message} canUndo={!!past.length} reduced={props.reduced} change={change} add={add} remove={remove} load={load} save={save} undo={undo} inspect={inspect}/>:<main className="collection-page">
-      <div className="collection-heading"><div><span className="eyebrow">THE CARD COLLECTION</span><h1>Cards</h1></div><p>Read the cards. Learn the energy. Find your next play.</p></div>
-      <div className="collection-columns"><section className="all-cards-panel" aria-label="All cards"><div className="collection-panel-heading"><h2>All cards</h2><span>{cards.length} / {Object.keys(registry.cards).length}</span></div>
+      <div className="collection-heading"><div><h1>Cards</h1></div></div>
+      <div className="collection-columns"><section className="all-cards-panel" aria-label="All cards">{cards.length!==Object.keys(registry.cards).length&&<div className="collection-panel-heading"><span>{cards.length} / {Object.keys(registry.cards).length}</span></div>}
         <div className="collection-filters"><label className="collection-search"><Search size={16}/><input aria-label="Search cards" placeholder="Search cards or abilities…" value={query} onChange={e=>setQuery(e.target.value)}/></label>
           <select aria-label="Filter by faction" value={faction} onChange={e=>setFaction(e.target.value)}><option value="all">All factions</option>{Object.entries(factionInfo).map(([id,f])=><option key={id} value={id}>{f.symbol} {f.name}</option>)}</select>
           <select aria-label="Filter by card type" value={kind} onChange={e=>setKind(e.target.value)}><option value="all">All types</option><option value="creature">Creatures</option><option value="spell">Spells</option><option value="bastion">Bastions</option></select></div>
@@ -139,6 +145,7 @@ export function Lobby(props:Props){
         <div className="collection-card-grid">{cards.map(card=><article key={card.id}><ArtCard card={card} reduced={props.reduced} onClick={()=>inspect(card)}/><div className="collection-card-meta"><span className={`collection-rarity rarity-${card.rarity}`}>{card.rarity}</span><span className="collection-reward-count">{ownedCopies[card.id]??0}/{ownershipLimit(card)} owned</span></div></article>)}</div>
       </section></div>
     </main>}
+    {offer&&<div className="modal-backdrop" onClick={()=>settleOffer('skipped')}><section className="choice-dialog tutorial-offer" role="dialog" aria-modal="true" aria-label="Learn to play" onClick={e=>e.stopPropagation()}><h2>New to Varhyr?</h2><div className="tutorial-offer-actions"><button className="gold-button" autoFocus onClick={()=>{settleOffer('started');props.learn();}}><GraduationCap size={17}/>Start the tutorial</button><button className="outline-button" onClick={()=>settleOffer('skipped')}>I’ll figure it out</button></div></section></div>}
     {setup&&<GameSetup mode={setup} setMode={setSetupMode} close={()=>{setSetup(null);if(screen==='multiplayer')navigate('menu');}}
       options={props.options} selected={props.selected} setSelected={props.setSelected} ownedCopies={ownedCopies}
       opponentId={props.opponentId} setOpponentId={props.setOpponentId} seed={props.seed} setSeed={props.setSeed}

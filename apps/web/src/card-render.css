@@ -19,4 +19,4 @@
 
 /* The same face laid over the 3D board art */
 .card-face-overlay {position:absolute;inset:0;width:auto;height:auto;aspect-ratio:auto;border:0;border-radius:3px;background:none;box-shadow:none;pointer-events:none;transition:filter .15s}
-.board-card-label.is-exhausted .card-face-overlay {filter:saturate(.65) brightness(.85)}
+.board-card-label.is-exhausted .card-face-overlay {filter:saturate(.8) brightness(.93)}

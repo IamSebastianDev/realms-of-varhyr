@@ -159,7 +159,7 @@ export function DeckBuilder({ draft, decks, ownedCopies, message, canUndo, reduc
         <i aria-hidden><u style={{ width: `${Math.min(100, summary.total / deckRules.minimumCards * 100)}%` }}/></i>
       </div>
       <div className="builder-deck-grid" ref={deckGalleryRef} tabIndex={0} aria-label="Cards in deck">
-        {!deckCards.length ? <div className="collection-empty deck-empty"><Layers size={26}/><p>Your deck starts here.</p><small>Drag or click cards from the collection to add them, or start from a ready-made deck.</small>
+        {!deckCards.length ? <div className="collection-empty deck-empty"><Layers size={26}/><p>Your deck starts here.</p>
           <div className="deck-empty-starters">{starterOptions.map(deck => <button key={deck.id} className="outline-button" onClick={() => load(deck.id)}>{deck.name}</button>)}</div></div>
         : !shownDeckCards.length ? <div className="collection-empty">No cards costing {deckCost === 6 ? '6+' : deckCost} in this deck.</div>
         : groups.map(group => {

@@ -3,6 +3,7 @@ import { defaultDeckId } from '../../../packages/content/src';
 import { Lobby, type Screen } from './Lobby';
 import { decksKey, parseDecks, starterOptions, type CustomDeck } from './decks';
 import { startMatch, type SavedSession } from './session';
+import { startTutorial } from './tutorial';
 import { missingDeckCopies } from './collection';
 import { useCollection } from './collectionStore';
 import type { RtcRoom } from './multiplayer/RtcRoom';
@@ -48,7 +49,7 @@ export function AuthoringLobby({ onStart, onOnlineStart }: { onStart: (session: 
       screen={screen} navigate={next => { if (next !== 'match') setScreen(next); }}
       canResume={false} resumeLabel="" decks={decks} options={options} saveDeck={saveDeck}
       mode={mode} setMode={setMode} selected={selected} setSelected={setSelected} opponentId={opponentId} setOpponentId={setOpponentId}
-      seed={seed} setSeed={setSeed} start={start} startOnline={onOnlineStart}/>
+      seed={seed} setSeed={setSeed} start={start} startOnline={onOnlineStart} learn={() => onStart(startTutorial())}/>
     {error && <div className="toast" role="alert">{error}</div>}
   </>;
 }

@@ -2,7 +2,7 @@
 .lobby.menu-screen{height:100dvh;min-height:0;display:flex;flex-direction:column;overflow:hidden}
 .menu-screen>.world-bg{position:absolute;background-image:url('/cards/tower-of-the-first-morning/data.png');background-position:78% 40%;opacity:.85}
 .menu-screen>.world-vignette{position:absolute;background:linear-gradient(90deg,#172a22f5 0%,#233629df 37%,#22342969 73%,#1d302b80),linear-gradient(0deg,#14251fed,transparent 70%)}
-.menu-screen .lobby-header{flex:none;background:#1e3029c9;min-height:68px;padding-block:10px}
+.menu-screen .lobby-header{flex:none}
 .start-menu{position:relative;z-index:1;flex:1;min-height:0;width:100%;max-width:1200px;margin-inline:auto;padding:clamp(20px,4vh,48px) 40px 18px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:minmax(0,1fr) auto;gap:18px 70px;overflow:auto}
 .start-welcome{align-self:center;max-width:420px;padding-bottom:25px}
 .start-welcome h1{font-size:clamp(42px,5.4vw,70px);line-height:1.02;margin:17px 0 20px;text-shadow:0 3px 30px #09150b55}
@@ -133,3 +133,11 @@
 .setup-start.start-play,.setup-start.start-play:hover:not(:disabled){grid-template-columns:auto 28px;gap:20px;width:fit-content;min-width:230px;margin-left:auto;padding:14px 22px 14px 30px}
 .setup-start.start-play>svg:last-child,.setup-start.start-play>svg:first-child{display:block;width:26px;height:26px}
 @media(max-width:700px){.setup-start.start-play{grid-template-columns:auto 28px;width:fit-content;padding:14px 22px 14px 30px}.setup-start.start-play>svg:last-child{width:26px;height:26px}}
+
+/* Destinations are a plain title and one stat now, so they no longer need tall cards. */
+.start-destinations{grid-template-rows:none;grid-auto-rows:auto;align-self:center;max-height:none}
+.start-destinations .menu-destination{padding:clamp(18px,3vh,28px) 26px}
+.start-destinations .menu-destination h2{margin-bottom:0}
+.start-destinations .menu-destination div>span{margin-top:6px}
+.local-game-setup{margin-top:22px}
+@media(min-width:701px){.lobby-header,.menu-screen .lobby-header{box-sizing:border-box;height:68px;min-height:68px;padding-block:0;background:#1e3029e6}}

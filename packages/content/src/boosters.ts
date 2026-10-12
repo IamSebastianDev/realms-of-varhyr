@@ -30,5 +30,8 @@ export const boosterPacks: BoosterPack[] = [
   { id: 'bounty', name: 'The Realm’s Bounty', blurb: 'Five random cards from across every faction. Legendaries are rare.', faction: null },
   ...factionDefinitions.flatMap(faction => faction.pack ? [{ ...faction.pack, faction: faction.id }] : []),
 ];
+/** Neutral cards carry no named faction, so the Neutral pack draws the factionless cards. */
 export const packCards = (cards: CardDefinition[], pack: BoosterPack) =>
-  pack.faction ? cards.filter(card => card.factions.includes(pack.faction as never)) : cards;
+  !pack.faction ? cards
+    : pack.faction === 'neutral' ? cards.filter(card => !card.factions.length)
+    : cards.filter(card => card.factions.includes(pack.faction as never));

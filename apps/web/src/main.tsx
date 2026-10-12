@@ -16,4 +16,6 @@ import './deck-builder.css';
 import './collection.css';
 import './multiplayer/multiplayer.css';
 import './start-screen.css';
+import './tutorial.css';
+import './combat-fx.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App/></React.StrictMode>);

@@ -26,8 +26,7 @@ The files you need are:
 | `assets/cards/<card-name>/data.json` | Card name, cost, stats, faction IDs, text and ability bindings |
 | `assets/cards/<card-name>/data.png` | Required still artwork |
 | `assets/cards/<card-name>/data.webm` | Optional animated artwork |
-| `assets/factions/<faction-id>.json` | A faction: name, short label, color, symbol and optional booster pack |
-| `packages/content/src/starters.ts` | Starter deck IDs, names and card counts |
+| `assets/factions/<faction-id>.json` | A faction: name, short label, color, symbol, optional booster pack and starter deck |
 | `packages/extensions/src/index.ts` | Existing ability handlers and commented reference implementations |
 | `packages/contracts/src/deckRules.ts` | Shared deck size and copy limits |
 

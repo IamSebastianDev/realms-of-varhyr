@@ -38,14 +38,13 @@ export function GameSetup(props: Props) {
   }
   return <div className="setup-backdrop" onClick={props.close}>
     <section ref={pane} className="game-setup-pane" role="dialog" aria-modal="true" aria-labelledby="game-setup-title" onClick={event => event.stopPropagation()} onKeyDown={onKeyDown}>
-      <header className="setup-heading"><div><span className="eyebrow">CHOOSE YOUR BATTLE</span><h2 id="game-setup-title">Play</h2></div><button className="setup-close" aria-label="Close game setup" onClick={props.close}><X size={20}/></button></header>
+      <header className="setup-heading"><h2 id="game-setup-title">Play</h2><button className="setup-close" aria-label="Close game setup" onClick={props.close}><X size={20}/></button></header>
       <div className="setup-scroll">
         <div className="setup-modes" aria-label="Game mode"><button aria-pressed={!friend} onClick={() => props.setMode('practice')}><Swords size={16}/>Practice</button><button aria-pressed={friend} onClick={() => props.setMode('online')}><Users size={16}/>Play a friend</button></div>
         {friend && <div className="setup-friend-modes" aria-label="Friend connection"><button aria-pressed={props.mode === 'online'} onClick={() => props.setMode('online')}>Online room</button><button aria-pressed={props.mode === 'hotseat'} onClick={() => props.setMode('hotseat')}>Same device</button></div>}
         {props.mode === 'online' ? <MultiplayerLobby compact decks={props.options} selected={props.selected} onSelectDeck={props.setSelected} onStart={props.startOnline}/> : <div className="local-game-setup">
-          <p className="setup-description">{friend ? 'Take turns on this device. Each player keeps their hand private.' : 'Try your deck against the court.'}</p>
           <label>Your deck<select value={props.selected} onChange={event => props.setSelected(event.target.value)}>{props.options.map(deck => <option key={deck.id} value={deck.id}>{deck.name}{validateDeck(deck.cards, registry).length ? ' · unfinished' : missingDeckCopies(deck.cards, props.ownedCopies).length ? ' · missing copies' : ''}</option>)}</select></label>
-          <div className="setup-deck-summary"><span>{chosen?.cards.length ?? 0} cards</span><span>{!playable ? 'Not ready to play' : 'Ready to play'}</span></div>
+          <div className="setup-deck-summary"><span>{chosen?.cards.length ?? 0} cards</span></div>
           {!playable && <p className="deck-warning" role="status">{missing.length ? `You need ${missing.reduce((sum, card) => sum + card.missing, 0)} more owned copies. Open boosters or edit this deck.` : chosen && chosen.cards.length < deckRules.minimumCards ? `Add at least ${deckRules.minimumCards} cards to play.` : issues[0]}</p>}
           <details className="setup-advanced"><summary>Advanced<ChevronDown size={14}/></summary><div>
             <label>{friend ? 'Second player’s deck' : 'Opponent deck'}<select value={props.opponentId} onChange={event => props.setOpponentId(event.target.value)}><option value="auto">Automatic</option>{props.options.map(deck => <option key={deck.id} value={deck.id} disabled={!!validateDeck(deck.cards, registry).length}>{deck.name}</option>)}</select></label>

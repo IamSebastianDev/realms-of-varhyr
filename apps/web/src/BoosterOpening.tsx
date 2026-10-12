@@ -58,9 +58,9 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, c
     <section ref={dialogRef} className="booster-dialog" role="dialog" aria-modal={!suspended || undefined}
       aria-label="Booster rewards" onKeyDown={trapFocus}>
       <button ref={closeRef} className="booster-close" aria-label="Close booster" onClick={close}><X size={22}/></button>
-      <header className="booster-heading"><span className="eyebrow">A GIFT FROM THE REALM</span>
-        <h2>{complete ? 'Your five cards.' : 'A little fortune awaits.'}</h2>
-        <p role="status" aria-live="polite">{complete ? `${kept} ${kept===1?'card':'cards'} added to your collection${dust ? ` · ${dust} dust from extra copies` : ''}. Select a card to inspect it.` : opened ? `Revealing cards · ${revealed} / 5` : 'Breaking the seal…'}</p>
+      <header className="booster-heading">
+        <h2>{pack.pack.name}</h2>
+        <p role="status" aria-live="polite">{complete ? `${kept} ${kept===1?'card':'cards'} added${dust ? ` · ${dust} dust from extra copies` : ''}` : opened ? `Revealing cards · ${revealed} / 5` : 'Breaking the seal…'}</p>
       </header>
       {!opened ? <div className="booster-pack-stage" aria-hidden="true">
         <div className="booster-pack-glow"/><div className="booster-pack"><span>REALMS OF VARHYR</span>{pack.pack.faction ? <b className="pack-symbol">{factionInfo[pack.pack.faction]?.symbol}</b> : <Crown size={55}/>}<strong>{packLines(pack.pack.name)}</strong><small>FIVE CARDS</small></div>

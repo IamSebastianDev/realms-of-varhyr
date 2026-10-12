@@ -49,6 +49,8 @@ export type SavedSession = {
   rewardId?: string;
   /** Replay imports cannot grant rewards. */
   rewardEligible?: boolean;
+  /** The guided first match: scripted opponent, no rewards. */
+  tutorial?: boolean;
 };
 
 export function compatibleMatch(state: GameState, content = matchContent): boolean {

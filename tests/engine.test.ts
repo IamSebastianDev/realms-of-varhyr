@@ -113,7 +113,7 @@ describe('simultaneous combat and death energy',()=>{
    const s=offered(),p=s.pending as {id:string;options:string[]},who=s.active,deck=s.players[who].deck.length;
    const n=step(s,{type:'choose',choiceId:p.id,option:p.options[0],other:'bottom'});
    expect(n.players[who].discard).not.toContain(p.options[1]);expect(n.players[who].deck).toHaveLength(deck+1);
-   expect(n.players[who].deck[n.players[who].deck.length-1]).toBe(p.options[1]);expect(n.cards[p.options[1]].zone).toBe('deck');
+   expect(n.players[who].deck[0]).toBe(p.options[1]);expect(n.cards[p.options[1]].zone).toBe('deck');
    const seen=projectForPlayer(n,who==='p1'?'p2':'p1',registry).events.filter(e=>e.type==='card.bottomed');
    expect(seen).toHaveLength(1);expect(seen[0].cardId).toBeUndefined();assertInvariants(n);
   });

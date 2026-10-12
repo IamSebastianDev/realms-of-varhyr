@@ -8,5 +8,24 @@
     "id": "crown",
     "name": "Banners of the Crown",
     "blurb": "Knights, banners and bastions. Only Crownlands cards."
+  },
+  "starter": {
+    "id": "crown",
+    "name": "Banners of the Crown",
+    "default": true,
+    "cards": {
+      "goldfield-farmer": 3,
+      "longvale-cutters": 3,
+      "merchant-of-tris-vale": 1,
+      "crown-recruit": 3,
+      "dawn-banner": 3,
+      "ban-vale-cavalry": 3,
+      "cleansing-light": 3,
+      "battlefield-hymn": 3,
+      "runeguard": 3,
+      "crown-bastion": 3,
+      "tower-of-the-first-morning": 1,
+      "aldric-runewarden": 1
+    }
   }
 }

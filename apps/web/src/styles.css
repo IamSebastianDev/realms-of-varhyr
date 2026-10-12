@@ -1057,3 +1057,7 @@ input,select,select option{background:#324b39;color:#f0edde;border-color:#bec99d
 .art-card .card-header h3{grid-column:1/-1;white-space:nowrap;overflow-wrap:normal;min-width:0}
 .art-card .card-header .card-cost{grid-column:2;grid-row:2}
 .art-card .card-identity{grid-column:1;grid-row:2}
+
+/* A game, not a document: nothing selects, except where you type. */
+*{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea,[contenteditable="true"]{-webkit-user-select:text;user-select:text}

@@ -4,7 +4,6 @@ import { join, relative } from 'node:path';
 import type { CardDefinition } from '../packages/contracts/src';
 import { compileContent } from '../packages/content/src/compiler';
 import { parseFactionDefinition, validateFactionSet, type FactionDefinition } from '../packages/content/src/factionDefinition';
-import { starterDecks } from '../packages/content/src/starters';
 import { validateDeck } from '../packages/core/src';
 
 type Media={path:string;data:Buffer};
@@ -42,7 +41,7 @@ export async function readFactionAssets(assetsDirectory:string):Promise<FactionD
 
 /** Filesystem authoring stays outside the browser/server-neutral content compiler. Cards live in assets/cards, factions in assets/factions. */
 export async function readCardAssets(assetsDirectory:string):Promise<AssetCatalogue>{
-  const factions=await readFactionAssets(assetsDirectory),factionIds=factions.map(faction=>faction.id);
+  const factions=await readFactionAssets(assetsDirectory),factionIds=factions.map(faction=>faction.id).filter(id=>id!=='neutral');
   const cardsDirectory=join(assetsDirectory,'cards');
   const cards:CardDefinition[]=[],media:Media[]=[],owners=new Map<string,string>();
   const folders=(await readdir(cardsDirectory,{withFileTypes:true})).filter(entry=>entry.isDirectory()&&!entry.name.startsWith('.')).sort((a,b)=>a.name<b.name?-1:1);
@@ -79,8 +78,9 @@ async function files(directory:string):Promise<string[]>{
 }
 async function sameFile(path:string,data:Buffer){try{return (await readFile(path)).equals(data);}catch(error){if((error as NodeJS.ErrnoException).code==='ENOENT')return false;throw error;}}
 
-export async function importCardAssets(root:string,decks:Record<string,string[]>=starterDecks){
-  const catalogue=await readCardAssets(join(root,'assets')),registry=compileContent(catalogue.cards,undefined,undefined,catalogue.factions.map(faction=>faction.id));
+/** Starter decks come from the faction files unless a caller supplies its own (tests). */
+export async function importCardAssets(root:string,override?:Record<string,string[]>){
+  const catalogue=await readCardAssets(join(root,'assets')),decks=override??Object.fromEntries(catalogue.factions.flatMap(faction=>faction.starter?[[faction.starter.id,Object.entries(faction.starter.cards).flatMap(([card,copies])=>Array<string>(copies).fill(card))]]:[])),registry=compileContent(catalogue.cards,undefined,undefined,catalogue.factions.map(faction=>faction.id).filter(id=>id!=='neutral'));
   for(const [name,deck] of Object.entries(decks)){
     const errors=validateDeck(deck,registry);const structuralErrors=errors.filter(error=>!error.startsWith('A deck needs'));
     if(structuralErrors.length)throw new Error(`Starter deck '${name}' is invalid after import: ${structuralErrors.join(' ')}`);

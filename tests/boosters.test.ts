@@ -56,8 +56,9 @@ describe('faction booster packs', () => {
     for (const pack of boosterPacks.filter(pack => pack.faction)) {
       const pool = packCards(all, pack);
       expect(pool.length).toBeGreaterThan(0);
-      expect(pool.every(card => card.factions.includes(pack.faction as never))).toBe(true);
-      expect(drawBooster(pool).every(id => registry.cards[id].factions.includes(pack.faction as never))).toBe(true);
+      const inPack = (card: { factions: readonly string[] }) => pack.faction === 'neutral' ? card.factions.length === 0 : card.factions.includes(pack.faction as never);
+      expect(pool.every(inPack)).toBe(true);
+      expect(drawBooster(pool).every(id => inPack(registry.cards[id]))).toBe(true);
     }
     expect(packCards(all, boosterPacks[0])).toHaveLength(all.length);
   });

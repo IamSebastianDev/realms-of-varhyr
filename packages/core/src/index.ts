@@ -2,7 +2,7 @@ import * as v from 'valibot';
 import type { AbilityBinding, BeforePayload, CardDefinition, CardInstance, Combat, Command, CommandEnvelope, Cost, DeadSnapshot, EnergyType, GameEvent, GameState, HookContext, InternalOrder, LegalActions, Player, PlayerId, PlayerView, Pool, Registry } from '../../contracts/src';
 import { battlefieldPositions, deckRules, positionName } from '../../contracts/src';
 import { describeAbility } from '../../extensions/src/describeAbility';
-export const RULES_VERSION = 'varhir-rules-0.11';
+export const RULES_VERSION = 'varhir-rules-0.12';
 const nonnegative = v.pipe(v.number(), v.integer(), v.minValue(0));
 const paymentSchema = v.record(v.pipe(v.string(), v.regex(/^[a-z][a-z0-9_-]*$/)), nonnegative);
 const commandSchema = v.variant('type', [
@@ -156,13 +156,21 @@ export function decisionPlayer(state: GameState): PlayerId {
 function blankPlayer(id: PlayerId, name: string): Player { return { id, name, life: 10, deck: [], hand: [], board: [null,null,null,null,null], discard: [], energy: {}, deathEnergy: {} }; }
 export const MULLIGAN_MAX = 2;
 /** `mulligan` lets each player replace up to two opening cards, player one first. */
-export function createMatch(registry: Registry, decks: [string[], string[]], seed = 731, options: { mulligan?: boolean } = {}): GameState {
+export function createMatch(registry: Registry, decks: [string[], string[]], seed = 731, options: { mulligan?: boolean; /** Fixed card order per library, applied after the shuffle. Used by the tutorial. */ stack?: [string[], string[]] } = {}): GameState {
   for (const deck of decks) requireRule(!validateDeck(deck, registry).length, validateDeck(deck, registry).join(' '));
   const state: GameState = { rulesVersion: RULES_VERSION, contentVersion: registry.version, seed: seed >>> 0, rng: (seed >>> 0) || 1, revision: 0, sequence: 0, turn: 1, active: 'p1', phase: 'play', players: { p1: blankPlayer('p1','Player one'), p2: blankPlayer('p2','Player two') }, cards: {}, combat: null, pending: null, outcome: null, outcomeReason: null, events: [] };
   decks.forEach((deck, index) => {
     const player: PlayerId = index === 0 ? 'p1' : 'p2';
     deck.forEach((definitionId, i) => { const id = `${player}-${i}`; state.cards[id] = { id, definitionId, owner: player, controller: player, zone: 'deck', slot: null, exhausted: false, damage: 0 }; state.players[player].deck.push(id); });
     state.players[player].deck = shuffle(state, state.players[player].deck);
+    // Tutorial control: `stack` lists the cards to draw first, in order (opening hand, then mulligan and turn draws).
+    const taken: string[] = [];
+    for (const definitionId of options.stack?.[index] ?? []) {
+      const id = state.players[player].deck.find(candidate => state.cards[candidate].definitionId === definitionId && !taken.includes(candidate));
+      requireRule(id, `Cannot stack ${definitionId}: not enough copies in the deck.`);
+      taken.push(id!);
+    }
+    if (taken.length) state.players[player].deck = [...state.players[player].deck.filter(id => !taken.includes(id)), ...taken.reverse()];
   });
   const tx = new Transaction(state, registry);
   tx.draw('p1',5); tx.draw('p2',5);
@@ -400,7 +408,7 @@ export function apply(state: GameState, envelope: CommandEnvelope, registry: Reg
       requireRule(new Set(ids).size === ids.length && ids.length <= max && ids.every(id => p.hand.includes(id)) && p.deck.length >= ids.length,`Replace at most ${max} different cards from your opening hand.`);
       if (ids.length) {
         // Draw the replacements first, then shuffle the returned cards in so none comes straight back.
-        const drawn = p.deck.splice(0,ids.length);
+        const drawn = p.deck.splice(-ids.length).reverse();
         p.hand = p.hand.filter(id => !ids.includes(id));
         for (const id of ids) { next.cards[id].zone = 'deck'; p.deck.push(id); }
         p.deck = shuffle(next,p.deck);
@@ -416,7 +424,7 @@ export function apply(state: GameState, envelope: CommandEnvelope, registry: Reg
         requireRule(typeof command.option === 'string' && choice!.options.includes(command.option),'Choose one of the two drawn cards.');
         for (const id of choice!.options as string[]) {
           if (id === command.option) { next.cards[id].zone = 'hand'; p.hand.push(id); }
-          else if (command.other === 'bottom') { next.cards[id].zone = 'deck'; p.deck.push(id); tx.emit('card.bottomed',`${p.name} puts a card under their library.`,{player:envelope.actor}); }
+          else if (command.other === 'bottom') { next.cards[id].zone = 'deck'; p.deck.unshift(id); tx.emit('card.bottomed',`${p.name} puts a card under their library.`,{player:envelope.actor}); }
           else { tx.discard(id); tx.emit('card.discarded',`${definition(next,id,registry).name} is discarded.`,{player:envelope.actor,cardId:id}); }
         }
         next.pending = null; next.phase = 'play'; tx.emit('phase.started','Play phase begins.');

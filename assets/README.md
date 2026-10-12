@@ -97,7 +97,7 @@ Optional `lore` is the card text, styled in italics above the ability boxes in t
 
 ## Factions
 
-Each faction is one file, `assets/factions/<faction-id>.json`. The file name must match the `id`, and IDs use lowercase letters, digits and hyphens. `neutral` is built in and cannot be defined.
+Each faction is one file, `assets/factions/<faction-id>.json`. The file name must match the `id`, and IDs use lowercase letters, digits and hyphens. `neutral.json` is required: Neutral is authored like any faction (name, short label, color, symbol), but its rules are built in. Neutral cards have no named faction and pay with generic energy; Neutral is not valid in `cost.factions`. Neutral can have a `pack` like any faction, and its pack draws the factionless cards.
 
 ```json
 {
@@ -110,6 +110,12 @@ Each faction is one file, `assets/factions/<faction-id>.json`. The file name mus
     "id": "crown",
     "name": "Banners of the Crown",
     "blurb": "Knights, banners and bastions. Only Crownlands cards."
+  },
+  "starter": {
+    "id": "crown",
+    "name": "Banners of the Crown",
+    "default": true,
+    "cards": { "goldfield-farmer": 3, "crown-recruit": 3, "aldric-runewarden": 1 }
   }
 }
 ```
@@ -120,10 +126,11 @@ Each faction is one file, `assets/factions/<faction-id>.json`. The file name mus
 | `name` | Full name, shown in card details and filters |
 | `short` | Short label on card faces |
 | `color` | `#rrggbb` accent for energy, packs and highlights |
-| `symbol` | One distinct character (at most four) for its energy and booster pack; `◇` is reserved for Neutral |
+| `symbol` | One distinct character (at most four) for its energy and booster pack |
+| `starter` | Optional. A ready-made deck for this faction: its stable `id`, a `name`, and `cards` as card ID → copies (the list shown is shortened). `"default": true` makes it the deck new players start with; only one faction may set it, and without one the first starter (by faction ID) is used |
 | `pack` | Optional. Adds a store booster that draws only this faction's cards. `pack.id` must be unique (and not `bounty`) and must stay stable once players own packs |
 
-Unknown keys, malformed colors, duplicate symbols and duplicate pack IDs fail the import with the file's path. Cards that name a faction without a file also fail. `npm run import:cards` (or `npm run dev`) validates every faction and generates `packages/content/src/factions.json`; do not edit that file by hand. The UI, deck builder filters, energy symbols, booster packs and card validation all read this one list. To remove a faction, delete its file and every card and starter deck that references it.
+Unknown keys, malformed colors, duplicate symbols and duplicate pack IDs fail the import with the file's path. A missing `neutral.json` fails too. Cards that name a faction without a file also fail. `npm run import:cards` (or `npm run dev`) validates every faction and generates `packages/content/src/factions.json`; do not edit that file by hand. The UI, deck builder filters, energy symbols, booster packs and card validation all read this one list. To remove a faction, delete its file (which also removes its pack and starter deck) and every card that references it.
 
 ## Abilities
 
@@ -182,7 +189,7 @@ For new extensions, import `battlefieldPositions`, `positionSlot`, `positionName
 
 Run `npm run import:cards`, or leave `npm run dev` running for automatic imports. Each card needs a valid PNG; animations must be real WebM files, not renamed MP4s. Do not set `art` or `animation` paths in JSON; the importer derives them from your folder. Invalid edits report their source path and retain the last successful catalogue. Replacing artwork refreshes its URL automatically.
 
-Add cards and their copy counts to `packages/content/src/starters.ts`. A starter deck for a new faction goes there too. Names, IDs and compositions are defined together. Unfinished starter decks can be imported and edited, but cannot start a game. Unknown card references and excess copies still fail import. Removing a card requires removing its starter references too.
+Starter decks are part of the faction file (`starter` above). Names, IDs and card counts are edited there. Unfinished starter decks can be imported and edited, but cannot start a game. Unknown card references and excess copies still fail import. Removing a card requires removing its starter references too.
 
 The menu, card browser and deck builder work before any deck is complete. Play requires at least 30 cards, at most three per card identity, and one per legendary. A complete custom deck can play a mirror if no starter is complete yet. A valid second starter becomes the opponent when available.
 

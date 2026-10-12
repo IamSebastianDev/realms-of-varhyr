@@ -47,9 +47,7 @@ export function DrawChoice({ cards, discardCount, discardTop, libraryCount, redu
   }, [!!ghost]); // eslint-disable-line react-hooks/exhaustive-deps
   const dragged = ghost ? cards.find(c => c.id === ghost.id) : null;
   return <div className="modal-backdrop"><div className="choice-dialog draw-dialog" role="dialog" aria-label="Choose the card to keep">
-    <span className="eyebrow">THE PATH AHEAD</span>
     <h2>Keep one. Drag the other away.</h2>
-    <p>Drop the card you do not want on the discard pile, or tuck it under your library.</p>
     <div className={`draw-board ${ghost ? 'dragging' : ''}`}>
       <div className={`draw-zone draw-zone-discard ${over === 'discard' ? 'over' : ''}`} data-draw-zone="discard">
         <span className={`zone-pile ${discardTop ? '' : 'empty'}`}>{discardTop && <img src={discardTop.art} alt="" draggable={false} />}</span>
