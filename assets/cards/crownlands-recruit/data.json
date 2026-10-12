@@ -26,5 +26,14 @@
     ]
   },
   "abilities": [],
-  "lore": "Every kingdom begins with an oath."
+  "lore": "Every kingdom begins with an oath.",
+  "translations": {
+    "de": {
+      "name": "Rekrut der Kronlande",
+      "lore": "Jedes Königreich beginnt mit einem Schwur.",
+      "subtypes": [
+        "Kreatur"
+      ]
+    }
+  }
 }

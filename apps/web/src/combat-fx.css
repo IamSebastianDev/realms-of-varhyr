@@ -27,7 +27,7 @@
 @keyframes life-flash{0%{opacity:1;transform:scale(.3)}100%{opacity:0;transform:scale(2.2)}}
 .clash-caption{position:fixed;transform:translate(-50%,-120%);font:700 17px var(--serif);letter-spacing:.24em;text-transform:uppercase;color:#ffe3a8;text-shadow:0 0 14px #f0b04f,0 2px 0 #000;animation:clash-caption .9s ease-out both;white-space:nowrap}
 @keyframes clash-caption{0%{opacity:0;transform:translate(-50%,-90%) scale(.8)}20%{opacity:1;transform:translate(-50%,-120%) scale(1.1)}100%{opacity:0;transform:translate(-50%,-150%) scale(1)}}
-@media(prefers-reduced-motion:reduce){.clash-layer *{animation-duration:.01s!important}}
+
 
 /* Arrows: a drawn-in line with light flowing towards the target, and the damage each side will take. */
 .combat-arrow-group{--arrow-line:#8fefff;--arrow-glow:#4bd9ec}
@@ -51,7 +51,7 @@
 .arrow-pill-pop{transform-box:fill-box;transform-origin:center;animation:pill-pop .3s cubic-bezier(.3,1.6,.5,1) both}
 @keyframes pill-pop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
 @keyframes pill-lethal{50%{filter:drop-shadow(0 0 9px #ff4a38)}}
-@media(prefers-reduced-motion:reduce){.combat-arrow,.combat-arrow-flow,.combat-arrowhead,.combat-arrow-ring,.arrow-pill-pop{animation:none;stroke-dashoffset:0}.combat-arrow-ring{opacity:0}}
+
 
 /* The forecast, as numbers. */
 .floating-action .combat-forecast{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;margin:0;font-size:12px}
@@ -100,8 +100,5 @@
 .app .energy-meter.receiving-energy{animation:pool-pulse .6s ease-out 2}
 @keyframes pool-pulse{0%{transform:scale(1)}30%{transform:scale(1.09);box-shadow:0 0 30px 6px #f1d89a99,inset 0 0 18px #f1d89a55}100%{transform:scale(1)}}
 
-@media (prefers-reduced-motion:reduce){
-  .board-mist i,.board-scene.impact,.turn-banner,.turn-banner span,.damage-vignette,.life-counter.bump,.clash-shock,.app .energy-meter.receiving-energy{animation:none}
-  .turn-banner,.damage-vignette,.clash-shock{display:none}
-}
+
 .reduce-motion .board-mist i,.reduce-motion .board-scene.impact{animation:none}

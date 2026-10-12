@@ -1,6 +1,6 @@
 # Realms of Varhyr
 
-React + React Three Fiber card-game prototype with a 2.5D battlefield and a deterministic browser/server-capable engine. Entirely frontend; no account, server or external assets required.
+React + React Three Fiber card-game prototype with a 2.5D battlefield and a deterministic browser/server-capable engine. Gameplay runs in the frontend; no account or game backend is required. Online rooms use PeerJS Cloud for signaling and WebRTC for match traffic.
 
 ## Run
 
@@ -13,9 +13,21 @@ npm run dev
 
 Open **<http://localhost:5173>**. Browse cards and build decks from the main menu. Matches, custom decks and drafts save locally in this browser.
 
-The initial content seed contains **six Crownlands cards**: Crownlands Recruit, Dawn Standard-bearer, Cleansing Light, Runeguard, Aldric, the Runewarden, and Crown Bastion. Runeguard and Aldric are Crown-only. New cards are imported from `assets/<card-name>/`; Goldfield Farmer has since been added. No other faction is active. neutral remains a generic energy type.
+The current catalogue contains **15 cards**, with **Crownlands and Neutral** definitions. **Banners of the Crown** is a complete, legal 30-card starter deck. Card definitions and artwork live in `assets/cards/<card-name>/`. All current cards have German names and lore; their abilities use bilingual templates. Optional `translations` in card definitions lets future content supply both languages; factions, booster packs and starter decks are authored in `assets/factions/<faction-id>.json`.
 
-The **30-card minimum** is unchanged, with three copies normally and one per legendary. The Crownlands starter has 16 cards and is deliberately unfinished. Browsing, previews, deck editing and saving work now; Play unlocks once a deck is complete. A complete custom deck can play a mirror while no starter is complete.
+New collections receive the starter's cards and **five free boosters**. Decks require at least **30 cards**, with at most three copies per card identity and one per legendary, and must use copies you own. Extra copies become **Crowns**, which buy boosters in the Store. Wins award 25 Crowns and one Realm’s Bounty booster; tutorials and imported replays do not grant rewards. All progression is saved on this device.
+
+## Play, learn and review
+
+- **Play** opens the setup drawer: practice against the bot, an online room, or two players sharing one device. Opponent deck, match seed and skirmish options are under Advanced.
+- **Collection** contains the card browser and deck builder. Cards and factions reload automatically while developing.
+- **Profile** sets the name and portrait used in matches. **Settings** selects English or German, animation mode (system/full/reduced), and separate music/effect switches and volumes, and starts the tutorial or opens a replay. A brief, immediately dismissible splash unlocks browser audio; the soundtrack loops across screens and pauses while the tab is hidden. Preferences persist on this device and apply to menus, matches, replays and card previews. The match gear exposes the same preferences without disconnecting an online game. Full reset in Settings deletes all locally saved game data (including legacy saves and online seat tokens), then restarts with the starter collection and five free boosters after confirmation.
+- The tutorial uses a scripted opponent and the normal rules engine. Reloading a saved tutorial restores its progress.
+- Finished matches show a summary and can export a replay. Recordings contain only one player's view, including their hand and public events; they exclude the opponent's hand, libraries and shuffle seed. Replay viewing is read-only and requires matching rules/content versions.
+
+For **online play**, both players need the same build and card content. Host a room, share its eight-character code, and have the other player join with an owned legal deck. The host validates commands and sends each player their own view. A disconnected guest can reconnect or reload and rejoin from the same tab; the host must keep the page open. Host reload recovery, accounts and protection against a dishonest host are future work. This remains a trusted-player POC.
+
+Optional signaling configuration: `VITE_PEER_HOST`, `VITE_PEER_PORT`, `VITE_PEER_PATH`, and `VITE_PEER_SECURE`. `VITE_RTC_ICE_SERVERS` accepts a JSON array of ICE servers for custom STUN/TURN configuration. Defaults use PeerJS Cloud and PeerJS's bundled ICE configuration.
 
 ## Add your test content
 
@@ -36,7 +48,7 @@ Start with a copy of a retained card folder and give it a new stable `id` and `d
 
 During development, asset changes validate and reload automatically. Run `npm run import:cards` for a manual import. `npm run assets` is an alias. Missing PNGs, malformed JSON, removed faction IDs, disabled abilities, duplicate IDs or invalid starter references report the source of the error and preserve the last successful import. Unfinished starter decks may be imported. Generated `packages/content/src/cards.json` and `public/cards/` should not be edited.
 
-Armor, War Banner, Damage and Heal are enabled. Ready, Consume, Battlecry, Deathbound, Collector, Draw, Return, Blood Price and Reckoning remain commented in the extension file. Uncomment an entry and its indicated helper/import to use it again. Card rules text is display text; behavior comes from the registered handlers. Handler behavior changes require a version bump and meaningful tests.
+Armor, War Banner, Formation (Adjacent Banner), Shield Wall, Flank Evasion, Guard, Charge, Damage, Heal, Rally and Draw are enabled. Ready, Consume, Battlecry, Deathbound, Collector, Return, Blood Price and Reckoning remain commented in the extension file. Uncomment an entry and its indicated helper/import to use it again. Ability descriptions supply displayed rules text; behavior comes from the registered handlers. Optional card lore supplies flavor text. Handler behavior changes require a version bump and meaningful tests.
 
 The obsolete card seed and temporary art generators were removed. Old content remains only in regression fixtures under `tests/fixtures/`, which are not bundled with the game. Saved decks or matches referring to removed cards cannot resume with the current pool; browser storage is not erased automatically.
 
@@ -46,8 +58,8 @@ The obsolete card seed and temporary art generators were removed. Old content re
 npm test                 # rules, active content, importer, deck and input checks
 npm run check:engine     # check the engine without browser/DOM libraries
 npm run build            # type-check and build dist/
-npm run simulate         # complete matches + exact replay, once starters are legal
-npm run audit:bot        # starter matchup audit, once starters are legal
+npm run simulate         # complete matches + exact replay
+npm run audit:bot        # starter matchup audit
 npm run audit:balance -- --pairs 1000 # paired mirror matches with first-player reversal
 npm run preview          # serve the built site
 ```
@@ -58,10 +70,20 @@ The rules regression suite uses stable test-only content, so adding or removing 
 
 Drag cards onto legal slots or targets. Click ready creatures to channel energy; click again to undo until a play or phase change commits the choice. Hover/focus previews cards; right-click opens a pinned preview. Animated artwork plays on hover, in full previews and on the battlefield; reduced motion uses still artwork.
 
-Cast normal spells before combat, then choose attackers. Each attacker chooses a lane (its own or an adjacent one, one attacker per lane); the card in that lane blocks automatically, and an empty lane lets the hit through to the player. The attacker reviews the arrows and confirms before damage resolves. Attackers and blockers strike simultaneously; exhausted creatures and bastions can still block. Destroyed defenders generate death energy for eligible spells. There are no combat tricks or second normal spell phase. End turn readies your field cards and clears damage/energy. Drawing the last card loses immediately; discards do not recycle.
+Cast normal spells before combat, then choose attackers. Each attacker chooses a lane (its own or an adjacent one, one attacker per lane); the card in that lane blocks automatically, and an empty lane lets the hit through to the player. The attacker reviews the arrows and confirms before damage resolves. Guard can intercept an adjacent lane; Flank Evasion can bypass flank defenders. Attackers and blockers strike simultaneously; exhausted creatures and bastions can still block. Destroyed defenders generate death energy for eligible spells. There are no combat tricks or second normal spell phase. End turn readies your field cards and clears damage/energy. Drawing the last card loses immediately; discards do not recycle.
 
 Card types are `creature`, `spell`, and `bastion` (`monster` has been renamed). Bastions share the five field slots, cannot attack or generate energy, and use their Attack value only when blocking. Continuous effects remain active while on the field; activated abilities exhaust a ready card during its controller’s play phase. Crown Bastion demonstrates both with War Banner and Rally; its still artwork temporarily reuses Runeguard. See the [content guide](assets/README.md) for definitions and ability hooks.
 
-The engine lives in `packages/core/src`, shared types in `packages/contracts/src`, presentation in `packages/renderer/src`, and the React client in `apps/web/src`. `apply(state, envelope, registry)` is also usable in a future server. The original [architecture draft](fantasy-card-game-architecture.md) and [prototype history](docs/prototype.md) preserve earlier designs; this README and the authoring guide describe the current Crown-only setup.
+The engine lives in `packages/core/src`, shared types in `packages/contracts/src`, presentation in `packages/renderer/src`, and the React client in `apps/web/src`. `apply(state, envelope, registry)` is also usable in a future server. The original [architecture draft](fantasy-card-game-architecture.md) and [prototype history](docs/prototype.md) preserve earlier designs; this README and the authoring guide describe the current prototype.
+
+### Client match boundaries
+
+`apps/web/src/match/MatchSession.ts` defines the shared match-session reader and its adapters:
+
+- `LocalMatchSession` owns local engine state, accepted commands, channel undo and review frames. Practice, hotseat and tutorial play use this adapter; tutorial guidance still chooses which commands to allow.
+- `OnlineMatchSession` wraps the WebRTC room, records received projections and forwards commands to the host. It never predicts engine state or changes the received seat.
+- `ReplayMatchSession` reads recorded projections. It has no command or reconnect methods and no live connection.
+
+The match screen reads state and review frames through `useMatchSession`. `useMatchPresentation` owns combat animation playback, spell/energy flights, sound and their cleanup; it renders accepted transitions without changing session state. Saved local matches keep the existing initial-state/command format, and exported replay files keep their existing format.
 
 Battlefield positions are Left Flank, Left Wing, Center, Right Wing and Right Flank. Deployment is permanent while a card is on the field. Position abilities and JSON examples are documented in [the card authoring guide](assets/README.md#battlefield-positions).

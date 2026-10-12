@@ -36,5 +36,14 @@
       }
     }
   ],
-  "lore": "An oath made stone."
+  "lore": "An oath made stone.",
+  "translations": {
+    "de": {
+      "name": "Kronenbastion",
+      "lore": "Ein Schwur, zu Stein geworden.",
+      "subtypes": [
+        "Befestigung"
+      ]
+    }
+  }
 }

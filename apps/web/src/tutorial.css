@@ -29,7 +29,7 @@
 .coach-ring.opponent{border-color:#ee8f86;box-shadow:0 0 0 2px #0008,0 0 18px 3px #ee8f86cc,inset 0 0 14px #ee8f8655}
 @keyframes coach-ring{0%,100%{opacity:.95;transform:scale(1)}50%{opacity:.55;transform:scale(1.025)}}
 .reduce-motion .coach-ring,.reduce-motion .coach-body.nudged{animation:none}
-@media (prefers-reduced-motion:reduce){.coach-ring,.coach-body.nudged{animation:none}}
+
 @media (max-width:900px){.coach:not(.finish):not(.anchored){top:8px;left:12px;width:min(420px,calc(100vw - 24px))}}
 .tutorial-offer{max-width:440px;text-align:center}
 .tutorial-offer-actions{display:flex;gap:12px;justify-content:center;margin-top:18px;flex-wrap:wrap}

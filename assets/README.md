@@ -1,6 +1,6 @@
 # Adding test cards
 
-Crownlands is the only faction right now. Its definition is `assets/factions/crownlands.json`; its fifteen cards live in `assets/cards/`. The 30-card minimum and normal/legendary copy limits apply to every deck, and the Crown starter deck is deliberately unfinished until more content exists.
+The current catalogue has fifteen cards across Crownlands and Neutral. Definitions live in `assets/factions/`, and cards live in `assets/cards/`. Banners of the Crown is a legal 30-card starter, authored in `assets/factions/crownlands.json`. The 30-card minimum and normal/legendary copy limits apply to every deck.
 
 ## Card folders
 
@@ -94,6 +94,35 @@ Optional `lore` is the card text, styled in italics above the ability boxes in t
 ```json
 "lore": "The crown endures where its runes still shine."
 ```
+
+## English and German card text
+
+English `name`, `lore` and `subtypes` remain the canonical authoring fields. Add optional translations in the same `data.json`:
+
+```json
+"translations": {
+  "de": {
+    "name": "Späher der Krone",
+    "lore": "Ein erster Kundschafter für die Krone.",
+    "subtypes": ["Mensch", "Späher"]
+  }
+}
+```
+
+`en` and `de` are supported. Omitted translated fields fall back to the base definition; `lore: ""` deliberately hides lore in that language. A supplied name or subtype must be nonempty. The importer validates translations and preserves them in the generated catalogue. The card browser and deck builder search both languages. The Settings language choice changes card faces, inspectors, tutorial references and public log text.
+
+Ability names and descriptions belong to the extension, with the same optional `translations` map:
+
+```ts
+translations: {
+  de: {
+    name: "Rüstung {amount}",
+    description: "Verringere jeden erlittenen Schaden um {amount}, bis auf null.",
+  },
+},
+```
+
+Translated ability templates use the same binding parameters and are validated alongside the base templates. IDs, costs, stats and mechanics remain unchanged. Translation-only edits do not change the gameplay content hash or invalidate saves/replays. All active cards and abilities currently include German text.
 
 ## Factions
 
@@ -195,8 +224,14 @@ The menu, card browser and deck builder work before any deck is complete. Play r
 
 Removed prototype cards and inactive abilities are retained only as regression fixtures under `tests/fixtures/`; these do not appear in the game. The old seed/art generators have been removed so they cannot overwrite your content. Existing saved matches/decks that reference removed cards cannot be resumed with this reset; browser storage is not erased automatically.
 
-## Test boosters
+## Boosters and collection testing
 
-**Open booster** in the menu or card browser grants five cards from the current imported catalogue. Each slot independently rolls common 70%, rare 25%, legendary 5%, then chooses a card uniformly within that rarity. Duplicates are allowed, with no guaranteed rarity. If a rarity has no cards, its weight is omitted and the remaining weights are normalized. Edit `packages/content/src/boosters.ts` to tune these POC odds; the sampler has no browser dependency and accepts an injected random source.
+The **Store** opens owned five-card boosters and sells more for Crowns. A new collection receives the starter's cards and five Realm’s Bounty boosters. Faction packs draw from their own faction; Realm’s Bounty uses the whole catalogue. Each slot independently rolls common 70%, rare 25%, legendary 5%, then chooses uniformly within that rarity. Duplicates are allowed, with no guaranteed rarity. Missing rarity weights are omitted and the remaining weights normalized. Tune these POC odds in `packages/content/src/boosters.ts`; the sampler accepts an injected random source and has no browser dependency.
 
-The seal animation and sequential flips can be skipped, and reduced-motion settings reveal the cards immediately. Rewards are granted once when opening begins and saved on this device under `varhir-booster-rewards-v1`; revealing, inspecting or closing the pack does not grant extra copies. The browser shows earned copy counts. The testing deck builder continues to use the full catalogue without ownership limits. This is local test progression; account rewards and online validation can use the same sampler later.
+Collections keep at most three copies per card ID, or one per legendary. Extras grant 10/25/100 Crowns for common/rare/legendary cards. Boosters cost 100 Crowns; eligible wins grant 25 Crowns and one Realm’s Bounty booster. Economy values are centralized in `apps/web/src/collection.ts`. The Store's debug button grants 1,000 Crowns for testing.
+
+Rewards are granted once when opening begins and saved under `varhyr-collection-v1`. Revealing, inspecting or closing a pack does not grant additional cards. Animation can be skipped, and reduced motion reveals cards immediately. The deck builder and Play enforce owned copy counts as well as deck copy limits. Previous prototype booster rewards are migrated into the collection. This is local progression; online ownership is not independently verified by a backend.
+
+## Background music
+
+`assets/audio/ambience.mp3` is the looping application soundtrack. Replace this file to change the music; Vite includes it in production builds. It starts when the player dismisses the splash, continues across menus and matches, and pauses when the tab is hidden. Settings stores separate music and effect switches and volumes. The splash unlocks audio without overriding a saved mute choice.

@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 
 /** Optional motion belongs to presentation; card rules only carry asset paths. */
-export function CardArtwork({art,animation,alt='',playing=false,reduced=false}:{art:string;animation?:string;alt?:string;playing?:boolean;reduced?:boolean}) {
+export function CardArtwork({art,animation,alt='',playing=false,reduced}:{art:string;animation?:string;alt?:string;playing?:boolean;reduced?:boolean}) {
   const video=useRef<HTMLVideoElement>(null);
   const [ready,setReady]=useState(false),[failed,setFailed]=useState(false);
   const [systemReduced,setSystemReduced]=useState(()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  const active=playing&&!reduced&&!systemReduced&&!failed;
+  const active=playing&&!(reduced??systemReduced)&&!failed;
   useEffect(()=>{
     const preference=window.matchMedia('(prefers-reduced-motion: reduce)');
     const changed=()=>setSystemReduced(preference.matches);

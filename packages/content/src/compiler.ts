@@ -23,6 +23,9 @@ function cardSchema(factionIds: readonly string[]) {
     rarity: v.picklist(['common', 'rare', 'legendary']),
     cost: v.object({ generic: nonnegativeInteger, factions: v.optional(v.record(faction, nonnegativeInteger), {}) }),
     lore: v.optional(v.string()),
+    translations: v.optional(v.record(v.picklist(['en','de']), v.strictObject({
+      name: v.optional(v.pipe(v.string(),v.trim(),v.minLength(1))), lore: v.optional(v.string()), subtypes: v.optional(v.array(v.pipe(v.string(),v.trim(),v.minLength(1)))),
+    }))),
     art: v.string(),
     animation: v.optional(v.string()),
     abilities: v.array(binding),
@@ -79,6 +82,10 @@ export function compileContent(
       if (!extension) throw new Error(`Unknown ability ${binding.id} on ${card.id}`);
       extension.validate(binding.params);
       describeAbility(binding, extension);
+      for (const translation of Object.values(extension.translations ?? {})) {
+        if (!translation || !translation.name.trim() || !translation.description.trim()) throw new Error(`Ability ${extension.id} needs translated names and descriptions`);
+        describeAbility(binding, { ...extension, ...translation });
+      }
       if (card.cast?.includes(binding) && !extension.cast) throw new Error(`Ability ${binding.id} is not a spell operation`);
       if (card.type === 'spell' && extension.activate) throw new Error(`Spell ${card.id} cannot have an activated field ability`);
     }
@@ -86,7 +93,8 @@ export function compileContent(
   }
 
   const bundle = JSON.stringify(canonical({
-    cards,
+    // Presentation-only translations do not invalidate saved matches or change the wire content version.
+    cards: Object.fromEntries(Object.entries(cards).map(([id,{translations:_translations,...card}])=>[id,card])),
     factions: factionIds,
     extensions: Object.keys(extensions).sort().map(id => [
       id, extensions[id].version, extensions[id].name, extensions[id].description,

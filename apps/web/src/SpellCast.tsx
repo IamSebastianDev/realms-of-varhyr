@@ -1,3 +1,4 @@
+import { t as msg, useLanguage } from './i18n';
 import type { CSSProperties } from 'react';
 import type { CardDefinition } from '../../../packages/contracts/src';
 import { ArtCard } from './CardPresentation';
@@ -18,13 +19,14 @@ export const spellTone = (card: CardDefinition): SpellTone =>
 
 /** Screen-space presentation only: the engine has already resolved the spell, which would otherwise vanish into the discard pile. */
 export function SpellCast({ casts }: { casts: SpellFx[] }) {
+  useLanguage();
   return <div className="spell-casts" aria-hidden="true">{casts.map(fx => {
     const color = toneColor[fx.tone], { from, to } = fx;
     const path = to ? `M ${from.x} ${from.y} Q ${(from.x + to.x) / 2 + (to.x >= from.x ? 40 : -40)} ${Math.min(from.y, to.y) - 70} ${to.x} ${to.y}` : '';
     return <div key={fx.id} className={`spell-cast ${fx.caster}`} style={{ '--spell-color': color } as CSSProperties}>
       <div className="spell-reveal" style={{ left: from.x, top: from.y }}>
         <ArtCard detail={false} card={fx.card} reduced/>
-        <span className="spell-caption">{fx.caster === 'mine' ? 'You cast' : 'Opponent casts'}<b>{fx.card.name}</b></span>
+        <span className="spell-caption">{fx.caster === 'mine' ? msg("You cast") : msg("Opponent casts")}<b>{msg(fx.card.name)}</b></span>
       </div>
       {to && <>
         <svg><path d={path} pathLength={1} className="spell-bolt"/></svg>

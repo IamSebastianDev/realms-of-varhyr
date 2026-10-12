@@ -14,9 +14,9 @@ export function builderCards(content: Registry, deck: string[], filters: Builder
   const words = filters.query.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean);
   return Object.values(content.cards).filter(card => {
     const bindings = card.type === 'spell' ? [...card.abilities, ...(card.cast ?? [])] : card.abilities;
-    const text = [card.name, card.lore, ...card.subtypes, ...card.factions, card.legendary ? 'legendary' : '', ...bindings.map(binding => {
+    const text = [card.name, card.lore, ...Object.values(card.translations??{}).flatMap(text=>[text?.name,text?.lore,...text?.subtypes??[]]), ...card.subtypes, ...card.factions, card.legendary ? 'legendary' : '', ...bindings.map(binding => {
       const ability = describeAbility(binding, content.abilities[binding.id]);
-      return `${ability.name} ${ability.description}`;
+      return `${ability.name} ${ability.description} ${Object.values(content.abilities[binding.id].translations??{}).map(text=>`${text?.name??''} ${text?.description??''}`).join(' ')}`;
     })].join(' ').toLocaleLowerCase();
     return words.every(word => text.includes(word))
       && (filters.faction === 'all' || (filters.faction === 'neutral' ? !card.factions.length : card.factions.includes(filters.faction)))

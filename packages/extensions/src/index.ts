@@ -29,6 +29,7 @@ const amount = (params: Record<string, unknown>) => params.amount as number;
 // Bind these IDs from a card's abilities / cast arrays in data.json.
 const activeExtensions: AbilityExtension[] = [
     extension("armor", amountSchema, {
+        translations: { de: {"name": "Rüstung {amount}", "description": "Verringere jeden erlittenen Schaden um {amount}, bis auf null."} },
         name: "Armor {amount}",
         description: "Reduce each incoming damage hit by {amount}, down to zero.",
         before: {
@@ -40,6 +41,7 @@ const activeExtensions: AbilityExtension[] = [
     }),
 
     extension("war-banner", amountSchema, {
+        translations: { de: {"name": "Kriegsbanner {amount}", "description": "Deine anderen Kreaturen erhalten +{amount} Angriff, solange diese Karte auf dem Schlachtfeld liegt."} },
         name: "War Banner {amount}",
         description: "Your other creatures have +{amount} Attack while this card is on the battlefield.",
         static: (source, target, p, registry) =>
@@ -51,12 +53,14 @@ const activeExtensions: AbilityExtension[] = [
     }),
 
     extension("adjacent-banner", amountSchema, {
+        translations: { de: {"name": "Formation {amount}", "description": "Benachbarte eigene Kreaturen und Bastionen erhalten +{amount} Angriff, solange diese Karte auf dem Schlachtfeld liegt. Leere Plätze schließen die Lücke nicht."} },
         name: "Formation {amount}",
         description:
             "Adjacent friendly creatures and bastions get +{amount} Attack while this card is on the battlefield. Empty slots do not close the gap.",
         static: (source, target, p) => (areAdjacent(source, target) ? { attack: amount(p) } : {}),
     }),
     extension("shield-wall", amountSchema, {
+        translations: { de: {"name": "Schildwall {amount}", "description": "Benachbarte eigene Kreaturen und Bastionen erhalten +{amount} Verteidigung, solange diese Karte auf dem Schlachtfeld liegt. Leere Plätze schließen die Lücke nicht."} },
         name: "Shield Wall {amount}",
         description:
             "Adjacent friendly creatures and bastions get +{amount} Defense while this card is on the battlefield. Empty slots do not close the gap.",
@@ -64,6 +68,7 @@ const activeExtensions: AbilityExtension[] = [
     }),
 
     extension("flank-evasion", empty, {
+        translations: { de: {"name": "Flankenumgehung", "description": "Diese Kreatur kann nicht von Karten auf der linken oder rechten Flanke geblockt werden. Karten auf den Flügeln oder in der Mitte können sie weiterhin blocken."} },
         name: "Flank Evasion",
         description:
             "This creature cannot be blocked by cards in Left Flank or Right Flank. Cards in either wing or Center can still block it.",
@@ -72,6 +77,7 @@ const activeExtensions: AbilityExtension[] = [
     }),
 
     extension("guard", empty, {
+        translations: { de: {"name": "Wache", "description": "Diese Karte blockt Angriffe auf eine benachbarte Bahn, selbst wenn die Bahn leer ist. Stoppt einen Angreifer pro Kampf; die Wache in der Zielbahn blockt zuerst."} },
         name: "Guard",
         description:
             "Attacks aimed at a lane next to this card are blocked by this card instead, even if that lane is empty. Stops one attacker per combat; the lane's own Guard blocks first.",
@@ -79,6 +85,7 @@ const activeExtensions: AbilityExtension[] = [
     }),
 
     extension("charge", chargeSchema, {
+        translations: { de: {"name": "Ansturm {amount} · {position}", "description": "Beim Ausspielen: Füge der gegnerischen Kreatur auf Position {position} {amount} Schaden zu. Ist der Platz leer oder mit einer Bastion besetzt, entsteht kein Schaden."} },
         name: "Charge {amount} · {position}",
         description:
             "When played, deal {amount} damage to the enemy creature in {position}. If that position is empty or holds a bastion, deal no damage.",
@@ -94,6 +101,7 @@ const activeExtensions: AbilityExtension[] = [
     }),
 
     extension("damage", amountSchema, {
+        translations: { de: {"name": "Schaden {amount}", "description": "Füge einer gegnerischen Feldkarte oder einem Spieler {amount} Schaden zu."} },
         name: "Damage {amount}",
         description: "Deal {amount} damage to an enemy field card or player.",
         target: "enemy-any",
@@ -103,17 +111,20 @@ const activeExtensions: AbilityExtension[] = [
     }),
 
     extension("heal", amountSchema, {
+        translations: { de: {"name": "Heilung {amount}", "description": "Stelle bei dir selbst {amount} Leben wieder her."} },
         name: "Heal {amount}",
         description: "Restore {amount} life to yourself.",
         cast: (ctx, p) => ctx.issue({ type: "heal", target: ctx.source.controller, amount: amount(p) }),
     }),
 
     extension("rally", amountSchema, {
+        translations: { de: {"name": "Sammeln {amount}", "description": "Erschöpfe diese Karte während deiner Spielphase, um bei dir selbst {amount} Leben wiederherzustellen."} },
         name: "Rally {amount}",
         description: "Exhaust during your play phase to restore {amount} life to yourself.",
         activate: (ctx, p) => ctx.issue({ type: "heal", target: ctx.source.controller, amount: amount(p) }),
     }),
     extension("draw", amountSchema, {
+        translations: { de: {"name": "Ziehen {amount}", "description": "Ziehe {amount} Karten aus deiner Bibliothek."} },
         name: "Draw {amount}",
         description: "Draw {amount} cards from your library.",
         cast: (ctx, p) => ctx.issue({ type: "draw", player: ctx.source.controller, amount: amount(p) }),

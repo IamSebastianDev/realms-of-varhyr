@@ -1,5 +1,8 @@
+import { ApplicationPreferences } from './i18n';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { AudioExperience } from './AudioExperience';
+import './audio.css';
 import { App } from './App';
 import '@fontsource/cormorant-garamond/latin-400.css';
 import '@fontsource/cormorant-garamond/latin-500.css';
@@ -20,4 +23,4 @@ import './tutorial.css';
 import './combat-fx.css';
 import './match-summary.css';
 import './profile.css';
-ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App/></React.StrictMode>);
+ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><ApplicationPreferences><AudioExperience><App/></AudioExperience></ApplicationPreferences></React.StrictMode>);

@@ -1,3 +1,4 @@
+import { t as msg, useLanguage } from './i18n';
 import { Layers, Trash2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -15,6 +16,7 @@ type Ghost = { id: string; x: number; y: number; w: number; h: number; dx: numbe
 
 /** Draw two, keep one: drag the card you do not want onto the discard pile or under the library. */
 export function DrawChoice({ cards, discardCount, discardTop, libraryCount, reduced, choose }: Props) {
+  useLanguage();
   const [ghost, setGhost] = useState<Ghost | null>(null);
   const [over, setOver] = useState<DrawDestination | null>(null);
   const live = useRef<Ghost | null>(null);
@@ -47,19 +49,19 @@ export function DrawChoice({ cards, discardCount, discardTop, libraryCount, redu
     return () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', cancel); };
   }, [!!ghost]); // eslint-disable-line react-hooks/exhaustive-deps
   const dragged = ghost ? cards.find(c => c.id === ghost.id) : null;
-  return <PeekBackdrop back="Back to your draw"><div className="choice-dialog draw-dialog" role="dialog" aria-label="Choose the card to keep">
-    <h2>Keep one. Drag the other away.</h2>
+  return <PeekBackdrop back={msg("Back to your draw")}><div className="choice-dialog draw-dialog" role="dialog" aria-label={msg("Choose the card to keep")}>
+    <h2>{msg("Keep one. Drag the other away.")}</h2>
     <div className={`draw-board ${ghost ? 'dragging' : ''}`}>
       <div className={`draw-zone draw-zone-discard ${over === 'discard' ? 'over' : ''}`} data-draw-zone="discard">
         <span className={`zone-pile ${discardTop ? '' : 'empty'}`}>{discardTop && <img src={discardTop.art} alt="" draggable={false} />}</span>
-        <Trash2 size={16} aria-hidden="true" /><b>Discard</b><small>{discardCount} in pile</small>
+        <Trash2 size={16} aria-hidden="true" /><b>{msg("Discard")}</b><small>{discardCount} {msg("in pile")}</small>
       </div>
       <div className="draw-cards">{cards.map(({ id, card }) => <div key={id} className={`draw-card ${ghost?.id === id ? 'lifted' : ''}`}>
         <div className="draw-card-art" onPointerDown={e => start(id, e)}><ArtCard card={card} reduced={reduced} /></div>
-        <div className="draw-card-fallback"><button onClick={() => reject(id, 'discard')}>Discard this</button><button onClick={() => reject(id, 'bottom')}>Put under library</button></div>
+        <div className="draw-card-fallback"><button onClick={() => reject(id, 'discard')}>{msg("Discard this")}</button><button onClick={() => reject(id, 'bottom')}>{msg("Put under library")}</button></div>
       </div>)}</div>
       <div className={`draw-zone draw-zone-bottom ${over === 'bottom' ? 'over' : ''}`} data-draw-zone="bottom">
-        <span className="zone-pile back" /><Layers size={16} aria-hidden="true" /><b>Under the library</b><small>{libraryCount} in library</small>
+        <span className="zone-pile back" /><Layers size={16} aria-hidden="true" /><b>{msg("Under the library")}</b><small>{libraryCount} {msg("in library")}</small>
       </div>
     </div>
     {ghost && dragged && createPortal(<div className="draw-ghost" style={{ left: ghost.x - ghost.dx, top: ghost.y - ghost.dy, width: ghost.w, height: ghost.h }}><ArtCard detail={false} card={dragged.card} reduced /></div>, document.body)}

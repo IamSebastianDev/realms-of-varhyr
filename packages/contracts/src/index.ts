@@ -10,10 +10,13 @@ export type Pool = Record<EnergyType, number>;
 export type Cost = { generic: number; factions: Record<Faction, number> };
 export type PlayerId = 'p1' | 'p2';
 export type AbilityBinding = { id: string; params: Record<string, unknown> };
+export type ContentLanguage = 'en' | 'de';
+export type CardTranslation = { name?: string; lore?: string; subtypes?: string[] };
+export type AbilityTranslation = { name: string; description: string };
 export type CardDefinition = {
   id: string; revision: number; name: string; deckLimitKey: string; type: 'creature' | 'spell' | 'bastion';
   factions: Faction[]; subtypes: string[]; legendary: boolean; rarity: 'common' | 'rare' | 'legendary';
-  cost: Cost; lore?: string; art: string; animation?: string; abilities: AbilityBinding[];
+  cost: Cost; lore?: string; translations?: Partial<Record<ContentLanguage, CardTranslation>>; art: string; animation?: string; abilities: AbilityBinding[];
   stats?: { attack: number; defense: number; energyOutputs: Pool[] };
   timing?: ('play' | 'death')[]; cast?: AbilityBinding[];
 };
@@ -62,7 +65,7 @@ export type HookContext = {
 export type AbilityExtension = {
   id: string; version: number; validate: (params: unknown) => void;
   /** Player-facing templates; {param} placeholders come from the card binding. */
-  name: string; description: string;
+  name: string; description: string; translations?: Partial<Record<ContentLanguage, AbilityTranslation>>;
   hooks?: Record<string, (ctx: HookContext, params: Record<string, unknown>) => void>;
   before?: Record<string, (ctx: HookContext, params: Record<string, unknown>, payload: BeforePayload) => BeforePayload>;
   static?: (source: CardInstance, target: CardInstance, params: Record<string, unknown>, registry: Registry) => { attack?: number; defense?: number };

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { apply, replay } from '../packages/core/src';
 import { registry } from '../packages/content/src';
 import { localReplay, onlineReplay, parseReplay } from '../apps/web/src/replayFile';
-import { ReplayRoom } from '../apps/web/src/multiplayer/ReplayRoom';
+import { ReplayMatchSession } from '../apps/web/src/match/MatchSession';
 import { readFileSync } from 'fs';
 
 const match = JSON.parse(readFileSync('tests/fixtures/matches/mercenaries-turn-9/match.json', 'utf8'));
@@ -14,7 +14,7 @@ describe('replay file', () => {
     expect(file.steps).toHaveLength(commands.length + 1);
     const loaded = parseReplay(JSON.stringify(file), registry);
     expect(loaded.steps.at(-1)!.view.revision).toBe(file.steps.at(-1)!.view.revision);
-    expect(new ReplayRoom(loaded).getSnapshot().snapshot).toBe(loaded.steps.at(-1));
+    expect(new ReplayMatchSession(loaded).frame(null,'p1').view).toBe(loaded.steps.at(-1)!.view);
   });
   it('holds only what the seat could see, at every step', () => {
     let state = structuredClone(match.initial);

@@ -29,5 +29,13 @@
       "id": "guard",
       "params": {}
     }
-  ]
+  ],
+  "translations": {
+    "de": {
+      "name": "Berittene Söldnerspäher",
+      "subtypes": [
+        "Mensch"
+      ]
+    }
+  }
 }

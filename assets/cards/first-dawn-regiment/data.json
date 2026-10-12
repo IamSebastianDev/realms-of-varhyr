@@ -34,5 +34,13 @@
         "amount": 1
       }
     }
-  ]
+  ],
+  "translations": {
+    "de": {
+      "name": "Regiment der ersten Morgenröte",
+      "subtypes": [
+        "Mensch"
+      ]
+    }
+  }
 }

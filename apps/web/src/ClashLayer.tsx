@@ -1,3 +1,4 @@
+import { t as msg,useLanguage } from './i18n';
 import { useEffect, type CSSProperties } from 'react';
 import type { PlayerId } from '../../../packages/contracts/src';
 import type { SlotLayout } from '../../../packages/renderer/src/Board';
@@ -15,6 +16,7 @@ const embers = [0, 1, 2, 3, 4, 5, 6, 7];
 export function ClashLayer({ batches, board, slots, viewer, onSkip }: {
   batches: FxBatch[]; board: HTMLElement | null; slots: SlotLayout[]; viewer: PlayerId; onSkip?: () => void;
 }) {
+  useLanguage();
   const amountOf = (pop: PopSpec) => Number(pop.text.replace(/\D/g, '')) || 0;
   const pops = batches.flatMap(b => b.pops);
   const heavyKey = pops.filter(p => p.tone !== 'heal' && (p.tone === 'lethal' || amountOf(p) >= 3)).map(p => p.id).join();
@@ -82,7 +84,7 @@ export function ClashLayer({ batches, board, slots, viewer, onSkip }: {
           <b className={`clash-pop ${pop.tone}`}>{pop.text}</b>
         </span>;
       })}
-      {batch.caption && batch.poses[0] && (() => { const c = centre(batch.poses[0], batch.poses); return c && <span className="clash-caption" style={{ left: c.x, top: c.box.y }}>{batch.caption}</span>; })()}
+      {batch.caption && batch.poses[0] && (() => { const c = centre(batch.poses[0], batch.poses); return c && <span className="clash-caption" style={{ left: c.x, top: c.box.y }}>{msg(batch.caption)}</span>; })()}
     </div>)}
   </div>;
 }

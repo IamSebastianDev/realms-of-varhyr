@@ -1,4 +1,3 @@
-
 {
   "id": "battlefield-hymn",
   "revision": 1,
@@ -19,7 +18,8 @@
   },
   "abilities": [],
   "timing": [
-    "play", "death"
+    "play",
+    "death"
   ],
   "cast": [
     {
@@ -28,5 +28,11 @@
         "amount": 2
       }
     }
-  ]
+  ],
+  "translations": {
+    "de": {
+      "name": "Schlachtfeldhymne",
+      "subtypes": []
+    }
+  }
 }

@@ -245,7 +245,7 @@ select option{background:#17272a}
 .replay-bar button{display:flex;gap:8px;align-items:center;color:#d5bd84;border-left:1px solid #acb59233;padding-left:15px;font-size:10px}
 @keyframes pulse{50%{opacity:.55}}
 .reduce-motion *{animation:none!important;transition:none!important}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
 @media(min-width:1500px){.arena-shell{grid-template-columns:200px minmax(0,1fr) 245px;gap:35px}
 .hand-caption{width:200px}
 .hand-card{height:163px;width:116px}
@@ -1033,7 +1033,7 @@ input,select,select option{background:#324b39;color:#f0edde;border-color:#bec99d
 .booster-grid{padding-bottom:12px}
 .booster-card-caption{min-height:30px;margin-top:8px}
 .booster-actions{margin-top:14px}}
-@media(prefers-reduced-motion:reduce){.booster-backdrop *{animation:none!important;transition:none!important}}
+
 /* Bastions are defensive field cards; their crest replaces energy output. */
 .art-card.bastion-card{border-color:#bcaaca;box-shadow:inset 0 0 0 1px #d9cde8,0 8px 24px #38294730}
 .card-statline .bastion-type{margin-left:auto;color:#e7d9f3;font-size:10px;gap:4px}

@@ -1,7 +1,9 @@
+import { t as msg, useLanguage, formatNumber } from './i18n';
 import { useId } from 'react';
 
 /** A minted gold coin stamped with a crown; scales from a currency glyph to the store's treasure display. */
 export function CrownIcon({ className = '' }: { className?: string }) {
+  useLanguage();
   const id = useId();
   return <svg className={`crown-icon ${className}`} viewBox="0 0 64 64" fill="none" aria-hidden="true">
     <defs>
@@ -17,5 +19,6 @@ export function CrownIcon({ className = '' }: { className?: string }) {
   </svg>;
 }
 export function CrownAmount({ amount, className = '' }: { amount: number; className?: string }) {
-  return <span className={`crown-amount ${className}`} aria-label={`${amount.toLocaleString()} ${amount === 1 ? 'crown' : 'crowns'}`}><CrownIcon/><b>{amount.toLocaleString()}</b><span>{amount === 1 ? 'crown' : 'crowns'}</span></span>;
+  useLanguage();
+  return <span className={`crown-amount ${className}`} aria-label={msg("{v0} {v1}", {v0: formatNumber(amount), v1: amount === 1 ? 'crown' : 'crowns'})}><CrownIcon/><b>{formatNumber(amount)}</b><span>{amount === 1 ? 'crown' : 'crowns'}</span></span>;
 }

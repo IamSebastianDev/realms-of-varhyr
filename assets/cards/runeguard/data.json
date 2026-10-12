@@ -27,5 +27,13 @@
       }
     ]
   },
-  "abilities": []
+  "abilities": [],
+  "translations": {
+    "de": {
+      "name": "Runenwache",
+      "subtypes": [
+        "Kreatur"
+      ]
+    }
+  }
 }

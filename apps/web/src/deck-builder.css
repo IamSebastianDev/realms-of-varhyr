@@ -78,7 +78,7 @@
 .deck-cost-curve small{font-size:10px;color:#bdcaa8}
 @media(max-width:950px){.deck-workshop .builder-deck-name{max-width:none}.deck-type-tabs{order:1;flex-basis:100%}}
 @media(max-width:600px){.deck-workshop.builder-page{padding:8px;gap:8px;grid-template-rows:clamp(194px,38%,290px) minmax(0,1fr);--deck-card-width:128px;--deck-overlap:40px}.builder-collection,.builder-deck{padding:8px}.builder-collection-bar{gap:5px}.builder-collection-bar h2{font-size:18px}.builder-collection-bar h2 span{font-size:8px;margin-left:4px}.filter-trigger>span{display:none}.builder-small-button,.builder-icon-button,.gallery-arrows button{height:28px;min-width:26px;width:auto}.builder-icon-button,.gallery-arrows button{width:26px}.gallery-arrows{gap:3px}.deck-workshop .collection-search{min-width:55px}.deck-workshop .collection-search input{font-size:9px}.builder-collection-gallery{gap:10px}.builder-deck-bar{gap:6px}.builder-deck-actions{gap:4px}.deck-workshop .builder-deck-name{min-width:70px;font-size:10px}.builder-deck-stacks{column-gap:12px}.builder-deck-count{font-size:8px}.deck-type-tabs button{font-size:8px;gap:6px;padding:4px 7px;height:25px}.builder-deck-footer,.builder-deck-footer>button{font-size:8px}.builder-dialog{padding:22px 18px}.builder-filter-dialog-grid{gap:10px}}
-@media(prefers-reduced-motion:reduce){.deck-workshop .builder-card-tile .art-card:hover{transform:none}}
+
 
 .builder-deck-grid .deck-empty{min-height:0;padding:28px 12px}
 .deck-empty-starters{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px}
@@ -130,4 +130,3 @@
 .builder-deck.drop-ready::after,.builder-collection.drop-ready::after{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);z-index:20;padding:7px 14px;border-radius:4px;background:#e3c780;color:#263325;font-size:11px;font-weight:600;box-shadow:0 6px 18px #0008;pointer-events:none;white-space:nowrap}
 .builder-deck.drop-ready::after{content:'Drop to add to deck'}
 .builder-collection.drop-ready::after{content:'Drop to remove from deck';bottom:24px}
-@media(prefers-reduced-motion:reduce){.builder-deck,.builder-collection{transition:none}}

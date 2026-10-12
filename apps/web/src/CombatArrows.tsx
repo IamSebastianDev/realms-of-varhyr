@@ -1,3 +1,4 @@
+import { t as msg, useLanguage } from './i18n';
 import type { CSSProperties } from 'react';
 import type { PlayerView, Registry } from '../../../packages/contracts/src';
 import { effectiveStats } from '../../../packages/core/src';
@@ -11,6 +12,7 @@ const tones: Record<Tone, { line: string; glow: string }> = {
 
 /** A readout laid over a card: the damage it is about to take. A skull means it will not survive. */
 function Pill({ x, y, text, kind, lethal, delay }: { x: number; y: number; text: string; kind: 'foe' | 'self' | 'face'; lethal?: boolean; delay: number }) {
+  useLanguage();
   const width = 18 + text.length * 8.6 + (lethal ? 18 : 0);
   return <g className={`arrow-pill ${kind} ${lethal ? 'lethal' : ''}`} transform={`translate(${x} ${y})`}>
     <g className="arrow-pill-pop" style={{ animationDelay: `${delay}ms` }}>
@@ -28,6 +30,7 @@ export function CombatArrows({ view, slots, lanes, blocks, registry }: {
   blocks: { attacker: string; blocker: string }[];
   registry: Registry;
 }) {
+  useLanguage();
   return <svg className="combat-arrows" aria-hidden="true">
     {Object.entries(lanes).map(([attackerId, lane], index) => {
       const attacker = view.cards[attackerId];
@@ -61,7 +64,7 @@ export function CombatArrows({ view, slots, lanes, blocks, registry }: {
         <path d={head} className="combat-arrowhead" style={{ animationDelay: `${delay + 260}ms` }}/>
         <circle cx={x1} cy={y1} r="4.5" className="combat-arrow-origin"/>
         <circle cx={x2} cy={y2} r="9" className="combat-arrow-ring" style={{ animationDelay: `${delay + 300}ms` }}/>
-        {hit > 0 && <Pill x={x2} y={to.y + to.height * .46} text={blocked ? `−${hit}` : `−${hit} ♥`} kind={blocked ? 'foe' : 'face'} lethal={!!target && !!targetStats && hit >= targetStats.defense - target.damage} delay={delay + 320}/>}
+        {hit > 0 && <Pill x={x2} y={to.y + to.height * .46} text={blocked ? `−${hit}` : msg("−{v0} ♥", {v0: hit})} kind={blocked ? 'foe' : 'face'} lethal={!!target && !!targetStats && hit >= targetStats.defense - target.damage} delay={delay + 320}/>}
         {blocked && back > 0 && <Pill x={x1} y={from.y + from.height * .46} text={`−${back}`} kind="self" lethal={back >= attackerLeft} delay={delay + 320}/>}
       </g>;
     })}

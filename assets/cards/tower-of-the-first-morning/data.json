@@ -36,5 +36,14 @@
       }
     }
   ],
-  "lore": "No one may pass the tower without cleansing."
+  "lore": "No one may pass the tower without cleansing.",
+  "translations": {
+    "de": {
+      "name": "Turm des ersten Morgens",
+      "lore": "Niemand darf den Turm ohne Läuterung passieren.",
+      "subtypes": [
+        "Befestigung"
+      ]
+    }
+  }
 }

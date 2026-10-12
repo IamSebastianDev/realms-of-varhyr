@@ -1,3 +1,5 @@
+import { t as msg, useLanguage } from './i18n';
+import { usePreferences } from './preferences';
 import { useEffect, useState } from 'react';
 import { defaultDeckId } from '../../../packages/content/src';
 import { Lobby, type Screen } from './Lobby';
@@ -7,11 +9,13 @@ import { getProfile } from './profile';
 import { startTutorial } from './tutorial';
 import { missingDeckCopies } from './collection';
 import { useCollection } from './collectionStore';
-import type { RtcRoom } from './multiplayer/RtcRoom';
+import type { ExternalMatchSession } from './match/MatchSession';
 
 /** Browsing/editing content must work even when no legal match can be created. */
-export function AuthoringLobby({ onStart, onOnlineStart }: { onStart: (session: SavedSession) => void; onOnlineStart:(room:RtcRoom)=>void }) {
+export function AuthoringLobby({ onStart, onSessionStart }: { onStart: (session: SavedSession) => void; onSessionStart:(session:ExternalMatchSession)=>void }) {
+  useLanguage();
   const { collection } = useCollection();
+  const { reduced } = usePreferences();
   const [screen, setScreen] = useState<Exclude<Screen, 'match'>>('menu');
   const [decks, setDecks] = useState(() => {
     try { return parseDecks(localStorage.getItem(decksKey)); } catch { return []; }
@@ -27,7 +31,7 @@ export function AuthoringLobby({ onStart, onOnlineStart }: { onStart: (session: 
   function saveDeck(deck: CustomDeck): string | null {
     const next = [...decks.filter(saved => saved.id !== deck.id), structuredClone(deck)];
     try { localStorage.setItem(decksKey, JSON.stringify(next)); }
-    catch { return 'Could not save. This browser’s storage is full or unavailable.'; }
+    catch { return msg("Could not save. This browser’s storage is full or unavailable."); }
     setDecks(next);
     setSelected(deck.id);
     return null;
@@ -38,19 +42,19 @@ export function AuthoringLobby({ onStart, onOnlineStart }: { onStart: (session: 
     const deck = customDeck ? defaultDeckId : selected;
     try {
       const chosen = options.find(option => option.id === selected);
-      if (chosen && missingDeckCopies(chosen.cards, collection.counts).length) throw new Error('You do not own enough copies to play this deck.');
+      if (chosen && missingDeckCopies(chosen.cards, collection.counts).length) throw new Error(msg("You do not own enough copies to play this deck."));
       const opponentDeck = options.find(option => option.id === opponentId);
       const initial = startMatch(Number(seed) || 731, deck, skirmish, customDeck, undefined, opponentDeck, getProfile().name, mode === 'hotseat' ? undefined : getProfile().avatar);
       onStart({ initial, commands: [], mode, deck, skirmish, customDeck, opponentDeck: opponentDeck && structuredClone(opponentDeck), started: true, rewardId: crypto.randomUUID(), rewardEligible: true });
-    } catch (cause) { setError(cause instanceof Error ? cause.message : 'This deck cannot start a match.'); }
+    } catch (cause) { setError(cause instanceof Error ? cause.message : msg("This deck cannot start a match.")); }
   }
 
   return <>
-    <Lobby reduced={window.matchMedia('(prefers-reduced-motion: reduce)').matches}
+    <Lobby reduced={reduced}
       screen={screen} navigate={next => { if (next !== 'match') setScreen(next); }}
       canResume={false} resumeLabel="" decks={decks} options={options} saveDeck={saveDeck}
       mode={mode} setMode={setMode} selected={selected} setSelected={setSelected} opponentId={opponentId} setOpponentId={setOpponentId}
-      seed={seed} setSeed={setSeed} start={start} startOnline={onOnlineStart} learn={() => onStart(startTutorial())}/>
+      seed={seed} setSeed={setSeed} start={start} startSession={onSessionStart} learn={() => onStart(startTutorial())}/>
     {error && <div className="toast" role="alert">{error}</div>}
   </>;
 }

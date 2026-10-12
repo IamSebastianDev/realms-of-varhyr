@@ -31,12 +31,21 @@
       "params": {
         "amount": 2
       }
-    }, 
+    },
     {
       "id": "rally",
       "params": {
         "amount": 2
       }
     }
-  ]
+  ],
+  "translations": {
+    "de": {
+      "name": "Der einsame Wanderer",
+      "lore": "Kein Fürst kann die Treue des Wanderers beanspruchen.",
+      "subtypes": [
+        "Kreatur"
+      ]
+    }
+  }
 }

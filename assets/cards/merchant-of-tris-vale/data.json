@@ -26,5 +26,14 @@
     ]
   },
   "abilities": [],
-  "lore": "The merchants of Tris Vale are known for their gold and silver works"
+  "lore": "The merchants of Tris Vale are known for their gold and silver works",
+  "translations": {
+    "de": {
+      "name": "Händler von Tris Vale",
+      "lore": "Die Händler von Tris Vale sind für ihre Gold- und Silberarbeiten bekannt.",
+      "subtypes": [
+        "Mensch"
+      ]
+    }
+  }
 }

@@ -1,3 +1,4 @@
+import { t as msg, useLanguage } from './i18n';
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { ArrowRight, Crown, X } from 'lucide-react';
 import { factionInfo, registry } from '../../../packages/content/src';
@@ -26,6 +27,7 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, c
   pack: OpenBooster; reduced: boolean; suspended: boolean; close: () => void; openAnother: () => void;
   canOpenAnother?: boolean; inspect: (card: CardDefinition) => void; browse: () => void;
 }) {
+  useLanguage();
   const [opened, setOpened] = useState(reduced);
   const [revealed, setRevealed] = useState(reduced ? pack.cards.length : 0);
   const [skip, setSkip] = useState(false);
@@ -47,7 +49,7 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, c
   }, [pack.cards, reduced, skip]);
 
   function trapFocus(event: KeyboardEvent) {
-    if (event.key !== 'Tab' || suspended) return;
+    if (event.key !== msg("Tab") || suspended) return;
     const buttons = Array.from(dialogRef.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)') ?? []);
     const first = buttons[0], last = buttons[buttons.length - 1];
     if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
@@ -56,14 +58,14 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, c
 
   return <div className={`modal-backdrop booster-backdrop ${reduced ? 'reduced-motion' : ''}`} aria-hidden={suspended || undefined} inert={suspended} style={packColor(pack.pack) as React.CSSProperties}>
     <section ref={dialogRef} className="booster-dialog" role="dialog" aria-modal={!suspended || undefined}
-      aria-label="Booster rewards" onKeyDown={trapFocus}>
-      <button ref={closeRef} className="booster-close" aria-label="Close booster" onClick={close}><X size={22}/></button>
+      aria-label={msg("Booster rewards")} onKeyDown={trapFocus}>
+      <button ref={closeRef} className="booster-close" aria-label={msg("Close booster")} onClick={close}><X size={22}/></button>
       <header className="booster-heading">
-        <h2>{pack.pack.name}</h2>
-        <p role="status" aria-live="polite">{complete ? `${kept} ${kept===1?'card':'cards'} added${crowns ? ` · ${crowns} crowns from extra copies` : ''}` : opened ? `Revealing cards · ${revealed} / 5` : 'Breaking the seal…'}</p>
+        <h2>{msg(pack.pack.name)}</h2>
+        <p role="status" aria-live="polite">{complete ? msg("{v0} {v1} added{v2}", {v0: kept, v1: kept===1?'card':'cards', v2: crowns ? ` · ${crowns} crowns from extra copies` : ''}) : opened ? msg("Revealing cards · {v0} / 5", {v0: revealed}) : msg("Breaking the seal…")}</p>
       </header>
       {!opened ? <div className="booster-pack-stage" aria-hidden="true">
-        <div className="booster-pack-glow"/><div className="booster-pack"><span>REALMS OF VARHYR</span>{pack.pack.faction ? <b className="pack-symbol">{factionInfo[pack.pack.faction]?.symbol}</b> : <Crown size={55}/>}<strong>{packLines(pack.pack.name)}</strong><small>FIVE CARDS</small></div>
+        <div className="booster-pack-glow"/><div className="booster-pack"><span>REALMS OF VARHYR</span>{pack.pack.faction ? <b className="pack-symbol">{factionInfo[pack.pack.faction]?.symbol}</b> : <Crown size={55}/>}<strong>{packLines(pack.pack.name)}</strong><small>{msg("FIVE CARDS")}</small></div>
         <div className="booster-sparks">{Array.from({length:12}, (_,index)=><i key={index} style={{'--spark-angle':`${index*30}deg`} as React.CSSProperties}/>)}</div>
       </div> : <div className="booster-grid">
         {pack.cards.map((reward, index) => {
@@ -77,19 +79,19 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, c
             </div>
             <div className={`booster-card-caption ${visible ? '' : 'unrevealed'}`} aria-hidden={!visible}>
               <span>{card.rarity}</span>
-              {reward.crowns ? <div className="booster-crown-reward"><CrownAmount amount={reward.crowns}/><small>Extra copy sold</small></div> : <small>{reward.isNew ? 'New to your collection' : `+1 copy · ${reward.copies} owned`}</small>}
+              {reward.crowns ? <div className="booster-crown-reward"><CrownAmount amount={reward.crowns}/><small>{msg("Extra copy sold")}</small></div> : <small>{reward.isNew ? msg("New to your collection") : msg("+1 copy · {v0} owned", {v0: reward.copies})}</small>}
             </div>
           </div>;
         })}
       </div>}
-      {!pack.saved && <p className="booster-storage-error" role="alert">These rewards are available for this session, but browser storage could not save them.</p>}
-      {complete && crowns > 0 && <div className="booster-crown-total">Earned <CrownAmount amount={crowns}/></div>}
+      {!pack.saved && <p className="booster-storage-error" role="alert">{msg("These rewards are available for this session, but browser storage could not save them.")}</p>}
+      {complete && crowns > 0 && <div className="booster-crown-total">{msg("Earned")}<CrownAmount amount={crowns}/></div>}
       <footer className="booster-actions">
-        {!complete ? <button className="outline-button" onClick={()=>{setSkip(true);closeRef.current?.focus();}}>Reveal all</button> : <>
-          <button className="outline-button" onClick={browse}>View cards</button>
-          <button className="gold-button" disabled={!canOpenAnother} onClick={openAnother}>Open another<ArrowRight size={16}/></button>
+        {!complete ? <button className="outline-button" onClick={()=>{setSkip(true);closeRef.current?.focus();}}>{msg("Reveal all")}</button> : <>
+          <button className="outline-button" onClick={browse}>{msg("View cards")}</button>
+          <button className="gold-button" disabled={!canOpenAnother} onClick={openAnother}>{msg("Open another")}<ArrowRight size={16}/></button>
         </>}
-        <small>{canOpenAnother ? 'More of these boosters are waiting in your inventory.' : 'No more of this booster. Crowns can buy another in the store.'}</small>
+        <small>{canOpenAnother ? msg("More of these boosters are waiting in your inventory.") : msg("No more of this booster. Crowns can buy another in the store.")}</small>
       </footer>
     </section>
   </div>;

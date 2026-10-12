@@ -18,7 +18,8 @@
   },
   "abilities": [],
   "timing": [
-    "play", "death"
+    "play",
+    "death"
   ],
   "cast": [
     {
@@ -33,5 +34,11 @@
         "amount": 1
       }
     }
-  ]
+  ],
+  "translations": {
+    "de": {
+      "name": "Läuterndes Licht",
+      "subtypes": []
+    }
+  }
 }

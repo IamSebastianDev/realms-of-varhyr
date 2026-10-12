@@ -76,7 +76,7 @@
   .ms-row .ms-label{grid-column:1 / -1;grid-row:1}
   .ms-fallen{grid-template-columns:1fr}
 }
-@media(prefers-reduced-motion:reduce){.ms,.ms-row,.ms-bar i,.ms-reward,.ms-head .ms-mark,.ms-plate-crown,.ms-reward .crown-icon{animation:none}.ms-embers{display:none}}
+
 .reduce-motion .ms,.reduce-motion .ms-row,.reduce-motion .ms-bar i,.reduce-motion .ms-reward,.reduce-motion .ms-reward .crown-icon{animation:none}.reduce-motion .ms-embers{display:none}
 
 /* ── Watching a replay ──────────────────────────────────────────── */
@@ -98,7 +98,7 @@
 .peek-toggle:focus-visible{outline:2px solid #e2c98c;outline-offset:2px}
 button.peek-toggle.on{background:linear-gradient(180deg,#e6cf94,#c9a85f);color:#1c2a20;border-color:#f3e4b6}
 button.peek-toggle.on,button.peek-toggle.on svg{color:#1c2a20;opacity:1}
-@media (prefers-reduced-motion:reduce){.modal-backdrop{transition:none}}
+
 
 /* Hand size sits with the library and discard; a fanned-card look keeps it distinct from the library's card back. */
 .app .library-count.hand-count{border-color:#cfae6acc;background:linear-gradient(160deg,#35563f,#223d2e)}

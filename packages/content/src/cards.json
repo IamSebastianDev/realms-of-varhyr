@@ -20,6 +20,15 @@
       }
     },
     "lore": "The crown endures where its runes still shine.",
+    "translations": {
+      "de": {
+        "name": "Aldric, der Runenwächter",
+        "lore": "Die Krone überdauert, solange ihre Runen noch leuchten.",
+        "subtypes": [
+          "Kreatur"
+        ]
+      }
+    },
     "art": "/cards/aldric-the-runewarden/data.png?v=6c40324e7c98b106",
     "animation": "/cards/aldric-the-runewarden/data.webm?v=a513cbf872d47e23",
     "abilities": [
@@ -60,6 +69,14 @@
         "crownlands": 1
       }
     },
+    "translations": {
+      "de": {
+        "name": "Kavallerie von Ban Vale",
+        "subtypes": [
+          "Mensch"
+        ]
+      }
+    },
     "art": "/cards/ban-vale-cavalry/data.png?v=140b33bf9401990e",
     "abilities": [
       {
@@ -97,6 +114,12 @@
         "crownlands": 1
       }
     },
+    "translations": {
+      "de": {
+        "name": "Schlachtfeldhymne",
+        "subtypes": []
+      }
+    },
     "art": "/cards/battlefield-hymn/data.png?v=008273eb5dc86946",
     "abilities": [],
     "timing": [
@@ -128,6 +151,12 @@
       "generic": 1,
       "factions": {
         "crownlands": 1
+      }
+    },
+    "translations": {
+      "de": {
+        "name": "Läuterndes Licht",
+        "subtypes": []
       }
     },
     "art": "/cards/cleansing-light/data.png?v=ce6dcaf373c1a775",
@@ -172,6 +201,15 @@
       }
     },
     "lore": "An oath made stone.",
+    "translations": {
+      "de": {
+        "name": "Kronenbastion",
+        "lore": "Ein Schwur, zu Stein geworden.",
+        "subtypes": [
+          "Befestigung"
+        ]
+      }
+    },
     "art": "/cards/crown-bastion/data.png?v=f22651501ced9356",
     "abilities": [
       {
@@ -212,6 +250,15 @@
       "factions": {}
     },
     "lore": "Every kingdom begins with an oath.",
+    "translations": {
+      "de": {
+        "name": "Rekrut der Kronlande",
+        "lore": "Jedes Königreich beginnt mit einem Schwur.",
+        "subtypes": [
+          "Kreatur"
+        ]
+      }
+    },
     "art": "/cards/crownlands-recruit/data.png?v=34b428de4db709c8",
     "abilities": [],
     "stats": {
@@ -242,6 +289,14 @@
       "generic": 1,
       "factions": {
         "crownlands": 1
+      }
+    },
+    "translations": {
+      "de": {
+        "name": "Bannerträger der Morgenröte",
+        "subtypes": [
+          "Kreatur"
+        ]
       }
     },
     "art": "/cards/dawn-standard-bearer/data.png?v=4afb068adb49b6b5",
@@ -283,6 +338,14 @@
         "crownlands": 1
       }
     },
+    "translations": {
+      "de": {
+        "name": "Regiment der ersten Morgenröte",
+        "subtypes": [
+          "Mensch"
+        ]
+      }
+    },
     "art": "/cards/first-dawn-regiment/data.png?v=a26a8cb1c1cc7e06",
     "abilities": [
       {
@@ -321,6 +384,15 @@
       "factions": {}
     },
     "lore": "The golden fields in the heart of the empire nurture all ambitions.",
+    "translations": {
+      "de": {
+        "name": "Goldfeldbauer",
+        "lore": "Die goldenen Felder im Herzen des Reichs nähren jeden Ehrgeiz.",
+        "subtypes": [
+          "Mensch"
+        ]
+      }
+    },
     "art": "/cards/goldfield-farmers/data.png?v=0d6eb62b5d66c48f",
     "abilities": [],
     "stats": {
@@ -352,6 +424,15 @@
       "factions": {}
     },
     "lore": "Even the woods are plentiful",
+    "translations": {
+      "de": {
+        "name": "Holzfäller von Longvale",
+        "lore": "Selbst die Wälder schenken reichlich.",
+        "subtypes": [
+          "Mensch"
+        ]
+      }
+    },
     "art": "/cards/longvale-cutters/data.png?v=6b28cb5838244117",
     "abilities": [],
     "stats": {
@@ -379,6 +460,14 @@
     "cost": {
       "generic": 1,
       "factions": {}
+    },
+    "translations": {
+      "de": {
+        "name": "Berittene Söldnerspäher",
+        "subtypes": [
+          "Mensch"
+        ]
+      }
     },
     "art": "/cards/mercenary-outriders/data.png?v=e7ef56af7f9dfd02",
     "abilities": [
@@ -416,6 +505,15 @@
       "factions": {}
     },
     "lore": "The merchants of Tris Vale are known for their gold and silver works",
+    "translations": {
+      "de": {
+        "name": "Händler von Tris Vale",
+        "lore": "Die Händler von Tris Vale sind für ihre Gold- und Silberarbeiten bekannt.",
+        "subtypes": [
+          "Mensch"
+        ]
+      }
+    },
     "art": "/cards/merchant-of-tris-vale/data.png?v=266298c15e783cb2",
     "abilities": [],
     "stats": {
@@ -448,6 +546,14 @@
         "crownlands": 2
       }
     },
+    "translations": {
+      "de": {
+        "name": "Runenwache",
+        "subtypes": [
+          "Kreatur"
+        ]
+      }
+    },
     "art": "/cards/runeguard/data.png?v=179d0291566de33a",
     "abilities": [],
     "stats": {
@@ -477,6 +583,15 @@
       "factions": {}
     },
     "lore": "No lord may claim the wanderers allegiance.",
+    "translations": {
+      "de": {
+        "name": "Der einsame Wanderer",
+        "lore": "Kein Fürst kann die Treue des Wanderers beanspruchen.",
+        "subtypes": [
+          "Kreatur"
+        ]
+      }
+    },
     "art": "/cards/the-lonely-wanderer/data.png?v=1ef51b32053f1306",
     "abilities": [
       {
@@ -523,6 +638,15 @@
       }
     },
     "lore": "No one may pass the tower without cleansing.",
+    "translations": {
+      "de": {
+        "name": "Turm des ersten Morgens",
+        "lore": "Niemand darf den Turm ohne Läuterung passieren.",
+        "subtypes": [
+          "Befestigung"
+        ]
+      }
+    },
     "art": "/cards/tower-of-the-first-morning/data.png?v=0f5a5b5b3d809146",
     "abilities": [
       {

@@ -35,5 +35,14 @@
         "amount": 1
       }
     }
-  ]
+  ],
+  "translations": {
+    "de": {
+      "name": "Aldric, der Runenwächter",
+      "lore": "Die Krone überdauert, solange ihre Runen noch leuchten.",
+      "subtypes": [
+        "Kreatur"
+      ]
+    }
+  }
 }

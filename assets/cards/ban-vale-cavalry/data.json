@@ -34,5 +34,13 @@
         "amount": 2
       }
     }
-  ]
+  ],
+  "translations": {
+    "de": {
+      "name": "Kavallerie von Ban Vale",
+      "subtypes": [
+        "Mensch"
+      ]
+    }
+  }
 }

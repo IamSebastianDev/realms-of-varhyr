@@ -166,7 +166,7 @@
 @keyframes spell-bolt{0%{stroke-dashoffset:1;opacity:0}15%{opacity:.9}100%{stroke-dashoffset:0;opacity:0}}
 @keyframes spell-orb{0%{offset-distance:0%;opacity:0;transform:scale(.4)}15%{opacity:1;transform:scale(1)}100%{offset-distance:100%;opacity:1;transform:scale(.8)}}
 @keyframes spell-impact{0%{opacity:1;transform:scale(.3)}100%{opacity:0;transform:scale(5.5)}}
-@media(prefers-reduced-motion:reduce){.spell-reveal,.spell-bolt,.spell-orb,.spell-impact{animation-duration:.01s}}
+
 /* Draw choice: where the unchosen card goes */
 .draw-destination{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:22px;flex-wrap:wrap}
 .draw-destination .eyebrow{margin-right:6px}

@@ -59,7 +59,7 @@
 @media(max-height:700px) and (min-width:701px){.start-menu{padding-top:22px}.start-welcome h1{font-size:54px}.start-welcome{padding-bottom:0}.start-play{margin-top:26px;height:66px}.start-destinations .menu-destination{padding:16px 22px}.start-destinations .menu-destination h2{font-size:29px}.start-destinations .menu-destination div>span{margin-top:8px}.setup-heading{padding-block:18px}.setup-scroll{padding-top:18px}}
 @media(max-width:700px){.menu-screen .lobby-header{min-height:0;padding:10px 18px}.start-menu{padding:22px;grid-template-columns:1fr;grid-template-rows:auto auto auto;gap:20px}.start-welcome{max-width:none;display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:18px;padding:0}.start-welcome .eyebrow,.start-welcome p{display:none}.start-welcome h1{font-size:38px;margin:0}.start-play{grid-column:2;grid-row:1;grid-template-columns:1fr 20px;width:150px;height:56px;margin:8px 0;padding:12px 17px;gap:10px}.start-play span{font-size:25px}.start-play>svg:first-child{display:none}.start-play>svg:last-child{width:18px;height:18px}.start-play::before{inset:-7px}.start-resume{grid-column:1/-1;padding-bottom:0}.start-destinations{gap:10px;max-height:none;grid-template-rows:repeat(3,auto)}.start-destinations .menu-destination{padding:16px;min-height:106px}.start-destinations .menu-destination h2{font-size:27px}.start-destinations .menu-destination div>span{margin-top:6px}.start-footnote{font-size:9px}}
 @media(max-width:400px){.start-menu{padding:18px 16px}.start-welcome h1{font-size:31px}.start-play{width:115px;padding-inline:12px}.setup-heading{padding-inline:20px}.setup-scroll{padding-inline:20px}}
-@media(prefers-reduced-motion:reduce){.game-setup-pane{animation:none}.start-play,.start-play::before,.start-play::after{animation:none;transition:none}.start-play:hover:not(:disabled),.start-play:active:not(:disabled){transform:none}}
+
 .multiplayer-compact .online-join-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:10px;margin-top:12px}
 .multiplayer-compact .online-join-controls .online-code-input{margin:0}
 .multiplayer-compact .online-join-controls .gold-button{width:auto;padding:11px;font-size:11px;min-height:40px}
@@ -97,7 +97,7 @@
 .start-play:disabled{filter:grayscale(.75) brightness(.8)}
 @media(max-width:700px){.start-play{grid-template-columns:1fr 30px;width:156px;padding:10px 12px 10px 16px;gap:6px}.start-play span{font-size:24px;letter-spacing:1px}.start-play>svg:last-child{width:28px;height:28px;padding:6px}.start-play>svg:first-child{display:none}}
 @media(max-width:400px){.start-play{width:128px;padding-left:12px}}
-@media(prefers-reduced-motion:reduce){.start-play,.start-play>svg:last-child{transition:none}}
+
 
 /* Simplified: no outer frame, no arrow; hovering burns an ember around the edge. */
 @property --burn{syntax:'<angle>';inherits:false;initial-value:0deg}
@@ -113,7 +113,7 @@
 @keyframes burn-spin{to{--burn:360deg}}
 @media(max-width:700px){.start-play{grid-template-columns:1fr;width:128px}.start-play::before{inset:-2px}}
 @media(max-width:400px){.start-play{width:110px}}
-@media(prefers-reduced-motion:reduce){.start-play:hover:not(:disabled)::before,.start-play:focus-visible::before{animation:none;--burn:200deg}}
+
 .start-play::before{inset:-4px;padding:3px;border-radius:8px;background:conic-gradient(from var(--burn),transparent 0 30%,#8f2a06 44%,#ff6a12 62%,#ffb23d 80%,#fff0b8 90%,transparent 94% 100%)}
 @media(max-width:700px){.start-play::before{inset:-4px}}
 

@@ -26,5 +26,14 @@
     ]
   },
   "abilities": [],
-  "lore": "Even the woods are plentiful"
+  "lore": "Even the woods are plentiful",
+  "translations": {
+    "de": {
+      "name": "Holzfäller von Longvale",
+      "lore": "Selbst die Wälder schenken reichlich.",
+      "subtypes": [
+        "Mensch"
+      ]
+    }
+  }
 }

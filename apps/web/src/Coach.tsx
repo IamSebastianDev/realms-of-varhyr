@@ -1,3 +1,4 @@
+import { t as msg, useLanguage } from './i18n';
 import { ArrowRight, GraduationCap, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -81,21 +82,22 @@ function useAnchor(enabled: boolean): Box | null {
 }
 
 export function Coach(props: Props) {
+  useLanguage();
   const boxes = useRings(props.focus);
   const anchor = useAnchor(props.tone !== 'finish');
   return <>
     {props.tone === 'finish' && <div className="coach-scrim" aria-hidden="true"/>}
     <div className="coach-rings" aria-hidden="true">{boxes.map((box, i) => <i key={i} className={`coach-ring ${props.tone}`} style={{ left: box.left - 7, top: box.top - 7, width: box.width + 14, height: box.height + 14 }}/>)}</div>
-    <aside className={`coach ${props.tone} ${anchor ? 'anchored' : ''}`} role="region" aria-label="Tutorial" aria-live="polite" style={anchor ? { left: anchor.left, top: anchor.top, width: anchor.width, maxHeight: anchor.height } : undefined}>
+    <aside className={`coach ${props.tone} ${anchor ? 'anchored' : ''}`} role="region" aria-label={msg("Tutorial")} aria-live="polite" style={anchor ? { left: anchor.left, top: anchor.top, width: anchor.width, maxHeight: anchor.height } : undefined}>
       <div key={props.nudge} className={props.nudge ? 'coach-body nudged' : 'coach-body'}>
-        <header><GraduationCap size={16} aria-hidden="true"/><span>{props.tone === 'opponent' ? 'Their move' : 'Tutorial'}</span>
-          <ol className="coach-pips" aria-label={`Step ${props.progress.index + 1} of ${props.progress.total}`}>{Array.from({ length: props.progress.total }, (_, n) => <li key={n} className={n < props.progress.index ? 'done' : n === props.progress.index ? 'now' : ''}/>)}</ol>
-          <button className="coach-skip" onClick={props.onSkip} aria-label="Leave the tutorial and play freely"><X size={14}/></button></header>
-        <h2>{props.title}</h2>
-        <p>{props.text}</p>
+        <header><GraduationCap size={16} aria-hidden="true"/><span>{props.tone === 'opponent' ? msg("Their move") : msg("Tutorial")}</span>
+          <ol className="coach-pips" aria-label={msg("Step {v0} of {v1}", {v0: props.progress.index + 1, v1: props.progress.total})}>{Array.from({ length: props.progress.total }, (_, n) => <li key={n} className={n < props.progress.index ? 'done' : n === props.progress.index ? 'now' : ''}/>)}</ol>
+          <button className="coach-skip" onClick={props.onSkip} aria-label={msg("Leave the tutorial and play freely")}><X size={14}/></button></header>
+        <h2>{msg(props.title)}</h2>
+        <p>{msg(props.text)}</p>
         {(props.next || props.secondary) && <footer>
-          {props.secondary && <button className="coach-secondary" onClick={props.onSecondary}>{props.secondary}</button>}
-          {props.next && <button className="gold-button coach-next" onClick={props.onNext} autoFocus>{props.next}<ArrowRight size={15}/></button>}
+          {props.secondary && <button className="coach-secondary" onClick={props.onSecondary}>{msg(props.secondary!)}</button>}
+          {props.next && <button className="gold-button coach-next" onClick={props.onNext} autoFocus>{msg(props.next!)}<ArrowRight size={15}/></button>}
         </footer>}
       </div>
     </aside>
