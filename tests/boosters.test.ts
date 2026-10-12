@@ -48,3 +48,17 @@ describe('five-card booster rewards', () => {
     }
   });
 });
+
+describe('faction booster packs', () => {
+  it('draw only from their faction, and the general pack from everything', async () => {
+    const { boosterPacks, packCards } = await import('../packages/content/src/boosters');
+    const all = Object.values(registry.cards);
+    for (const pack of boosterPacks.filter(pack => pack.faction)) {
+      const pool = packCards(all, pack);
+      expect(pool.length).toBeGreaterThan(0);
+      expect(pool.every(card => card.factions.includes(pack.faction as never))).toBe(true);
+      expect(drawBooster(pool).every(id => registry.cards[id].factions.includes(pack.faction as never))).toBe(true);
+    }
+    expect(packCards(all, boosterPacks[0])).toHaveLength(all.length);
+  });
+});

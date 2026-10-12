@@ -12,4 +12,8 @@ import './card-layout.css';
 import './card-render.css';
 import './card-detail.css';
 import './arena.css';
+import './deck-builder.css';
+import './collection.css';
+import './multiplayer/multiplayer.css';
+import './start-screen.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App/></React.StrictMode>);

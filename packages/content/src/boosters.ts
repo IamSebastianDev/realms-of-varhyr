@@ -1,4 +1,5 @@
 import type { CardDefinition } from '../../contracts/src';
+import { factionDefinitions } from './factions';
 
 /** POC odds per slot, independent of the number of cards in each rarity. */
 export const boosterRules = { cardsPerPack: 5, rarityWeights: { common: 70, rare: 25, legendary: 5 } } as const;
@@ -21,3 +22,13 @@ export function drawBooster(cards: CardDefinition[], random: () => number = Math
     return pool.cards[Math.floor(roll() * pool.cards.length)].id;
   });
 }
+
+/** Store boosters. A faction pack draws from that faction's cards; the general pack draws from everything. */
+export type BoosterPack = { id: string; name: string; blurb: string; faction: string | null };
+/** Faction packs come from each faction's optional `pack` entry in assets/factions/<id>.json. */
+export const boosterPacks: BoosterPack[] = [
+  { id: 'bounty', name: 'The Realm’s Bounty', blurb: 'Five random cards from across every faction. Legendaries are rare.', faction: null },
+  ...factionDefinitions.flatMap(faction => faction.pack ? [{ ...faction.pack, faction: faction.id }] : []),
+];
+export const packCards = (cards: CardDefinition[], pack: BoosterPack) =>
+  pack.faction ? cards.filter(card => card.factions.includes(pack.faction as never)) : cards;

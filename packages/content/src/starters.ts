@@ -32,7 +32,6 @@ export const starterDefinitions: StarterDeck[] = [
       ...copies('aldric-runewarden', 1),
     ],
   },
-  // Add another starter here when its faction and card definitions are ready.
 ];
 
 export const defaultDeckId = starterDefinitions[0].id;

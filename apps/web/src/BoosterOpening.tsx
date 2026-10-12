@@ -1,30 +1,39 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
-import { createPortal } from 'react-dom';
 import { ArrowRight, Crown, X } from 'lucide-react';
-import { registry } from '../../../packages/content/src';
+import { factionInfo, registry } from '../../../packages/content/src';
+import type { BoosterPack } from '../../../packages/content/src/boosters';
 import type { CardDefinition } from '../../../packages/contracts/src';
 import type { BoosterCardReward } from './boosterRewards';
 import { ArtCard } from './CardPresentation';
-import { CardDetail } from './CardDetail';
+import { DustAmount } from './Dust';
 
-export type OpenBooster = { id: string; cards: BoosterCardReward[]; saved: boolean };
+export type OpenBooster = { id: string; cards: (BoosterCardReward & { dust?: number })[]; saved: boolean; pack: BoosterPack };
 
-export function BoosterOpening({ pack, reduced, suspended, close, openAnother, inspect, browse }: {
+export const packColor = (pack: BoosterPack) => {
+  const color = pack.faction ? factionInfo[pack.faction]?.color : undefined;
+  return color ? { '--pack-color': color } : undefined;
+};
+/** Breaks a pack name into short lines for the pack face. */
+export function packLines(name: string) {
+  const lines: string[] = [];
+  for (const word of name.toUpperCase().split(' ')) {
+    const last = lines[lines.length - 1];
+    if (last && (last + ' ' + word).length <= 12) lines[lines.length - 1] = last + ' ' + word; else lines.push(word);
+  }
+  return lines.map((line, index) => <span key={index} className="pack-line">{line}</span>);
+}
+export function BoosterOpening({ pack, reduced, suspended, close, openAnother, canOpenAnother = true, inspect, browse }: {
   pack: OpenBooster; reduced: boolean; suspended: boolean; close: () => void; openAnother: () => void;
-  inspect: (card: CardDefinition) => void; browse: () => void;
+  canOpenAnother?: boolean; inspect: (card: CardDefinition) => void; browse: () => void;
 }) {
   const [opened, setOpened] = useState(reduced);
   const [revealed, setRevealed] = useState(reduced ? pack.cards.length : 0);
   const [skip, setSkip] = useState(false);
-  const [hover, setHover] = useState<{ card: CardDefinition; rect: DOMRect } | null>(null);
-  const hoverTimer = useRef<number>(0);
-  const showHover = (card: CardDefinition, rect: DOMRect) => { window.clearTimeout(hoverTimer.current); hoverTimer.current = window.setTimeout(() => setHover({ card, rect }), 300); };
-  const hideHover = () => { window.clearTimeout(hoverTimer.current); setHover(null); };
-  useEffect(() => { if (suspended) hideHover(); }, [suspended]);
-  useEffect(() => () => window.clearTimeout(hoverTimer.current), []);
   const dialogRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const complete = revealed === pack.cards.length;
+  const dust = pack.cards.reduce((sum, card) => sum + (card.dust ?? 0), 0);
+  const kept = pack.cards.filter(card => !card.dust).length;
 
   useEffect(() => { closeRef.current?.focus(); }, []);
   useEffect(() => {
@@ -45,49 +54,43 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, i
     else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
   }
 
-  return <div className={`modal-backdrop booster-backdrop ${reduced ? 'reduced-motion' : ''}`} aria-hidden={suspended || undefined} inert={suspended}>
+  return <div className={`modal-backdrop booster-backdrop ${reduced ? 'reduced-motion' : ''}`} aria-hidden={suspended || undefined} inert={suspended} style={packColor(pack.pack) as React.CSSProperties}>
     <section ref={dialogRef} className="booster-dialog" role="dialog" aria-modal={!suspended || undefined}
       aria-label="Booster rewards" onKeyDown={trapFocus}>
       <button ref={closeRef} className="booster-close" aria-label="Close booster" onClick={close}><X size={22}/></button>
       <header className="booster-heading"><span className="eyebrow">A GIFT FROM THE REALM</span>
         <h2>{complete ? 'Your five cards.' : 'A little fortune awaits.'}</h2>
-        <p role="status" aria-live="polite">{complete ? 'Five cards added to your rewards. Select a card to inspect it.' : opened ? `Revealing cards · ${revealed} / 5` : 'Breaking the seal…'}</p>
+        <p role="status" aria-live="polite">{complete ? `${kept} ${kept===1?'card':'cards'} added to your collection${dust ? ` · ${dust} dust from extra copies` : ''}. Select a card to inspect it.` : opened ? `Revealing cards · ${revealed} / 5` : 'Breaking the seal…'}</p>
       </header>
       {!opened ? <div className="booster-pack-stage" aria-hidden="true">
-        <div className="booster-pack-glow"/><div className="booster-pack"><span>REALMS OF VARHYR</span><Crown size={55}/><strong>THE REALM’S<br/>BOUNTY</strong><small>FIVE CARDS</small></div>
+        <div className="booster-pack-glow"/><div className="booster-pack"><span>REALMS OF VARHYR</span>{pack.pack.faction ? <b className="pack-symbol">{factionInfo[pack.pack.faction]?.symbol}</b> : <Crown size={55}/>}<strong>{packLines(pack.pack.name)}</strong><small>FIVE CARDS</small></div>
         <div className="booster-sparks">{Array.from({length:12}, (_,index)=><i key={index} style={{'--spark-angle':`${index*30}deg`} as React.CSSProperties}/>)}</div>
       </div> : <div className="booster-grid">
         {pack.cards.map((reward, index) => {
           const card = registry.cards[reward.id], visible = index < revealed;
-          return <div className={`booster-slot ${visible ? 'revealed' : ''} rarity-${card.rarity}`} key={index}>
+          return <div className={`booster-slot ${visible ? 'revealed' : ''} ${reward.dust ? 'is-dusted' : ''} rarity-${card.rarity}`} key={index}>
             <div className="booster-flip">
               <div className="booster-card-back" aria-hidden="true"><Crown size={32}/><span>V</span></div>
               <div className="booster-card-front" aria-hidden={!visible} inert={!visible}>
-                <ArtCard card={card} reduced={reduced} onClick={()=>{hideHover();inspect(card);}} className="booster-card" interaction={{onPointerEnter:e=>{if(e.pointerType!=='touch')showHover(card,e.currentTarget.getBoundingClientRect());},onPointerLeave:hideHover,onFocus:e=>showHover(card,e.currentTarget.getBoundingClientRect()),onBlur:hideHover}}/>
+                <ArtCard card={card} reduced={reduced} onClick={()=>inspect(card)} className="booster-card"/>
               </div>
             </div>
             <div className={`booster-card-caption ${visible ? '' : 'unrevealed'}`} aria-hidden={!visible}>
               <span>{card.rarity}</span>
-              <small>{reward.isNew ? 'New to your rewards' : `+1 copy · ${reward.copies} earned`}</small>
+              {reward.dust ? <div className="booster-dust-reward"><DustAmount amount={reward.dust}/><small>Extra copy reclaimed</small></div> : <small>{reward.isNew ? 'New to your collection' : `+1 copy · ${reward.copies} owned`}</small>}
             </div>
           </div>;
         })}
       </div>}
       {!pack.saved && <p className="booster-storage-error" role="alert">These rewards are available for this session, but browser storage could not save them.</p>}
+      {complete && dust > 0 && <div className="booster-dust-total">Reclaimed <DustAmount amount={dust}/></div>}
       <footer className="booster-actions">
         {!complete ? <button className="outline-button" onClick={()=>{setSkip(true);closeRef.current?.focus();}}>Reveal all</button> : <>
           <button className="outline-button" onClick={browse}>View cards</button>
-          <button className="gold-button" onClick={openAnother}>Open another<ArrowRight size={16}/></button>
+          <button className="gold-button" disabled={!canOpenAnother} onClick={openAnother}>Open another<ArrowRight size={16}/></button>
         </>}
-        <small>Free test booster · duplicates possible</small>
+        <small>{canOpenAnother ? 'More of these boosters are waiting in your inventory.' : 'No more of this booster. Dust can buy another in the store.'}</small>
       </footer>
     </section>
-    {hover && !suspended && createPortal(<>
-      <div className="preview-anchor" aria-hidden style={{ left: hover.rect.left, top: hover.rect.top, width: hover.rect.width, height: hover.rect.height }}/>
-      <aside className="hover-preview booster-hover-preview" role="tooltip" aria-label={`${hover.card.name} preview`}
-        style={{ ['--px' as string]: `${Math.max(12, Math.min(window.innerWidth - 612, hover.rect.right + 14))}px`, ['--py' as string]: `${Math.max(12, Math.min(window.innerHeight - 340, hover.rect.top - 40))}px`, width: Math.min(600, window.innerWidth - 24) }}>
-        <CardDetail card={hover.card} animated reduced={reduced}/>
-      </aside>
-    </>, document.body)}
   </div>;
 }

@@ -336,3 +336,30 @@ html,body,#root{overscroll-behavior:none}
 .store-item-body small{color:#a9baa3;font-size:11px}
 @media(max-width:700px){.store-item{grid-template-columns:1fr;justify-items:center;text-align:center;padding:22px}.store-buy{justify-content:center}.store-item-body p{margin-inline:auto}}
 .store-page .collection-heading{display:block}.store-page .collection-heading p{margin:8px 0 0}
+
+/* Faction boosters take their colour from --pack-color */
+.booster-pack{border-color:var(--pack-color,#e6cb80);outline-color:color-mix(in srgb,var(--pack-color,#b99547) 70%,#000);color:var(--pack-color,#ffe5a4)}
+.booster-pack{background:radial-gradient(ellipse at 50% 45%,color-mix(in srgb,var(--pack-color,#8a9a5a) 38%,#0e1a12),#0c1a14 72%)}
+.booster-pack .pack-line{display:block;font-size:inherit;letter-spacing:inherit}
+.booster-pack>strong{font-size:22px}
+.pack-symbol{font:500 58px/1 var(--serif)}
+.store-shelf{align-items:stretch}
+.store-stats{flex-basis:100%;margin:0;color:#a9baa3;font-size:11px}
+.store-item{flex:1 1 440px}
+.store-page{width:min(1180px,100%)}
+.store-shelf{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px}
+.store-item{flex:none;max-width:none;grid-template-columns:1fr;justify-items:center;text-align:center;gap:10px;padding:26px 22px 28px}
+.store-pack-stage{height:300px}
+.store-item-body p{margin-inline:auto}
+.store-buy{justify-content:center}
+.store-stats{grid-column:1/-1}
+.store-item-body h2{font-size:26px}
+
+/* Draw dialog: two standard cards with the usual hover detail, so the dialog keeps a fixed height */
+.draw-card-art .art-card{pointer-events:auto}
+.draw-board.dragging .draw-card-art .art-card{pointer-events:none}
+.draw-card{flex:0 0 auto;max-width:none;align-items:center}
+.draw-card-text{display:none}
+.draw-cards{gap:36px;flex-wrap:nowrap;align-items:flex-start}
+.draw-zone{min-height:248px}
+@media(max-width:760px){.draw-cards{gap:12px}.draw-card-fallback{flex-direction:column;align-items:stretch;width:128px}.draw-card-fallback button{text-align:center}}

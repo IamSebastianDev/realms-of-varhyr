@@ -12,7 +12,7 @@ const read = (dir: string, file: string) => JSON.parse(readFileSync(new URL(`${d
 describe('saved matches', () => {
   for (const dir of readdirSync(root)) it(`${dir} replays to the recorded result`, () => {
     const saved = read(dir, 'match.json'), expected = read(dir, 'expected.json');
-    const registry = compileContent(read(dir, 'cards.json'));
+    const registry = compileContent(read(dir, 'cards.json'), undefined, undefined, ['crownlands']);
     expect(registry.version).toBe(saved.initial.contentVersion);
     const end = replay(saved.initial, saved.commands, registry);
     expect({ turn: end.turn, outcome: end.outcome, reason: end.outcomeReason, life: [end.players.p1.life, end.players.p2.life] }).toEqual(expected);

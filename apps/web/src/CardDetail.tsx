@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { factionInfo } from '../../../packages/content/src';
 import type { CardDefinition } from '../../../packages/contracts/src';
 import { ArtCard, cardClassification, CardFacts, CardLore, Cost } from './CardPresentation';
@@ -21,7 +22,7 @@ export function CardDetail({ card, stats, animated = false, reduced = false, sta
 }) {
   const factions = card.factions.map(f => factionInfo[f].name).join(' / ') || 'Neutral';
   return <div className="card-detail">
-    <ArtCard card={card} animated={animated} reduced={reduced} className="card-detail-art" stats={stats} />
+    <ArtCard card={card} animated={animated} reduced={reduced} className="card-detail-art" stats={stats} detail={false} />
     <div className="card-detail-body">
       <span className="eyebrow">{factions} · {card.legendary ? 'Legendary ' : ''}{cardClassification(card)}</span>
       <h2>{card.name}</h2>
@@ -33,4 +34,21 @@ export function CardDetail({ card, stats, animated = false, reduced = false, sta
       {children}
     </div>
   </div>;
+}
+
+/**
+ * The detail panel shown while hovering a card anywhere in the app. It sits next to the card through CSS anchor
+ * positioning (see card-detail.css) and falls back to a computed position where that is unsupported.
+ */
+export function CardHoverDetail({ card, rect, reduced = false }: { card: CardDefinition; rect: DOMRect; reduced?: boolean }) {
+  const width = Math.min(600, window.innerWidth - 24);
+  const x = Math.max(12, Math.min(window.innerWidth - width - 12, rect.right + 14 + width < window.innerWidth ? rect.right + 14 : rect.left - width - 14));
+  const y = Math.max(12, Math.min(window.innerHeight - 340, rect.top - 40));
+  return createPortal(<>
+    <div className="preview-anchor" aria-hidden style={{ left: rect.left, top: rect.top, width: rect.width, height: rect.height }} />
+    <aside className="hover-preview" role="tooltip" aria-label={`${card.name} preview`}
+      style={{ ['--px' as string]: `${x}px`, ['--py' as string]: `${y}px`, width }}>
+      <CardDetail card={card} animated reduced={reduced} />
+    </aside>
+  </>, document.body);
 }

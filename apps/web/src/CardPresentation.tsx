@@ -1,4 +1,5 @@
-import { useState, type ButtonHTMLAttributes } from 'react';
+import { useEffect, useRef, useState, type ButtonHTMLAttributes } from 'react';
+import { CardHoverDetail } from './CardDetail';
 import { useSingleLineName } from './useSingleLineName';
 import { CardArtwork } from '../../../packages/renderer/src/CardArtwork';
 import { HolographicFoil } from '../../../packages/renderer/src/HolographicFoil';
@@ -64,14 +65,18 @@ export function CardFace({card,stats,showCost=true}:{card:CardDefinition;stats?:
     <span className="card-corners"/>
   </>;
 }
-export function ArtCard({card,onClick,selected=false,disabled=false,className='',stats,interaction,animated=false,reduced=false}:{card:CardDefinition;animated?:boolean;reduced?:boolean;interaction?:Pick<ButtonHTMLAttributes<HTMLButtonElement>,'id'|'onContextMenu'|'onPointerDown'|'onPointerEnter'|'onPointerLeave'|'onFocus'|'onBlur'>;onClick?:()=>void;selected?:boolean;disabled?:boolean;className?:string;stats?:{attack:number;defense:number}}) {
-  const [hovered,setHovered]=useState(false),[focused,setFocused]=useState(false);
+export function ArtCard({card,onClick,selected=false,disabled=false,className='',stats,interaction,animated=false,reduced=false,detail=true}:{card:CardDefinition;/** Show the hover detail panel. On by default for every card; off where the caller supplies its own (hand, board) or the card is already shown in detail. */detail?:boolean;animated?:boolean;reduced?:boolean;interaction?:Pick<ButtonHTMLAttributes<HTMLButtonElement>,'id'|'title'|'aria-label'|'aria-disabled'|'onContextMenu'|'onPointerDown'|'onPointerEnter'|'onPointerLeave'|'onFocus'|'onBlur'>;onClick?:()=>void;selected?:boolean;disabled?:boolean;className?:string;stats?:{attack:number;defense:number}}) {
+  const [hovered,setHovered]=useState(false),[focused,setFocused]=useState(false),[hoverRect,setHoverRect]=useState<DOMRect|null>(null),hoverTimer=useRef(0);
+  const showDetail=(element:HTMLElement)=>{if(!detail)return;window.clearTimeout(hoverTimer.current);hoverTimer.current=window.setTimeout(()=>setHoverRect(element.getBoundingClientRect()),350);};
+  const hideDetail=()=>{window.clearTimeout(hoverTimer.current);setHoverRect(null);};
+  useEffect(()=>()=>window.clearTimeout(hoverTimer.current),[]);
+  const preview=hoverRect&&<CardHoverDetail card={card} rect={hoverRect} reduced={reduced}/>;
   const body=<>
     <CardArtwork art={card.art} animation={card.animation} alt={`${card.name} illustration`} playing={animated||hovered||focused} reduced={reduced}/>
     {card.legendary&&<HolographicFoil playing={animated||hovered||focused} reduced={reduced}/>}
     <CardFace card={card} stats={stats}/>
   </>;
-  return onClick?<button {...interaction} onPointerEnter={e=>{if(e.pointerType!=='touch')setHovered(true);interaction?.onPointerEnter?.(e);}} onPointerLeave={e=>{setHovered(false);interaction?.onPointerLeave?.(e);}} onFocus={e=>{setFocused(true);interaction?.onFocus?.(e);}} onBlur={e=>{setFocused(false);interaction?.onBlur?.(e);}} className={`art-card ${card.legendary?'legendary-card':''} ${card.type==='bastion'?'bastion-card':''} ${className} ${selected?'selected':''} ${disabled?'unaffordable':''}`} onClick={onClick} aria-label={`${card.name}, ${card.legendary?'legendary ':''}${card.type}. ${[card.lore, ...cardAbilityDescriptions(card).map(ability => ability.description)].filter(Boolean).join(' ')}`} aria-pressed={selected}>{body}</button>:<div className={`art-card ${card.legendary?'legendary-card':''} ${card.type==='bastion'?'bastion-card':''} ${className}`}>{body}</div>;
+  return onClick?<button {...interaction} onPointerEnter={e=>{if(e.pointerType!=='touch'){setHovered(true);showDetail(e.currentTarget);}interaction?.onPointerEnter?.(e);}} onPointerLeave={e=>{setHovered(false);hideDetail();interaction?.onPointerLeave?.(e);}} onPointerDown={e=>{hideDetail();interaction?.onPointerDown?.(e);}} onFocus={e=>{setFocused(true);if(e.currentTarget.matches(':focus-visible'))showDetail(e.currentTarget);interaction?.onFocus?.(e);}} onBlur={e=>{setFocused(false);hideDetail();interaction?.onBlur?.(e);}} className={`art-card ${card.legendary?'legendary-card':''} ${card.type==='bastion'?'bastion-card':''} ${className} ${selected?'selected':''} ${disabled?'unaffordable':''}`} onClick={()=>{hideDetail();onClick();}} aria-label={interaction?.['aria-label']??`${card.name}, ${card.legendary?'legendary ':''}${card.type}. ${[card.lore, ...cardAbilityDescriptions(card).map(ability => ability.description)].filter(Boolean).join(' ')}`} aria-pressed={interaction?.['aria-label']?undefined:selected}>{body}{preview}</button>:<div className={`art-card ${card.legendary?'legendary-card':''} ${card.type==='bastion'?'bastion-card':''} ${className}`} onPointerEnter={e=>{if(e.pointerType!=='touch')showDetail(e.currentTarget);}} onPointerLeave={hideDetail} onPointerDown={hideDetail}>{body}{preview}</div>;
 }
 export function CardFacts({card,stats}:{card:CardDefinition;stats?:{attack:number;defense:number}}) {
   const abilities = cardAbilityDescriptions(card);
@@ -97,4 +102,16 @@ export function CardFacts({card,stats}:{card:CardDefinition;stats?:{attack:numbe
 export function CardListName({name}:{name:string}) {
   const ref=useSingleLineName<HTMLSpanElement>(name);
   return <span ref={ref} className="card-list-name">{name}</span>;
+}
+
+/** Wraps a button that stands for a card (a list row) so it shows the same hover detail as a card tile. */
+export function CardHoverButton({card,onClick,className,ariaLabel,children}:{card:CardDefinition;onClick:()=>void;className:string;ariaLabel:string;children:React.ReactNode}) {
+  const [rect,setRect]=useState<DOMRect|null>(null),timer=useRef(0);
+  const show=(element:HTMLElement)=>{window.clearTimeout(timer.current);timer.current=window.setTimeout(()=>setRect(element.getBoundingClientRect()),350);};
+  const hide=()=>{window.clearTimeout(timer.current);setRect(null);};
+  useEffect(()=>()=>window.clearTimeout(timer.current),[]);
+  return <button className={className} aria-label={ariaLabel}
+    onPointerEnter={e=>{if(e.pointerType!=='touch')show(e.currentTarget);}} onPointerLeave={hide} onPointerDown={hide}
+    onFocus={e=>{if(e.currentTarget.matches(':focus-visible'))show(e.currentTarget);}} onBlur={hide}
+    onClick={()=>{hide();onClick();}}>{children}{rect&&<CardHoverDetail card={card} rect={rect}/>}</button>;
 }

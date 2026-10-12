@@ -2,7 +2,7 @@ import { Layers, Trash2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { CardDefinition } from '../../../packages/contracts/src';
-import { ArtCard, CardFacts } from './CardPresentation';
+import { ArtCard } from './CardPresentation';
 
 export type DrawDestination = 'discard' | 'bottom';
 type Props = {
@@ -50,20 +50,19 @@ export function DrawChoice({ cards, discardCount, discardTop, libraryCount, redu
     <span className="eyebrow">THE PATH AHEAD</span>
     <h2>Keep one. Drag the other away.</h2>
     <p>Drop the card you do not want on the discard pile, or tuck it under your library.</p>
-    <div className="draw-board">
+    <div className={`draw-board ${ghost ? 'dragging' : ''}`}>
       <div className={`draw-zone draw-zone-discard ${over === 'discard' ? 'over' : ''}`} data-draw-zone="discard">
         <span className={`zone-pile ${discardTop ? '' : 'empty'}`}>{discardTop && <img src={discardTop.art} alt="" draggable={false} />}</span>
         <Trash2 size={16} aria-hidden="true" /><b>Discard</b><small>{discardCount} in pile</small>
       </div>
       <div className="draw-cards">{cards.map(({ id, card }) => <div key={id} className={`draw-card ${ghost?.id === id ? 'lifted' : ''}`}>
         <div className="draw-card-art" onPointerDown={e => start(id, e)}><ArtCard card={card} reduced={reduced} /></div>
-        <div className="draw-card-text"><CardFacts card={card} /></div>
         <div className="draw-card-fallback"><button onClick={() => reject(id, 'discard')}>Discard this</button><button onClick={() => reject(id, 'bottom')}>Put under library</button></div>
       </div>)}</div>
       <div className={`draw-zone draw-zone-bottom ${over === 'bottom' ? 'over' : ''}`} data-draw-zone="bottom">
         <span className="zone-pile back" /><Layers size={16} aria-hidden="true" /><b>Under the library</b><small>{libraryCount} in library</small>
       </div>
     </div>
-    {ghost && dragged && createPortal(<div className="draw-ghost" style={{ left: ghost.x - ghost.dx, top: ghost.y - ghost.dy, width: ghost.w, height: ghost.h }}><ArtCard card={dragged.card} reduced /></div>, document.body)}
+    {ghost && dragged && createPortal(<div className="draw-ghost" style={{ left: ghost.x - ghost.dx, top: ghost.y - ghost.dy, width: ghost.w, height: ghost.h }}><ArtCard detail={false} card={dragged.card} reduced /></div>, document.body)}
   </div></div>;
 }

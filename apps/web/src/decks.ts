@@ -1,11 +1,13 @@
-import { deckRules, type Registry } from '../../../packages/contracts/src';
+import { deckRules, type CardDefinition, type Registry } from '../../../packages/contracts/src';
 import { validateDeck } from '../../../packages/core/src';
 import { registry, starterDefinitions } from '../../../packages/content/src';
+import { ownedCopyCount, type OwnedCopies } from './collection';
 
 export type CustomDeck = { id: string; name: string; cards: string[] };
 export const decksKey = 'varhir-decks-v1';
 export const draftKey = 'varhir-deck-draft-v1';
 export const starterOptions = starterDefinitions;
+export const copyLimit = (card: CardDefinition) => card.legendary ? deckRules.copiesPerLegendary : deckRules.copiesPerCard;
 
 /** Variants share a deckLimitKey so alternate artwork cannot bypass copy limits. */
 export function copyCount(cards: string[], id: string, content: Registry = registry): number {
@@ -13,10 +15,22 @@ export function copyCount(cards: string[], id: string, content: Registry = regis
   return key ? cards.filter(cardId => content.cards[cardId]?.deckLimitKey === key).length : 0;
 }
 
-export function addDeckCard(cards: string[], id: string, content: Registry = registry): string[] {
+/** Ownership is per ID; the deck's legal cap is shared across artwork variants.
+ * Omitting ownership retains unrestricted catalogue access for existing prototype callers.
+ */
+export function deckCardAvailability(cards: string[], id: string, content: Registry = registry, owned?: OwnedCopies) {
   const card = content.cards[id];
-  const limit = card?.legendary ? deckRules.copiesPerLegendary : deckRules.copiesPerCard;
-  if (!card || copyCount(cards, id, content) >= limit) return cards;
+  const limit = card ? copyLimit(card) : 0;
+  const inDeck = cards.filter(cardId => cardId === id).length;
+  const copies = card && owned !== undefined ? ownedCopyCount(owned, id) : limit;
+  const used = copyCount(cards, id, content);
+  const limitReached = used >= limit;
+  const remaining = Math.max(0, Math.min(limit - used, copies - inDeck));
+  return { owned: copies, inDeck, limit, limitReached, remaining };
+}
+
+export function addDeckCard(cards: string[], id: string, content: Registry = registry, owned?: OwnedCopies): string[] {
+  if (!deckCardAvailability(cards, id, content, owned).remaining) return cards;
   return [...cards, id];
 }
 

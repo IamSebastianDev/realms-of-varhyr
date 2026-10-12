@@ -19,8 +19,8 @@ export function cardAssetsPlugin():Plugin{
               const result=await importCardAssets(root);
               // The catalogue is installed by atomic rename. Explicitly expire
               // its transform even if a manual import won the watcher race.
-              const catalogue=join(root,'packages/content/src/cards.json');
-              for(const module of server.moduleGraph.getModulesByFile(catalogue)??[])server.moduleGraph.invalidateModule(module);
+              for(const name of ['cards.json','factions.json'])
+                for(const module of server.moduleGraph.getModulesByFile(join(root,'packages/content/src',name))??[])server.moduleGraph.invalidateModule(module);
               if(result.changed)server.config.logger.info(`Imported ${result.count} asset cards.`);
               server.ws.send({type:'full-reload'});
             }catch(error){

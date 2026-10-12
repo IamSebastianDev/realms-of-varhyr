@@ -82,3 +82,16 @@ describe('editable Crownlands content',()=>{
     expect(result.events.filter(event=>event.type==='card.drawn')).toHaveLength(2);
   });
 });
+
+describe('opponent deck choice',()=>{
+  it('uses the chosen opponent deck, ignores an invalid choice, and survives restore',()=>{
+    const mirror=starterDefinitions[0].cards;
+    const chosen=startMatch(731,defaultDeckId,false,undefined,undefined,{id:'rival',name:'The Rival',cards:mirror});
+    expect(chosen.players.p2.name).toBe('The Rival');
+    expect(chosen.players.p2.deck.concat(chosen.players.p2.hand).every(id=>chosen.cards[id].definitionId in registry.cards)).toBe(true);
+    const bad=startMatch(731,defaultDeckId,false,undefined,undefined,{id:'tiny',name:'Tiny',cards:mirror.slice(0,3)});
+    expect(bad.players.p2.name).not.toBe('Tiny');
+    const saved={initial:{...chosen,contentVersion:'old'},commands:[],mode:'practice' as const,deck:defaultDeckId,skirmish:false,opponentDeck:{id:'rival',name:'The Rival',cards:mirror}};
+    expect(restoreSession(saved).initial.players.p2.name).toBe('The Rival');
+  });
+});

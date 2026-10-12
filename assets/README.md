@@ -1,17 +1,21 @@
 # Adding test cards
 
-Only Crownlands is active. The six available cards are Crownlands Recruit, Dawn Standard-bearer, Cleansing Light, Runeguard, Aldric, the Runewarden, and the new Crown Bastion. Runeguard and Aldric are now Crown-only. The 30-card minimum and normal/legendary copy limits are unchanged; the current 16-card starter is deliberately unfinished.
+Crownlands is the only faction right now. Its definition is `assets/factions/crownlands.json`; its fifteen cards live in `assets/cards/`. The 30-card minimum and normal/legendary copy limits apply to every deck, and the Crown starter deck is deliberately unfinished until more content exists.
 
 ## Card folders
 
-Create one folder per card:
+Cards and factions are separate:
 
 ```
-assets/<card-name>/
-  data.json    required definition
-  data.png     required still artwork
-  data.webm    optional actual WebM animation
+assets/
+  cards/<card-name>/
+    data.json    required definition
+    data.png     required still artwork
+    data.webm    optional actual WebM animation
+  factions/<faction-id>.json
 ```
+
+Create one folder per card under `assets/cards/`.
 
 Use lowercase folder names with hyphens. Keep the card `id` stable when renaming its folder or display name. Do not edit generated files in `packages/content/src/cards.json` or `public/cards/`.
 
@@ -56,7 +60,7 @@ Normal spells are played before combat. `"death"` timing supports the defender's
 
 Use `type: "bastion"` for defensive field cards. They share the five field slots with creatures, enter exhausted, and ready at the end of their controller's turn. A bastion cannot attack or generate energy, including death energy. It can block even while exhausted and deals its `stats.attack` as **defensive damage** simultaneously with the attacker. Omit `energyOutputs`; the importer normalizes it to `[]` and rejects nonempty outputs.
 
-Crown Bastion is a complete example in `assets/crown-bastion/`: its artwork temporarily reuses Runeguard's still. Its stats and effects are:
+Crown Bastion is a complete example in `assets/cards/crown-bastion/`: its artwork temporarily reuses Runeguard's still. Its stats and effects are:
 
 ```json
 "type": "bastion",
@@ -91,9 +95,37 @@ Optional `lore` is the card text, styled in italics above the ability boxes in t
 "lore": "The crown endures where its runes still shine."
 ```
 
-## Factions and abilities
+## Factions
 
-Add each test faction once in `packages/content/src/factions.ts`: name, short label, color and a distinct symbol. The importer, UI and engine derive their active IDs from that configuration. There is no second faction list to update. New IDs should use lowercase letters, digits and hyphens.
+Each faction is one file, `assets/factions/<faction-id>.json`. The file name must match the `id`, and IDs use lowercase letters, digits and hyphens. `neutral` is built in and cannot be defined.
+
+```json
+{
+  "id": "crownlands",
+  "name": "The Crownlands",
+  "short": "Crown",
+  "color": "#deb966",
+  "symbol": "♜",
+  "pack": {
+    "id": "crown",
+    "name": "Banners of the Crown",
+    "blurb": "Knights, banners and bastions. Only Crownlands cards."
+  }
+}
+```
+
+| Field | Meaning |
+| --- | --- |
+| `id` | Stable faction ID used in card `factions`, `cost.factions` and `energyOutputs` |
+| `name` | Full name, shown in card details and filters |
+| `short` | Short label on card faces |
+| `color` | `#rrggbb` accent for energy, packs and highlights |
+| `symbol` | One distinct character (at most four) for its energy and booster pack; `◇` is reserved for Neutral |
+| `pack` | Optional. Adds a store booster that draws only this faction's cards. `pack.id` must be unique (and not `bounty`) and must stay stable once players own packs |
+
+Unknown keys, malformed colors, duplicate symbols and duplicate pack IDs fail the import with the file's path. Cards that name a faction without a file also fail. `npm run import:cards` (or `npm run dev`) validates every faction and generates `packages/content/src/factions.json`; do not edit that file by hand. The UI, deck builder filters, energy symbols, booster packs and card validation all read this one list. To remove a faction, delete its file and every card and starter deck that references it.
+
+## Abilities
 
 In `packages/extensions/src/index.ts`, the active IDs are:
 
@@ -150,7 +182,7 @@ For new extensions, import `battlefieldPositions`, `positionSlot`, `positionName
 
 Run `npm run import:cards`, or leave `npm run dev` running for automatic imports. Each card needs a valid PNG; animations must be real WebM files, not renamed MP4s. Do not set `art` or `animation` paths in JSON; the importer derives them from your folder. Invalid edits report their source path and retain the last successful catalogue. Replacing artwork refreshes its URL automatically.
 
-Add cards and their copy counts to `packages/content/src/starters.ts`. Names, IDs and compositions are defined together. Unfinished starter decks can be imported and edited, but cannot start a game. Unknown card references and excess copies still fail import. Removing a card requires removing its starter references too.
+Add cards and their copy counts to `packages/content/src/starters.ts`. A starter deck for a new faction goes there too. Names, IDs and compositions are defined together. Unfinished starter decks can be imported and edited, but cannot start a game. Unknown card references and excess copies still fail import. Removing a card requires removing its starter references too.
 
 The menu, card browser and deck builder work before any deck is complete. Play requires at least 30 cards, at most three per card identity, and one per legendary. A complete custom deck can play a mirror if no starter is complete yet. A valid second starter becomes the opponent when available.
 

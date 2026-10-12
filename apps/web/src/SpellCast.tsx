@@ -23,7 +23,7 @@ export function SpellCast({ casts }: { casts: SpellFx[] }) {
     const path = to ? `M ${from.x} ${from.y} Q ${(from.x + to.x) / 2 + (to.x >= from.x ? 40 : -40)} ${Math.min(from.y, to.y) - 70} ${to.x} ${to.y}` : '';
     return <div key={fx.id} className={`spell-cast ${fx.caster}`} style={{ '--spell-color': color } as CSSProperties}>
       <div className="spell-reveal" style={{ left: from.x, top: from.y }}>
-        <ArtCard card={fx.card} reduced/>
+        <ArtCard detail={false} card={fx.card} reduced/>
         <span className="spell-caption">{fx.caster === 'mine' ? 'You cast' : 'Opponent casts'}<b>{fx.card.name}</b></span>
       </div>
       {to && <>

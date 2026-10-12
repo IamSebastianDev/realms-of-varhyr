@@ -1,1 +1,1 @@
-{"extends":"./tsconfig.json","compilerOptions":{"lib":["ES2022"],"types":["node"]},"include":["packages/core","packages/contracts","packages/extensions","packages/content"],"exclude":["packages/renderer","apps","tests"]}
+{"extends":"./tsconfig.json","compilerOptions":{"lib":["ES2022"],"types":["node"]},"include":["packages/core","packages/contracts","packages/extensions","packages/content","packages/multiplayer"],"exclude":["packages/renderer","apps","tests"]}

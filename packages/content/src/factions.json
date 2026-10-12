@@ -1,0 +1,14 @@
+[
+  {
+    "id": "crownlands",
+    "name": "The Crownlands",
+    "short": "Crown",
+    "color": "#deb966",
+    "symbol": "♜",
+    "pack": {
+      "id": "crown",
+      "name": "Banners of the Crown",
+      "blurb": "Knights, banners and bastions. Only Crownlands cards."
+    }
+  }
+]

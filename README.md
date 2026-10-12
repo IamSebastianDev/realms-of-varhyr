@@ -23,17 +23,17 @@ The files you need are:
 
 | File | Edit here for |
 | --- | --- |
-| `assets/<card-name>/data.json` | Card name, cost, stats, faction IDs, text and ability bindings |
-| `assets/<card-name>/data.png` | Required still artwork |
-| `assets/<card-name>/data.webm` | Optional animated artwork |
-| `packages/content/src/factions.ts` | Add factions: name, short label, color and distinct symbol |
+| `assets/cards/<card-name>/data.json` | Card name, cost, stats, faction IDs, text and ability bindings |
+| `assets/cards/<card-name>/data.png` | Required still artwork |
+| `assets/cards/<card-name>/data.webm` | Optional animated artwork |
+| `assets/factions/<faction-id>.json` | A faction: name, short label, color, symbol and optional booster pack |
 | `packages/content/src/starters.ts` | Starter deck IDs, names and card counts |
 | `packages/extensions/src/index.ts` | Existing ability handlers and commented reference implementations |
 | `packages/contracts/src/deckRules.ts` | Shared deck size and copy limits |
 
 See **[the card authoring guide](assets/README.md)** for a full JSON template, spell examples and the ability list.
 
-Start with a copy of a retained card folder and give it a new stable `id` and `deckLimitKey`. Register a new faction once in `factions.ts`; the importer, UI and engine use that configuration. Add starter references after the card exists. Ordinary cards allow three copies; legendary cards allow one. Alternate versions should share a `deckLimitKey`.
+Start with a copy of a retained card folder and give it a new stable `id` and `deckLimitKey`. Add a new faction as one file in `assets/factions/`; the importer, UI and engine use that definition. Add starter references after the card exists. Ordinary cards allow three copies; legendary cards allow one. Alternate versions should share a `deckLimitKey`.
 
 During development, asset changes validate and reload automatically. Run `npm run import:cards` for a manual import. `npm run assets` is an alias. Missing PNGs, malformed JSON, removed faction IDs, disabled abilities, duplicate IDs or invalid starter references report the source of the error and preserve the last successful import. Unfinished starter decks may be imported. Generated `packages/content/src/cards.json` and `public/cards/` should not be edited.
 

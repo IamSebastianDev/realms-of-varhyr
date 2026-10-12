@@ -1,3 +1,4 @@
+/** Legacy test-booster format, read only for migration. Live grants now use collection.ts. */
 export const rewardsKey = 'varhir-booster-rewards-v1';
 export type RewardCollection = { version: 1; boostersOpened: number; counts: Record<string, number> };
 export type BoosterCardReward = { id: string; isNew: boolean; copies: number };

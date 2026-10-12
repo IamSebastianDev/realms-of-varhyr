@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import type { AbilityBinding, BeforePayload, CardDefinition, CardInstance, Combat, CommandEnvelope, Cost, DeadSnapshot, EnergyType, GameEvent, GameState, HookContext, InternalOrder, LegalActions, Player, PlayerId, PlayerView, Pool, Registry } from '../../contracts/src';
+import type { AbilityBinding, BeforePayload, CardDefinition, CardInstance, Combat, Command, CommandEnvelope, Cost, DeadSnapshot, EnergyType, GameEvent, GameState, HookContext, InternalOrder, LegalActions, Player, PlayerId, PlayerView, Pool, Registry } from '../../contracts/src';
 import { battlefieldPositions, deckRules, positionName } from '../../contracts/src';
 import { describeAbility } from '../../extensions/src/describeAbility';
 export const RULES_VERSION = 'varhir-rules-0.11';
@@ -15,6 +15,8 @@ const commandSchema = v.variant('type', [
   v.object({ type: v.literal('choose'), choiceId: v.string(), option: v.union([v.string(),nonnegative]), other: v.optional(v.picklist(['discard','bottom'])) }),
   v.object({ type: v.literal('end') }),
 ]);
+/** The network boundary uses exactly the engine's command schema. */
+export const parseCommand = (input: unknown): Command => v.parse(commandSchema, input);
 
 export const other = (p: PlayerId): PlayerId => p === 'p1' ? 'p2' : 'p1';
 const requireRule = (condition: unknown, message: string): void => { if (!condition) throw new Error(message); };
