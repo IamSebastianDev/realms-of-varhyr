@@ -1,4 +1,5 @@
 import type { DataConnection, Peer, PeerOptions } from 'peerjs';
+import { getProfile } from '../profile';
 import type { Command } from '../../../../packages/contracts/src';
 import { registry } from '../../../../packages/content/src';
 import { RULES_VERSION } from '../../../../packages/core/src';
@@ -89,7 +90,7 @@ export class RtcRoom {
       }
     });
   }
-  private sendHello(connection:DataConnection){this.safeSend(connection,{type:'hello',version:NETWORK_VERSION,rules:RULES_VERSION,content:registry.version,token:this.token,name:this.name,deck:this.deck});}
+  private sendHello(connection:DataConnection){this.safeSend(connection,{type:'hello',version:NETWORK_VERSION,rules:RULES_VERSION,content:registry.version,token:this.token,name:this.name,avatar:getProfile().avatar,deck:this.deck});}
   private safeSend(connection:DataConnection,message:unknown){
     if(!connection.open)return false;
     try{connection.send(message);return true;}catch{if(connection===this.connection)this.disconnect();return false;}
@@ -107,7 +108,7 @@ export class RtcRoom {
           if(this.guestToken&&message.token!==this.guestToken)throw new Error('This room already belongs to another opponent.');
           if(!this.authority){
             this.guestToken=message.token;
-            this.authority=new MatchAuthority(registry,crypto.randomUUID(),[this.deck,message.deck],[this.name,message.name],crypto.getRandomValues(new Uint32Array(1))[0]);
+            this.authority=new MatchAuthority(registry,crypto.randomUUID(),[this.deck,message.deck],[this.name,message.name],crypto.getRandomValues(new Uint32Array(1))[0],[getProfile().avatar,message.avatar]);
           }
           authenticated=true;this.clearTimer(deadline);
           const previous=this.connection;this.connection=connection;if(previous&&previous!==connection)previous.close();

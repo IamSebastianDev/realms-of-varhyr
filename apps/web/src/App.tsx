@@ -1,10 +1,11 @@
 import { CardDetail } from './CardDetail';
 import { DrawChoice } from './DrawChoice';
+import { PeekBackdrop } from './Peek';
 import { BattleLog } from './BattleLog';
 import { lazy, type CSSProperties, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowRight, ChevronRight, Heart, CircleHelp, Download, Eye, Leaf, RotateCcw, ScrollText, Settings2, Shield, Sparkles, Swords, X, Zap, Moon, Check, Play, SkipForward, BookOpen, Terminal, Skull } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, Pause, SkipBack, Heart, CircleHelp, Download, Eye, Leaf, RotateCcw, ScrollText, Settings2, Shield, Sparkles, Swords, X, Zap, Moon, Check, Play, SkipForward, BookOpen, Terminal, Skull, Hand } from 'lucide-react';
 import { deckRules, positionName } from '../../../packages/contracts/src';
-import type { CardDefinition, Command, CommandEnvelope, EnergyType, GameState, PlayerId, Pool, PlayerView } from '../../../packages/contracts/src';
+import type { CardDefinition, Command, CommandEnvelope, EnergyType, GameEvent, GameState, PlayerId, Pool, PlayerView } from '../../../packages/contracts/src';
 import { apply, decisionPlayer, effectiveStats, laneBlocks, other, projectForPlayer, replay } from '../../../packages/core/src';
 import { botCommand } from '../../../packages/core/src/bot';
 import { defaultDeckId, factionInfo, registry } from '../../../packages/content/src';
@@ -30,7 +31,10 @@ import { decksKey, parseDecks, starterOptions, type CustomDeck } from './decks';
 import { compatibleMatch, restoreSession, startMatch, type DeckName, type SavedSession } from './session';
 import { claimVictory, collectionRules, missingDeckCopies } from './collection';
 import { updateCollection, useCollection } from './collectionStore';
-import { DustAmount } from './Dust';
+import { MatchSummary } from './MatchSummary';
+import { localReplay, onlineReplay } from './replayFile';
+import { Avatar } from './Avatar';
+import { getProfile, useProfile } from './profile';
 import type { RtcRoom } from './multiplayer/RtcRoom';
 import { useRoom } from './multiplayer/useRoom';
 import { presentationState, type MatchSnapshot } from '../../../packages/multiplayer/src/protocol';
@@ -39,6 +43,9 @@ type Draft=PlayDraft & {activation?:number};
 type PreviewRequest={pinned?:boolean;cardId:string;left:number;top:number;right:number;bottom:number};
 function LibraryCount({count}:{count:number}) {
   return <div className={`library-count ${count<=6?'library-low':''}`} title={`${count} cards in library. Drawing the last card loses the game.`} aria-label={`${count} cards in library`}><BookOpen size={15}/><strong>{count}</strong><small>LIBRARY</small></div>;
+}
+function HandCount({count}:{count:number}) {
+  return <div className="library-count hand-count" title={`${count} ${count===1?'card':'cards'} in hand`} aria-label={`${count} ${count===1?'card':'cards'} in hand`}><Hand size={15}/><strong>{count}</strong><small>HAND</small></div>;
 }
 function DiscardCount({count,top,onOpen}:{count:number;top?:CardDefinition;onOpen:()=>void}) {
   return <button className="discard-count" onClick={onOpen} title={`${count} ${count===1?'card':'cards'} in the discard pile. Click to view.`} aria-label={`Open discard pile, ${count} cards`}>
@@ -62,7 +69,7 @@ export function App() {
   });
   const leaveOnline=()=>{online?.leave();setOnline(null);const saved=readSaved();setSession(saved&&saved.started!==false?{...saved,hasSaved:true}:null);};
   const onlineSnapshot=useRoom(online).snapshot;
-  if(online&&onlineSnapshot)return <MatchApp key={onlineSnapshot.matchId} online={online} leaveOnline={leaveOnline} onOnlineStart={setOnline} boot={{initial:presentationState(onlineSnapshot),commands:[],mode:'hotseat',deck:defaultDeckId,skirmish:false,started:true,hasSaved:true,openMatch:true,rewardId:onlineSnapshot.matchId,rewardEligible:true}}/>;
+  if(online&&onlineSnapshot)return <MatchApp key={onlineSnapshot.matchId} online={online} leaveOnline={leaveOnline} onOnlineStart={setOnline} boot={{initial:presentationState(onlineSnapshot),commands:[],mode:'hotseat',deck:defaultDeckId,skirmish:false,started:true,hasSaved:true,openMatch:true,rewardId:onlineSnapshot.matchId,rewardEligible:!(online as unknown as {watching?:boolean}).watching}}/>;
   return session ? <MatchApp boot={session} onOnlineStart={setOnline}/> : <AuthoringLobby onStart={saved => setSession({ ...saved, hasSaved: true, openMatch: true })} onOnlineStart={setOnline}/>;
 }
 function MatchApp({boot,online,leaveOnline,onOnlineStart}: {boot: BootSession;online?:RtcRoom;leaveOnline?:()=>void;onOnlineStart:(room:RtcRoom)=>void}) {
@@ -94,17 +101,35 @@ function MatchApp({boot,online,leaveOnline,onOnlineStart}: {boot: BootSession;on
   const actionPopoverRef=useRef<HTMLDivElement>(null);
   const [actionCard,setActionCard]=useState<string|null>(null);
   const [slotLayout,setSlotLayout]=useState<SlotLayout[]>([]),[previewRequest,setPreviewRequest]=useState<PreviewRequest|null>(null),[preview,setPreview]=useState<PreviewRequest|null>(null);
-  const [historyIndex,setHistoryIndex]=useState<number|null>(null);
+  const room=online as unknown as {watching?:boolean;history?:MatchSnapshot[]}|undefined,watching=!!room?.watching;
+  const [historyIndex,setHistoryIndex]=useState<number|null>(watching?0:null),[autoplay,setAutoplay]=useState(false),stepping=useRef(false);
+  // Online there is no command list to replay, so a match is reviewed from the snapshots this seat received: only ever what you could see.
+  const [onlineHistory,setOnlineHistory]=useState<MatchSnapshot[]>(()=>watching&&room?.history?room.history:onlineState.snapshot?[onlineState.snapshot]:[]);
+  useEffect(()=>{
+    const snap=onlineState.snapshot;if(!snap||watching)return;
+    setOnlineHistory(list=>{
+      // Undoing a channel rewinds the game to an earlier state, so anything recorded after that point is dropped.
+      const seq=(m:MatchSnapshot)=>m.view.events.at(-1)?.seq??0,last=list.at(-1);
+      if(last&&last.view.revision===snap.view.revision)return [...list.slice(0,-1),snap];
+      return [...list.filter(m=>seq(m)<seq(snap)),snap];
+    });
+  },[onlineState.snapshot,watching]);
+  const profile=useProfile(),ownArt=online?!watching:mode!=='hotseat';
+  // A portrait id travels with each player; an older match without one still shows your own profile avatar.
+  const artFor=(id:PlayerId):string|undefined=>view.players[id].avatar??(id===viewer&&ownArt?profile.avatar:undefined);
+  const historyLength=online?Math.max(0,onlineHistory.length-1):commands.length;
+  const historySteps=useMemo(()=>online?onlineHistory.slice(1).map((snap,i)=>{const seen=onlineHistory[i].view.events.at(-1)?.seq??0;return {who:snap.view.active,label:snap.view.events.filter(e=>e.seq>seen).at(-1)?.message??'Update'};}):commands.map(e=>({who:e.actor,label:e.command.type})),[online,onlineHistory,commands]);
   const [clash,setClash]=useState<{steps:ClashStep[];i:number}|null>(null),posesRef=useRef<Poses>({});
-  const displayedState=useMemo(()=>clash?clash.steps[clash.i].state:online||historyIndex===null||!compatibleMatch(state)?state:replay(initial,commands.slice(0,historyIndex),registry),[state,initial,commands,historyIndex,online,clash]);
+  const displayedState=useMemo(()=>clash?clash.steps[clash.i].state:historyIndex===null||!compatibleMatch(state)?state:online?presentationState(onlineHistory[Math.min(historyIndex,onlineHistory.length-1)]??onlineState.snapshot!):replay(initial,commands.slice(0,historyIndex),registry),[state,initial,commands,historyIndex,online,clash,onlineHistory,onlineState.snapshot]);
   const view=useMemo(()=>{
     const snap=onlineState.snapshot;
     if(!snap)return projectForPlayer(displayedState,viewer,registry);
     // While a fight replays, show the replayed boards over the live snapshot (the hand and rules data stay as they are).
-    if(!clash)return snap.view;
-    const step=displayedState,pick=(id:PlayerId)=>({...snap.view.players[id],life:step.players[id].life,board:step.players[id].board,discard:step.players[id].discard,energy:step.players[id].energy});
-    return {...snap.view,players:{p1:pick('p1'),p2:pick('p2')},cards:step.cards,combat:step.combat};
-  },[displayedState,viewer,onlineState.snapshot,clash]);
+    const base=historyIndex!==null?(onlineHistory[Math.min(historyIndex,onlineHistory.length-1)]??snap).view:snap.view;
+    if(!clash)return base;
+    const step=displayedState,pick=(id:PlayerId)=>({...base.players[id],life:step.players[id].life,board:step.players[id].board,discard:step.players[id].discard,energy:step.players[id].energy});
+    return {...base,players:{p1:pick('p1'),p2:pick('p2')},cards:step.cards,combat:step.combat};
+  },[displayedState,viewer,onlineState.snapshot,clash,historyIndex,onlineHistory]);
   const ambient=useMemo(()=>{const tally:Record<string,number>={};for(const side of ['p1','p2'] as PlayerId[])for(const id of view.players[side].board)if(id)for(const f of registry.cards[view.cards[id].definitionId]?.factions??[])tally[f]=(tally[f]??0)+1;const top=Object.entries(tally).sort((a,b)=>b[1]-a[1])[0]?.[0];return factionInfo[top??'']?.color??'#d1bd86';},[view]);
   const [banner,setBanner]=useState<{id:number;text:string;tone:'own'|'enemy'|'combat'}|null>(null),bannerSeen=useRef<{turn:number;active:PlayerId;combat:boolean}|null>(null);
   useEffect(()=>{
@@ -117,7 +142,7 @@ function MatchApp({boot,online,leaveOnline,onOnlineStart}: {boot: BootSession;on
     if(!next)return;
     const id=Date.now();setBanner({id,...next});const t=setTimeout(()=>setBanner(b=>b?.id===id?null:b),1500);return()=>clearTimeout(t);
   },[view.turn,view.active,view.combat?.stage]);
-  const actor=online?view.legal.actor:decisionPlayer(state),thinking=!online&&mode==='practice'&&actor==='p2'&&!state.outcome,live=screen==='match'&&compatibleMatch(state)&&historyIndex===null&&!clash&&!covered&&!thinking&&(!online||onlineState.connected&&!onlineState.busy&&actor===viewer);
+  const actor=online?view.legal.actor:decisionPlayer(state),thinking=!online&&mode==='practice'&&actor==='p2'&&!state.outcome,live=screen==='match'&&!watching&&compatibleMatch(state)&&historyIndex===null&&!clash&&!covered&&!thinking&&(!online||onlineState.connected&&!onlineState.busy&&actor===viewer);
   // The opponent pauses before each phase change so the player confirms it (enter combat, resolve combat, end turn).
   // In the tutorial the opponent follows a written script; once that runs out (or outside it) the regular bot plays.
   const opponentPlay=useCallback((s:GameState)=>(tutorial?opponentCommand(s,opponentMoves(commands)):null)??botCommand(s,registry),[tutorial,commands]);
@@ -131,6 +156,54 @@ function MatchApp({boot,online,leaveOnline,onOnlineStart}: {boot: BootSession;on
   const forecast=useMemo(()=>online?onlineState.snapshot?.forecast??null:combatForecast(displayedState,attackers.length?{attackers,lanes:draftLanes}:null,registry),[displayedState,attackers,draftLanes,online,onlineState.snapshot]);
   const selectedActivation=view.legal.activations.find(a=>a.cardId===draft?.cardId&&a.ability===draft?.activation);
   const targets=stage==='target'?(selectedActivation?.targets??selectedLegal?.targets??[]):stage==='consume'?selectedLegal?.consumes??[]:[];
+  /** Everything that plays when the game moves on, for a local move or an opponent's: sound, energy and spell flights, and the fight replay. */
+  const present=useCallback((before:GameState,after:GameState,events:GameEvent[],key:string)=>{
+    const tone=events.find(e=>['damage.dealt','energy.generated','card.played','spell.cast'].includes(e.type));if(tone)playTone(tone.type,sound);
+    if(reduced||covered)return;
+    const board=boardRef.current?.getBoundingClientRect(),at=(slot:SlotLayout)=>board&&({x:board.left+slot.x+slot.width/2,y:board.top+slot.y+slot.height/2});
+    if(board){
+      for(const e of events.filter(e=>e.type==='energy.generated'&&e.cardId)){
+        const card=before.cards[e.cardId!]??after.cards[e.cardId!];if(!card)continue;
+        const slot=slotLayout.find(s=>s.player===card.controller&&s.slot===card.slot),pool=(card.controller===viewer?poolRef:enemyPoolRef).current?.getBoundingClientRect();
+        const colors=Object.entries(after.players[card.controller].energy).flatMap(([color,amount])=>Array.from({length:Math.min(4,Math.max(0,amount!-(before.players[card.controller].energy[color as EnergyType]??0)))},()=>factionInfo[color as EnergyType].color));
+        const from=slot&&at(slot);
+        if(from&&pool&&colors.length)setEnergyFlights(f=>[...f.slice(-3),{id:`${key}-${e.seq}`,player:card.controller,from,to:{x:pool.left+pool.width/2,y:pool.top+pool.height/2},colors}]);
+      }
+      // Spells leave the board at once, so reveal each one and trace it to its target.
+      const casts=events.filter(e=>e.type==='spell.cast'&&e.cardId&&after.cards[e.cardId]).map((e):SpellFx=>{
+        const instance=after.cards[e.cardId!],card=registry.cards[instance.definitionId];let to:SpellFx['to']=null;
+        if(e.target==='p1'||e.target==='p2'){const pool=(e.target===viewer?poolRef:enemyPoolRef).current?.getBoundingClientRect();if(pool)to={x:pool.left+pool.width/2,y:pool.top+pool.height/2};}
+        else if(e.target){const target=before.cards[e.target],slot=slotLayout.find(l=>l.player===target?.controller&&l.slot===target?.slot);if(slot)to=at(slot)??null;}
+        return {id:`${key}-${e.seq}`,card,caster:instance.owner===viewer?'mine':'theirs',tone:spellTone(card),from:{x:board.left+board.width/2,y:board.top+board.height/2},to};
+      });
+      if(casts.length)setSpellCasts(list=>[...list.slice(-1),...casts]);
+    }
+    // A fight is replayed one exchange at a time; anything else gets numbers over what was hurt and a dissolve for the fallen.
+    if(!online&&mode==='hotseat')return;
+    const played=events.find(e=>e.type==='card.played'&&e.cardId),playedDef=played?registry.cards[after.cards[played.cardId!]?.definitionId??'']:undefined;
+    let steps:ClashStep[]=[];
+    if(before.combat?.stage==='review'&&events.some(e=>e.type==='damage.dealt'))steps=buildClash(before,events,registry);
+    else if(played&&playedDef?.type==='creature'&&playedDef.abilities.some(a=>a.id==='charge'))steps=buildCharge(after,events,registry,played.cardId!);
+    if(!steps.length)steps=buildAftermath(after,events,registry,events.some(e=>e.type==='spell.cast')?950:0);
+    if(!steps.length&&played&&playedDef?.type==='creature')steps=buildArrival(after,played.cardId!);
+    setClash(steps.length?{steps,i:0}:null);
+  },[sound,reduced,covered,slotLayout,viewer,online,mode]);
+  /** Move through a recorded match; one step forward plays that step's fight. */
+  const stepTo=useCallback((target:number)=>{
+    const next=Math.max(0,Math.min(target,onlineHistory.length-1)),from=Math.min(historyIndex??onlineHistory.length-1,onlineHistory.length-1);
+    if(next===from)return;
+    if(next===from+1&&onlineHistory[from]&&onlineHistory[next]){
+      const before=onlineHistory[from],after=onlineHistory[next],seen=before.view.events.at(-1)?.seq??0;
+      stepping.current=true;
+      present(presentationState(before),presentationState(after),after.view.events.filter(e=>e.seq>seen),`replay-${next}`);
+    }
+    setHistoryIndex(next);setSelected(null);
+  },[onlineHistory,historyIndex,present]);
+  useEffect(()=>{
+    if(!autoplay||historyIndex===null||clash)return;
+    if(historyIndex>=historyLength){setAutoplay(false);return;}
+    const timer=setTimeout(()=>stepTo(historyIndex+1),reduced?500:1300);return()=>clearTimeout(timer);
+  },[autoplay,historyIndex,historyLength,clash,stepTo,reduced]);
   const send=useCallback((command:Command)=>{
     if(screen!=='match'||historyIndex!==null||!compatibleMatch(state)||clash)return;
     if(tutorial&&!online&&decisionPlayer(state)==='p1'){const step=tutorialSteps[tutorialStep];if(!step?.accept||!step.accept(command,state)){setCoachNudge(n=>n+1);return;}}
@@ -142,48 +215,19 @@ function MatchApp({boot,online,leaveOnline,onOnlineStart}: {boot: BootSession;on
     const envelope:CommandEnvelope={actor:decisionPlayer(state),expectedRevision:state.revision,command,clientActionId:`local-${crypto.randomUUID()}`};
     const result=apply(state,envelope,registry);
     if(result.error){setError(result.error);return;}
-    if(command.type==='energy'&&!reduced&&!covered){
-      const card=state.cards[command.cardId],slot=slotLayout.find(s=>s.player===card.controller&&s.slot===card.slot),board=boardRef.current?.getBoundingClientRect();
-      const pool=(card.controller===viewer?poolRef:enemyPoolRef).current?.getBoundingClientRect();
-      const colors=Object.entries(result.state.players[envelope.actor].energy).flatMap(([color,amount])=>Array.from({length:Math.min(4,Math.max(0,amount!-(state.players[envelope.actor].energy[color as EnergyType]??0)))},()=>factionInfo[color as EnergyType].color));
-      if(slot&&board&&pool&&colors.length)setEnergyFlights(f=>[...f.slice(-3),{id:envelope.clientActionId!,player:envelope.actor,from:{x:board.left+slot.x+slot.width/2,y:board.top+slot.y+slot.height/2},to:{x:pool.left+pool.width/2,y:pool.top+pool.height/2},colors}]);
-    }
-    if(!reduced&&!covered){
-      // Spells leave the board at once, so reveal each one and trace it to its target.
-      const board=boardRef.current?.getBoundingClientRect();
-      if(board){
-        const centre={x:board.left+board.width/2,y:board.top+board.height/2};
-        const casts=result.events.filter(e=>e.type==='spell.cast'&&e.cardId).map((e,i):SpellFx=>{
-          const card=registry.cards[result.state.cards[e.cardId!].definitionId];
-          let to:SpellFx['to']=null;
-          if(e.target==='p1'||e.target==='p2'){const pool=(e.target===viewer?poolRef:enemyPoolRef).current?.getBoundingClientRect();if(pool)to={x:pool.left+pool.width/2,y:pool.top+pool.height/2};}
-          else if(e.target){const target=state.cards[e.target],slot=slotLayout.find(l=>l.player===target?.controller&&l.slot===target?.slot);if(slot)to={x:board.left+slot.x+slot.width/2,y:board.top+slot.y+slot.height/2};}
-          return {id:`${envelope.clientActionId??e.seq}-${i}`,card,caster:envelope.actor===viewer?'mine':'theirs',tone:spellTone(card),from:centre,to};
-        });
-        if(casts.length)setSpellCasts(list=>[...list.slice(-1),...casts]);
-      }
-    }
-    // A fight is replayed one exchange at a time; anything else gets numbers over what was hurt and a dissolve for the fallen.
-    let nextClash:ClashStep[]=[];
-    if(!reduced&&!covered&&mode!=='hotseat'){
-      const playedDef=command.type==='play'?registry.cards[result.state.cards[command.cardId]?.definitionId??'']:undefined;
-      if(command.type==='confirm-combat')nextClash=buildClash(state,result.events,registry);
-      else if(command.type==='play'&&playedDef?.type==='creature'&&playedDef.abilities.some(a=>a.id==='charge'))nextClash=buildCharge(result.state,result.events,registry,command.cardId);
-      if(!nextClash.length)nextClash=buildAftermath(result.state,result.events,registry,result.events.some(e=>e.type==='spell.cast')?950:0);
-      if(!nextClash.length&&command.type==='play')nextClash=buildArrival(result.state,command.cardId);
-    }
-    setClash(nextClash.length?{steps:nextClash,i:0}:null);
+    present(state,result.state,result.events,envelope.clientActionId!);
     if(tutorial&&envelope.actor==='p1')setTutorialStep(stepAfter(playerCommands(commands)+1));
     setActionCard(null);setError('');setState(result.state);setCommands(c=>[...c,envelope]);setDraft(null);setStage('none');setAttackers([]);setLanes({});setSelected(null);setHovered(null);setPreviewRequest(null);
-    const event=result.events.find(e=>['damage.dealt','energy.generated','card.played','spell.cast'].includes(e.type));if(event)playTone(event.type,sound);
-  },[state,historyIndex,sound,reduced,covered,slotLayout,viewer,screen,online,tutorial,tutorialStep,commands,clash,mode]);
+  },[state,historyIndex,present,screen,online,tutorial,tutorialStep,commands,clash]);
   useEffect(()=>{if(!clash)return;const timer=setTimeout(()=>setClash(c=>c&&(c.i+1<c.steps.length?{...c,i:c.i+1}:null)),clash.steps[clash.i].ms);return()=>clearTimeout(timer);},[clash]);
-  useEffect(()=>{setClash(null);},[viewer,initial,historyIndex,reduced,covered,screen]);
+  useEffect(()=>{setClash(null);},[viewer,initial,reduced,covered,screen]);
+  // Stepping through a replay plays each step's fight; jumping around clears whatever was playing.
+  useEffect(()=>{if(stepping.current){stepping.current=false;return;}setClash(null);setSpellCasts([]);setEnergyFlights([]);},[historyIndex]);
   useEffect(()=>{if(!clash)return;const skip=(event:KeyboardEvent)=>{if(event.key===' '||event.key==='Enter'||event.key==='Escape'){event.preventDefault();setClash(null);}};window.addEventListener('keydown',skip);return()=>window.removeEventListener('keydown',skip);},[clash]);
   useEffect(()=>{if(!spellCasts.length)return;const timer=setTimeout(()=>setSpellCasts([]),2100);return()=>clearTimeout(timer);},[spellCasts]);
-  useEffect(()=>{setSpellCasts([]);},[viewer,initial,historyIndex,reduced,covered]);
+  useEffect(()=>{setSpellCasts([]);},[viewer,initial,reduced,covered]);
   useEffect(()=>{if(!energyFlights.length)return;const timer=setTimeout(()=>setEnergyFlights([]),1600);return()=>clearTimeout(timer);},[energyFlights]);
-  useEffect(()=>{setEnergyFlights([]);},[viewer,initial,historyIndex,reduced,covered]);
+  useEffect(()=>{setEnergyFlights([]);},[viewer,initial,reduced,covered]);
   useEffect(()=>{
     if(screen==='match'&&compatibleMatch(state)&&mode==='practice'&&actor==='p2'&&!state.outcome&&historyIndex===null&&!botGate&&!clash){const timer=setTimeout(()=>send(opponentPlay(state)),state.combat?.stage==='review'?1800:reduced?130:650);return()=>clearTimeout(timer);}
   },[state,mode,actor,send,reduced,historyIndex,screen,botGate,opponentPlay,clash]);
@@ -191,7 +235,7 @@ function MatchApp({boot,online,leaveOnline,onOnlineStart}: {boot: BootSession;on
   useEffect(()=>{if(online)return;try{localStorage.setItem(savedKey,JSON.stringify({initial,commands,mode,deck,skirmish,customDeck,opponentDeck,started:hasMatch,rewardId,rewardEligible,tutorial} satisfies SavedSession));}catch{/* Saving is best-effort. */}},[initial,commands,mode,deck,skirmish,customDeck,opponentDeck,hasMatch,rewardId,rewardEligible,tutorial,online]);
   useEffect(()=>{if(onlineState.snapshot?.error)setError(onlineState.snapshot.error);},[onlineState.snapshot]);
   useEffect(()=>{if(online){setActionCard(null);setDraft(null);setStage('none');setAttackers([]);setLanes({});}},[online,view.revision]);
-  const networkPrevious=useRef<MatchSnapshot|null>(null);
+  const networkPrevious=useRef<MatchSnapshot|null>(null),historyRef=useRef<number|null>(null);historyRef.current=historyIndex;
   useEffect(()=>{
     const next=onlineState.snapshot,previous=networkPrevious.current;
     networkPrevious.current=next;
@@ -199,37 +243,8 @@ function MatchApp({boot,online,leaveOnline,onOnlineStart}: {boot: BootSession;on
     const oldSeq=previous.view.events.at(-1)?.seq??0,newSeq=next.view.events.at(-1)?.seq??0;
     if(newSeq<oldSeq){setEnergyFlights([]);return;}
     const events=next.view.events.filter(event=>event.seq>oldSeq);
-    const board=boardRef.current?.getBoundingClientRect();
-    if(board&&!reduced){
-      for(const event of events.filter(event=>event.type==='energy.generated'&&event.cardId)){
-        const card=previous.view.cards[event.cardId!]??next.view.cards[event.cardId!];
-        if(!card)continue;
-        const slot=slotLayout.find(slot=>slot.player===card.controller&&slot.slot===card.slot);
-        const pool=(card.controller===viewer?poolRef:enemyPoolRef).current?.getBoundingClientRect();
-        const colors=Object.entries(next.view.players[card.controller].energy).flatMap(([color,amount])=>Array.from({length:Math.min(4,Math.max(0,amount-(previous.view.players[card.controller].energy[color]??0)))},()=>factionInfo[color as EnergyType].color));
-        if(slot&&pool&&colors.length)setEnergyFlights(list=>[...list.slice(-3),{id:`online-${next.view.revision}-${event.seq}`,player:card.controller,from:{x:board.left+slot.x+slot.width/2,y:board.top+slot.y+slot.height/2},to:{x:pool.left+pool.width/2,y:pool.top+pool.height/2},colors}]);
-      }
-      const casts=events.filter(event=>event.type==='spell.cast'&&event.cardId).flatMap((event):SpellFx[]=>{
-        const instance=next.view.cards[event.cardId!];if(!instance)return [];
-        const card=registry.cards[instance.definitionId],from={x:board.left+board.width/2,y:board.top+board.height/2};let to:SpellFx['to']=null;
-        if(event.target==='p1'||event.target==='p2'){const pool=(event.target===viewer?poolRef:enemyPoolRef).current?.getBoundingClientRect();if(pool)to={x:pool.left+pool.width/2,y:pool.top+pool.height/2};}
-        else if(event.target){const target=previous.view.cards[event.target],slot=slotLayout.find(slot=>slot.player===target?.controller&&slot.slot===target?.slot);if(slot)to={x:board.left+slot.x+slot.width/2,y:board.top+slot.y+slot.height/2};}
-        return [{id:`online-${next.view.revision}-${event.seq}`,card,caster:instance.owner===viewer?'mine':'theirs',tone:spellTone(card),from,to}];
-      });
-      if(casts.length)setSpellCasts(list=>[...list.slice(-1),...casts]);
-    }
-    // Replay the fight on the boards, the same way a local game does.
-    if(board&&!reduced&&!clash){
-      const before=presentationState(previous),after=presentationState(next),played=events.find(event=>event.type==='card.played'&&event.cardId),playedDef=played?registry.cards[after.cards[played.cardId!]?.definitionId??'']:undefined;
-      let steps:ClashStep[]=[];
-      if(previous.view.combat?.stage==='review'&&events.some(event=>event.type==='damage.dealt'))steps=buildClash(before,events,registry);
-      else if(played&&playedDef?.type==='creature'&&playedDef.abilities.some(a=>a.id==='charge'))steps=buildCharge(after,events,registry,played.cardId!);
-      if(!steps.length)steps=buildAftermath(after,events,registry,events.some(event=>event.type==='spell.cast')?950:0);
-      if(!steps.length&&played&&playedDef?.type==='creature')steps=buildArrival(after,played.cardId!);
-      if(steps.length)setClash({steps,i:0});
-    }
-    const event=events.find(event=>['damage.dealt','energy.generated','card.played','spell.cast'].includes(event.type));if(event)playTone(event.type,sound);
-  },[online,onlineState.snapshot,reduced,slotLayout,viewer,sound]);
+    if(historyRef.current===null)present(presentationState(previous),presentationState(next),events,`online-${next.view.revision}`);
+  },[online,onlineState.snapshot,present]);
   useEffect(()=>{if(error){const t=setTimeout(()=>setError(''),5500);return()=>clearTimeout(t);}},[error]);
   useEffect(()=>{const handler=(event:KeyboardEvent)=>{if(event.key==='Escape'){setSelected(null);setDraft(null);setStage('none');setPanel(null);setActionCard(null);} };window.addEventListener('keydown',handler);return()=>window.removeEventListener('keydown',handler);},[]);
   function navigate(next:Screen) {
@@ -247,7 +262,7 @@ function MatchApp({boot,online,leaveOnline,onOnlineStart}: {boot: BootSession;on
     const starter:DeckName=starterOptions.some(d=>d.id===nextDeck)?nextDeck:defaultDeckId;
     const chosen=custom??starterOptions.find(d=>d.id===starter);
     if(chosen&&missingDeckCopies(chosen.cards,collection.counts).length){setError('You do not own enough copies to play this deck.');return;}
-    let next:GameState;try{const chosenOpponent=deckOptions.find(d=>d.id===nextOpponent);next=startMatch(nextSeed,starter,isSkirmish,custom,undefined,chosenOpponent);setOpponentDeck(chosenOpponent?structuredClone(chosenOpponent):undefined);}catch(e){setError(e instanceof Error?e.message:'This deck cannot start a match.');return;}
+    let next:GameState;try{const chosenOpponent=deckOptions.find(d=>d.id===nextOpponent);next=startMatch(nextSeed,starter,isSkirmish,custom,undefined,chosenOpponent,getProfile().name,mode==='hotseat'?undefined:getProfile().avatar);setOpponentDeck(chosenOpponent?structuredClone(chosenOpponent):undefined);}catch(e){setError(e instanceof Error?e.message:'This deck cannot start a match.');return;}
     setCustomDeck(custom?structuredClone(custom):undefined);setHasMatch(true);setScreen('match');
     setRewardId(crypto.randomUUID());setRewardEligible(true);
     setTutorial(false);setActionCard(null);setInitial(next);setCommands([]);setState(next);setMode(nextMode);setDeck(starter);setSkirmish(isSkirmish);setViewer('p1');setCovered(false);setSelected(null);setHovered(null);setPreviewRequest(null);setDraft(null);setStage('none');setHistoryIndex(null);setPanel(null);setAttackers([]);setLanes({});setError('');
@@ -273,8 +288,8 @@ function MatchApp({boot,online,leaveOnline,onOnlineStart}: {boot: BootSession;on
     setScreen(screen);
     setError('The game rules updated. A fresh match has started with your current setup.');
   },[compatible,skirmish,mode,deck,initial.seed,customDeck,screen,online]);
-  function exportReplay(){if(online)return;const data=JSON.stringify({initial,commands,mode,deck,skirmish,customDeck,started:hasMatch,rewardId,rewardEligible:false} satisfies SavedSession,null,2),url=URL.createObjectURL(new Blob([data],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=`varhyr-replay-${initial.seed}.json`;a.click();URL.revokeObjectURL(url);}
-  async function importReplay(file:File){if(online)return;try{const saved=JSON.parse(await file.text()) as SavedSession;const next=replay(saved.initial,saved.commands,registry);setInitial(saved.initial);setCommands(saved.commands);setState(next);setRewardId(saved.rewardId);setRewardEligible(false);setMode(saved.mode);setDeck(saved.deck);setSkirmish(saved.skirmish);setCustomDeck(saved.customDeck);setHasMatch(true);setScreen('match');setSetupDeck(saved.customDeck?.id??saved.deck);setSetupMode(saved.mode);setViewer(saved.mode==='hotseat'?decisionPlayer(next):'p1');setHistoryIndex(null);setPanel(null);setSelected(null);setDraft(null);setStage('none');setCovered(false);setSeed(String(saved.initial.seed));}catch{setError('This replay is incompatible or contains an invalid command.');}}
+  /** Saves what this seat saw, never more: the same file whether the match was local or online. */
+  function exportReplay(){if(watching)return;try{const file=online?onlineReplay(onlineHistory,onlineState.snapshot!.seat):localReplay(initial,commands,mode==='hotseat'?viewer:'p1',registry,rewardId??String(initial.seed)),url=URL.createObjectURL(new Blob([JSON.stringify(file)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=`varhyr-replay-${file.matchId.slice(0,8)}.json`;a.click();URL.revokeObjectURL(url);}catch(cause){setError(cause instanceof Error?cause.message:'Could not save the replay.');}}
   function beginPlay(nextDraft:Draft) {
     setActionCard(null);
     const legal=view.legal.playable.find(a=>a.cardId===nextDraft.cardId);if(!legal){setError('Generate the required energy first, and check your free slots.');return;}
@@ -412,13 +427,13 @@ function MatchApp({boot,online,leaveOnline,onOnlineStart}: {boot: BootSession;on
   return <div className={`app ${drag?'is-dragging':''} ${reduced?'reduce-motion':''} ${tutorial&&!online?'tutorial-on':''}`}>
     <div className="world-bg"/><div className="world-vignette"/>
     <header className="topbar"><button className="brand" aria-label="Realms of Varhyr home" onClick={()=>navigate('menu')}><span className="brand-mark">V<span/></span><span><small>REALMS OF</small><strong>VARHYR</strong></span></button><div className="match-status" aria-label={`Turn ${view.turn}, ${view.active===viewer?'your':'opponent’s'} initiative`}><span>Turn {view.turn}</span><i/><strong>{online&&actor!==viewer?'Opponent’s turn':thinking?'Opponent’s turn':view.combat?.stage==='review'?'Review combat':deathWindow?'Death energy':view.phase==='play'?'Play & channel':view.phase==='attack'?'Select attackers':view.phase==='draw'?'Choose a card':'End turn'}</strong></div><nav className="game-navigation"><button onClick={()=>navigate('menu')} aria-label={online?"Leave online game":"Main menu"}><span>{online?"Leave":"Menu"}</span></button><button className={logOpen?'active-nav':''} onClick={()=>setLogOpen(open=>!open)} aria-label="Toggle battle log" aria-pressed={logOpen}><ScrollText size={17}/><span>Log</span></button>{!online&&<button onClick={()=>navigate('cards')} aria-label="Browse cards"><BookOpen size={17}/><span>Cards</span></button>}<button onClick={()=>setPanel('settings')} aria-label="Match settings"><Settings2 size={18}/></button></nav></header>
-    {online&&<div className={`online-connection-strip ${onlineState.connected?'connected':'offline'}`} role="status"><span className="online-status-dot"/><span>Room {onlineState.code} · {onlineState.connected?onlineState.busy?'Sending move…':'Connected':onlineState.message}</span>{!onlineState.connected&&<button onClick={()=>online.reconnect()}>Reconnect</button>}</div>}
+    {online&&!watching&&<div className={`online-connection-strip ${onlineState.connected?'connected':'offline'}`} role="status"><span className="online-status-dot"/><span>Room {onlineState.code} · {onlineState.connected?onlineState.busy?'Sending move…':'Connected':onlineState.message}</span>{!onlineState.connected&&<button onClick={()=>online.reconnect()}>Reconnect</button>}</div>}
     <main className={`arena-shell ${logOpen?'with-log':''}`}>
       <section className="battlefield">
         <div className={`player-banner opponent ${targets.includes(other(viewer))||drag&&resolveDrop(view,viewer,registry,drag.cardId,{player:other(viewer)})?'targetable':''}`}>
-          <div className="portrait"><button ref={enemyAvatarRef} className="avatar enemy-avatar" aria-label="Target opponent" disabled={!live||!targets.includes(other(viewer))&&!(drag&&resolveDrop(view,viewer,registry,drag.cardId,{player:other(viewer)}))} onClick={()=>sendTarget(other(viewer))}>{factionSymbol(other(viewer))}</button><div className="life-counter"><Heart size={11} aria-hidden="true"/><strong>{opponent.life}</strong><small>LIFE</small></div></div>
+          <div className="portrait"><button ref={enemyAvatarRef} className={`avatar enemy-avatar ${artFor(other(viewer))?'has-art':''}`} aria-label="Target opponent" disabled={!live||!targets.includes(other(viewer))&&!(drag&&resolveDrop(view,viewer,registry,drag.cardId,{player:other(viewer)}))} onClick={()=>sendTarget(other(viewer))}>{artFor(other(viewer))?<Avatar id={artFor(other(viewer))!}/>:factionSymbol(other(viewer))}</button><div className="life-counter"><Heart size={11} aria-hidden="true"/><strong>{opponent.life}</strong><small>LIFE</small></div></div>
           <div className="player-name"><h2>{opponent.name}</h2></div>
-          <div ref={enemyPoolRef} title="Energy pool" className={`energy-meter opponent-pool ${deathWindow&&view.active===viewer?'death-pool':''} ${energyFlights.some(f=>f.player===other(viewer))?'receiving-energy':''}`}><Zap className="pool-icon" size={17}/>{deathWindow&&view.active===viewer&&<span className="eyebrow">DEATH ENERGY</span>}<Energy pool={deathWindow&&view.active===viewer?opponent.deathEnergy:opponent.energy}/></div><div className="player-meta"><span title="Cards in hand"><BookOpen size={13}/>{opponent.handCount}</span><span title="Cards in deck"><LayersIcon/>{opponent.deckCount}</span></div><div className="piles"><LibraryCount count={opponent.deckCount}/><DiscardCount count={opponent.discard.length} top={discardTop(opponent.discard)} onOpen={()=>setPanel('discard')}/></div>
+          <div ref={enemyPoolRef} title="Energy pool" className={`energy-meter opponent-pool ${deathWindow&&view.active===viewer?'death-pool':''} ${energyFlights.some(f=>f.player===other(viewer))?'receiving-energy':''}`}><Zap className="pool-icon" size={17}/>{deathWindow&&view.active===viewer&&<span className="eyebrow">DEATH ENERGY</span>}<Energy pool={deathWindow&&view.active===viewer?opponent.deathEnergy:opponent.energy}/></div><div className="player-meta"><span title="Cards in hand"><BookOpen size={13}/>{opponent.handCount}</span><span title="Cards in deck"><LayersIcon/>{opponent.deckCount}</span></div><div className="piles"><HandCount count={opponent.handCount}/><LibraryCount count={opponent.deckCount}/><DiscardCount count={opponent.discard.length} top={discardTop(opponent.discard)} onOpen={()=>setPanel('discard')}/></div>
         </div>
         <div ref={boardRef} className="board-scene" style={{'--ambient':ambient} as CSSProperties} onPointerMove={e=>{if(!drag){const lane=laneAtX(e.clientX);setHoverLane(current=>current===lane?current:lane);}}} onPointerLeave={()=>setHoverLane(null)}>
 
@@ -458,7 +473,7 @@ function MatchApp({boot,online,leaveOnline,onOnlineStart}: {boot: BootSession;on
           <div className="board-key-row own-keys">{you.board.map((id,i)=><button key={i} onFocus={()=>id&&hoverBoard(id)} onBlur={()=>hoverBoard(null)} onContextMenu={e=>{e.preventDefault();if(id)inspectBoard(id);}} onClick={e=>id?(e.shiftKey?inspectBoard(id):selectBoard(id)):draft&&live&&beginPlay({...draft,slot:i})} disabled={!live||!id&&(!draft||draft.activation!==undefined||registry.cards[view.cards[draft.cardId].definitionId].type==='spell')} aria-label={`Your ${positionName(i)}: ${id?registry.cards[view.cards[id].definitionId].name:'empty'}`} title={`${positionName(i)} · ${id?registry.cards[view.cards[id].definitionId].name:'Deploy here'}`}>{i+1}</button>)}</div>
 
         </div>
-        <div className="player-banner own"><div className="portrait"><div className="avatar">{factionSymbol(viewer)}</div><div className="life-counter"><Heart size={11} aria-hidden="true"/><strong>{you.life}</strong><small>LIFE</small></div></div><div className="player-name">{!online&&viewer!=='p1'&&<span className="eyebrow">PLAYER TWO</span>}<h2>{you.name}</h2></div><div ref={poolRef} title="Energy pool" className={`energy-meter ${deathWindow&&view.active!==viewer?'death-pool':''} ${energyFlights.some(f=>f.player===viewer)?'receiving-energy':''}`}><Zap className="pool-icon" size={20}/>{deathWindow&&view.active!==viewer&&<span className="eyebrow">DEATH ENERGY</span>}<Energy pool={deathWindow&&view.active!==viewer?you.deathEnergy:you.energy}/></div><div className="player-meta"><span title="Deck"><LayersIcon/>{you.deckCount}</span></div><div className="piles"><LibraryCount count={you.deckCount}/><DiscardCount count={you.discard.length} top={discardTop(you.discard)} onOpen={()=>setPanel('discard')}/></div></div>
+        <div className="player-banner own"><div className="portrait"><div className={`avatar ${artFor(viewer)?'has-art':''}`}>{artFor(viewer)?<Avatar id={artFor(viewer)!}/>:factionSymbol(viewer)}</div><div className="life-counter"><Heart size={11} aria-hidden="true"/><strong>{you.life}</strong><small>LIFE</small></div></div><div className="player-name">{!online&&viewer!=='p1'&&<span className="eyebrow">PLAYER TWO</span>}<h2>{you.name}</h2></div><div ref={poolRef} title="Energy pool" className={`energy-meter ${deathWindow&&view.active!==viewer?'death-pool':''} ${energyFlights.some(f=>f.player===viewer)?'receiving-energy':''}`}><Zap className="pool-icon" size={20}/>{deathWindow&&view.active!==viewer&&<span className="eyebrow">DEATH ENERGY</span>}<Energy pool={deathWindow&&view.active!==viewer?you.deathEnergy:you.energy}/></div><div className="player-meta"><span title="Deck"><LayersIcon/>{you.deckCount}</span></div><div className="piles"><HandCount count={you.handCount}/><LibraryCount count={you.deckCount}/><DiscardCount count={you.discard.length} top={discardTop(you.discard)} onOpen={()=>setPanel('discard')}/></div></div>
         <div className="floating-action"><div className="action-guidance"><p id="turn-guidance" role="status">{prompt}</p>{forecast&&(!thinking||view.combat?.stage==='review')&&<span className="combat-forecast" aria-label={`${forecast.blocked} blocked, ${forecast.fallen} defenders and ${forecast.attackersFallen} attackers lost, ${forecast.lifeDamage} life damage`}>{(()=>{const mine=view.active===viewer,lostOwn=mine?forecast.attackersFallen:forecast.fallen,lostFoe=mine?forecast.fallen:forecast.attackersFallen;return <>
           {forecast.blocked>0&&<i title="Blocked attackers"><Shield size={12}/>{forecast.blocked}</i>}
           {lostFoe>0&&<i className="good" title="Enemy cards destroyed"><Skull size={12}/>{lostFoe}</i>}
@@ -472,12 +487,14 @@ function MatchApp({boot,online,leaveOnline,onOnlineStart}: {boot: BootSession;on
     <section className="hand-zone">{stage!=='none'&&<div className="hand-caption"><p>{stage==='consume'?'Choose what to Consume':stage==='position'?'Choose your position':'Choose your target'}</p></div>}<div className="hand-scroll" style={{['--n' as string]:view.hand.length}}>{view.hand.map((id,i)=><ArtCard detail={false} reduced={reduced} key={id} card={registry.cards[view.cards[id].definitionId]} selected={selected===id} disabled={!view.legal.playable.some(a=>a.cardId===id)} className={`hand-card ${drag?.cardId===id?'drag-source':''} ${dragEnabled&&view.legal.playable.some(a=>a.cardId===id)?'draggable':''}`} interaction={{id:`hand-${id}`,onContextMenu:e=>{e.preventDefault();pinPreview(id,e.currentTarget.getBoundingClientRect());},onPointerDown:e=>startDrag(id,e),onPointerEnter:e=>{if(e.pointerType!=='touch'&&!drag)requestPreview(id,e.currentTarget.getBoundingClientRect());},onPointerLeave:clearHoverPreview,onFocus:e=>requestPreview(id,e.currentTarget.getBoundingClientRect()),onBlur:clearHoverPreview}} onClick={()=>{if(!live||suppressClick())return;pinPreview(id,document.getElementById(`hand-${id}`)!.getBoundingClientRect());setDraft(null);setStage('none');}}/>)}{!view.hand.length&&<div className="empty-hand">No cards in hand</div>}</div></section>
 
     {error&&<div className="toast" role="alert">{error}<button aria-label="Dismiss error" onClick={()=>setError('')}><X size={14}/></button></div>}
-    {historyIndex!==null&&<div className="replay-bar"><Eye size={16}/>Viewing command {historyIndex} of {commands.length}<button onClick={()=>setHistoryIndex(null)}>Return to live match<Play size={13}/></button></div>}
+    {historyIndex!==null&&<div className={`replay-bar ${watching?'watching':''}`}><Eye size={16}/><span>{watching?'Replay':'Viewing'} · step {historyIndex} of {historyLength}</span>
+      {watching&&<span className="replay-controls"><button aria-label="First step" disabled={historyIndex===0} onClick={()=>{setAutoplay(false);stepTo(0);}}><SkipBack size={14}/></button><button aria-label="Previous step" disabled={historyIndex===0} onClick={()=>{setAutoplay(false);stepTo(historyIndex-1);}}><ChevronLeft size={15}/></button><button className="replay-play" aria-label={autoplay?'Pause':'Play'} onClick={()=>{if(historyIndex>=historyLength)stepTo(0);setAutoplay(a=>!a);}}>{autoplay?<Pause size={14}/>:<Play size={14}/>}</button><button aria-label="Next step" disabled={historyIndex>=historyLength} onClick={()=>{setAutoplay(false);stepTo(historyIndex+1);}}><ChevronRight size={15}/></button><button aria-label="Last step" disabled={historyIndex>=historyLength} onClick={()=>{setAutoplay(false);stepTo(historyLength);}}><SkipForward size={14}/></button></span>}
+      {watching?<button onClick={()=>leaveOnline?.()}>Close replay<X size={13}/></button>:<button onClick={()=>setHistoryIndex(null)}>Return to live match<Play size={13}/></button>}</div>}
     {covered&&<div className="modal-backdrop privacy"><div className="privacy-card"><span className="brand-mark">V</span><h2>{state.players[actor].name}</h2>{state.combat?.stage==='review'?<p>Review the lanes and blockers, then confirm combat.</p>:state.combat?.stage==='death'?<p>Spend your fallen creatures’ energy.</p>:null}<button className="gold-button" onClick={()=>{setViewer(actor);setCovered(false);setSelected(null);setHovered(null);}}>Reveal my hand<Eye size={16}/></button></div></div>}
-    {view.pending?.kind==='mulligan'&&!covered&&!thinking&&<div className="modal-backdrop"><div className="choice-dialog mulligan-dialog"><h2>Replace up to {view.pending.max} cards</h2><div className="choice-options mulligan-options">{view.pending.options.map(id=>{const picked=mulliganPick.includes(id),full=!picked&&mulliganPick.length>=(view.pending as {max:number}).max;return <div key={id} className={`mulligan-card ${picked?'picked':''} ${full?'locked':''}`}><ArtCard detail={false} reduced={reduced} card={registry.cards[view.cards[id].definitionId]} interaction={{id:`mull-${id}`,onPointerEnter:e=>{if(e.pointerType!=='touch')requestPreview(id,e.currentTarget.getBoundingClientRect());},onPointerLeave:clearHoverPreview,onFocus:e=>requestPreview(id,e.currentTarget.getBoundingClientRect()),onBlur:clearHoverPreview,onContextMenu:e=>{e.preventDefault();pinPreview(id,e.currentTarget.getBoundingClientRect());}}} onClick={()=>setMulliganPick(list=>picked?list.filter(x=>x!==id):full?list:[...list,id])}/><span className="mulligan-mark">{picked?'Replace':'Keep'}</span></div>;})}</div><button className="gold-button mulligan-confirm" disabled={!!online&&!live} onClick={()=>{const cardIds=mulliganPick;setMulliganPick([]);send({type:'mulligan',cardIds});}}>{mulliganPick.length?`Replace ${mulliganPick.length} ${mulliganPick.length===1?'card':'cards'}`:'Keep this hand'}<ArrowRight size={14}/></button></div></div>}
+    {view.pending?.kind==='mulligan'&&!covered&&!thinking&&<PeekBackdrop back="Back to your hand"><div className="choice-dialog mulligan-dialog"><h2>Replace up to {view.pending.max} cards</h2><div className="choice-options mulligan-options">{view.pending.options.map(id=>{const picked=mulliganPick.includes(id),full=!picked&&mulliganPick.length>=(view.pending as {max:number}).max;return <div key={id} className={`mulligan-card ${picked?'picked':''} ${full?'locked':''}`}><ArtCard detail={false} reduced={reduced} card={registry.cards[view.cards[id].definitionId]} interaction={{id:`mull-${id}`,onPointerEnter:e=>{if(e.pointerType!=='touch')requestPreview(id,e.currentTarget.getBoundingClientRect());},onPointerLeave:clearHoverPreview,onFocus:e=>requestPreview(id,e.currentTarget.getBoundingClientRect()),onBlur:clearHoverPreview,onContextMenu:e=>{e.preventDefault();pinPreview(id,e.currentTarget.getBoundingClientRect());}}} onClick={()=>setMulliganPick(list=>picked?list.filter(x=>x!==id):full?list:[...list,id])}/><span className="mulligan-mark">{picked?'Replace':'Keep'}</span></div>;})}</div><button className="gold-button mulligan-confirm" disabled={!!online&&!live} onClick={()=>{const cardIds=mulliganPick;setMulliganPick([]);send({type:'mulligan',cardIds});}}>{mulliganPick.length?`Replace ${mulliganPick.length} ${mulliganPick.length===1?'card':'cards'}`:'Keep this hand'}<ArrowRight size={14}/></button></div></PeekBackdrop>}
     {view.pending?.kind==='draw'&&!covered&&!thinking&&<DrawChoice reduced={reduced} cards={(view.pending.options as string[]).map(id=>({id,card:registry.cards[view.cards[id].definitionId]}))} discardCount={you.discard.length} discardTop={discardTop(you.discard)} libraryCount={you.deckCount} choose={(keep,other)=>send({type:'choose',choiceId:view.pending!.id,option:keep,other})}/>}
-    {view.pending&&view.pending.kind==='death-energy'&&!covered&&!thinking&&<div className="modal-backdrop"><div className="choice-dialog"><h2>{view.pending.sourceName}: choose its energy</h2><div className="choice-options">{view.pending.options.map((pool,i)=><button className="energy-choice" key={i} onClick={()=>send({type:'choose',choiceId:view.pending!.id,option:i})}><Energy pool={pool}/><span>Choose this output<ArrowRight size={14}/></span></button>)}</div></div></div>}
-    {state.outcome&&!clash&&!covered&&historyIndex===null&&<div className="modal-backdrop"><div className="result-dialog"><span className="result-mark">{state.outcome===viewer?factionSymbol(viewer):'✦'}</span><h2>{state.outcome==='draw'?'Draw':state.outcome===viewer?'Victory':'Defeat'}</h2><p>{state.outcome==='draw'?'Both sides fell in the same resolution.':state.outcomeReason==='empty-library'?`${state.players[other(state.outcome)].name} exhausted their library. ${state.players[state.outcome].name} wins.`:`${state.players[state.outcome].name} claims the battlefield.`}</p>{(online?state.outcome===viewer:state.outcome==='p1')&&rewardId&&collection.rewardedMatches.includes(rewardId)&&<div className="victory-rewards" role="status"><div><DustAmount amount={collectionRules.victoryDust}/><span><Sparkles size={18}/>+1 Realm’s Bounty booster</span></div><small>{collectionSaved?'Added to your collection.':'Available this session; browser storage could not save the reward.'}</small></div>}<div className="result-actions"><button className="outline-button" onClick={()=>navigate('menu')}>Main menu</button>{!online&&<><button className="gold-button" onClick={()=>reset(false)}>Play again<ArrowRight size={16}/></button><button className="outline-button" onClick={exportReplay}>Save replay<Download size={15}/></button><button className="text-button" onClick={()=>{setHistoryIndex(commands.length);setPanel('debug');}}>Review this match</button></>}</div></div></div>}
+    {view.pending&&view.pending.kind==='death-energy'&&!covered&&!thinking&&<PeekBackdrop back="Back to the choice"><div className="choice-dialog"><h2>{view.pending.sourceName}: choose its energy</h2><div className="choice-options">{view.pending.options.map((pool,i)=><button className="energy-choice" key={i} onClick={()=>send({type:'choose',choiceId:view.pending!.id,option:i})}><Energy pool={pool}/><span>Choose this output<ArrowRight size={14}/></span></button>)}</div></div></PeekBackdrop>}
+    {state.outcome&&!clash&&!covered&&(historyIndex===null||watching&&historyIndex>=historyLength)&&<MatchSummary state={state} viewer={viewer} registry={registry} reduced={reduced} symbol={factionSymbol(viewer)} reward={!watching&&(online?state.outcome===viewer:state.outcome==='p1')&&rewardId&&collection.rewardedMatches.includes(rewardId)?{crowns:collectionRules.victoryCrowns,boosters:collectionRules.victoryBoosters,saved:collectionSaved}:null} onMenu={()=>navigate('menu')} onAgain={online?undefined:()=>reset(false)} onExport={watching?undefined:exportReplay} reviewLabel={watching?'Watch again':undefined} onReview={watching?()=>{setHistoryIndex(0);}:()=>{setHistoryIndex(historyLength);setPanel('debug');}}/>}
     {actionCard&&actionInstance&&live&&!covered&&!panel&&<div ref={actionPopoverRef} className="creature-actions" role="dialog" aria-label={`${registry.cards[actionInstance.definitionId].name} actions`} style={{...actionPosition,maxHeight:window.innerHeight-actionPosition.top-12}}><div className="creature-actions-heading"><span>{registry.cards[actionInstance.definitionId].name}</span><button aria-label="Close card actions" onClick={()=>setActionCard(null)}><X size={14}/></button></div>{creatureActions(view,actionCard,undoable,attackers,draftLanes).map((action,i)=><button autoFocus={i===0} key={i} className="inline-creature-action" onClick={()=>performCreatureAction(actionCard,action)}>{action.kind==='channel'?<><Zap size={15}/><span>Channel</span><Energy pool={action.output}/></>:action.kind==='activate'?<><Sparkles size={15}/>{cardAbilityDescriptions(registry.cards[actionInstance.definitionId])[action.ability].name}</>:action.kind==='undo-channel'?<><RotateCcw size={15}/>Undo channel</>:action.kind==='attack'?<><Swords size={15}/><span>{action.current?'Attacking':'Attack'} · {positionName(action.lane)}</span><small>{laneOccupant(action.lane)}</small></>:<><RotateCcw size={15}/>Withdraw attack</>}</button>)}<button className="inline-inspect-action" onClick={()=>inspectBoard(actionCard)}><Eye size={13}/>Inspect card</button><small>{view.combat?.stage==='declare'?'Choose a lane to attack.':'Choose an action.'}</small></div>}
     {drag&&dragDef&&<div className="drag-ghost" style={{left:drag.x,top:drag.y}}><ArtCard detail={false} card={dragDef} className="drag-card"/><span className={dropPlay||dropLane!==null?'valid':''}>{draggingAttacker?dropLane!==null?'Release to attack this lane':'Choose a highlighted lane':dropPlay?dropPlay.consume?'Release to Consume':dropPlay.target||dragDef.type==='spell'?'Release to cast':'Release to deploy':view.legal.playable.some(a=>a.cardId===drag.cardId)?'Choose a highlighted slot or target':'Needs energy or legal timing'}</span></div>}
     {preview&&previewCard&&previewDef&&!actionCard&&!drag&&!panel&&!covered&&(!view.pending||view.pending.kind==='mulligan')&&!state.outcome&&<div className="preview-anchor" aria-hidden style={{left:preview.left,top:preview.top,width:preview.right-preview.left,height:preview.bottom-preview.top}}/>}
@@ -504,10 +521,10 @@ function MatchApp({boot,online,leaveOnline,onOnlineStart}: {boot: BootSession;on
         ['06','Ready & pass','At the end of your turn, your surviving field cards ready. Damage clears from all field cards and all energy expires. Drawing the last card in your library immediately loses the game. Discards do not recycle.']
       ].map(([n,title,copy])=><article key={n}><span>{n}</span><div><h3>{title}</h3><p>{copy}</p></div></article>)}<div className="note-box">Left Flank · Left Wing · Center · Right Wing · Right Flank. Choose a position when deploying. Cards cannot move while on the battlefield. Adjacent means one slot away in the same row; empty slots do not close the gap. Position affects an ability only when its text says so.</div><div className="note-box">Bastions occupy a field slot and deal their printed damage when blocking. They cannot attack or produce energy, including on death. Continuous effects stay active while on the field; activated abilities exhaust a ready field card during its controller’s play phase.</div><div className="note-box">Consume is an ability on specific cards. It sacrifices a friendly creature as a play cost, freeing its slot. There is no free sacrifice action.</div></div>}
       {panel==='settings'&&online&&<div className="settings-content"><p className="lead">Room {onlineState.code}. You are {onlineState.role==='host'?'the host':'the guest'}. Keep the host’s tab open.</p><p>{onlineState.message}</p>{(onlineState.role==='guest'||!onlineState.connected)&&<button className="gold-button full" onClick={()=>online.reconnect()}>Reconnect</button>}<button className="outline-button full" onClick={leaveOnline}>Leave online game</button></div>}
-      {panel==='settings'&&!online&&<div className="settings-content"><label>PLAY MODE<select value={setupMode} onChange={e=>setSetupMode(e.target.value as Mode)}><option value="practice">Practice against the court</option><option value="hotseat">Two players · one device</option></select></label><label>YOUR DECK<select value={setupDeck} onChange={e=>setSetupDeck(e.target.value)}>{deckOptions.map(d=><option key={d.id} value={d.id} disabled={d.cards.length<deckRules.minimumCards}>{d.name}{d.cards.length<deckRules.minimumCards?' · unfinished':''}</option>)}</select></label><label>OPPONENT DECK<select value={setupOpponent} onChange={e=>setSetupOpponent(e.target.value)}><option value="auto">Automatic</option>{deckOptions.map(d=><option key={d.id} value={d.id} disabled={d.cards.length<deckRules.minimumCards}>{d.name}{d.cards.length<deckRules.minimumCards?' · unfinished':''}</option>)}</select></label><label>MATCH SEED<input type="number" value={seed} onChange={e=>setSeed(e.target.value)}/><small>The same seed produces the same shuffle.</small></label><button className="gold-button full" onClick={()=>reset(false,setupMode,setupDeck)}>Start a fresh match<ArrowRight size={17}/></button><button className="outline-button full" onClick={()=>reset(true,setupMode,setupDeck)}>Jump into a skirmish<SkipForward size={17}/></button><div className="setting-toggle"><div><h3>Reduced motion</h3></div><button className={`toggle ${reduced?'on':''}`} role="switch" aria-checked={reduced} aria-label="Reduced motion" onClick={()=>setReduced(!reduced)}><span/></button></div><div className="setting-toggle"><div><h3>Interaction sounds</h3></div><button className={`toggle ${sound?'on':''}`} role="switch" aria-checked={sound} aria-label="Interaction sounds" onClick={()=>setSound(!sound)}><span/></button></div><div className="match-tools"><button className="text-button" onClick={()=>setPanel('rules')}><CircleHelp size={15}/>How to play</button><button className="text-button" onClick={()=>setPanel('journal')}><ScrollText size={15}/>Battle journal</button><button className="text-button" onClick={()=>setPanel('debug')}><Terminal size={15}/>Match laboratory</button></div><button className="text-button" onClick={exportReplay}><Download size={14}/>Export replay</button><label className="import-label">Import replay<input type="file" accept=".json" onChange={e=>e.target.files?.[0]&&void importReplay(e.target.files[0])}/></label></div>}
+      {panel==='settings'&&!online&&<div className="settings-content"><label>PLAY MODE<select value={setupMode} onChange={e=>setSetupMode(e.target.value as Mode)}><option value="practice">Practice against the court</option><option value="hotseat">Two players · one device</option></select></label><label>YOUR DECK<select value={setupDeck} onChange={e=>setSetupDeck(e.target.value)}>{deckOptions.map(d=><option key={d.id} value={d.id} disabled={d.cards.length<deckRules.minimumCards}>{d.name}{d.cards.length<deckRules.minimumCards?' · unfinished':''}</option>)}</select></label><label>OPPONENT DECK<select value={setupOpponent} onChange={e=>setSetupOpponent(e.target.value)}><option value="auto">Automatic</option>{deckOptions.map(d=><option key={d.id} value={d.id} disabled={d.cards.length<deckRules.minimumCards}>{d.name}{d.cards.length<deckRules.minimumCards?' · unfinished':''}</option>)}</select></label><label>MATCH SEED<input type="number" value={seed} onChange={e=>setSeed(e.target.value)}/><small>The same seed produces the same shuffle.</small></label><button className="gold-button full" onClick={()=>reset(false,setupMode,setupDeck)}>Start a fresh match<ArrowRight size={17}/></button><button className="outline-button full" onClick={()=>reset(true,setupMode,setupDeck)}>Jump into a skirmish<SkipForward size={17}/></button><div className="setting-toggle"><div><h3>Reduced motion</h3></div><button className={`toggle ${reduced?'on':''}`} role="switch" aria-checked={reduced} aria-label="Reduced motion" onClick={()=>setReduced(!reduced)}><span/></button></div><div className="setting-toggle"><div><h3>Interaction sounds</h3></div><button className={`toggle ${sound?'on':''}`} role="switch" aria-checked={sound} aria-label="Interaction sounds" onClick={()=>setSound(!sound)}><span/></button></div><div className="match-tools"><button className="text-button" onClick={()=>setPanel('rules')}><CircleHelp size={15}/>How to play</button><button className="text-button" onClick={()=>setPanel('journal')}><ScrollText size={15}/>Battle journal</button><button className="text-button" onClick={()=>setPanel('debug')}><Terminal size={15}/>Match laboratory</button></div><button className="text-button" onClick={exportReplay}><Download size={14}/>Export replay</button></div>}
       {panel==='discard'&&<div className="discard-content">{[viewer,other(viewer)].map(owner=><section key={owner}><h3>{view.players[owner].name} <small>{view.players[owner].discard.length} {view.players[owner].discard.length===1?'card':'cards'}</small></h3>{view.players[owner].discard.length?<div className="codex-grid">{[...view.players[owner].discard].reverse().map(id=><article key={id}><ArtCard reduced card={registry.cards[view.cards[id].definitionId]}/></article>)}</div>:<p className="empty-pile">Nothing here yet.</p>}</section>)}</div>}
       {panel==='journal'&&<div className="journal-content"><div className="discard-summary">{(['p1','p2'] as PlayerId[]).map(p=><div key={p}><h3>{view.players[p].name}</h3><p className="journal-counts">{view.players[p].handCount} in hand · {view.players[p].deckCount} in deck</p><span className="eyebrow">DISCARD · {view.players[p].discard.length}</span>{view.players[p].discard.map(id=><p key={id}>{registry.cards[view.cards[id].definitionId].name}</p>)}</div>)}</div><h3>Match events</h3><ol className="event-list">{[...view.events].reverse().map(e=><li key={e.seq}><span>{String(e.seq).padStart(3,'0')}</span><p>{e.message}</p></li>)}</ol></div>}
-      {panel==='debug'&&<div className="debug-content"><div className="debug-metrics"><span>Revision<b>{view.revision}</b></span><span>Commands<b>{commands.length}</b></span><span>Seed<b>{initial.seed}</b></span></div><label>TIME TRAVEL<input type="range" min={0} max={commands.length} value={historyIndex??commands.length} onChange={e=>{setHistoryIndex(Number(e.target.value));setSelected(null);}}/></label><div className="debug-actions"><button className="outline-button" onClick={()=>setHistoryIndex(null)}>Return to live</button><button className="outline-button" onClick={exportReplay}>Export replay<Download size={14}/></button></div><details><summary>Player projection</summary><pre>{JSON.stringify(view,null,2)}</pre></details><h3>Accepted commands</h3><ol className="command-list">{commands.map((e,i)=><li key={i}><button onClick={()=>setHistoryIndex(i+1)}><span>{i+1}</span><b>{e.actor}</b>{e.command.type}<ChevronRight size={13}/></button></li>)}</ol></div>}
+      {panel==='debug'&&<div className="debug-content"><div className="debug-metrics"><span>Revision<b>{view.revision}</b></span><span>Steps<b>{historyLength}</b></span><span>Seed<b>{initial.seed}</b></span></div><label>TIME TRAVEL<input type="range" min={0} max={historyLength} value={historyIndex??historyLength} onChange={e=>{setHistoryIndex(Number(e.target.value));setSelected(null);}}/></label><div className="debug-actions"><button className="outline-button" onClick={()=>setHistoryIndex(null)}>Return to live</button>{!online&&<button className="outline-button" onClick={exportReplay}>Export replay<Download size={14}/></button>}</div><details><summary>Player projection</summary><pre>{JSON.stringify(view,null,2)}</pre></details><h3>{online?'What happened':'Accepted commands'}</h3><ol className="command-list">{historySteps.map((e,i)=><li key={i}><button onClick={()=>setHistoryIndex(i+1)}><span>{i+1}</span><b>{e.who}</b>{e.label}<ChevronRight size={13}/></button></li>)}</ol></div>}
     </section></div>}
   </div>;
 }

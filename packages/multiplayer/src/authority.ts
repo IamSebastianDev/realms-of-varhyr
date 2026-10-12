@@ -11,9 +11,10 @@ export class MatchAuthority {
   private commands: CommandEnvelope[] = [];
   private revision = 0;
   private accepted = new Map<string, { serialized: string; error?: string }>();
-  constructor(private registry: Registry, readonly matchId: string, decks: [MatchDeck,MatchDeck], names: [string,string], seed: number) {
+  constructor(private registry: Registry, readonly matchId: string, decks: [MatchDeck,MatchDeck], names: [string,string], seed: number, avatars?: [string|undefined,string|undefined]) {
     this.initial = createMatch(registry,[decks[0].cards,decks[1].cards],seed,{mulligan:true});
     this.initial.players.p1.name=names[0];this.initial.players.p2.name=names[1];
+    if(avatars?.[0])this.initial.players.p1.avatar=avatars[0];if(avatars?.[1])this.initial.players.p2.avatar=avatars[1];
     this.state=structuredClone(this.initial);
   }
   static validateHello(hello: Hello, registry: Registry) {

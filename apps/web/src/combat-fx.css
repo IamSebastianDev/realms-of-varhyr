@@ -81,15 +81,18 @@
 @keyframes vignette-hit{0%{opacity:0}18%{opacity:1}100%{opacity:0}}
 
 /* ── Turn banner ────────────────────────────────────────────────── */
-.turn-banner{position:absolute;left:0;right:0;top:50%;height:74px;margin-top:-37px;z-index:6;pointer-events:none;display:grid;place-items:center;overflow:hidden;
-  background:linear-gradient(90deg,transparent,#06120dd9 18%,#06120dd9 82%,transparent);animation:banner-life 1.5s ease both}
-.turn-banner::before,.turn-banner::after{content:'';position:absolute;left:8%;right:8%;height:1px;background:linear-gradient(90deg,transparent,#e2c98c,transparent)}
-.turn-banner::before{top:0}.turn-banner::after{bottom:0}
-.turn-banner span{font:600 30px/1 'Cinzel','Trajan Pro',Georgia,serif;letter-spacing:.14em;color:#f4e3b2;text-shadow:0 0 18px #e2c98c88,0 2px 0 #000a;animation:banner-text 1.5s cubic-bezier(.2,.8,.2,1) both}
-.turn-banner.enemy span{color:#e9b9a6;text-shadow:0 0 18px #c8584488,0 2px 0 #000a}
-.turn-banner.combat span{color:#ffd9a0;text-shadow:0 0 20px #ff8c3a99,0 2px 0 #000a}
-@keyframes banner-life{0%{opacity:0;transform:scaleY(.2)}14%{opacity:1;transform:scaleY(1)}78%{opacity:1}100%{opacity:0;transform:scaleY(.6)}}
-@keyframes banner-text{0%{transform:translateX(-60px);opacity:0;letter-spacing:.3em}22%{transform:translateX(0);opacity:1;letter-spacing:.14em}80%{transform:translateX(0);opacity:1}100%{transform:translateX(40px);opacity:0}}
+.turn-banner{--tone:#e2c98c;position:absolute;left:50%;top:50%;z-index:6;pointer-events:none;transform:translate(-50%,-50%);
+  padding:9px 38px 8px;border:1px solid color-mix(in srgb,var(--tone) 55%,transparent);border-radius:3px;overflow:hidden;
+  background:linear-gradient(180deg,#0d1f17f2,#07130dee);box-shadow:0 8px 26px #000a,inset 0 0 0 3px #07130d,inset 0 0 0 4px color-mix(in srgb,var(--tone) 28%,transparent);
+  animation:banner-life 1.35s cubic-bezier(.2,.8,.2,1) both}
+.turn-banner::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 35%,color-mix(in srgb,var(--tone) 38%,transparent) 50%,transparent 65%);transform:translateX(-110%);animation:banner-sweep .9s .18s ease-out both}
+.turn-banner span{position:relative;display:block;font:600 17px/1.2 'Cinzel','Trajan Pro',Georgia,serif;letter-spacing:.2em;text-indent:.2em;color:var(--tone);text-shadow:0 0 12px color-mix(in srgb,var(--tone) 45%,transparent),0 1px 0 #000a;white-space:nowrap}
+.turn-banner span::before,.turn-banner span::after{content:'';position:absolute;top:50%;width:5px;height:5px;margin-top:-2.5px;background:var(--tone);transform:rotate(45deg);opacity:.8}
+.turn-banner span::before{left:-22px}.turn-banner span::after{right:-22px}
+.turn-banner.enemy{--tone:#e3b3a0}
+.turn-banner.combat{--tone:#ffd29a}
+@keyframes banner-life{0%{opacity:0;transform:translate(-50%,-50%) scale(.92)}16%{opacity:1;transform:translate(-50%,-50%) scale(1)}80%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-56%) scale(1)}}
+@keyframes banner-sweep{to{transform:translateX(110%)}}
 
 /* ── Energy ─────────────────────────────────────────────────────── */
 .energy-spark{width:11px;height:11px;margin:-1px 0 0 -1px;offset-rotate:auto;background:radial-gradient(circle,#fff 0%,#fff8dc 45%,var(--spark-color) 100%);box-shadow:0 0 6px 3px var(--spark-color),0 0 22px 8px var(--spark-color)}

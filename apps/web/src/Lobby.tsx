@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, BookOpen, Crown, GraduationCap, Gift, Layers, Plus, Search, Swords, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Crown, GraduationCap, Gift, Layers, Plus, Search, Settings, Swords, User, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { factionInfo, registry } from '../../../packages/content/src';
 import { boosterPacks, type BoosterPack } from '../../../packages/content/src/boosters';
@@ -8,15 +8,19 @@ import { BoosterOpening, packColor, packLines, type OpenBooster } from './Booste
 import { ArtCard, cardAbilityDescriptions } from './CardPresentation';
 import { CardDetail } from './CardDetail';
 import { addDeckCard, deckCardAvailability, draftKey, parseDeck, removeDeckCard, starterOptions, type CustomDeck } from './decks';
-import { buyCollectionBooster, collectionRules, gainDebugDust, missingDeckCopies, openCollectionBooster, ownershipLimit, packCount, totalPacks } from './collection';
+import { buyCollectionBooster, collectionRules, gainDebugCrowns, missingDeckCopies, openCollectionBooster, ownershipLimit, packCount, totalPacks } from './collection';
 import { updateCollection, useCollection } from './collectionStore';
-import { DustAmount, DustIcon } from './Dust';
+import { CrownAmount, CrownIcon } from './Crowns';
 import { DeckBuilder } from './DeckBuilder';
 import { GameSetup, type SetupMode } from './GameSetup';
 import type { RtcRoom } from './multiplayer/RtcRoom';
+import { Avatar } from './Avatar';
+import { ProfilePage } from './ProfilePage';
+import { SettingsPage } from './SettingsPage';
+import { useProfile } from './profile';
 import { tutorialKey } from './tutorial';
 
-export type Screen='menu'|'cards'|'builder'|'store'|'multiplayer'|'match';
+export type Screen='menu'|'cards'|'builder'|'store'|'profile'|'settings'|'multiplayer'|'match';
 type Mode='practice'|'hotseat';
 type Props={
   reduced:boolean; screen:Exclude<Screen,'match'>; navigate:(screen:Screen)=>void; canResume:boolean; resumeLabel:string;
@@ -35,6 +39,7 @@ function readDraft():CustomDeck {
 export function Lobby(props:Props){
   const {screen,navigate,canResume}=props;
   // New players are offered the tutorial once. Any answer, or having a match under way, settles it.
+  const profile=useProfile();
   const [offer,setOffer]=useState(()=>{try{return screen==='menu'&&!canResume&&!localStorage.getItem(tutorialKey);}catch{return false;}});
   function settleOffer(value:string){try{localStorage.setItem(tutorialKey,value);}catch{/* Optional. */}setOffer(false);}
   const [setup,setSetup]=useState<SetupMode|null>(screen==='multiplayer'?'online':null);
@@ -97,42 +102,45 @@ export function Lobby(props:Props){
       <button className="brand" onClick={()=>navigate('menu')} aria-label="Main menu"><span className="brand-mark">V<span/></span><span><small>REALMS OF</small><strong>VARHYR</strong></span></button>
       <nav aria-label="Main navigation">
         <button className={isHome?'active':''} onClick={()=>navigate('menu')}>Menu</button>
-        <button className={screen==='cards'?'active':''} onClick={()=>navigate('cards')}><BookOpen size={15}/>Cards</button>
-        <button className={screen==='builder'?'active':''} onClick={()=>navigate('builder')}><Layers size={15}/>Deck builder</button>
+        <button className={screen==='cards'||screen==='builder'?'active':''} onClick={()=>navigate('cards')}><BookOpen size={15}/>Collection</button>
         <button className={screen==='store'?'active':''} onClick={()=>navigate('store')}><Gift size={15}/>Store</button>
-        <button className={setup?'active':''} onClick={()=>openSetup(props.mode)}><Swords size={15}/>Play</button>
+        <button className={screen==='profile'?'active':''} onClick={()=>navigate('profile')}><User size={15}/>Profile</button>
       </nav>
-      <button className="collection-wallet-pill" aria-label={`Open store, ${collection.dust} dust, ${boostersAvailable} boosters`} onClick={()=>navigate('store')}><DustAmount amount={collection.dust}/><span className="wallet-pack-count"><Gift size={14}/>{boostersAvailable}</span></button>
+      <button className="collection-wallet-pill" aria-label={`Open store, ${collection.crowns} crowns, ${boostersAvailable} boosters`} onClick={()=>navigate('store')}><CrownAmount amount={collection.crowns}/><span className="wallet-pack-count"><Gift size={14}/>{boostersAvailable}</span></button>
+      <button className={`lobby-settings ${screen==='settings'?'active':''}`} aria-label="Settings" title="Settings" onClick={()=>navigate('settings')}><Settings size={17}/></button>
       {canResume&&<button className="lobby-resume" onClick={()=>navigate('match')}><ArrowLeft size={15}/>Return to match</button>}
     </header>
+    {(screen==='cards'||screen==='builder')&&<div className="collection-tabs" role="tablist" aria-label="Collection">
+      <button role="tab" aria-selected={screen==='cards'} className={screen==='cards'?'active':''} onClick={()=>navigate('cards')}><BookOpen size={15}/>Cards<small>{Object.keys(registry.cards).length}</small></button>
+      <button role="tab" aria-selected={screen==='builder'} className={screen==='builder'?'active':''} onClick={()=>navigate('builder')}><Layers size={15}/>Decks<small>{props.decks.length}</small></button>
+    </div>}
     {isHome?<main className="start-menu" inert={setup!==null}>
       <section className="start-welcome"><h1>The realm awaits.</h1>
         <button className="gold-button start-play" aria-haspopup="dialog" onClick={()=>openSetup(props.mode)}><Swords size={23}/><span>Play</span><ArrowRight size={21}/></button>
-        <button className="start-learn" onClick={props.learn}><GraduationCap size={17}/>New here? Learn to play</button>
         {canResume&&<button className="start-resume" onClick={()=>navigate('match')}><span><b>Continue match</b><small>{props.resumeLabel}</small></span><ArrowRight size={18}/></button>}
       </section>
       <div className="start-destinations">
-        <button className="menu-destination" onClick={()=>navigate('cards')}><BookOpen size={24}/><div><h2>Cards</h2><span>{Object.keys(registry.cards).length} cards</span></div><ArrowRight size={19}/></button>
-        <button className="menu-destination" onClick={()=>navigate('builder')}><Layers size={24}/><div><h2>Deck builder</h2>{props.decks.length>0&&<span>{props.decks.length} saved {props.decks.length===1?'deck':'decks'}</span>}</div><ArrowRight size={19}/></button>
+        <button className="menu-destination" onClick={()=>navigate('cards')}><BookOpen size={24}/><div><h2>Collection</h2><span>{Object.keys(registry.cards).length} cards{props.decks.length>0?` · ${props.decks.length} saved ${props.decks.length===1?'deck':'decks'}`:''}</span></div><ArrowRight size={19}/></button>
         <button className="menu-destination" onClick={()=>navigate('store')}><Gift size={24}/><div><h2>Store</h2><span>{boostersAvailable} boosters waiting · {ownedTotal} cards owned</span></div><ArrowRight size={19}/></button>
+        <button className="menu-destination menu-profile" onClick={()=>navigate('profile')}><Avatar id={profile.avatar} size={44}/><div><h2>Profile</h2><span>{profile.name}</span></div><ArrowRight size={19}/></button>
       </div>
       
-    </main>:screen==='store'?<main className="store-page">
+    </main>:screen==='profile'?<ProfilePage/>:screen==='settings'?<SettingsPage learn={props.learn} watch={props.startOnline}/>:screen==='store'?<main className="store-page">
       <div className="collection-heading"><div><h1>Store</h1></div></div>
-      <section className="dust-vault" aria-label="Dust and boosters">
-        <div className="dust-vessel" aria-hidden="true"><div className="dust-vessel-aura"/><DustIcon/><i/><i/><i/></div>
-        <div className="dust-vault-balance"><DustAmount amount={collection.dust}/></div>
-        <div className="dust-vault-packs"><Gift size={24}/><strong>{boostersAvailable}</strong><span>{boostersAvailable===1?'booster waiting':'boosters waiting'}</span></div>
-        <button className="dust-debug-button" onClick={()=>{updateCollection(gainDebugDust);setCollectionMessage('Debug grant: +1,000 dust.');}}><Plus size={14}/>Gain 1,000 dust<small>DEBUG</small></button>
+      <section className="crown-vault" aria-label="Crowns and boosters">
+        <div className="crown-vessel" aria-hidden="true"><div className="crown-vessel-aura"/><CrownIcon/><i/><i/><i/></div>
+        <div className="crown-vault-balance"><CrownAmount amount={collection.crowns}/></div>
+        <div className="crown-vault-packs"><Gift size={24}/><strong>{boostersAvailable}</strong><span>{boostersAvailable===1?'booster waiting':'boosters waiting'}</span></div>
+        <button className="crown-debug-button" onClick={()=>{updateCollection(gainDebugCrowns);setCollectionMessage('Debug grant: +1,000 crowns.');}}><Plus size={14}/>Gain 1,000 crowns<small>DEBUG</small></button>
       </section>
-      <div className="collection-economy-note"><span>Duplicate dust: common {collectionRules.duplicateDust.common} · rare {collectionRules.duplicateDust.rare} · legendary {collectionRules.duplicateDust.legendary}</span><span role="status">{collectionMessage}</span></div>
+      <div className="collection-economy-note"><span>Duplicate crowns: common {collectionRules.duplicateCrowns.common} · rare {collectionRules.duplicateCrowns.rare} · legendary {collectionRules.duplicateCrowns.legendary}</span><span role="status">{collectionMessage}</span></div>
       {!collectionSaved&&<p className="collection-save-error" role="alert">Your collection is available for this session. Browser storage could not save it.</p>}
       <section className="store-shelf" aria-label="Boosters">
         {boosterPacks.map(pack=>{return <article className="store-item" key={pack.id} style={packColor(pack) as React.CSSProperties}>
           <div className="store-pack-stage" aria-hidden="true"><div className="store-pack-glow"/><div className="booster-pack store-pack"><span>REALMS OF VARHYR</span>{pack.faction?<b className="pack-symbol">{factionInfo[pack.faction]?.symbol}</b>:<Crown size={55}/>}<strong>{packLines(pack.name)}</strong><small>FIVE CARDS</small></div></div>
           <div className="store-item-body"><h2>{pack.name}</h2><p>{pack.blurb}</p>
             <div className="store-pack-inventory">{packCount(collection,pack.id)} owned</div>
-            <div className="store-buy"><button className="gold-button" aria-label={`Open ${pack.name} booster`} disabled={!packCount(collection,pack.id)} onClick={()=>openBooster(pack)}><Gift size={17}/>Open booster</button><button className="outline-button store-dust-buy" aria-label={`Buy ${pack.name} booster for ${collectionRules.packCost} dust`} disabled={collection.dust<collectionRules.packCost} onClick={()=>buyBooster(pack)}>Buy<DustAmount amount={collectionRules.packCost}/></button></div></div>
+            <div className="store-buy"><button className="gold-button" aria-label={`Open ${pack.name} booster`} disabled={!packCount(collection,pack.id)} onClick={()=>openBooster(pack)}><Gift size={17}/>Open booster</button><button className="outline-button store-crown-buy" aria-label={`Buy ${pack.name} booster for ${collectionRules.packCost} crowns`} disabled={collection.crowns<collectionRules.packCost} onClick={()=>buyBooster(pack)}>Buy<CrownAmount amount={collectionRules.packCost}/></button></div></div>
         </article>;})}
       </section>
     </main>:screen==='builder'?<DeckBuilder draft={draft} decks={props.decks} ownedCopies={ownedCopies} message={message} canUndo={!!past.length} reduced={props.reduced} change={change} add={add} remove={remove} load={load} save={save} undo={undo} inspect={inspect}/>:<main className="collection-page">

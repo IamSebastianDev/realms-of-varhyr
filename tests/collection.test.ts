@@ -3,7 +3,7 @@ import type { Registry } from '../packages/contracts/src';
 import { defaultDeckId, registry as live, starterDefinitions } from '../packages/content/src';
 import { boosterPacks } from '../packages/content/src/boosters';
 import { collectionRules, emptyCollection, createCollection, parseCollection, openCollectionBooster,
-  buyCollectionBooster, gainDebugDust, claimVictory, missingDeckCopies, packCount, totalPacks } from '../apps/web/src/collection';
+  buyCollectionBooster, gainDebugCrowns, claimVictory, missingDeckCopies, packCount, totalPacks } from '../apps/web/src/collection';
 import { addDeckCard } from '../apps/web/src/decks';
 import { apply, decisionPlayer } from '../packages/core/src';
 import { botCommand } from '../packages/core/src/bot';
@@ -18,13 +18,13 @@ const pack = boosterPacks[0];
 
 describe('collection progression', () => {
   it('starts empty, then grants only one starter and five general boosters', () => {
-    expect(emptyCollection()).toMatchObject({ counts: {}, dust: 0, packs: {} });
+    expect(emptyCollection()).toMatchObject({ counts: {}, crowns: 0, packs: {} });
     const starter = starterDefinitions.find(deck => deck.id === defaultDeckId)!;
     const collection = createCollection(live, starter.cards);
     expect(Object.values(collection.counts).reduce((sum, count) => sum + count, 0)).toBe(starter.cards.length);
     expect(missingDeckCopies(starter.cards, collection.counts)).toEqual([]);
     expect(collection.packs).toEqual({ bounty: 5 });
-    expect(collection.dust).toBe(0);
+    expect(collection.crowns).toBe(0);
     const other = Object.keys(live.cards).find(id => !starter.cards.includes(id))!;
     expect(collection.counts[other]).toBeUndefined();
     expect(addDeckCard([], other, live, collection.counts)).toEqual([]);
@@ -34,11 +34,11 @@ describe('collection progression', () => {
     const legacy = { version: 1 as const, counts: { common: 4, legendary: 2, retired: 1 }, boostersOpened: 2 };
     const collection = createCollection(content, ['common', 'common', 'common', 'legendary'], legacy);
     expect(collection.counts).toEqual({ common: 3, legendary: 1, retired: 1 });
-    expect(collection.dust).toBe(4 * 10 + 2 * 100);
+    expect(collection.crowns).toBe(4 * 10 + 2 * 100);
     expect(collection.boostersOpened).toBe(2);
     expect(totalPacks(collection)).toBe(5);
     expect(legacy.counts).toEqual({ common: 4, legendary: 2, retired: 1 });
-    // Reading persisted state never repeats the welcome grant or migration dust.
+    // Reading persisted state never repeats the welcome grant or migration crowns.
     expect(parseCollection(JSON.stringify(collection), content)).toEqual(collection);
   });
   it('caps each rarity and dusts duplicates within the same five-card pack', () => {
@@ -48,13 +48,13 @@ describe('collection progression', () => {
       expect(opened.cards).toHaveLength(5);
       expect(opened.collection.counts[id]).toBe(limit);
       expect(opened.cards.filter(card => card.isNew)).toHaveLength(1);
-      expect(opened.cards.filter(card => card.dust)).toHaveLength(5 - limit);
-      expect(opened.dust).toBe((5 - limit) * value);
-      expect(opened.collection.dust).toBe(opened.dust);
+      expect(opened.cards.filter(card => card.crowns)).toHaveLength(5 - limit);
+      expect(opened.crowns).toBe((5 - limit) * value);
+      expect(opened.collection.crowns).toBe(opened.crowns);
       expect(packCount(opened.collection, pack.id)).toBe(4);
       expect(opened.collection.boostersOpened).toBe(1);
       expect(original.counts).toEqual({});
-      expect(original.dust).toBe(0);
+      expect(original.crowns).toBe(0);
       expect(totalPacks(original)).toBe(5);
     }
   });
@@ -72,14 +72,14 @@ describe('collection progression', () => {
   });
   it('buys the chosen pack, charges exactly once and rejects an insufficient balance', () => {
     const original = emptyCollection();
-    expect(() => buyCollectionBooster(original, boosterPacks[1])).toThrow('100 dust');
-    const debug = gainDebugDust(original);
-    expect(debug.dust).toBe(1000);
+    expect(() => buyCollectionBooster(original, boosterPacks[1])).toThrow('100 crowns');
+    const debug = gainDebugCrowns(original);
+    expect(debug.crowns).toBe(1000);
     const purchased = buyCollectionBooster(debug, boosterPacks[1]);
-    expect(purchased.dust).toBe(900);
+    expect(purchased.crowns).toBe(900);
     expect(purchased.packs).toEqual({ crown: 1 });
     expect(debug.packs).toEqual({});
-    expect(original.dust).toBe(0);
+    expect(original.crowns).toBe(0);
   });
   it('rewards an eligible win once, including after saving, reloading and reviewing it', () => {
     const original = emptyCollection();
@@ -88,20 +88,20 @@ describe('collection progression', () => {
     }
     expect(claimVictory(original, undefined, 'p1', true)).toBe(original);
     const won = claimVictory(original, 'match-1', 'p1', true);
-    expect(won.dust).toBe(collectionRules.victoryDust);
+    expect(won.crowns).toBe(collectionRules.victoryCrowns);
     expect(won.packs).toEqual({ bounty: 1 });
     expect(claimVictory(won, 'match-1', 'p1', true)).toBe(won);
     const restored = parseCollection(JSON.stringify(won), content)!;
     expect(claimVictory(restored, 'match-1', 'p1', true)).toBe(restored);
     // Different games with the same shuffle seed are still independently rewardable.
-    expect(claimVictory(restored, 'match-2', 'p1', true)).toMatchObject({ dust: 50, packs: { bounty: 2 }, rewardedMatches: ['match-1', 'match-2'] });
+    expect(claimVictory(restored, 'match-2', 'p1', true)).toMatchObject({ crowns: 50, packs: { bounty: 2 }, rewardedMatches: ['match-1', 'match-2'] });
   });
-  it('validates storage, preserves retired IDs, and normalizes content changes without repeated dust', () => {
+  it('validates storage, preserves retired IDs, and normalizes content changes without repeated crowns', () => {
     const original = { ...emptyCollection(), counts: { common: 5, legendary: 3, retired: 1 }, packs: { retiredPack: 1 } };
     const restored = parseCollection(JSON.stringify(original), content)!;
-    expect(restored).toMatchObject({ counts: { common: 3, legendary: 1, retired: 1 }, dust: 220, packs: { retiredPack: 1 } });
+    expect(restored).toMatchObject({ counts: { common: 3, legendary: 1, retired: 1 }, crowns: 220, packs: { retiredPack: 1 } });
     expect(parseCollection(JSON.stringify(restored), content)).toEqual(restored);
-    for (const raw of [null, '{', '[]', JSON.stringify({ ...original, dust: -1 }), JSON.stringify({ ...original, packs: { bounty: 1.5 } }), JSON.stringify({ ...original, rewardedMatches: [1] }), JSON.stringify({ ...original, counts: { common: Infinity } })]) {
+    for (const raw of [null, '{', '[]', JSON.stringify({ ...original, crowns: -1 }), JSON.stringify({ ...original, packs: { bounty: 1.5 } }), JSON.stringify({ ...original, rewardedMatches: [1] }), JSON.stringify({ ...original, counts: { common: Infinity } })]) {
       expect(parseCollection(raw, content)).toBeNull();
     }
     expect(missingDeckCopies(['common', 'common', 'legendary'], { common: 1 })).toEqual([{ id: 'common', needed: 2, owned: 1, missing: 1 }, { id: 'legendary', needed: 1, owned: 0, missing: 1 }]);
@@ -121,8 +121,12 @@ describe('collection progression', () => {
     expect(winningState?.outcome).toBe('p1');
     const initial = createCollection(live, starter.cards);
     const won = claimVictory(initial, 'engine-match', winningState!.outcome, true);
-    expect(won.dust - initial.dust).toBe(25);
+    expect(won.crowns - initial.crowns).toBe(25);
     expect(totalPacks(won) - totalPacks(initial)).toBe(1);
     expect(parseCollection(JSON.stringify(won), live)).toEqual(won);
+  });
+  it('reads saves written before dust became crowns', () => {
+    const old = JSON.stringify({ version: 1, counts: {}, dust: 140, packs: {}, boostersOpened: 2, rewardedMatches: [] });
+    expect(parseCollection(old, content)?.crowns).toBe(140);
   });
 });

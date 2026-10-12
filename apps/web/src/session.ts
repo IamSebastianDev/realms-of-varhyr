@@ -1,7 +1,7 @@
 import type { CommandEnvelope, GameState, Registry } from '../../../packages/contracts/src';
 import { apply, createMatch, decisionPlayer, replay, RULES_VERSION, validateDeck } from '../../../packages/core/src';
 import { botCommand } from '../../../packages/core/src/bot';
-import { defaultDeckId, registry, starterDefinitions } from '../../../packages/content/src';
+import { avatarDefinitions, defaultDeckId, registry, starterDefinitions } from '../../../packages/content/src';
 import type { CustomDeck } from './decks';
 import type { StarterDeck } from '../../../packages/content/src/starters';
 
@@ -15,7 +15,7 @@ export function opponentDeck(deckId: string, custom: CustomDeck | undefined, con
   return playable.find(deck => deck.id !== deckId) ?? playable[0] ?? custom;
 }
 
-export function startMatch(seed: number, deck: DeckName = defaultDeckId, skirmish = false, customDeck?: CustomDeck, content = matchContent, opponentChoice?: StarterDeck | CustomDeck): GameState {
+export function startMatch(seed: number, deck: DeckName = defaultDeckId, skirmish = false, customDeck?: CustomDeck, content = matchContent, opponentChoice?: StarterDeck | CustomDeck, playerName?: string, playerAvatar?: string): GameState {
   const chosen = customDeck ?? content.starters.find(starter => starter.id === deck);
   if (!chosen) throw new Error(`Unknown starter deck: ${deck}`);
   const errors = validateDeck(chosen.cards, content.registry);
@@ -24,8 +24,14 @@ export function startMatch(seed: number, deck: DeckName = defaultDeckId, skirmis
   const opponent = requested ?? opponentDeck(deck, customDeck, content);
   if (!opponent) throw new Error('Add a complete starter deck before playing.');
   let state = createMatch(content.registry, [chosen.cards, opponent.cards], seed, { mulligan: true });
-  state.players.p1.name = chosen.name;
+  state.players.p1.name = playerName?.trim() || chosen.name;
   state.players.p2.name = opponent.id === chosen.id ? `${opponent.name} · opponent` : opponent.name;
+  if (playerAvatar) {
+    // The opponent's portrait is drawn from the seed, so a match restored from its saved start keeps the same face.
+    const others = avatarDefinitions.filter(a => a.id !== playerAvatar);
+    state.players.p1.avatar = playerAvatar;
+    if (others.length) state.players.p2.avatar = others[(seed >>> 0) % others.length]!.id;
+  }
   if (skirmish) for (let i = 0; i < 160; i++) {
     if (state.outcome || state.turn >= 5 && state.active === 'p1' && state.phase === 'play') break;
     const result = apply(state, { actor: decisionPlayer(state), expectedRevision: state.revision, command: botCommand(state, content.registry) }, content.registry);

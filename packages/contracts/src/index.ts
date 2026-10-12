@@ -18,7 +18,7 @@ export type CardDefinition = {
   timing?: ('play' | 'death')[]; cast?: AbilityBinding[];
 };
 export type CardInstance = { id: string; definitionId: string; owner: PlayerId; controller: PlayerId; zone: 'deck' | 'hand' | 'board' | 'discard' | 'choice'; slot: number | null; exhausted: boolean; damage: number };
-export type Player = { id: PlayerId; name: string; life: number; deck: string[]; hand: string[]; board: (string | null)[]; discard: string[]; energy: Pool; deathEnergy: Pool };
+export type Player = { id: PlayerId; name: string; /** Portrait id; optional presentation only. */ avatar?: string; life: number; deck: string[]; hand: string[]; board: (string | null)[]; discard: string[]; energy: Pool; deathEnergy: Pool };
 export type Phase = 'draw' | 'play' | 'attack' | 'end';
 export type DeadSnapshot = { card: CardInstance; outputs: Pool[] };
 export type PendingChoice =

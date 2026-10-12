@@ -135,7 +135,7 @@ export function DeckBuilder({ draft, decks, ownedCopies, message, canUndo, reduc
     <input ref={fileRef} className="deck-file-input" type="file" accept=".json,application/json" aria-label="Import deck file" onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; if (file) void readFile(file); }}/>
     <section className={`builder-collection ${drag?.from === 'deck' ? 'drop-ready' : ''} ${over === 'collection' ? 'drop-over' : ''}`} aria-label="All cards" {...dropZone('collection', 'deck', id => remove(id))}>
       <div className="builder-collection-bar">
-        <h2>Collection <span>{cards.length} cards</span></h2>
+        <h2>Your cards <span>{cards.length} cards</span></h2>
         <label className="collection-search"><Search size={15}/><input aria-label="Search cards" placeholder="Search cards…" value={filters.query} onChange={event => filter('query', event.target.value)}/></label>
         <button className="builder-small-button filter-trigger" onClick={() => openDialog('filters')} aria-label="Open card filters"><Filter size={14}/><span>Filters</span>{filterCount > 0 && <b>{filterCount}</b>}</button>
         {(filtered || showUnowned) && <button className="builder-icon-button" aria-label="Clear filters" title="Clear filters" onClick={() => { setFilters({ ...initialBuilderFilters, sort: filters.sort }); setShowUnowned(false); }}><X size={15}/></button>}

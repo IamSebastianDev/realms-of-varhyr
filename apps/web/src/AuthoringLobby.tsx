@@ -3,6 +3,7 @@ import { defaultDeckId } from '../../../packages/content/src';
 import { Lobby, type Screen } from './Lobby';
 import { decksKey, parseDecks, starterOptions, type CustomDeck } from './decks';
 import { startMatch, type SavedSession } from './session';
+import { getProfile } from './profile';
 import { startTutorial } from './tutorial';
 import { missingDeckCopies } from './collection';
 import { useCollection } from './collectionStore';
@@ -39,7 +40,7 @@ export function AuthoringLobby({ onStart, onOnlineStart }: { onStart: (session: 
       const chosen = options.find(option => option.id === selected);
       if (chosen && missingDeckCopies(chosen.cards, collection.counts).length) throw new Error('You do not own enough copies to play this deck.');
       const opponentDeck = options.find(option => option.id === opponentId);
-      const initial = startMatch(Number(seed) || 731, deck, skirmish, customDeck, undefined, opponentDeck);
+      const initial = startMatch(Number(seed) || 731, deck, skirmish, customDeck, undefined, opponentDeck, getProfile().name, mode === 'hotseat' ? undefined : getProfile().avatar);
       onStart({ initial, commands: [], mode, deck, skirmish, customDeck, opponentDeck: opponentDeck && structuredClone(opponentDeck), started: true, rewardId: crypto.randomUUID(), rewardEligible: true });
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'This deck cannot start a match.'); }
   }

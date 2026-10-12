@@ -6,7 +6,7 @@ import type { combatForecast } from '../../core/src/combatForecast';
 export const NETWORK_VERSION = 1;
 export type MatchDeck = { name: string; cards: string[] };
 export type MatchAction = { id: string; revision: number; intent: { kind: 'command'; command: Command } | { kind: 'undo-channel'; cardId: string } };
-export type Hello = { type: 'hello'; version: number; rules: string; content: string; token: string; name: string; deck: MatchDeck };
+export type Hello = { type: 'hello'; version: number; rules: string; content: string; token: string; name: string; avatar?: string; deck: MatchDeck };
 export type MatchSnapshot = { type: 'snapshot'; version: number; matchId: string; seat: PlayerId; view: PlayerView; undoable: string[]; forecast: ReturnType<typeof combatForecast>; ack?: string; error?: string };
 export type HostMessage = MatchSnapshot | { type: 'reject'; message: string } | { type: 'ping' };
 export type ClientMessage = Hello | { type: 'action'; action: MatchAction } | { type: 'pong' };
@@ -22,13 +22,14 @@ const pending = v.variant('kind',[
   v.object({id:text,player:seat,kind:v.literal('mulligan'),options:v.array(text),max:number}),
   v.object({id:text,player:seat,kind:v.literal('death-energy'),options:v.array(pool),sourceName:v.string(),remaining:v.array(dead)}),
 ]);
-const player = v.object({id:seat,name:v.string(),life:v.number(),board:v.pipe(v.array(v.nullable(text)),v.length(5)),discard:v.array(text),energy:pool,deathEnergy:pool,deckCount:zoneCount,handCount:zoneCount});
+const avatarId = v.optional(v.pipe(v.string(),v.maxLength(64)));
+const player = v.object({id:seat,name:v.string(),avatar:avatarId,life:v.number(),board:v.pipe(v.array(v.nullable(text)),v.length(5)),discard:v.array(text),energy:pool,deathEnergy:pool,deckCount:zoneCount,handCount:zoneCount});
 const event = v.object({seq:number,type:text,message:v.string(),player:v.optional(seat),cardId:v.optional(text),target:v.optional(text),amount:v.optional(v.number()),visibility:v.picklist(['public','p1','p2']),snapshot:v.optional(entity)});
 const legal = v.object({actor:seat,playable:v.array(v.object({cardId:text,slots:v.array(number),targets:v.array(text),consumes:v.array(text),requiresTarget:v.boolean()})),energy:v.array(v.object({cardId:text,options:v.array(pool)})),activations:v.array(v.object({cardId:text,ability:number,targets:v.array(text),requiresTarget:v.boolean()})),attackers:v.array(text),lanes:v.record(text,v.array(number)),canEnd:v.boolean()});
 const view = v.object({rulesVersion:text,contentVersion:text,revision:number,turn:number,active:seat,phase:v.picklist(['draw','play','attack','end']),players:v.object({p1:player,p2:player}),cards:v.record(text,entity),hand:v.array(text),pending:v.nullable(pending),combat:v.nullable(v.object({stage:v.picklist(['declare','review','death']),attackers:v.array(text),lanes:v.record(text,number),blocks:v.array(v.object({attacker:text,blocker:text})),dead:v.array(dead)})),outcome:v.nullable(v.picklist(['p1','p2','draw'])),outcomeReason:v.nullable(v.picklist(['life','empty-library'])),events:v.array(event),legal});
 const forecast = v.nullable(v.object({defender:seat,blocked:number,lifeDamage:v.number(),attackersFallen:number,fallen:number}));
 const snapshotSchema = v.object({type:v.literal('snapshot'),version:v.literal(NETWORK_VERSION),matchId:text,seat,view,undoable:v.array(text),forecast,ack:v.optional(text),error:v.optional(v.string())});
-const helloSchema = v.object({type:v.literal('hello'),version:number,rules:text,content:text,token:text,name:v.pipe(v.string(),v.minLength(1),v.maxLength(40)),deck:v.object({name:v.pipe(v.string(),v.minLength(1),v.maxLength(60)),cards:v.array(text)})});
+const helloSchema = v.object({type:v.literal('hello'),version:number,rules:text,content:text,token:text,name:v.pipe(v.string(),v.minLength(1),v.maxLength(40)),avatar:avatarId,deck:v.object({name:v.pipe(v.string(),v.minLength(1),v.maxLength(60)),cards:v.array(text)})});
 const actionSchema = v.object({id:text,revision:number,intent:v.variant('kind',[
   v.object({kind:v.literal('command'),command:v.unknown()}),v.object({kind:v.literal('undo-channel'),cardId:text}),
 ])});

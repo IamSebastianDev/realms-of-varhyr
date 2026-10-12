@@ -20,14 +20,14 @@ describe('reduced-motion booster reveal', () => {
     expect(html).not.toContain('Reveal all');
     expect(html).toContain('Aldric, the Runewarden');
   });
-  it('shows dust conversion and prevents opening another absent pack', () => {
+  it('shows crown conversion and prevents opening another absent pack', () => {
     vi.stubGlobal('window', { matchMedia: () => ({ matches: false }) });
     const noop = () => {};
-    const html = renderToStaticMarkup(<BoosterOpening pack={{ id: 'dusted', saved: true, pack: boosterPacks[0], cards: Array.from({length:5},()=>({id:'crown-recruit',isNew:false,copies:3,dust:10})) }}
+    const html = renderToStaticMarkup(<BoosterOpening pack={{ id: 'sold', saved: true, pack: boosterPacks[0], cards: Array.from({length:5},()=>({id:'crown-recruit',isNew:false,copies:3,crowns:10})) }}
       reduced suspended={false} close={noop} openAnother={noop} canOpenAnother={false} inspect={noop} browse={noop}/>);
-    expect(html).toContain('0 cards added · 50 dust');
-    expect(html.match(/Extra copy reclaimed/g)).toHaveLength(5);
-    expect(html).toContain('aria-label="50 dust"');
+    expect(html).toContain('0 cards added · 50 crowns');
+    expect(html.match(/Extra copy sold/g)).toHaveLength(5);
+    expect(html).toContain('aria-label="50 crowns"');
     expect(html).toContain('class="gold-button" disabled=""');
   });
 });

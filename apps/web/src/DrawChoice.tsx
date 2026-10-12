@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { CardDefinition } from '../../../packages/contracts/src';
 import { ArtCard } from './CardPresentation';
+import { PeekBackdrop } from './Peek';
 
 export type DrawDestination = 'discard' | 'bottom';
 type Props = {
@@ -46,7 +47,7 @@ export function DrawChoice({ cards, discardCount, discardTop, libraryCount, redu
     return () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', cancel); };
   }, [!!ghost]); // eslint-disable-line react-hooks/exhaustive-deps
   const dragged = ghost ? cards.find(c => c.id === ghost.id) : null;
-  return <div className="modal-backdrop"><div className="choice-dialog draw-dialog" role="dialog" aria-label="Choose the card to keep">
+  return <PeekBackdrop back="Back to your draw"><div className="choice-dialog draw-dialog" role="dialog" aria-label="Choose the card to keep">
     <h2>Keep one. Drag the other away.</h2>
     <div className={`draw-board ${ghost ? 'dragging' : ''}`}>
       <div className={`draw-zone draw-zone-discard ${over === 'discard' ? 'over' : ''}`} data-draw-zone="discard">
@@ -62,5 +63,5 @@ export function DrawChoice({ cards, discardCount, discardTop, libraryCount, redu
       </div>
     </div>
     {ghost && dragged && createPortal(<div className="draw-ghost" style={{ left: ghost.x - ghost.dx, top: ghost.y - ghost.dy, width: ghost.w, height: ghost.h }}><ArtCard detail={false} card={dragged.card} reduced /></div>, document.body)}
-  </div></div>;
+  </div></PeekBackdrop>;
 }

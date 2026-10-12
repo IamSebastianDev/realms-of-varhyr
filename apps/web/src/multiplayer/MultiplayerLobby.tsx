@@ -1,3 +1,4 @@
+import { updateProfile } from '../profile';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Check, Copy, Link, Radio, Users } from 'lucide-react';
 import { registry } from '../../../../packages/content/src';
@@ -21,7 +22,7 @@ export function MultiplayerLobby({decks,selected,onStart,compact=false,onSelectD
   async function connect(role:'host'|'guest'){
     if(!ready||!chosen)return;setCreating(true);setError('');
     try{
-      try{localStorage.setItem('varhyr-player-name',name.trim());}catch{/* Name storage is optional. */}
+      updateProfile({name});
       const next=role==='host'?await RtcRoom.host(name.trim(),chosen):await RtcRoom.join(code,name.trim(),chosen);
       if(!mounted.current){next.leave();return;}
       roomRef.current=next;setRoom(next);

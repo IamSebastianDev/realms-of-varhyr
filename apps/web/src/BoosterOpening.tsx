@@ -5,9 +5,9 @@ import type { BoosterPack } from '../../../packages/content/src/boosters';
 import type { CardDefinition } from '../../../packages/contracts/src';
 import type { BoosterCardReward } from './boosterRewards';
 import { ArtCard } from './CardPresentation';
-import { DustAmount } from './Dust';
+import { CrownAmount } from './Crowns';
 
-export type OpenBooster = { id: string; cards: (BoosterCardReward & { dust?: number })[]; saved: boolean; pack: BoosterPack };
+export type OpenBooster = { id: string; cards: (BoosterCardReward & { crowns?: number })[]; saved: boolean; pack: BoosterPack };
 
 export const packColor = (pack: BoosterPack) => {
   const color = pack.faction ? factionInfo[pack.faction]?.color : undefined;
@@ -32,8 +32,8 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, c
   const dialogRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const complete = revealed === pack.cards.length;
-  const dust = pack.cards.reduce((sum, card) => sum + (card.dust ?? 0), 0);
-  const kept = pack.cards.filter(card => !card.dust).length;
+  const crowns = pack.cards.reduce((sum, card) => sum + (card.crowns ?? 0), 0);
+  const kept = pack.cards.filter(card => !card.crowns).length;
 
   useEffect(() => { closeRef.current?.focus(); }, []);
   useEffect(() => {
@@ -60,7 +60,7 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, c
       <button ref={closeRef} className="booster-close" aria-label="Close booster" onClick={close}><X size={22}/></button>
       <header className="booster-heading">
         <h2>{pack.pack.name}</h2>
-        <p role="status" aria-live="polite">{complete ? `${kept} ${kept===1?'card':'cards'} added${dust ? ` · ${dust} dust from extra copies` : ''}` : opened ? `Revealing cards · ${revealed} / 5` : 'Breaking the seal…'}</p>
+        <p role="status" aria-live="polite">{complete ? `${kept} ${kept===1?'card':'cards'} added${crowns ? ` · ${crowns} crowns from extra copies` : ''}` : opened ? `Revealing cards · ${revealed} / 5` : 'Breaking the seal…'}</p>
       </header>
       {!opened ? <div className="booster-pack-stage" aria-hidden="true">
         <div className="booster-pack-glow"/><div className="booster-pack"><span>REALMS OF VARHYR</span>{pack.pack.faction ? <b className="pack-symbol">{factionInfo[pack.pack.faction]?.symbol}</b> : <Crown size={55}/>}<strong>{packLines(pack.pack.name)}</strong><small>FIVE CARDS</small></div>
@@ -68,7 +68,7 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, c
       </div> : <div className="booster-grid">
         {pack.cards.map((reward, index) => {
           const card = registry.cards[reward.id], visible = index < revealed;
-          return <div className={`booster-slot ${visible ? 'revealed' : ''} ${reward.dust ? 'is-dusted' : ''} rarity-${card.rarity}`} key={index}>
+          return <div className={`booster-slot ${visible ? 'revealed' : ''} ${reward.crowns ? 'is-reclaimed' : ''} rarity-${card.rarity}`} key={index}>
             <div className="booster-flip">
               <div className="booster-card-back" aria-hidden="true"><Crown size={32}/><span>V</span></div>
               <div className="booster-card-front" aria-hidden={!visible} inert={!visible}>
@@ -77,19 +77,19 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, c
             </div>
             <div className={`booster-card-caption ${visible ? '' : 'unrevealed'}`} aria-hidden={!visible}>
               <span>{card.rarity}</span>
-              {reward.dust ? <div className="booster-dust-reward"><DustAmount amount={reward.dust}/><small>Extra copy reclaimed</small></div> : <small>{reward.isNew ? 'New to your collection' : `+1 copy · ${reward.copies} owned`}</small>}
+              {reward.crowns ? <div className="booster-crown-reward"><CrownAmount amount={reward.crowns}/><small>Extra copy sold</small></div> : <small>{reward.isNew ? 'New to your collection' : `+1 copy · ${reward.copies} owned`}</small>}
             </div>
           </div>;
         })}
       </div>}
       {!pack.saved && <p className="booster-storage-error" role="alert">These rewards are available for this session, but browser storage could not save them.</p>}
-      {complete && dust > 0 && <div className="booster-dust-total">Reclaimed <DustAmount amount={dust}/></div>}
+      {complete && crowns > 0 && <div className="booster-crown-total">Earned <CrownAmount amount={crowns}/></div>}
       <footer className="booster-actions">
         {!complete ? <button className="outline-button" onClick={()=>{setSkip(true);closeRef.current?.focus();}}>Reveal all</button> : <>
           <button className="outline-button" onClick={browse}>View cards</button>
           <button className="gold-button" disabled={!canOpenAnother} onClick={openAnother}>Open another<ArrowRight size={16}/></button>
         </>}
-        <small>{canOpenAnother ? 'More of these boosters are waiting in your inventory.' : 'No more of this booster. Dust can buy another in the store.'}</small>
+        <small>{canOpenAnother ? 'More of these boosters are waiting in your inventory.' : 'No more of this booster. Crowns can buy another in the store.'}</small>
       </footer>
     </section>
   </div>;

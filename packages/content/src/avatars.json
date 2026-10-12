@@ -1,0 +1,92 @@
+[
+  {
+    "id": "maro-vell",
+    "name": "Maro Vell",
+    "title": "The Unsworn",
+    "lore": "No lord may claim a wanderer, and Maro has made a trade of it. Ask who pays, and the hood tilts away.",
+    "accent": "#b9824a",
+    "art": "/avatars/maro-vell.webp",
+    "source": "coraxdigitalart-realistic-human-heroes (81).png"
+  },
+  {
+    "id": "ilyan-veyr",
+    "name": "Ilyan Veyr",
+    "title": "The Bluefire Adept",
+    "lore": "He learned that cold flame burns longer. Three kings have asked him to light their lamps; none asked twice.",
+    "accent": "#5ab6e8",
+    "art": "/avatars/ilyan-veyr.webp",
+    "source": "coraxdigitalart-realistic-human-heroes (142).png"
+  },
+  {
+    "id": "ysolde-rime",
+    "name": "Ysolde Rime",
+    "title": "Winter's Voice",
+    "lore": "Winter came to the Crownlands once, wearing her face. It left only when she asked it to.",
+    "accent": "#8fd6e8",
+    "art": "/avatars/ysolde-rime.webp",
+    "source": "coraxdigitalart-realistic-human-heroes (113).png"
+  },
+  {
+    "id": "kael-embergate",
+    "name": "Kael Embergate",
+    "title": "Warden of the Burning Gate",
+    "lore": "He held the Embergate for nine nights with a torch and a stubborn temper. The gate still stands. So does he.",
+    "accent": "#e0702e",
+    "art": "/avatars/kael-embergate.webp",
+    "source": "coraxdigitalart-realistic-human-heroes (78).png"
+  },
+  {
+    "id": "nyra-thistledark",
+    "name": "Nyra Thistledark",
+    "title": "The Thorn Archer",
+    "lore": "Every arrow carries a thorn-mark from a court that no longer admits to existing. She has never missed twice.",
+    "accent": "#9a5cc4",
+    "art": "/avatars/nyra-thistledark.webp",
+    "source": "coraxdigitalart-realistic-human-heroes (43).png"
+  },
+  {
+    "id": "orrin-halewick",
+    "name": "Orrin Halewick",
+    "title": "Keeper of Candles",
+    "lore": "He remembers every oath sworn in the Crownlands, and exactly who broke them. He is far too polite to say so.",
+    "accent": "#deb966",
+    "art": "/avatars/orrin-halewick.webp",
+    "source": "coraxdigitalart-realistic-human-heroes (279).png"
+  },
+  {
+    "id": "seraphine-dawnmere",
+    "name": "Seraphine Dawnmere",
+    "title": "Sworn of the Dawn Banner",
+    "lore": "She took her vow at sixteen. She has not yet met a dawn worth leaving early.",
+    "accent": "#e8d9a0",
+    "art": "/avatars/seraphine-dawnmere.webp",
+    "source": "coraxdigitalart-realistic-human-heroes (275).png"
+  },
+  {
+    "id": "vorka-redtusk",
+    "name": "Vorka Redtusk",
+    "title": "Tusk-Marked Raider",
+    "lore": "The Crownlands call her a raider. Her clan calls her home. Both are right, and neither is brave enough to say it to her face.",
+    "accent": "#c4412e",
+    "art": "/avatars/vorka-redtusk.webp",
+    "source": "coraxdigitalart-realistic-human-heroes (397).png"
+  },
+  {
+    "id": "thessaly-greenhollow",
+    "name": "Thessaly Greenhollow",
+    "title": "Voice of the Hollow",
+    "lore": "The old woods speak plainly to her. Mostly they ask her to be careful, and to bring more salt.",
+    "accent": "#6fae5c",
+    "art": "/avatars/thessaly-greenhollow.webp",
+    "source": "coraxdigitalart-realistic-human-heroes (7).png"
+  },
+  {
+    "id": "haldor-wolfbrow",
+    "name": "Haldor Wolfbrow",
+    "title": "Last of the Pale Clan",
+    "lore": "He wears a wolf's pelt and the headband of a clan that is gone. He fights for both of them.",
+    "accent": "#a87a52",
+    "art": "/avatars/haldor-wolfbrow.webp",
+    "source": "coraxdigitalart-realistic-human-heroes (274).png"
+  }
+]
