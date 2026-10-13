@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "hearth-guard",
+  "revision": 1,
+  "name": "Hearth Guard",
+  "deckLimitKey": "hearth-guard",
+  "type": "creature",
+  "factions": [
+    "bright-marches"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "bright-marches": 1
+    }
+  },
+  "abilities": [
+    {
+      "id": "war-banner",
+      "params": {
+        "amount": 2
+      }
+    }
+  ],
+  "lore": "Where the hearth burns, the march does not break.",
+  "stats": {
+    "attack": 4,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "bright-marches": 2
+      }
+    ]
+  },
+  "set": "foundations"
+}

@@ -20,7 +20,8 @@
   "abilities": [],
   "lore": "Knowledge travels farther when someone lends the book.",
   "timing": [
-    "play"
+    "play",
+    "death"
   ],
   "cast": [
     {

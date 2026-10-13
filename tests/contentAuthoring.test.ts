@@ -21,8 +21,8 @@ describe('editable Crownlands content',()=>{
     expect(factions).toEqual(['black-host','bright-marches','conclave','crownlands','ember-fields','horde','mountain-clans','winter-league']);
     expect(allCards().map(card=>card.id)).toEqual(expect.arrayContaining(['crown-recruit','dawn-banner','cleansing-light','runeguard','crown-bastion','aldric-runewarden']));
     expect(allCards().every(card=>card.factions.every(faction=>factions.includes(faction)))).toBe(true);
-    expect(Object.keys(abilities).sort()).toEqual(['accord','adjacent-banner','armor','channel-neutral','charge','damage','draw','fealty','flank-evasion','guard','heal','invocation','marches-rally','primal','raid','rally','rime','sanctuary','scorch','shield-wall','soul-harvest','trade','war-banner','wayfarer']);
-    expect(registry.cards.runeguard.stats?.energyOutputs).toEqual([{crownlands:1}]);
+    expect(Object.keys(abilities).sort()).toEqual(['accord','adjacent-banner','armor','barrage','channel','charge','damage','draw','drillmaster','fealty','flank-evasion','guard','heal','invocation','longshot','marches-rally','primal','raid','rally','rime','sanctuary','scorch','shield-wall','shoulder-to-shoulder','soul-harvest','trade','war-banner','wayfarer']);
+    expect(registry.cards.runeguard.stats?.energyOutputs).toEqual([{crownlands:2}]);
     expect(registry.cards['aldric-runewarden'].cost.factions).toEqual({crownlands:2});
     expect(allCards().every(card=>!('text' in card))).toBe(true);
     expect(registry.cards['crown-recruit'].lore).toBe('Every kingdom begins with an oath.');

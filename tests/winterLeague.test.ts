@@ -62,8 +62,8 @@ describe('energy conversion spells',()=>{
   it('cannot cast a conversion without its Snow payment and rejects fabricated energy types atomically',()=>{
     const state=setup(),id=card(state,'thaw-the-seal');state.players.p1.energy={neutral:5};
     expect(apply(state,{actor:'p1',expectedRevision:0,command:{type:'play',cardId:id}},registry).error).toBeTruthy();
-    const bad={...registry.abilities['channel-neutral'],cast:((ctx)=>ctx.issue({type:'gain-energy',player:'p1',output:{unregistered:2}}))} satisfies typeof registry.abilities[string];
-    const content:Registry={...registry,abilities:{...registry.abilities,'channel-neutral':bad}};
+    const bad={...registry.abilities['channel'],cast:((ctx)=>ctx.issue({type:'gain-energy',player:'p1',output:{unregistered:2}}))} satisfies typeof registry.abilities[string];
+    const content:Registry={...registry,abilities:{...registry.abilities,'channel':bad}};
     state.players.p1.energy={'winter-league':1};const before=structuredClone(state);
     const result=apply(state,{actor:'p1',expectedRevision:0,command:{type:'play',cardId:id}},content);
     expect(result.error).toBe('Invalid generated energy.');expect(result.state).toBe(state);expect(state).toEqual(before);

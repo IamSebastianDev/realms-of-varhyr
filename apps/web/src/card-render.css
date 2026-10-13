@@ -7,14 +7,16 @@
 .art-card .card-header h3 {font:600 10.5cqw/1.08 var(--serif)}
 .art-card .card-affiliation {font:600 4.6cqw/1.4 'Manrope',sans-serif;letter-spacing:.1em}
 .art-card .card-cost {top:4cqw;right:4cqw;padding:2cqw 2.6cqw;border-radius:2cqw}
-.art-card .card-cost .cost-bundle {font-size:7cqw;gap:.6cqw}
-.art-card .card-cost .cost-free {font-size:8.5cqw}
+.art-card .card-cost .cost-bundle {font:700 10cqw/1 'Manrope',sans-serif;gap:1.6cqw}
+.art-card .card-cost .cost-free {font-size:10cqw}
 .art-card .card-title {gap:4cqw;padding:3cqw 2.5cqw}
 .art-card .card-statline {font:700 10cqw/1 'Manrope',sans-serif;gap:7cqw}
 .art-card .card-statline span {gap:1.6cqw}
 .art-card .card-statline svg {width:6.5cqw;height:6.5cqw}
-.art-card .card-energy-output .energy-bundle {font-size:9.5cqw;gap:2cqw}
-.art-card .card-energy-output .energy-bundle b {font-size:6.5cqw}
+.art-card .card-energy-output .energy-bundle {font:700 10cqw/1 'Manrope',sans-serif;gap:7cqw}
+.art-card .card-energy-output .energy-bundle b {font:inherit}
+.art-card .card-energy-output .energy-token {gap:1.6cqw}
+.art-card .card-energy-output .energy-symbol.faction-icon,.art-card .card-energy-output svg,.art-card .card-cost .faction-icon,.art-card .card-cost svg {width:6.5cqw;height:6.5cqw;font-size:inherit}
 .art-card .card-energy-output .output-or {font-size:4.5cqw}
 
 /* The same face laid over the 3D board art */

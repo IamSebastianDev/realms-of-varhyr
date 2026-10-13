@@ -2,7 +2,7 @@
   {
     "id": "aldric-runewarden",
     "set": "foundations",
-    "revision": 10,
+    "revision": 11,
     "name": "Alderic, Warmaster of the Empire",
     "deckLimitKey": "aldric-runewarden",
     "type": "creature",
@@ -47,7 +47,7 @@
       "defense": 5,
       "energyOutputs": [
         {
-          "crownlands": 1
+          "crownlands": 3
         }
       ]
     }
@@ -200,7 +200,8 @@
     "art": "/cards/borrowed-wisdom/data.png?v=2fe16b66cd70e2d2",
     "abilities": [],
     "timing": [
-      "play"
+      "play",
+      "death"
     ],
     "cast": [
       {
@@ -214,7 +215,7 @@
   {
     "id": "bosci-lord-of-seacliffe",
     "set": "foundations",
-    "revision": 4,
+    "revision": 5,
     "name": "Bosci, Lord of Seacliffe",
     "deckLimitKey": "bosci-lord-of-seacliffe",
     "type": "creature",
@@ -240,7 +241,7 @@
         "lore": "Er vereint die Kleinkönige gegen einen gemeinsamen Feind. Der Hof weiß noch nicht, welchen Feind er meint."
       }
     },
-    "art": "/cards/bosci-lord-of-seacliffe/data.png?v=c1b6f3c99c08abf9",
+    "art": "/cards/bosci-lord-of-seacliffe/data.png?v=d5375c956217cae5",
     "abilities": [
       {
         "id": "marches-rally",
@@ -256,7 +257,7 @@
       "defense": 4,
       "energyOutputs": [
         {
-          "bright-marches": 2
+          "bright-marches": 3
         }
       ]
     }
@@ -446,7 +447,7 @@
   {
     "id": "dark-priest-of-run",
     "set": "foundations",
-    "revision": 4,
+    "revision": 5,
     "name": "The Dark Priest of Run",
     "deckLimitKey": "dark-priest-of-run",
     "type": "creature",
@@ -490,7 +491,7 @@
       "defense": 6,
       "energyOutputs": [
         {
-          "black-host": 2
+          "black-host": 3
         }
       ]
     }
@@ -498,7 +499,7 @@
   {
     "id": "dawn-banner",
     "set": "foundations",
-    "revision": 4,
+    "revision": 5,
     "name": "Dawn Standard-bearer",
     "deckLimitKey": "dawn-banner",
     "type": "creature",
@@ -535,7 +536,7 @@
       "defense": 3,
       "energyOutputs": [
         {
-          "crownlands": 1
+          "crownlands": 2
         }
       ]
     }
@@ -639,6 +640,48 @@
     }
   },
   {
+    "id": "gift-of-the-march",
+    "set": "foundations",
+    "revision": 2,
+    "name": "Gift of the March",
+    "deckLimitKey": "gift-of-the-march",
+    "type": "spell",
+    "factions": [
+      "bright-marches"
+    ],
+    "subtypes": [
+      "divination"
+    ],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 1,
+      "factions": {}
+    },
+    "lore": "The marches feed the people.",
+    "translations": {
+      "de": {
+        "name": "Geschenk der Mark",
+        "lore": "Die Marken ernähren das Volk."
+      }
+    },
+    "art": "/cards/gift-of-the-march/data.png?v=213d24cb6500e899",
+    "abilities": [],
+    "timing": [
+      "play",
+      "death"
+    ],
+    "cast": [
+      {
+        "id": "channel",
+        "params": {
+          "amount": 2,
+          "energy": "bright-marches"
+        }
+      }
+    ]
+  },
+  {
     "id": "goldfield-farmer",
     "set": "foundations",
     "revision": 4,
@@ -677,9 +720,56 @@
     }
   },
   {
+    "id": "hearth-guard",
+    "set": "foundations",
+    "revision": 1,
+    "name": "Hearth Guard",
+    "deckLimitKey": "hearth-guard",
+    "type": "creature",
+    "factions": [
+      "bright-marches"
+    ],
+    "subtypes": [
+      "human"
+    ],
+    "legendary": false,
+    "rarity": "rare",
+    "cost": {
+      "generic": 2,
+      "factions": {
+        "bright-marches": 1
+      }
+    },
+    "lore": "Where the hearth burns, the march does not break.",
+    "translations": {
+      "de": {
+        "name": "Herdwache",
+        "lore": "Wo der Herd brennt, bricht der Marsch nicht."
+      }
+    },
+    "art": "/cards/hearth-guard/data.png?v=4cfddd548b66cc40",
+    "abilities": [
+      {
+        "id": "war-banner",
+        "params": {
+          "amount": 2
+        }
+      }
+    ],
+    "stats": {
+      "attack": 4,
+      "defense": 2,
+      "energyOutputs": [
+        {
+          "bright-marches": 2
+        }
+      ]
+    }
+  },
+  {
     "id": "hekata-lady-of-the-fields",
     "set": "foundations",
-    "revision": 3,
+    "revision": 4,
     "name": "Hekata, Lady of the Fields",
     "deckLimitKey": "hekata-lady-of-the-fields",
     "type": "creature",
@@ -724,7 +814,7 @@
       "defense": 4,
       "energyOutputs": [
         {
-          "ember-fields": 1
+          "ember-fields": 3
         }
       ]
     }
@@ -755,11 +845,18 @@
         "lore": "Wen den Herold zu den Bannern ruft, der folgt."
       }
     },
-    "art": "/cards/herald-of-the-mark/data.png?v=952637b9eed879a0",
-    "abilities": [],
+    "art": "/cards/herald-of-the-mark/data.png?v=016da170a1475d3a",
+    "abilities": [
+      {
+        "id": "adjacent-banner",
+        "params": {
+          "amount": 1
+        }
+      }
+    ],
     "stats": {
-      "attack": 1,
-      "defense": 2,
+      "attack": 2,
+      "defense": 1,
       "energyOutputs": [
         {
           "bright-marches": 1
@@ -770,7 +867,7 @@
   {
     "id": "ilyria-queen-of-the-elves",
     "set": "foundations",
-    "revision": 4,
+    "revision": 5,
     "name": "Ilyria, Queen of the Elves",
     "deckLimitKey": "ilyria-queen-of-the-elves",
     "type": "creature",
@@ -812,7 +909,7 @@
       "defense": 4,
       "energyOutputs": [
         {
-          "conclave": 2
+          "conclave": 3
         }
       ]
     }
@@ -888,6 +985,51 @@
       "energyOutputs": [
         {
           "crownlands": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "marcher-axeman",
+    "set": "foundations",
+    "revision": 2,
+    "name": "Marcher Axeman",
+    "deckLimitKey": "marcher-axeman",
+    "type": "creature",
+    "factions": [
+      "bright-marches"
+    ],
+    "subtypes": [
+      "human"
+    ],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 0,
+      "factions": {
+        "bright-marches": 1
+      }
+    },
+    "lore": "Tool and weapon alike, what's not to love?",
+    "translations": {
+      "de": {
+        "name": "Axtkämpfer der Mark",
+        "lore": "Werkzeug und Waffe zugleich – was gibt es da nicht zu lieben?"
+      }
+    },
+    "art": "/cards/marcher-axeman/data.png?v=66abd11c7263983f",
+    "abilities": [
+      {
+        "id": "shoulder-to-shoulder",
+        "params": {}
+      }
+    ],
+    "stats": {
+      "attack": 2,
+      "defense": 1,
+      "energyOutputs": [
+        {
+          "bright-marches": 1
         }
       ]
     }
@@ -1023,9 +1165,280 @@
     }
   },
   {
+    "id": "oakholme-archery-captain",
+    "set": "foundations",
+    "revision": 1,
+    "name": "Oakholme Archery Captain",
+    "deckLimitKey": "oakholme-archery-captain",
+    "type": "creature",
+    "factions": [
+      "bright-marches"
+    ],
+    "subtypes": [
+      "human",
+      "archer"
+    ],
+    "legendary": false,
+    "rarity": "rare",
+    "cost": {
+      "generic": 2,
+      "factions": {
+        "bright-marches": 1
+      }
+    },
+    "lore": "Steady hands, steady count: nock, draw, loose.",
+    "translations": {
+      "de": {
+        "name": "Hauptmann der Bogenschützen von Oakholme",
+        "lore": "Ruhige Hand, ruhiger Takt: anlegen, spannen, loslassen."
+      }
+    },
+    "art": "/cards/oakholme-archery-captain/data.png?v=4ce66d5027b4fa8c",
+    "abilities": [
+      {
+        "id": "longshot",
+        "params": {
+          "amount": 1
+        }
+      },
+      {
+        "id": "drillmaster",
+        "params": {
+          "amount": 1,
+          "subtype": "archer"
+        }
+      }
+    ],
+    "stats": {
+      "attack": 3,
+      "defense": 2,
+      "energyOutputs": [
+        {
+          "bright-marches": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "oakholme-bowmen",
+    "set": "foundations",
+    "revision": 3,
+    "name": "Oakholme Bowmen",
+    "deckLimitKey": "oakholme-bowmen",
+    "type": "creature",
+    "factions": [
+      "bright-marches"
+    ],
+    "subtypes": [
+      "human",
+      "archer"
+    ],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 1,
+      "factions": {
+        "bright-marches": 1
+      }
+    },
+    "lore": "Draw, breathe, loose.",
+    "translations": {
+      "de": {
+        "name": "Bogenschützen von Oakholme",
+        "lore": "Anlegen, atmen, loslassen."
+      }
+    },
+    "art": "/cards/oakholme-bowmen/data.png?v=392954f214d76af0",
+    "abilities": [
+      {
+        "id": "longshot",
+        "params": {
+          "amount": 1
+        }
+      }
+    ],
+    "stats": {
+      "attack": 3,
+      "defense": 2,
+      "energyOutputs": [
+        {
+          "bright-marches": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "odric-the-berserker",
+    "set": "foundations",
+    "revision": 2,
+    "name": "Odric the Berserker",
+    "deckLimitKey": "odric-the-berserker",
+    "type": "creature",
+    "factions": [
+      "bright-marches"
+    ],
+    "subtypes": [
+      "human"
+    ],
+    "legendary": true,
+    "rarity": "legendary",
+    "cost": {
+      "generic": 2,
+      "factions": {
+        "bright-marches": 1
+      }
+    },
+    "lore": "He never learned to guard. He never needed to.",
+    "translations": {
+      "de": {
+        "name": "Odric der Berserker",
+        "lore": "Er hat nie gelernt, sich zu decken. Er hat es nie gebraucht."
+      }
+    },
+    "art": "/cards/odric-the-berserker/data.png?v=f7733a978af3242f",
+    "abilities": [
+      {
+        "id": "armor",
+        "params": {
+          "amount": 1
+        }
+      },
+      {
+        "id": "charge",
+        "params": {
+          "amount": 2,
+          "position": "Center"
+        }
+      }
+    ],
+    "stats": {
+      "attack": 5,
+      "defense": 3,
+      "energyOutputs": [
+        {
+          "bright-marches": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "puncture",
+    "set": "foundations",
+    "revision": 1,
+    "name": "Puncture",
+    "deckLimitKey": "puncture",
+    "type": "spell",
+    "factions": [
+      "bright-marches"
+    ],
+    "subtypes": [],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 0,
+      "factions": {
+        "bright-marches": 1
+      }
+    },
+    "lore": "One arrow, one gap in the armor.",
+    "translations": {
+      "de": {
+        "name": "Durchbohren",
+        "lore": "Ein Pfeil, eine Lücke in der Rüstung."
+      }
+    },
+    "art": "/cards/puncture/data.png?v=0c719f69aa8edf93",
+    "abilities": [],
+    "timing": [
+      "play"
+    ],
+    "cast": [
+      {
+        "id": "damage",
+        "params": {
+          "amount": 2
+        }
+      }
+    ]
+  },
+  {
+    "id": "revenge",
+    "set": "foundations",
+    "revision": 1,
+    "name": "Revenge",
+    "deckLimitKey": "revenge",
+    "type": "spell",
+    "factions": [],
+    "subtypes": [],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 2,
+      "factions": {}
+    },
+    "lore": "The fallen are not forgotten.",
+    "translations": {
+      "de": {
+        "name": "Rache",
+        "lore": "Die Gefallenen sind nicht vergessen."
+      }
+    },
+    "art": "/cards/revenge/data.png?v=450de3a5f7b45cd2",
+    "abilities": [],
+    "timing": [
+      "death"
+    ],
+    "cast": [
+      {
+        "id": "damage",
+        "params": {
+          "amount": 3
+        }
+      }
+    ]
+  },
+  {
+    "id": "riverlands-shipwrights",
+    "set": "foundations",
+    "revision": 4,
+    "name": "Riverlands Shipwrights",
+    "deckLimitKey": "riverland-shipwrights",
+    "type": "creature",
+    "factions": [
+      "bright-marches"
+    ],
+    "subtypes": [
+      "human"
+    ],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 0,
+      "factions": {}
+    },
+    "lore": "Where the woods meet the river, the ships will be built.",
+    "translations": {
+      "de": {
+        "name": "Schiffsbauer der Flusslande",
+        "lore": "Wo der Fluss und der Wald sich treffen, ist wo wir unsere Schiffe bauen."
+      }
+    },
+    "art": "/cards/riverland-shipwrights/data.png?v=abfe9399b7417fcf",
+    "abilities": [],
+    "stats": {
+      "attack": 1,
+      "defense": 2,
+      "energyOutputs": [
+        {
+          "bright-marches": 1
+        }
+      ]
+    }
+  },
+  {
     "id": "runeguard",
     "set": "foundations",
-    "revision": 5,
+    "revision": 6,
     "name": "Runeguard",
     "deckLimitKey": "runeguard",
     "type": "creature",
@@ -1055,7 +1468,92 @@
       "defense": 4,
       "energyOutputs": [
         {
-          "crownlands": 1
+          "crownlands": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "seacliffe-castle",
+    "set": "foundations",
+    "revision": 1,
+    "name": "Seacliffe Castle",
+    "deckLimitKey": "seacliffe-castle",
+    "type": "bastion",
+    "factions": [
+      "bright-marches"
+    ],
+    "subtypes": [
+      "fortification"
+    ],
+    "legendary": true,
+    "rarity": "legendary",
+    "cost": {
+      "generic": 2,
+      "factions": {
+        "bright-marches": 3
+      }
+    },
+    "lore": "Every ship that rounds the headland learns whose coast it is.",
+    "translations": {
+      "de": {
+        "name": "Burg Seacliffe",
+        "lore": "Jedes Schiff, das die Landzunge umrundet, lernt, wessen Küste das ist."
+      }
+    },
+    "art": "/cards/seacliffe-castle/data.png?v=05cc79a668c2eeea",
+    "abilities": [
+      {
+        "id": "guard",
+        "params": {}
+      },
+      {
+        "id": "shield-wall",
+        "params": {
+          "amount": 2
+        }
+      }
+    ],
+    "stats": {
+      "attack": 2,
+      "defense": 6,
+      "energyOutputs": []
+    }
+  },
+  {
+    "id": "seacliffe-fisherman",
+    "set": "foundations",
+    "revision": 1,
+    "name": "Seacliffe Fisherman",
+    "deckLimitKey": "seacliffe-fisherman",
+    "type": "creature",
+    "factions": [
+      "bright-marches"
+    ],
+    "subtypes": [
+      "human"
+    ],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 0,
+      "factions": {}
+    },
+    "lore": "It takes courage to face the sea.",
+    "translations": {
+      "de": {
+        "name": "Seacliffe Fischer",
+        "lore": "Es braucht mut sich der See zu stellen."
+      }
+    },
+    "art": "/cards/seacliffe-fisherman/data.png?v=0e4e87aae0c5f3d5",
+    "abilities": [],
+    "stats": {
+      "attack": 1,
+      "defense": 1,
+      "energyOutputs": [
+        {
+          "bright-marches": 1
         }
       ]
     }
@@ -1096,6 +1594,46 @@
         }
       ]
     }
+  },
+  {
+    "id": "strike-the-hammer",
+    "set": "foundations",
+    "revision": 3,
+    "name": "Strike the Hammer",
+    "deckLimitKey": "strike-the-hammer",
+    "type": "spell",
+    "factions": [
+      "bright-marches"
+    ],
+    "subtypes": [],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 2,
+      "factions": {
+        "bright-marches": 2
+      }
+    },
+    "lore": "The march ends where the hammer falls.",
+    "translations": {
+      "de": {
+        "name": "Der Hammer fällt",
+        "lore": "Der Marsch endet, wo der Hammer fällt."
+      }
+    },
+    "art": "/cards/strike-the-hammer/data.png?v=a33c8da210df82ca",
+    "abilities": [],
+    "timing": [
+      "play"
+    ],
+    "cast": [
+      {
+        "id": "damage",
+        "params": {
+          "amount": 5
+        }
+      }
+    ]
   },
   {
     "id": "the-lonely-wanderer",
@@ -1190,6 +1728,89 @@
     ],
     "stats": {
       "attack": 3,
+      "defense": 5,
+      "energyOutputs": []
+    }
+  },
+  {
+    "id": "volley",
+    "set": "foundations",
+    "revision": 1,
+    "name": "Volley",
+    "deckLimitKey": "volley",
+    "type": "spell",
+    "factions": [
+      "bright-marches"
+    ],
+    "subtypes": [],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 0,
+      "factions": {
+        "bright-marches": 2
+      }
+    },
+    "lore": "Loose! Again, loose!",
+    "translations": {
+      "de": {
+        "name": "Salve",
+        "lore": "Feuer! Und noch einmal, Feuer!"
+      }
+    },
+    "art": "/cards/volley/data.png?v=e6ea51c12fb6b82b",
+    "abilities": [],
+    "timing": [
+      "play"
+    ],
+    "cast": [
+      {
+        "id": "barrage",
+        "params": {
+          "amount": 1
+        }
+      }
+    ]
+  },
+  {
+    "id": "wooden-fort",
+    "set": "foundations",
+    "revision": 1,
+    "name": "Wooden Fort",
+    "deckLimitKey": "wooden-fort",
+    "type": "bastion",
+    "factions": [
+      "bright-marches"
+    ],
+    "subtypes": [
+      "fortification"
+    ],
+    "legendary": false,
+    "rarity": "rare",
+    "cost": {
+      "generic": 1,
+      "factions": {
+        "bright-marches": 2
+      }
+    },
+    "lore": "Timber today, a stronghold by dusk.",
+    "translations": {
+      "de": {
+        "name": "Holzfestung",
+        "lore": "Heute Holz, bei Einbruch der Nacht eine Festung."
+      }
+    },
+    "art": "/cards/wooden-fort/data.png?v=234f479f872d7d9b",
+    "abilities": [
+      {
+        "id": "shield-wall",
+        "params": {
+          "amount": 1
+        }
+      }
+    ],
+    "stats": {
+      "attack": 2,
       "defense": 5,
       "energyOutputs": []
     }

@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Hauptmann der Bogenschützen von Oakholme",
+  "lore": "Ruhige Hand, ruhiger Takt: anlegen, spannen, loslassen."
+}

@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Burg Seacliffe",
+  "lore": "Jedes Schiff, das die Landzunge umrundet, lernt, wessen Küste das ist."
+}

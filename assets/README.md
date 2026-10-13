@@ -236,7 +236,7 @@ In `packages/extensions/src/index.ts`, the active IDs are:
 | `rime` | `{ "amount": 1 }` | Opposing field card in the same slot loses Attack while the source remains |
 | `invocation` | `{ "amount": 1 }` | Exhaust in the play phase to damage the opposing creature in the same slot; requires a creature there |
 | `primal` | `{}` | Exhaust during the play phase to produce 1 energy of a chosen faction; no printed production is implied |
-| `channel-neutral` | `{ "amount": 2 }` | Spell grants neutral energy to the current casting pool after its cost is paid |
+| `channel` | `{ "amount": 2, "energy": "bright-marches" }` | Spell adds that much energy of the chosen faction (or `"neutral"`) to the current casting pool after its cost is paid. Faction energy also pays generic costs; neutral energy cannot pay faction costs |
 | `soul-harvest` | `{}` | Black Host only. Soul Harvest: while on the field, draw one card when another friendly creature is destroyed; excludes bastions and the source itself |
 | `rally` | `{ "amount": 1 }` | Restore: exhaust during your play phase to restore life (activated ability) |
 

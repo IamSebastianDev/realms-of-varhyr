@@ -2,7 +2,7 @@
   "$schema": "../../schemas/card.schema.json",
   "id": "hekata-lady-of-the-fields",
   "set": "foundations",
-  "revision": 3,
+  "revision": 4,
   "name": "Hekata, Lady of the Fields",
   "deckLimitKey": "hekata-lady-of-the-fields",
   "type": "creature",
@@ -27,7 +27,7 @@
     "defense": 4,
     "energyOutputs": [
       {
-        "ember-fields": 1
+        "ember-fields": 3
       }
     ]
   },

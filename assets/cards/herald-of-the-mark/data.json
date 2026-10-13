@@ -17,11 +17,16 @@
     "generic": 0,
     "factions": {}
   },
-  "abilities": [],
+  "abilities": [
+    {
+      "id": "adjacent-banner",
+      "params": {"amount": 1}
+    }
+  ],
   "lore": "When the herald calls, the mark rises.",
   "stats": {
-    "attack": 1,
-    "defense": 2,
+    "attack": 2,
+    "defense": 1,
     "energyOutputs": [
       {
         "bright-marches": 1

@@ -37,6 +37,15 @@ export function AuthoringLobby({ onStart, onSessionStart }: { onStart: (session:
     return null;
   }
 
+  function deleteDeck(id: string): string | null {
+    const next = decks.filter(deck => deck.id !== id);
+    try { localStorage.setItem(decksKey, JSON.stringify(next)); }
+    catch { return msg("Could not save. This browser’s storage is full or unavailable."); }
+    setDecks(next);
+    if (selected === id) setSelected(defaultDeckId);
+    return null;
+  }
+
   function start(skirmish: boolean) {
     const customDeck = decks.find(deck => deck.id === selected);
     const deck = customDeck ? defaultDeckId : selected;
@@ -52,7 +61,7 @@ export function AuthoringLobby({ onStart, onSessionStart }: { onStart: (session:
   return <>
     <Lobby reduced={reduced}
       screen={screen} navigate={next => { if (next !== 'match') setScreen(next); }}
-      canResume={false} resumeLabel="" decks={decks} options={options} saveDeck={saveDeck}
+      canResume={false} resumeLabel="" decks={decks} options={options} saveDeck={saveDeck} deleteDeck={deleteDeck}
       mode={mode} setMode={setMode} selected={selected} setSelected={setSelected} opponentId={opponentId} setOpponentId={setOpponentId}
       seed={seed} setSeed={setSeed} start={start} startSession={onSessionStart} learn={() => onStart(startTutorial())}/>
     {error && <div className="toast" role="alert">{error}</div>}

@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, type ReactNode } from 'react';
 import { getPreferences, usePreferences, type Language } from '../preferences';
 import german from './de.json';
-import { registry, setDefinitions } from '../../../../packages/content/src';
+import { factionInfo, registry, setDefinitions } from '../../../../packages/content/src';
 import type { CardDefinition, AbilityBinding, AbilityExtension } from '../../../../packages/contracts/src';
 import { describeAbility } from '../../../../packages/extensions/src/describeAbility';
 import { eventMessages } from './messages';
@@ -32,7 +32,7 @@ export function localizedCard(card: CardDefinition, language = getPreferences().
 export const subtypeLabel = (subtype: string, language = getPreferences().language) => translate(subtype.trim().replace(/\b[a-z]/g, letter => letter.toUpperCase()), language);
 export function localizedAbility(binding: AbilityBinding, extension: AbilityExtension, language = getPreferences().language) {
   const text = extension.translations?.[language];
-  const params = Object.fromEntries(Object.entries(binding.params).map(([key,value])=>[key,typeof value==='string'?translate(value,language):value]));
+  const params = Object.fromEntries(Object.entries(binding.params).map(([key,value])=>[key,key==='energy'&&typeof value==='string'?translate(factionInfo[value]?.short??'Neutral',language):key==='subtype'&&typeof value==='string'?subtypeLabel(value,language):typeof value==='string'?translate(value,language):value]));
   return describeAbility({ ...binding, params },text?{ ...extension, ...text }:extension);
 }
 const abilityPatterns = Object.values(registry.abilities).flatMap(extension=>{

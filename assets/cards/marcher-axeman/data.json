@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "marcher-axeman",
+  "revision": 2,
+  "name": "Marcher Axeman",
+  "deckLimitKey": "marcher-axeman",
+  "type": "creature",
+  "factions": [
+    "bright-marches"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "bright-marches": 1
+    }
+  },
+  "abilities": [
+    {
+      "id": "shoulder-to-shoulder",
+      "params": {}
+    }
+  ],
+  "lore": "Tool and weapon alike, what's not to love?",
+  "stats": {
+    "attack": 2,
+    "defense": 1,
+    "energyOutputs": [
+      {
+        "bright-marches": 1
+      }
+    ]
+  },
+  "set": "foundations"
+}

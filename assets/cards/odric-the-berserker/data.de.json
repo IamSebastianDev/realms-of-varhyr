@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Odric der Berserker",
+  "lore": "Er hat nie gelernt, sich zu decken. Er hat es nie gebraucht."
+}

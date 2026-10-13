@@ -193,7 +193,7 @@ describe('card asset imports',()=>{
     await expect(readFactionAssets(join(root,'assets'))).rejects.toThrow('starter');
   });
   it('builds the game starter decks from the faction file',()=>{
-    expect(starterDefinitions.map(deck=>deck.id)).toEqual(['crown']);expect(defaultDeckId).toBe('crown');
+    expect(starterDefinitions.map(deck=>deck.id)).toEqual(['hearth-and-stone','crown']);expect(defaultDeckId).toBe('crown');
     expect(starterDecks.crown).toHaveLength(30);expect(starterDecks.crown.slice(0,3)).toEqual(['goldfield-farmer','goldfield-farmer','goldfield-farmer']);
   });
   it('offers only the general pack and Foundations, preserving the faction catalogue',()=>{

@@ -1,0 +1,48 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "odric-the-berserker",
+  "revision": 2,
+  "name": "Odric the Berserker",
+  "deckLimitKey": "odric-the-berserker",
+  "type": "creature",
+  "factions": [
+    "bright-marches"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "bright-marches": 1
+    }
+  },
+  "abilities": [
+    {
+      "id": "armor",
+      "params": {
+        "amount": 1
+      }
+    },
+    {
+      "id": "charge",
+      "params": {
+        "amount": 2,
+        "position": "Center"
+      }
+    }
+  ],
+  "lore": "He never learned to guard. He never needed to.",
+  "stats": {
+    "attack": 5,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "bright-marches": 2
+      }
+    ]
+  },
+  "set": "foundations"
+}

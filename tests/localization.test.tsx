@@ -76,7 +76,7 @@ describe('English and German presentation',()=>{
     expect(translate(template,'en')).toBe(template);
   });
   it('keeps a German catalogue entry for each literal UI translation key',()=>{
-    const files=['ResetControls.tsx','AudioExperience.tsx','App.tsx','Lobby.tsx','SettingsPage.tsx','GameSetup.tsx','DeckBuilder.tsx','CardPresentation.tsx','CardDetail.tsx','DrawChoice.tsx','MatchSummary.tsx','BoosterOpening.tsx','ProfilePage.tsx','CollectionStats.tsx','multiplayer/MultiplayerLobby.tsx'];
+    const files=['ResetControls.tsx','AudioExperience.tsx','App.tsx','Lobby.tsx','SettingsPage.tsx','GameSetup.tsx','DeckBuilder.tsx','CardPresentation.tsx','CardDetail.tsx','DrawChoice.tsx','MatchSummary.tsx','BoosterOpening.tsx','ProfilePage.tsx','CollectionStats.tsx','CardPurchase.tsx','Onboarding.tsx','multiplayer/MultiplayerLobby.tsx'];
     const missing=new Set<string>();
     for(const file of files){const tree=ts.createSourceFile(file,readFileSync(`apps/web/src/${file}`,'utf8'),ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
       function scan(node:ts.Node){if(ts.isCallExpression(node)&&['t','msg'].includes(node.expression.getText(tree))&&node.arguments[0]&&ts.isStringLiteral(node.arguments[0])){

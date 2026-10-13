@@ -2,7 +2,7 @@
   "$schema": "../../schemas/card.schema.json",
   "id": "ilyria-queen-of-the-elves",
   "set": "foundations",
-  "revision": 4,
+  "revision": 5,
   "name": "Ilyria, Queen of the Elves",
   "deckLimitKey": "ilyria-queen-of-the-elves",
   "type": "creature",
@@ -26,7 +26,7 @@
     "defense": 4,
     "energyOutputs": [
       {
-        "conclave": 2
+        "conclave": 3
       }
     ]
   },

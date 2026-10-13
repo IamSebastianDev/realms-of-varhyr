@@ -102,6 +102,7 @@ export function compileContent(
         throw new Error(`Ability ${binding.id} belongs to ${extension.faction}; card ${card.id} needs that affiliation`);
       }
       extension.validate(binding.params);
+      if (typeof binding.params.energy === 'string' && ![...factionIds, 'neutral'].includes(binding.params.energy)) throw new Error(`Unknown energy type ${binding.params.energy} on ${card.id}`);
       describeAbility(binding, extension);
       for (const translation of Object.values(extension.translations ?? {})) {
         if (!translation || !translation.name.trim() || !translation.description.trim()) throw new Error(`Ability ${extension.id} needs translated names and descriptions`);

@@ -1,0 +1,49 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "oakholme-archery-captain",
+  "revision": 1,
+  "name": "Oakholme Archery Captain",
+  "deckLimitKey": "oakholme-archery-captain",
+  "type": "creature",
+  "factions": [
+    "bright-marches"
+  ],
+  "subtypes": [
+    "human",
+    "archer"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "bright-marches": 1
+    }
+  },
+  "abilities": [
+    {
+      "id": "longshot",
+      "params": {
+        "amount": 1
+      }
+    },
+    {
+      "id": "drillmaster",
+      "params": {
+        "amount": 1,
+        "subtype": "archer"
+      }
+    }
+  ],
+  "lore": "Steady hands, steady count: nock, draw, loose.",
+  "stats": {
+    "attack": 3,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "bright-marches": 2
+      }
+    ]
+  },
+  "set": "foundations"
+}

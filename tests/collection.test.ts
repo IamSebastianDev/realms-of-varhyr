@@ -3,7 +3,7 @@ import type { Registry } from '../packages/contracts/src';
 import { defaultDeckId, registry as live, starterDefinitions } from '../packages/content/src';
 import { boosterPacks } from '../packages/content/src/boosters';
 import { collectionRules, emptyCollection, createCollection, parseCollection, openCollectionBooster,
-  buyCollectionBooster, gainDebugCrowns, claimVictory, missingDeckCopies, packCount, totalPacks } from '../apps/web/src/collection';
+  buyCollectionBooster, buyCollectionCard, cardPrice, gainDebugCrowns, claimVictory, missingDeckCopies, packCount, totalPacks } from '../apps/web/src/collection';
 import { addDeckCard } from '../apps/web/src/decks';
 import { apply, decisionPlayer } from '../packages/core/src';
 import { botCommand } from '../packages/core/src/bot';
@@ -137,5 +137,22 @@ describe('collection progression', () => {
   it('reads saves written before dust became crowns', () => {
     const old = JSON.stringify({ version: 1, counts: {}, dust: 140, packs: {}, boostersOpened: 2, rewardedMatches: [] });
     expect(parseCollection(old, content)?.crowns).toBe(140);
+  });
+});
+
+describe('buying single cards', () => {
+  it('spends crowns for one copy and stops at the ownership limit', () => {
+    const wallet = { ...emptyCollection(), crowns: cardPrice(common) * 2 };
+    const one = buyCollectionCard(wallet, common);
+    expect(one.counts.common).toBe(1);
+    expect(one.crowns).toBe(cardPrice(common));
+    expect(wallet.counts.common).toBeUndefined();
+    const full = { ...wallet, crowns: 9999, counts: { legendary: 1 } };
+    expect(() => buyCollectionCard(full, legendary)).toThrow(/already own/);
+  });
+  it('refuses when crowns are short and prices rise with rarity', () => {
+    expect(() => buyCollectionCard(emptyCollection(), common)).toThrow(/costs/);
+    expect(cardPrice(common)).toBeLessThan(cardPrice(rare));
+    expect(cardPrice(rare)).toBeLessThan(cardPrice(legendary));
   });
 });

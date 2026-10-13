@@ -1,0 +1,40 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "seacliffe-castle",
+  "revision": 1,
+  "name": "Seacliffe Castle",
+  "deckLimitKey": "seacliffe-castle",
+  "type": "bastion",
+  "factions": [
+    "bright-marches"
+  ],
+  "subtypes": [
+    "fortification"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "bright-marches": 3
+    }
+  },
+  "abilities": [
+    {
+      "id": "guard",
+      "params": {}
+    },
+    {
+      "id": "shield-wall",
+      "params": {
+        "amount": 2
+      }
+    }
+  ],
+  "lore": "Every ship that rounds the headland learns whose coast it is.",
+  "stats": {
+    "attack": 2,
+    "defense": 6
+  },
+  "set": "foundations"
+}

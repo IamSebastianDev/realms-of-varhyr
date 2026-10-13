@@ -12,8 +12,9 @@ import { ArtCard, cardAbilityDescriptions } from './CardPresentation';
 import { CardDetail } from './CardDetail';
 import { OwnershipPips } from './OwnershipPips';
 import { addDeckCard, deckCardAvailability, draftKey, parseDeck, removeDeckCard, starterOptions, type CustomDeck } from './decks';
-import { buyCollectionBooster, collectionRules, gainDebugCrowns, missingDeckCopies, openCollectionBooster, ownedCopyCount, packCount, totalPacks } from './collection';
+import { buyCollectionBooster, buyCollectionCard, collectionRules, gainDebugCrowns, missingDeckCopies, openCollectionBooster, ownedCopyCount, packCount, totalPacks } from './collection';
 import { updateCollection, useCollection } from './collectionStore';
+import { CardPurchase } from './CardPurchase';
 import { CollectionStats } from './CollectionStats';
 import { CrownAmount, CrownIcon } from './Crowns';
 import { DeckBuilder } from './DeckBuilder';
@@ -29,7 +30,7 @@ export type Screen='menu'|'cards'|'builder'|'stats'|'store'|'profile'|'settings'
 type Mode='practice'|'hotseat';
 type Props={
   reduced:boolean; screen:Exclude<Screen,'match'>; navigate:(screen:Screen)=>void; canResume:boolean; resumeLabel:string;
-  decks:CustomDeck[]; options:{id:string;name:string;cards:string[]}[]; saveDeck:(deck:CustomDeck)=>string|null;
+  decks:CustomDeck[]; options:{id:string;name:string;cards:string[]}[]; saveDeck:(deck:CustomDeck)=>string|null; deleteDeck:(id:string)=>string|null;
   mode:Mode; setMode:(mode:Mode)=>void; selected:string; setSelected:(id:string)=>void;
   opponentId:string; setOpponentId:(id:string)=>void;
   seed:string; setSeed:(seed:string)=>void; start:(skirmish:boolean)=>void;
@@ -108,6 +109,7 @@ export function Lobby(props:Props){
     else if(starter)change({...emptyDeck(),name:msg("{v0} (copy)", {v0: starter.name}),cards:[...starter.cards]});
   }
   function save(){const next={...draft,name:draft.name.trim()};const error=props.saveDeck(next);setMessage(error??msg("Saved locally. Your deck is available in Play."));if(!error){editingName.current=false;setDraft(next);}return !error;}
+  function deleteDraft(){const error=props.deleteDeck(draft.id);if(error){setMessage(error);return;}editingName.current=false;setPast([]);setDraft(emptyDeck());setMessage(msg("Deck deleted."));}
   return <div className={`lobby ${isHome?'menu-screen':''}`}>
     <div className="world-bg"/><div className="world-vignette"/>
     <header className="lobby-header" inert={setup!==null}>
@@ -156,7 +158,7 @@ export function Lobby(props:Props){
             <div className="store-buy"><button className="gold-button" aria-label={msg("Open {v0} booster", {v0: pack.name})} disabled={!packCount(collection,pack.id)} onClick={()=>openBooster(pack)}><Gift size={17}/>{msg("Open booster")}</button><button className="outline-button store-crown-buy" aria-label={msg("Buy {v0} booster for {v1} crowns", {v0: pack.name, v1: collectionRules.packCost})} disabled={collection.crowns<collectionRules.packCost} onClick={()=>buyBooster(pack)}>{msg("Buy")}<CrownAmount amount={collectionRules.packCost}/></button></div></div>
         </article>;})}
       </section>
-    </main>:screen==='stats'?<CollectionStats collection={collection} inspect={inspect}/>:screen==='builder'?<DeckBuilder draft={draft} decks={props.decks} ownedCopies={ownedCopies} message={msg(message)} canUndo={!!past.length} reduced={props.reduced} change={change} add={add} remove={remove} load={load} save={save} undo={undo} inspect={inspect}/>:<main className="collection-page">
+    </main>:screen==='stats'?<CollectionStats collection={collection} inspect={inspect}/>:screen==='builder'?<DeckBuilder draft={draft} decks={props.decks} ownedCopies={ownedCopies} message={msg(message)} canUndo={!!past.length} reduced={props.reduced} change={change} add={add} remove={remove} load={load} save={save} removeDeck={deleteDraft} undo={undo} inspect={inspect}/>:<main className="collection-page">
       <div className="collection-heading"><div><h1>{msg("Cards")}</h1></div></div>
       <div className="collection-columns"><section className="all-cards-panel" aria-label={msg("All cards")}>{cards.length!==Object.keys(registry.cards).length&&<div className="collection-panel-heading"><span>{cards.length} / {Object.keys(registry.cards).length}</span></div>}
         <div className="collection-filters"><label className="collection-search"><Search size={16}/><input aria-label={msg("Search cards")} placeholder={msg("Search cards or abilities…")} value={query} onChange={e=>setQuery(e.target.value)}/></label>
@@ -176,6 +178,6 @@ export function Lobby(props:Props){
     {booster&&<BoosterOpening key={booster.id} pack={booster} reduced={props.reduced} suspended={!!inspected}
       close={()=>setBooster(null)} openAnother={()=>openBooster(booster.pack)} canOpenAnother={packCount(collection,booster.pack.id)>0} inspect={inspect}
       browse={()=>{setBooster(null);navigate('cards');}}/>}
-    {inspected&&<div className="modal-backdrop collection-modal" onClick={()=>setInspected(null)}><section ref={detailRef} onKeyDown={trapDetailFocus} className="collection-card-detail" role="dialog" aria-modal="true" aria-label={msg("{v0} details", {v0: inspected.name})} onClick={e=>e.stopPropagation()}><button className="collection-close" aria-label={msg("Close card details")} onClick={()=>setInspected(null)} autoFocus><X size={20}/></button><CardDetail card={inspected} animated reduced={props.reduced}>{screen==='builder'&&<button className="gold-button" disabled={!deckCardAvailability(draft.cards,inspected.id,registry,ownedCopies).remaining} onClick={()=>add(inspected.id)}>{msg("Add to deck")}<Plus size={16}/></button>}</CardDetail></section></div>}
+    {inspected&&<div className="modal-backdrop collection-modal" onClick={()=>setInspected(null)}><section ref={detailRef} onKeyDown={trapDetailFocus} className="collection-card-detail" role="dialog" aria-modal="true" aria-label={msg("{v0} details", {v0: inspected.name})} onClick={e=>e.stopPropagation()}><button className="collection-close" aria-label={msg("Close card details")} onClick={()=>setInspected(null)} autoFocus><X size={20}/></button><CardDetail card={inspected} animated reduced={props.reduced}><CardPurchase card={inspected} collection={collection} buy={()=>updateCollection(current=>buyCollectionCard(current,inspected))}/>{screen==='builder'&&<button className="gold-button" disabled={!deckCardAvailability(draft.cards,inspected.id,registry,ownedCopies).remaining} onClick={()=>add(inspected.id)}>{msg("Add to deck")}<Plus size={16}/></button>}</CardDetail></section></div>}
   </div>;
 }

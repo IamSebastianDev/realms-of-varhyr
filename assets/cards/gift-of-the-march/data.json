@@ -1,0 +1,33 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "gift-of-the-march",
+  "revision": 2,
+  "name": "Gift of the March",
+  "deckLimitKey": "gift-of-the-march",
+  "type": "spell",
+  "factions": [
+    "bright-marches"
+  ],
+  "subtypes": [
+    "divination"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1,
+    "factions": {}
+  },
+  "abilities": [],
+  "lore": "The marches feed the people.",
+  "timing": [
+    "play",
+    "death"
+  ],
+  "cast": [
+    {
+      "id": "channel",
+      "params": {"amount": 2, "energy": "bright-marches"}
+    }
+  ],
+  "set": "foundations"
+}

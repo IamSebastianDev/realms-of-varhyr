@@ -1,0 +1,32 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "riverlands-shipwrights",
+  "revision": 4,
+  "name": "Riverlands Shipwrights",
+  "deckLimitKey": "riverland-shipwrights",
+  "type": "creature",
+  "factions": [
+    "bright-marches"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {}
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "bright-marches": 1
+      }
+    ]
+  },
+  "abilities": [],
+  "lore": "Where the woods meet the river, the ships will be built.",
+  "set": "foundations"
+}

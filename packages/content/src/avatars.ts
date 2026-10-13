@@ -9,6 +9,8 @@ export type AvatarDefinition = {
   lore: string;
   /** Ring colour around the portrait. */
   accent: string;
+  /** The faction this hero leads, when their starter deck is offered to new players. */
+  faction?: string;
   /** Public URL of the portrait image. */
   art: string;
   /** The original file in assets/avatars this was made from. */

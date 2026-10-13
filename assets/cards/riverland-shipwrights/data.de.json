@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Schiffsbauer der Flusslande",
+  "lore": "Wo der Fluss und der Wald sich treffen, ist wo wir unsere Schiffe bauen."
+}

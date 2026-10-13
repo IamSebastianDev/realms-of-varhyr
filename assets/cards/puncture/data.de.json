@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Durchbohren",
+  "lore": "Ein Pfeil, eine Lücke in der Rüstung."
+}

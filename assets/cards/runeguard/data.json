@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "runeguard",
-  "revision": 5,
+  "revision": 6,
   "name": "Runeguard",
   "deckLimitKey": "runeguard",
   "type": "creature",
@@ -24,7 +24,7 @@
     "defense": 4,
     "energyOutputs": [
       {
-        "crownlands": 1
+        "crownlands": 2
       }
     ]
   },

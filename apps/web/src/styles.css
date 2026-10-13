@@ -1047,7 +1047,7 @@ input,select,select option{background:#324b39;color:#f0edde;border-color:#bec99d
 .art-card.legendary-card .card-header h3{color:#fff1c2}
 .art-card.bastion-card .card-header{background:linear-gradient(#352f3bf5 0%,#352f3bdc 65%,transparent)}
 .art-card .card-header .card-cost{position:static;align-self:start;min-width:23px;height:auto;min-height:23px;padding:3px 5px;border-radius:5px;line-height:1}
-.art-card .card-header .cost-bundle{font-size:clamp(8px,6.5cqw,13px);white-space:nowrap}
+.art-card .card-header .cost-bundle{font-size:clamp(13px,10cqw,22px);white-space:nowrap}
 .art-card .card-identity{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:5px}
 .art-card .card-affiliation{display:block;font:600 clamp(5.5px,4.5cqw,9px)/1.4 'Manrope',sans-serif;letter-spacing:.65px;color:#dedac5;text-transform:uppercase}
 .art-card .card-shade{background:linear-gradient(transparent 62%,#203b2d70 76%,#243f2ef5 96%)}

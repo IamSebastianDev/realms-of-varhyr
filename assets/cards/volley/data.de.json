@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Salve",
+  "lore": "Feuer! Und noch einmal, Feuer!"
+}

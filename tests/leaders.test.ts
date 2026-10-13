@@ -39,7 +39,7 @@ describe('Foundations faction leaders', () => {
   });
   it('retires the Winter POC cards and starter while retaining the Crown starter and neutral support', () => {
     expect(Object.values(registry.cards).filter(card => card.factions.includes('winter-league')).map(card => card.id)).toEqual(['morie-grandmistress']);
-    expect(starterDefinitions.map(deck => deck.id)).toEqual(['crown']);
+    expect(starterDefinitions.map(deck => deck.id)).toEqual(['hearth-and-stone','crown']);
     expect(validateDeck(crown, registry)).toEqual([]);
     expect(registry.cards['white-hall-apprentice']).toBeUndefined();
     expect(registry.cards['crowns-winter-envoy']).toBeUndefined();

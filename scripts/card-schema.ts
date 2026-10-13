@@ -58,6 +58,8 @@ export function buildCardJsonSchema(factions:readonly FactionDefinition[],sets:r
     const ability=abilities[id],params=toJsonSchema(abilityParameterSchema(ability),config);
     delete params.$schema;
     params.additionalProperties=false;
+    const energy=(params.properties as Record<string,JsonSchema>|undefined)?.energy;
+    if(energy)energy.enum=[...named,'neutral'];
     definitions[`ability-${id}`]={type:'object',title:ability.name,description:ability.description,
       properties:{id:{const:id},params},required:['id','params'],additionalProperties:false};
   }

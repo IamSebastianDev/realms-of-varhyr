@@ -95,7 +95,7 @@ function planPlay(state: GameState, registry: Registry): Command {
   const candidates = p.hand.filter(id => {const def = state.cards[id].definitionId;if(seen.has(def))return false;seen.add(def);return true;});
   for (const id of candidates) {
     const def = registry.cards[state.cards[id].definitionId];
-    if (def.cast?.some(a => a.id === 'channel-neutral')) {
+    if (def.cast?.some(a => a.id === 'channel')) {
       // Conversion is worth a card only if it enables a useful follow-up now.
       // Do not score spare energy as value: it expires at the phase boundary.
       if (state.phase !== 'play') continue;
@@ -105,7 +105,7 @@ function planPlay(state: GameState, registry: Registry): Command {
         for (const ritual of playOptions(ready,id,registry)) {
           const converted = tryCommand(ready,ritual,registry); if (!converted || converted.outcome) continue;
           for (const nextId of candidates) {
-            if (nextId === id || registry.cards[state.cards[nextId].definitionId].cast?.some(a=>a.id==='channel-neutral')) continue;
+            if (nextId === id || registry.cards[state.cards[nextId].definitionId].cast?.some(a=>a.id==='channel')) continue;
             for (const followup of playOptions(converted,nextId,registry)) {
               const after = tryCommand(converted,followup,registry); if (after) consider(after,ritual,plan);
             }

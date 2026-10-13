@@ -1,6 +1,7 @@
 [
   {
     "id": "alderic",
+    "faction": "crownlands",
     "name": "Alderic",
     "title": "Runewarden of the Crown · Warmaster of the Empire",
     "lore": "Appointed Warmaster by Princess Arianna, regent for her ailing father, Alderic commands the empire’s armies. He longs to restore the glory of the Crownlands.",
@@ -19,6 +20,7 @@
   },
   {
     "id": "bosci",
+    "faction": "bright-marches",
     "name": "Bosci",
     "title": "Lord of Seacliffe · Leader of the Bright Marches",
     "lore": "Once an imperial warlord granted a march as his fief, Bosci has seen the rot behind the court’s splendour. He gathers the petty kings under one banner against their common foe, striving for independence.",

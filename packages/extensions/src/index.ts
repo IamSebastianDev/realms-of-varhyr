@@ -11,6 +11,10 @@ import {
 const positive = v.pipe(v.number(), v.integer(), v.minValue(1));
 const amountSchema = v.object({ amount: positive });
 const empty = v.object({});
+/** `energy` is a faction ID or "neutral"; the content compiler checks it against the registered energy types. */
+const channelSchema = v.strictObject({ amount: positive, energy: v.pipe(v.string(), v.minLength(1)) });
+/** `subtype` is a freeform creature subtype such as archer; it is matched against each card's subtypes. */
+const drillSchema = v.strictObject({ amount: positive, subtype: v.pipe(v.string(), v.minLength(1)) });
 const chargeSchema = v.object({ amount: positive, position: v.picklist(battlefieldPositions) });
 const amount = (params: Record<string, unknown>) => params.amount as number;
 // const self = (ctx: HookContext) => ctx.event.cardId === ctx.source.id;
@@ -55,6 +59,25 @@ const activeExtensions: AbilityExtension[] = [
         description:
             "Adjacent friendly creatures and bastions get +{amount} Attack while this card is on the battlefield. Empty slots do not close the gap.",
         static: (source, target, p) => (areAdjacent(source, target) ? { attack: amount(p) } : {}),
+    }),
+    extension("shoulder-to-shoulder", empty, {
+        translations: { de: { name: "Schulter an Schulter", description: "Diese Karte erhält +1 Angriff, solange links und rechts von ihr je eine eigene Kreatur oder Bastion steht. Auf den äußeren Plätzen ist das nie erfüllt." } },
+        name: "Shoulder to Shoulder",
+        description: "This card has +1 Attack while a friendly creature or bastion stands in both the slot to its left and the slot to its right. It never applies on a flank.",
+        static: (source, target, _p, _registry, state) => {
+            if (source.id !== target.id || !state || source.slot === null) return {};
+            const row = state.players[source.controller].board;
+            return row[source.slot - 1] && row[source.slot + 1] ? { attack: 1 } : {};
+        },
+    }),
+    extension("drillmaster", drillSchema, {
+        translations: { de: { name: "Drillmeister {amount}", description: "Benachbarte eigene Kreaturen vom Typ {subtype} erhalten +{amount} Angriff, solange diese Karte auf dem Schlachtfeld liegt. Leere Plätze schließen die Lücke nicht." } },
+        name: "Drillmaster {amount}",
+        description: "Adjacent friendly {subtype} creatures have +{amount} Attack while this card is on the battlefield. Empty slots do not close the gap.",
+        static: (source, target, p, registry) =>
+            areAdjacent(source, target) && registry.cards[target.definitionId].type === "creature" && registry.cards[target.definitionId].subtypes.includes(p.subtype as string)
+                ? { attack: amount(p) }
+                : {},
     }),
     extension("shield-wall", amountSchema, {
         translations: { de: {"name": "Schildwall {amount}", "description": "Benachbarte eigene Kreaturen und Bastionen erhalten +{amount} Verteidigung, solange diese Karte auf dem Schlachtfeld liegt. Leere Plätze schließen die Lücke nicht."} },
@@ -107,6 +130,18 @@ const activeExtensions: AbilityExtension[] = [
         },
     }),
 
+    extension("barrage", amountSchema, {
+        translations: { de: { name: "Sperrfeuer {amount}", description: "Füge jeder gegnerischen Kreatur {amount} Schaden zu. Bastionen und Spieler sind nicht betroffen." } },
+        name: "Barrage {amount}",
+        description: "Deal {amount} damage to each enemy creature. Bastions and players are not affected.",
+        cast: (ctx, p) => {
+            const enemy = ctx.source.controller === "p1" ? "p2" : "p1";
+            for (const id of ctx.state.players[enemy].board)
+                if (id && ctx.registry.cards[ctx.state.cards[id].definitionId].type === "creature")
+                    ctx.issue({ type: "damage", target: id, amount: amount(p), source: ctx.source.id });
+        },
+    }),
+
     extension("heal", amountSchema, {
         translations: { de: {"name": "Heilung {amount}", "description": "Stelle bei dir selbst {amount} Leben wieder her."} },
         name: "Heal {amount}",
@@ -149,11 +184,18 @@ const activeExtensions: AbilityExtension[] = [
                 ctx.issue({ type: "damage", target: id, amount: amount(p), source: ctx.source.id });
         },
     }),
-    extension("channel-neutral", amountSchema, {
-        name: "Channel {amount} Neutral",
-        description: "Gain {amount} neutral energy in your current casting-phase pool. It can pay generic costs, but not faction-specific costs, and expires with that pool.",
-        translations: { de: { name: "Kanalisieren: {amount} Neutral", description: "Erhalte {amount} neutrale Energie im Energievorrat deiner aktuellen Zauberphase. Sie bezahlt allgemeine Kosten, aber keine Fraktionskosten, und verfällt mit diesem Vorrat." } },
-        cast: (ctx, p) => ctx.issue({ type: "gain-energy", player: ctx.source.controller, output: { neutral: amount(p) }, source: ctx.source.id }),
+    extension("longshot", amountSchema, {
+        name: "Longshot {amount}",
+        description: "Exhaust during your play phase to deal {amount} damage to any enemy creature. Cannot target bastions or players.",
+        translations: { de: { name: "Fernschuss {amount}", description: "Erschöpfe diese Karte während deiner Spielphase, um einer beliebigen gegnerischen Kreatur {amount} Schaden zuzufügen. Bastionen und Spieler sind keine Ziele." } },
+        target: "enemy-creature",
+        activate: (ctx, p) => { if (ctx.target) ctx.issue({ type: "damage", target: ctx.target, amount: amount(p), source: ctx.source.id }); },
+    }),
+    extension("channel", channelSchema, {
+        name: "Channel {amount} {energy}",
+        description: "Gain {amount} {energy} energy in your current casting-phase pool. It pays that faction’s costs (neutral energy pays only generic costs) and expires with that pool.",
+        translations: { de: { name: "Kanalisieren: {amount} {energy}", description: "Erhalte {amount} Energie ({energy}) im Energievorrat deiner aktuellen Zauberphase. Sie bezahlt die Kosten dieser Fraktion (neutrale Energie nur allgemeine Kosten) und verfällt mit diesem Vorrat." } },
+        cast: (ctx, p) => ctx.issue({ type: "gain-energy", player: ctx.source.controller, output: { [p.energy as string]: amount(p) }, source: ctx.source.id }),
     }),
 
     // Inactive reference implementations. Uncomment entries to register them.

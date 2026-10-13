@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Bogenschützen von Oakholme",
+  "lore": "Anlegen, atmen, loslassen."
+}

@@ -1,0 +1,42 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "oakholme-bowmen",
+  "revision": 3,
+  "name": "Oakholme Bowmen",
+  "deckLimitKey": "oakholme-bowmen",
+  "type": "creature",
+  "factions": [
+    "bright-marches"
+  ],
+  "subtypes": [
+    "human",
+    "archer"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "bright-marches": 1
+    }
+  },
+  "abilities": [
+    {
+      "id": "longshot",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "lore": "Draw, breathe, loose.",
+  "stats": {
+    "attack": 3,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "bright-marches": 2
+      }
+    ]
+  },
+  "set": "foundations"
+}

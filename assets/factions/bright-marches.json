@@ -3,5 +3,23 @@
   "name": "The Bright Marches",
   "short": "Marches",
   "color": "#ebc77e",
+  "starter": {
+    "id": "hearth-and-stone",
+    "name": "Hearth and Stone",
+    "cards": {
+      "bosci-lord-of-seacliffe": 1,
+      "hearth-guard": 3,
+      "herald-of-the-mark": 3,
+      "marcher-axeman": 3,
+      "oakholme-archery-captain": 3,
+      "oakholme-bowmen": 3,
+      "odric-the-berserker": 1,
+      "puncture": 3,
+      "riverlands-shipwrights": 3,
+      "seacliffe-fisherman": 3,
+      "strike-the-hammer": 2,
+      "volley": 2
+    }
+  },
   "signatureAbility": "marches-rally"
 }

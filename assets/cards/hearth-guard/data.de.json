@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Herdwache",
+  "lore": "Wo der Herd brennt, bricht der Marsch nicht."
+}

@@ -331,13 +331,13 @@
       ],
       "additionalProperties": false
     },
-    "ability-channel-neutral": {
+    "ability-barrage": {
       "type": "object",
-      "title": "Channel {amount} Neutral",
-      "description": "Gain {amount} neutral energy in your current casting-phase pool. It can pay generic costs, but not faction-specific costs, and expires with that pool.",
+      "title": "Barrage {amount}",
+      "description": "Deal {amount} damage to each enemy creature. Bastions and players are not affected.",
       "properties": {
         "id": {
-          "const": "channel-neutral"
+          "const": "barrage"
         },
         "params": {
           "type": "object",
@@ -349,6 +349,50 @@
           },
           "required": [
             "amount"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-channel": {
+      "type": "object",
+      "title": "Channel {amount} {energy}",
+      "description": "Gain {amount} {energy} energy in your current casting-phase pool. It pays that faction’s costs (neutral energy pays only generic costs) and expires with that pool.",
+      "properties": {
+        "id": {
+          "const": "channel"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "energy": {
+              "type": "string",
+              "minLength": 1,
+              "enum": [
+                "black-host",
+                "bright-marches",
+                "conclave",
+                "crownlands",
+                "ember-fields",
+                "horde",
+                "mountain-clans",
+                "winter-league",
+                "neutral"
+              ]
+            }
+          },
+          "required": [
+            "amount",
+            "energy"
           ],
           "additionalProperties": false
         }
@@ -444,6 +488,39 @@
           },
           "required": [
             "amount"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-drillmaster": {
+      "type": "object",
+      "title": "Drillmaster {amount}",
+      "description": "Adjacent friendly {subtype} creatures have +{amount} Attack while this card is on the battlefield. Empty slots do not close the gap.",
+      "properties": {
+        "id": {
+          "const": "drillmaster"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "subtype": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "amount",
+            "subtype"
           ],
           "additionalProperties": false
         }
@@ -552,6 +629,34 @@
       "properties": {
         "id": {
           "const": "invocation"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-longshot": {
+      "type": "object",
+      "title": "Longshot {amount}",
+      "description": "Exhaust during your play phase to deal {amount} damage to any enemy creature. Cannot target bastions or players.",
+      "properties": {
+        "id": {
+          "const": "longshot"
         },
         "params": {
           "type": "object",
@@ -762,6 +867,27 @@
       ],
       "additionalProperties": false
     },
+    "ability-shoulder-to-shoulder": {
+      "type": "object",
+      "title": "Shoulder to Shoulder",
+      "description": "This card has +1 Attack while a friendly creature or bastion stands in both the slot to its left and the slot to its right. It never applies on a flank.",
+      "properties": {
+        "id": {
+          "const": "shoulder-to-shoulder"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
     "ability-soul-harvest": {
       "type": "object",
       "title": "Soul Harvest",
@@ -862,15 +988,18 @@
             "accord",
             "adjacent-banner",
             "armor",
-            "channel-neutral",
+            "barrage",
+            "channel",
             "charge",
             "damage",
             "draw",
+            "drillmaster",
             "fealty",
             "flank-evasion",
             "guard",
             "heal",
             "invocation",
+            "longshot",
             "marches-rally",
             "primal",
             "raid",
@@ -879,6 +1008,7 @@
             "sanctuary",
             "scorch",
             "shield-wall",
+            "shoulder-to-shoulder",
             "soul-harvest",
             "trade",
             "war-banner",
@@ -904,7 +1034,10 @@
           "$ref": "#/definitions/ability-armor"
         },
         {
-          "$ref": "#/definitions/ability-channel-neutral"
+          "$ref": "#/definitions/ability-barrage"
+        },
+        {
+          "$ref": "#/definitions/ability-channel"
         },
         {
           "$ref": "#/definitions/ability-charge"
@@ -914,6 +1047,9 @@
         },
         {
           "$ref": "#/definitions/ability-draw"
+        },
+        {
+          "$ref": "#/definitions/ability-drillmaster"
         },
         {
           "$ref": "#/definitions/ability-fealty"
@@ -929,6 +1065,9 @@
         },
         {
           "$ref": "#/definitions/ability-invocation"
+        },
+        {
+          "$ref": "#/definitions/ability-longshot"
         },
         {
           "$ref": "#/definitions/ability-marches-rally"
@@ -955,6 +1094,9 @@
           "$ref": "#/definitions/ability-shield-wall"
         },
         {
+          "$ref": "#/definitions/ability-shoulder-to-shoulder"
+        },
+        {
           "$ref": "#/definitions/ability-soul-harvest"
         },
         {
@@ -977,10 +1119,12 @@
             "accord",
             "adjacent-banner",
             "armor",
-            "channel-neutral",
+            "barrage",
+            "channel",
             "charge",
             "damage",
             "draw",
+            "drillmaster",
             "fealty",
             "flank-evasion",
             "guard",
@@ -990,6 +1134,7 @@
             "sanctuary",
             "scorch",
             "shield-wall",
+            "shoulder-to-shoulder",
             "soul-harvest",
             "trade",
             "war-banner"
@@ -1014,7 +1159,10 @@
           "$ref": "#/definitions/ability-armor"
         },
         {
-          "$ref": "#/definitions/ability-channel-neutral"
+          "$ref": "#/definitions/ability-barrage"
+        },
+        {
+          "$ref": "#/definitions/ability-channel"
         },
         {
           "$ref": "#/definitions/ability-charge"
@@ -1024,6 +1172,9 @@
         },
         {
           "$ref": "#/definitions/ability-draw"
+        },
+        {
+          "$ref": "#/definitions/ability-drillmaster"
         },
         {
           "$ref": "#/definitions/ability-fealty"
@@ -1053,6 +1204,9 @@
           "$ref": "#/definitions/ability-shield-wall"
         },
         {
+          "$ref": "#/definitions/ability-shoulder-to-shoulder"
+        },
+        {
           "$ref": "#/definitions/ability-soul-harvest"
         },
         {
@@ -1069,7 +1223,8 @@
         "id": {
           "type": "string",
           "enum": [
-            "channel-neutral",
+            "barrage",
+            "channel",
             "damage",
             "draw",
             "heal"
@@ -1085,7 +1240,10 @@
       ],
       "oneOf": [
         {
-          "$ref": "#/definitions/ability-channel-neutral"
+          "$ref": "#/definitions/ability-barrage"
+        },
+        {
+          "$ref": "#/definitions/ability-channel"
         },
         {
           "$ref": "#/definitions/ability-damage"
@@ -1107,15 +1265,18 @@
             "accord",
             "adjacent-banner",
             "armor",
-            "channel-neutral",
+            "barrage",
+            "channel",
             "charge",
             "damage",
             "draw",
+            "drillmaster",
             "fealty",
             "flank-evasion",
             "guard",
             "heal",
             "invocation",
+            "longshot",
             "marches-rally",
             "raid",
             "rally",
@@ -1123,6 +1284,7 @@
             "sanctuary",
             "scorch",
             "shield-wall",
+            "shoulder-to-shoulder",
             "soul-harvest",
             "trade",
             "war-banner",
@@ -1148,7 +1310,10 @@
           "$ref": "#/definitions/ability-armor"
         },
         {
-          "$ref": "#/definitions/ability-channel-neutral"
+          "$ref": "#/definitions/ability-barrage"
+        },
+        {
+          "$ref": "#/definitions/ability-channel"
         },
         {
           "$ref": "#/definitions/ability-charge"
@@ -1158,6 +1323,9 @@
         },
         {
           "$ref": "#/definitions/ability-draw"
+        },
+        {
+          "$ref": "#/definitions/ability-drillmaster"
         },
         {
           "$ref": "#/definitions/ability-fealty"
@@ -1173,6 +1341,9 @@
         },
         {
           "$ref": "#/definitions/ability-invocation"
+        },
+        {
+          "$ref": "#/definitions/ability-longshot"
         },
         {
           "$ref": "#/definitions/ability-marches-rally"
@@ -1194,6 +1365,9 @@
         },
         {
           "$ref": "#/definitions/ability-shield-wall"
+        },
+        {
+          "$ref": "#/definitions/ability-shoulder-to-shoulder"
         },
         {
           "$ref": "#/definitions/ability-soul-harvest"

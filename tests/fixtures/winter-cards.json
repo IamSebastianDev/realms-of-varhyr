@@ -1160,9 +1160,10 @@
     ],
     "cast": [
       {
-        "id": "channel-neutral",
+        "id": "channel",
         "params": {
-          "amount": 2
+          "amount": 2,
+          "energy": "neutral"
         }
       }
     ]

@@ -8,7 +8,7 @@ export function describeAbility(binding: AbilityBinding, extension: AbilityExten
       if (typeof value !== 'number' && typeof value !== 'string' && typeof value !== 'boolean') {
         throw new Error(`Missing text parameter ${key} for ability ${binding.id}`);
       }
-      return String(value);
+      return key === 'energy' ? String(value).replace(/(^|-)([a-z])/g, (_m, dash: string, letter: string) => (dash ? ' ' : '') + letter.toUpperCase()) : String(value);
     });
   }
   let description = fill(extension.description);

@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
-import { compileContent, registry as authored, starterDefinitions } from '../packages/content/src';
+import { compileContent, defaultDeckId, registry as authored, starterDefinitions } from '../packages/content/src';
 import { apply, assertInvariants, createMatch, decisionPlayer, other, replay, validateDeck } from '../packages/core/src';
 import { botCommand } from '../packages/core/src/bot';
 import type { CommandEnvelope, PlayerId, Registry } from '../packages/contracts/src';
@@ -13,7 +13,7 @@ const pairs=Number(option('--pairs','500'));
 const variant=option('--variant','baseline');
 const output=option('--out',`docs/first-player-${variant}.json`);
 if(!Number.isInteger(pairs)||pairs<2)throw Error('--pairs must be an integer of at least 2.');
-const deck=starterDefinitions.find(d=>d.id===option('--deck',starterDefinitions[0].id));
+const deck=starterDefinitions.find(d=>d.id===option('--deck',defaultDeckId));
 if(!deck)throw Error('Unknown starter deck.');
 const errors=validateDeck(deck.cards,authored);if(errors.length)throw Error(errors.join(' '));
 

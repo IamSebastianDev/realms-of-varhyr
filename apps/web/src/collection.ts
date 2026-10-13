@@ -18,6 +18,8 @@ export const collectionRules = {
   victoryCrowns: 25,
   victoryBoosters: 1,
   duplicateCrowns: { common: 10, rare: 25, legendary: 100 },
+  /** Buying a specific card costs far more than the roughly 20 crowns per card a booster works out to. */
+  cardCrowns: { common: 50, rare: 150, legendary: 400 },
 } as const;
 export const collectionKey = 'varhyr-collection-v1';
 export type Collection = {
@@ -109,6 +111,14 @@ export function buyCollectionBooster(collection: Collection, pack: BoosterPack):
   if (collection.crowns < collectionRules.packCost) throw new Error(`A booster costs ${collectionRules.packCost} crowns.`);
   return { ...collection, crowns: collection.crowns - collectionRules.packCost,
     packs: { ...collection.packs, [pack.id]: addNumber(packCount(collection, pack.id), 1) } };
+}
+export const cardPrice = (card: CardDefinition) => collectionRules.cardCrowns[card.rarity];
+/** Buying one copy of a card is one transaction: the wallet and the card change together, never past the ownership limit. */
+export function buyCollectionCard(collection: Collection, card: CardDefinition): Collection {
+  const owned = ownedCopyCount(collection.counts, card.id), price = cardPrice(card);
+  if (owned >= ownershipLimit(card)) throw new Error(`You already own every copy of ${card.name}.`);
+  if (collection.crowns < price) throw new Error(`${card.name} costs ${price} crowns.`);
+  return { ...collection, crowns: collection.crowns - price, counts: { ...collection.counts, [card.id]: owned + 1 } };
 }
 export function gainDebugCrowns(collection: Collection): Collection {
   return { ...collection, crowns: addNumber(collection.crowns, 1000) };

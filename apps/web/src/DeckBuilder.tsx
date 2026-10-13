@@ -1,7 +1,7 @@
 import { Checkbox } from './Checkbox';
 import { FactionSelect } from './FactionSelect';
 import { t as msg, useLanguage, formatNumber } from './i18n';
-import { ChartNoAxesColumn, Check, Copy, Download, Filter, Layers, Minus, MoreHorizontal, Plus, RotateCcw, Search, Upload, X } from 'lucide-react';
+import { ChartNoAxesColumn, Check, Copy, Download, Filter, Layers, Minus, MoreHorizontal, Plus, RotateCcw, Search, Trash2, Upload, X } from 'lucide-react';
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { CardDefinition } from '../../../packages/contracts/src';
 import { deckRules } from '../../../packages/contracts/src';
@@ -9,6 +9,7 @@ import { factionInfo, registry, setDefinitions } from '../../../packages/content
 import { validateDeck } from '../../../packages/core/src';
 import { ArtCard, CardHoverButton } from './CardPresentation';
 import { BuilderDialog } from './BuilderDialog';
+import { OwnershipPips } from './OwnershipPips';
 import { deckCardAvailability, starterOptions, type CustomDeck } from './decks';
 import { missingDeckCopies, type OwnedCopies } from './collection';
 import { builderCards, cardCost, exportDeck, importDeck, initialBuilderFilters, summarizeDeck, type BuilderFilters, type CardSort } from './deckTools';
@@ -16,16 +17,17 @@ import { builderCards, cardCost, exportDeck, importDeck, initialBuilderFilters, 
 type Props = {
   draft: CustomDeck; decks: CustomDeck[]; ownedCopies: OwnedCopies; message: string; canUndo: boolean; reduced: boolean;
   change: (deck: CustomDeck) => void; add: (id: string) => void; remove: (id: string) => void;
-  load: (id: string) => void; save: () => void; undo: () => void; inspect: (card: CardDefinition) => void;
+  load: (id: string) => void; removeDeck: () => void; save: () => void; undo: () => void; inspect: (card: CardDefinition) => void;
 };
 const newDeck = (): CustomDeck => ({ id: `custom-${crypto.randomUUID()}`, name: msg("New deck"), cards: [] });
 const groups = [{ type: 'creature', name: 'Creatures' }, { type: 'bastion', name: 'Bastions' }, { type: 'spell', name: 'Spells' }] as const;
 const signature = (deck: CustomDeck) => JSON.stringify([deck.name, [...deck.cards].sort()]);
 
-export function DeckBuilder({ draft, decks, ownedCopies, message, canUndo, reduced, change, add, remove, load, save, undo, inspect }: Props) {
+export function DeckBuilder({ draft, decks, ownedCopies, message, canUndo, reduced, change, add, remove, load, save, removeDeck, undo, inspect }: Props) {
   useLanguage();
   const [filters, setFilters] = useState<BuilderFilters>(initialBuilderFilters);
   const [importError, setImportError] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const deckGalleryRef = useRef<HTMLDivElement>(null);
   const [showUnowned, setShowUnowned] = useState(false);
@@ -40,7 +42,8 @@ export function DeckBuilder({ draft, decks, ownedCopies, message, canUndo, reduc
     onDragLeave: (event: React.DragEvent) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOver(null); },
     onDrop: (event: React.DragEvent) => { if (drag?.from !== accept) return; event.preventDefault(); apply(drag.id); endDrag(); },
   });
-  const [dialog, setDialog] = useState<'filters' | 'deck' | 'overview' | 'import' | 'export' | null>(null);
+  const [dialog, setDialogState] = useState<'filters' | 'deck' | 'overview' | 'import' | 'export' | null>(null);
+  const setDialog = (next: typeof dialog) => { setConfirmDelete(false); setDialogState(next); };
   const sharing = dialog === 'import' || dialog === 'export' ? dialog : null;
   const [deckCode, setDeckCode] = useState('');
   const [copyMessage, setCopyMessage] = useState('');
@@ -130,8 +133,8 @@ export function DeckBuilder({ draft, decks, ownedCopies, message, canUndo, reduc
             title: inDeck ? msg("Click to remove one copy · right-click to inspect") : msg("{v0} · {v1} · right-click to inspect", {v0: unavailable ? reason : 'Click to add one copy', v1: copySummary}),
             onContextMenu: event => { event.preventDefault(); inspect(card); },
           }}/>
-        <span className="builder-count-badge" title={inDeck ? msg("{v0} copies in deck", {v0: count}) : copySummary} aria-label={inDeck ? msg("{v0} copies in deck", {v0: count}) : msg("{v0} copies in deck, {v1} copies owned", {v0: count, v1: availability.owned})}>{inDeck ? `×${count}` : `${count}/${availability.owned}`}</span>
       </div>
+      <div className="builder-tile-meta"><OwnershipPips card={card} owned={ownedCopies} inDeck={count}/></div>
     </article>;
   }
 
@@ -194,6 +197,7 @@ export function DeckBuilder({ draft, decks, ownedCopies, message, canUndo, reduc
     {dialog === 'deck' && <BuilderDialog title={msg("Deck actions")} origin={sharingOrigin.current} close={() => setDialog(null)}>
       <label>{msg("Load deck")}<select aria-label={msg("Load deck")} value={saved ? draft.id : 'draft'} onChange={event => { load(event.target.value); setDialog(null); }}><option value="draft">{msg("Current draft")}</option><optgroup label={msg("Starter decks")}>{starterOptions.map(deck => <option key={deck.id} value={deck.id}>{msg(deck.name)}</option>)}</optgroup>{decks.length > 0 && <optgroup label={msg("Your decks")}>{decks.map(deck => <option key={deck.id} value={deck.id}>{msg(deck.name)}</option>)}</optgroup>}</select></label>
       <div className="builder-manage-actions"><button className="outline-button" onClick={() => { change(newDeck()); setDialog(null); }}><Plus size={16}/>{msg("New deck")}</button><button className="outline-button" onClick={() => { change({ ...draft, id: newDeck().id, name: msg("{v0} (copy)", {v0: draft.name.slice(0, 53)}) }); setDialog(null); }}><Copy size={16}/>{msg("Duplicate deck")}</button><button className="outline-button" onClick={() => openSharing('import')}><Upload size={16}/>{msg("Import deck")}</button><button className="outline-button" disabled={!draft.cards.length} onClick={() => openSharing('export')}><Download size={16}/>{msg("Export deck")}</button></div>
+      {saved && (confirmDelete ? <div className="builder-delete-confirm" role="alertdialog" aria-label={msg("Delete deck")}><p>{msg("Delete “{v0}”? This can’t be undone.", {v0: saved.name})}</p><div className="builder-dialog-actions"><button className="outline-button" onClick={() => setConfirmDelete(false)}>{msg("Keep deck")}</button><button className="gold-button danger" data-autofocus onClick={() => { removeDeck(); setConfirmDelete(false); setDialog(null); }}><Trash2 size={15}/>{msg("Delete deck")}</button></div></div> : <button className="outline-button builder-delete" onClick={() => setConfirmDelete(true)}><Trash2 size={16}/>{msg("Delete deck")}</button>)}
       <p>{deckRules.minimumCards} {msg("cards minimum ·")}{' '}{deckRules.copiesPerCard} {msg("copies per card ·")}{' '}{deckRules.copiesPerLegendary} {msg("per legendary")}</p>
     </BuilderDialog>}
     {dialog === 'overview' && <BuilderDialog title={msg("Deck overview")} origin={sharingOrigin.current} close={() => setDialog(null)}>

@@ -1,0 +1,31 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "revenge",
+  "revision": 1,
+  "name": "Revenge",
+  "deckLimitKey": "revenge",
+  "type": "spell",
+  "factions": [
+    "neutral"
+  ],
+  "subtypes": [],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 2
+  },
+  "abilities": [],
+  "timing": [
+    "death"
+  ],
+  "cast": [
+    {
+      "id": "damage",
+      "params": {
+        "amount": 3
+      }
+    }
+  ],
+  "lore": "The fallen are not forgotten.",
+  "set": "foundations"
+}

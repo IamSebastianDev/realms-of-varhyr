@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Holzfestung",
+  "lore": "Heute Holz, bei Einbruch der Nacht eine Festung."
+}

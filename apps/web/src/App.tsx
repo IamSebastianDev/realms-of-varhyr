@@ -42,6 +42,8 @@ import { claimVictory, collectionRules, missingDeckCopies } from './collection';
 import { updateCollection, useCollection } from './collectionStore';
 import { MatchSummary } from './MatchSummary';
 import { Avatar } from './Avatar';
+import { Onboarding } from './Onboarding';
+import { hasAccount } from './onboardingState';
 import { getProfile, useProfile } from './profile';
 import { LocalMatchSession, type ExternalMatchSession } from './match/MatchSession';
 import { useMatchSession } from './match/useMatchSession';
@@ -69,6 +71,7 @@ function readSaved():SavedSession|null {
 type BootSession = SavedSession & { hasSaved: boolean; openMatch?: boolean };
 export function App() {
   useLanguage();
+  const [onboarded,setOnboarded]=useState(hasAccount);
   const [externalSession,setExternalSession]=useState<ExternalMatchSession|null>(null);
   const [session, setSession] = useState<BootSession | null>(() => {
     const saved = readSaved();
@@ -76,6 +79,7 @@ export function App() {
   });
   const leaveSession=()=>{externalSession?.leave();setExternalSession(null);const saved=readSaved();setSession(saved&&saved.started!==false?{...saved,hasSaved:true}:null);};
   const externalSnapshot=useMatchSession(externalSession);
+  if(!onboarded)return <Onboarding onDone={()=>setOnboarded(true)}/>;
   if(externalSession&&externalSnapshot)return <MatchApp key={externalSnapshot.matchId} externalSession={externalSession} leaveSession={leaveSession} onSessionStart={setExternalSession} boot={{initial:externalSnapshot.initial,commands:[],mode:'hotseat',deck:defaultDeckId,skirmish:false,started:true,hasSaved:true,openMatch:true,rewardId:externalSnapshot.matchId,rewardEligible:externalSession.kind==='online'}}/>;
   return session ? <MatchApp boot={session} onSessionStart={setExternalSession}/> : <AuthoringLobby onStart={saved => setSession({ ...saved, hasSaved: true, openMatch: true })} onSessionStart={setExternalSession}/>;
 }
@@ -202,6 +206,11 @@ function MatchApp({boot,externalSession,leaveSession,onSessionStart}: {boot: Boo
     const decks=[...savedDecks.filter(d=>d.id!==next.id),structuredClone(next)];
     try{localStorage.setItem(decksKey,JSON.stringify(decks));}catch{return msg("Could not save. This browser’s storage is full or unavailable.");}
     setSavedDecks(decks);setSetupDeck(next.id);return null;
+  }
+  function deleteDeck(id:string):string|null {
+    const decks=savedDecks.filter(d=>d.id!==id);
+    try{localStorage.setItem(decksKey,JSON.stringify(decks));}catch{return msg("Could not save. This browser’s storage is full or unavailable.");}
+    setSavedDecks(decks);if(setupDeck===id)setSetupDeck(defaultDeckId);return null;
   }
   function reset(isSkirmish:boolean,nextMode:Mode=mode,nextDeck:string=customDeck?.id??deck,nextSeed:number=Number(seed)||731,override?:CustomDeck,nextOpponent:string=setupOpponent) {
     if(externalSession)return;
@@ -382,7 +391,7 @@ function MatchApp({boot,externalSession,leaveSession,onSessionStart}: {boot: Boo
   const advancePhaseKey=`${rewardId??sessionSnapshot.matchId}:${view.turn}:${view.active}:${view.phase}:${view.combat?.stage??''}`;
   const phaseAdvance=usePhaseAdvance({enabled:advanceEnabled,phaseKey:advancePhaseKey},mainAction);
   const transitioning=phaseAdvance.transitionStartedAt!==null;
-  if(screen!=='match')return <><Lobby reduced={reduced} screen={screen} navigate={navigate} canResume={hasMatch&&!state.outcome} resumeLabel={msg("Turn {v0} · {v1}", {v0: state.turn, v1: state.players.p1.name})} decks={savedDecks} options={deckOptions} saveDeck={saveDeck} mode={setupMode} setMode={setSetupMode} selected={setupDeck} setSelected={setSetupDeck} opponentId={setupOpponent} setOpponentId={setSetupOpponent} seed={seed} setSeed={setSeed} start={isSkirmish=>reset(isSkirmish,setupMode,setupDeck)} startSession={onSessionStart} learn={startTutorialMatch}/>{error&&<div className="toast" role="alert">{msg(error)}</div>}</>;
+  if(screen!=='match')return <><Lobby reduced={reduced} screen={screen} navigate={navigate} canResume={hasMatch&&!state.outcome} resumeLabel={msg("Turn {v0} · {v1}", {v0: state.turn, v1: state.players.p1.name})} decks={savedDecks} options={deckOptions} saveDeck={saveDeck} deleteDeck={deleteDeck} mode={setupMode} setMode={setSetupMode} selected={setupDeck} setSelected={setSetupDeck} opponentId={setupOpponent} setOpponentId={setSetupOpponent} seed={seed} setSeed={setSeed} start={isSkirmish=>reset(isSkirmish,setupMode,setupDeck)} startSession={onSessionStart} learn={startTutorialMatch}/>{error&&<div className="toast" role="alert">{msg(error)}</div>}</>;
   return <div className={`app ${drag?'is-dragging':''} ${reduced?'reduce-motion':''} ${tutorial&&!externalSession?'tutorial-on':''} ${transitioning?'phase-transitioning':''}`}>
     <div className="world-bg"/><div className="world-vignette"/>
     <header className="topbar"><button className="brand" aria-label={msg("Realms of Varhyr home")} onClick={()=>navigate('menu')}><span className="brand-mark">V<span/></span><span><small>REALMS OF</small><strong>VARHYR</strong></span></button><div className="match-status" aria-label={msg("Turn {v0}, {v1} initiative", {v0: view.turn, v1: view.active===viewer?'your':'opponent’s'})}><span>{msg("Turn")}{' '}{view.turn}</span><i/><strong>{externalSession&&actor!==viewer?msg("Opponent’s turn"):thinking?msg("Opponent’s turn"):view.combat?.stage==='review'?msg("Review combat"):deathWindow?msg("Death energy"):view.phase==='play'?msg("Play & channel"):view.phase==='attack'?msg("Select attackers"):view.phase==='draw'?msg("Choose a card"):msg("End turn")}</strong></div><nav className="game-navigation"><button onClick={()=>navigate('menu')} aria-label={watching?msg("Close replay"):externalSession?msg("Leave online game"):msg("Main menu")}><span>{externalSession?msg("Leave"):msg("Menu")}</span></button><button className={logOpen?'active-nav':''} onClick={()=>setLogOpen(open=>!open)} aria-label={msg("Toggle battle log")} aria-pressed={logOpen}><ScrollText size={17}/><span>{msg("Log")}</span></button>{!externalSession&&<button onClick={()=>navigate('cards')} aria-label={msg("Browse cards")}><BookOpen size={17}/><span>{msg("Cards")}</span></button>}<button onClick={()=>setPanel('settings')} aria-label={msg("Match settings")}><Settings2 size={18}/></button></nav></header>
