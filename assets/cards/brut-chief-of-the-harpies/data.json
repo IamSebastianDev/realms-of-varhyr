@@ -1,0 +1,44 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "brut-chief-of-the-harpies",
+  "set": "foundations",
+  "revision": 4,
+  "name": "Brut, Chief of the Harpies",
+  "deckLimitKey": "brut-chief-of-the-harpies",
+  "type": "creature",
+  "factions": [
+    "horde"
+  ],
+  "subtypes": [
+    "goblin",
+    "leader"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "horde": 1
+    }
+  },
+  "stats": {
+    "attack": 4,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "horde": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "raid",
+      "params": {}
+    },
+    {
+      "id": "flank-evasion",
+      "params": {}
+    }
+  ],
+  "lore": "No harpy ever flew above his clans. The banners look magnificent all the same."
+}

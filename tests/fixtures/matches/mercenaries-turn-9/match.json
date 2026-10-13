@@ -1,7 +1,7 @@
 {
   "initial": {
-    "rulesVersion": "varhir-rules-0.12",
-    "contentVersion": "varhir-core-0.1-07fd6825",
+    "rulesVersion": "varhir-rules-0.15",
+    "contentVersion": "varhir-core-0.1-3907c74b",
     "seed": 731,
     "rng": 2344743077,
     "revision": 0,

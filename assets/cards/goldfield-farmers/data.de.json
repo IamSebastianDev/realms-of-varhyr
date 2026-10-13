@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Goldfeldbauer",
+  "lore": "Die goldenen Felder im Herzen des Reichs nähren jeden Ehrgeiz."
+}

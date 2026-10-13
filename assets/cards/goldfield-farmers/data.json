@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/card.schema.json",
   "id": "goldfield-farmer",
   "revision": 4,
   "name": "Goldfield Farmer",
@@ -27,13 +28,5 @@
   },
   "abilities": [],
   "lore": "The golden fields in the heart of the empire nurture all ambitions.",
-  "translations": {
-    "de": {
-      "name": "Goldfeldbauer",
-      "lore": "Die goldenen Felder im Herzen des Reichs nähren jeden Ehrgeiz.",
-      "subtypes": [
-        "Mensch"
-      ]
-    }
-  }
+  "set": "foundations"
 }

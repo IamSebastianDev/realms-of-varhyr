@@ -3,12 +3,6 @@
   "name": "The Crownlands",
   "short": "Crown",
   "color": "#deb966",
-  "symbol": "♜",
-  "pack": {
-    "id": "crown",
-    "name": "Banners of the Crown",
-    "blurb": "Knights, banners and bastions. Only Crownlands cards."
-  },
   "starter": {
     "id": "crown",
     "name": "Banners of the Crown",
@@ -27,5 +21,6 @@
       "tower-of-the-first-morning": 1,
       "aldric-runewarden": 1
     }
-  }
+  },
+  "signatureAbility": "fealty"
 }

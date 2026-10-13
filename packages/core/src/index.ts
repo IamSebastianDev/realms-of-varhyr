@@ -1,14 +1,14 @@
 import * as v from 'valibot';
-import type { AbilityBinding, BeforePayload, CardDefinition, CardInstance, Combat, Command, CommandEnvelope, Cost, DeadSnapshot, EnergyType, GameEvent, GameState, HookContext, InternalOrder, LegalActions, Player, PlayerId, PlayerView, Pool, Registry } from '../../contracts/src';
+import type { AbilityBinding, BattlefieldState, BeforePayload, CardDefinition, CardInstance, Combat, Command, CommandEnvelope, Cost, DeadSnapshot, EnergyType, GameEvent, GameState, HookContext, InternalOrder, LegalActions, Player, PlayerId, PlayerView, Pool, Registry } from '../../contracts/src';
 import { battlefieldPositions, deckRules, positionName } from '../../contracts/src';
 import { describeAbility } from '../../extensions/src/describeAbility';
-export const RULES_VERSION = 'varhir-rules-0.12';
+export const RULES_VERSION = 'varhir-rules-0.15';
 const nonnegative = v.pipe(v.number(), v.integer(), v.minValue(0));
 const paymentSchema = v.record(v.pipe(v.string(), v.regex(/^[a-z][a-z0-9_-]*$/)), nonnegative);
 const commandSchema = v.variant('type', [
   v.object({ type: v.literal('play'), cardId: v.string(), slot: v.optional(nonnegative), target: v.optional(v.string()), consume: v.optional(v.string()), payment: v.optional(paymentSchema) }),
   v.object({ type: v.literal('energy'), cardId: v.string(), option: nonnegative }),
-  v.object({ type: v.literal('activate'), cardId: v.string(), ability: nonnegative, target: v.optional(v.string()) }),
+  v.object({ type: v.literal('activate'), cardId: v.string(), ability: nonnegative, target: v.optional(v.string()), slot: v.optional(nonnegative) }),
   v.object({ type: v.literal('attack'), attackers: v.array(v.string()), lanes: v.optional(v.record(v.string(), nonnegative)) }),
   v.object({ type: v.literal('confirm-combat') }),
   v.object({ type: v.literal('mulligan'), cardIds: v.array(v.string()) }),
@@ -46,11 +46,18 @@ export function effectiveStats(state: Pick<GameState, 'cards' | 'players'> | Pic
   const card = state.cards[id], printed = registry.cards[card.definitionId].stats;
   if (!printed) return { attack: 0, defense: 0 };
   let attack = printed.attack, defense = printed.defense;
+  // Give continuous effects the same public battlefield context in the engine and player-view renderer.
+  // Private hands/libraries and other match fields must not influence a static modifier.
+  const battlefield: BattlefieldState = {
+    cards: Object.fromEntries([state.players.p1, state.players.p2].flatMap(player => player.board)
+      .filter((id): id is string => !!id).map(id => [id, state.cards[id]])),
+    players: { p1: { board: state.players.p1.board }, p2: { board: state.players.p2.board } },
+  };
   for (const player of [state.players.p1, state.players.p2]) for (const sid of player.board) {
     if (!sid) continue;
     const source = state.cards[sid];
     for (const binding of registry.cards[source.definitionId].abilities) {
-      const modifier = registry.abilities[binding.id].static?.(source, card, binding.params, registry);
+      const modifier = registry.abilities[binding.id].static?.(source, card, binding.params, registry, battlefield);
       attack += modifier?.attack ?? 0; defense += modifier?.defense ?? 0;
     }
   }
@@ -180,9 +187,17 @@ export function createMatch(registry: Registry, decks: [string[], string[]], see
   return state;
 }
 class Transaction {
-  queue: InternalOrder[] = []; budget = 256; inCombat = false; target?: string;
+  queue: { order: InternalOrder; effect?: { cardId: string; abilityId: string; target?: string; event: GameEvent } }[] = []; budget = 256; inCombat = false; target?: string; slot?: number;
   constructor(public state: GameState, public registry: Registry) {}
-  context(source: CardInstance, event: GameEvent): HookContext { return { state: this.state, registry: this.registry, source, event, target: this.target, issue: order => this.queue.push(order) }; }
+  context(source: CardInstance, event: GameEvent, abilityId?: string): HookContext {
+    return { state: this.state, registry: this.registry, source, event, target: this.target, slot: this.slot, issue: order => {
+      // Attribute resolved faction effects without exposing private draw identities or parsing log prose.
+      const effect = abilityId && this.registry.abilities[abilityId].faction ? {
+        event, cardId: source.id, abilityId, target: 'target' in order ? order.target : event.type === 'creature.destroyed' ? event.cardId : undefined,
+      } : undefined;
+      this.queue.push({order,effect});
+    } };
+  }
   sources(event?: GameEvent): CardInstance[] {
     const sources = [this.state.active,other(this.state.active)].flatMap(p => this.state.players[p].board.filter((id): id is string => !!id).map(id => this.state.cards[id]));
     if (event?.snapshot && !sources.some(c => c.id === event.snapshot!.id)) sources.push(event.snapshot);
@@ -193,7 +208,7 @@ class Transaction {
     this.state.events.push(event);
     for (const source of this.sources(event)) {
       const bindings = [...this.registry.cards[source.definitionId].abilities].sort((a,b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
-      for (const binding of bindings) this.registry.abilities[binding.id].hooks?.[type]?.(this.context(source,event),binding.params);
+      for (const binding of bindings) this.registry.abilities[binding.id].hooks?.[type]?.(this.context(source,event,binding.id),binding.params);
     }
     return event;
   }
@@ -201,7 +216,7 @@ class Transaction {
     const event: GameEvent = { seq: this.state.sequence, type, message: '', cardId: source.id, visibility: 'public' };
     let result = payload;
     for (const binding of [...this.registry.cards[source.definitionId].abilities].sort((a,b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))) {
-      result = this.registry.abilities[binding.id].before?.[type]?.(this.context(source,event),binding.params,result) ?? result;
+      result = this.registry.abilities[binding.id].before?.[type]?.(this.context(source,event,binding.id),binding.params,result) ?? result;
     }
     return result;
   }
@@ -225,6 +240,17 @@ class Transaction {
     else if (card.zone === 'discard') p.discard = p.discard.filter(id => id !== card.id);
     else if (card.zone === 'deck') p.deck = p.deck.filter(id => id !== card.id);
     card.slot = null;
+  }
+  deploy(card: CardInstance, player: PlayerId, slot: number) {
+    requireRule(card.zone === 'hand' && card.owner === player && card.controller === player, 'Deploy a field card from your own hand.');
+    const def = definition(this.state,card.id,this.registry);
+    requireRule(def.type !== 'spell', 'Only creatures and bastions can be deployed.');
+    requireRule(Number.isInteger(slot) && slot >= 0 && slot < battlefieldPositions.length && this.state.players[player].board[slot] === null, 'Choose a free battlefield position.');
+    this.detach(card);
+    card.zone = 'board'; card.slot = slot; this.state.players[player].board[slot] = card.id;
+    card.exhausted = this.before(def.type === 'bastion' ? 'bastion.enter.before' : 'creature.enter.before',card,{exhausted:true}).exhausted ?? true;
+    this.emit('card.played',`${this.state.players[player].name} plays ${def.name} in ${positionName(slot)}.`,{player,cardId:card.id});
+    this.emit(def.type === 'bastion' ? 'bastion.entered' : 'creature.entered',`${def.name} enters ${card.exhausted ? 'exhausted' : 'ready'}.`,{cardId:card.id});
   }
   discard(id: string) { const card = this.state.cards[id]; this.detach(card); card.zone = 'discard'; card.damage = 0; card.exhausted = false; this.state.players[card.owner].discard.push(id); }
   destroy(id: string, combat = false) {
@@ -260,7 +286,7 @@ class Transaction {
     this.stateChecks();
     while (this.queue.length && !this.state.outcome) {
       requireRule(--this.budget > 0,'RESOLUTION_LIMIT: extension chain exceeded 256 operations.');
-      const order = this.queue.shift()!;
+      const {order,effect} = this.queue.shift()!;
       if (order.type === 'damage') this.dealDamage(order);
       else if (order.type === 'heal') {
         requireRule(Number.isInteger(order.amount) && order.amount >= 0,'Invalid heal amount.');
@@ -269,6 +295,21 @@ class Transaction {
       } else if (order.type === 'draw') {
         requireRule(Number.isInteger(order.amount) && order.amount >= 0 && order.amount <= 100,'Invalid draw amount.');
         this.draw(order.player,order.amount);
+      } else if (order.type === 'gain-energy') {
+        requireRule(order.player === 'p1' || order.player === 'p2','Invalid energy recipient.');
+        requireRule(this.state.phase === 'play' || this.state.phase === 'attack' && this.state.combat?.stage === 'death','Energy spells require a casting phase.');
+        for (const [color,amount] of Object.entries(order.output)) requireRule(this.registry.energyTypes.includes(color) && Number.isSafeInteger(amount) && amount >= 0,'Invalid generated energy.');
+        const player = this.state.players[order.player];
+        addEnergy(this.state.phase === 'play' ? player.energy : player.deathEnergy, order.output);
+        const source = order.source ? this.state.cards[order.source] : undefined;
+        this.emit('energy.generated',`${source ? this.registry.cards[source.definitionId].name : player.name} generates energy.`,{player:order.player,cardId:source?.id,amount:Object.values(order.output).reduce((sum,value)=>sum+value,0)});
+      } else if (order.type === 'deploy') {
+        requireRule(this.state.phase === 'play' && this.state.active === order.player && !this.state.pending, 'Deploy during your play phase.');
+        const card = this.state.cards[order.target];
+        requireRule(card, 'Select a card in your hand.');
+        // The activation's hand target is not an on-entry damage target.
+        const previousTarget = this.target; this.target = undefined;
+        this.deploy(card,order.player,order.slot); this.target = previousTarget;
       } else if (order.type === 'destroy') this.destroy(order.target,order.combat);
       else if (order.type === 'return') {
         const card = this.state.cards[order.target];
@@ -277,6 +318,11 @@ class Transaction {
           this.state.players[card.owner].hand.push(card.id);
           this.emit('card.returned',`${this.registry.cards[card.definitionId].name} returns to hand.`,{cardId:card.id});
         }
+      }
+      if (effect) {
+        const {event,...attribution}=effect;
+        // Decorate the committed cause instead of adding an event: choice IDs and old replays retain their sequence.
+        (event.effects ??= []).push(attribution);
       }
       if (!this.state.outcome) this.stateChecks();
     }
@@ -307,6 +353,7 @@ class Transaction {
     const defender = other(this.state.active), p = this.state.players[defender];
     for (let i = 0; i < dead.length; i++) {
       const snapshot = dead[i];
+      if (!snapshot.outputs.length) continue;
       if (snapshot.outputs.length === 1) addEnergy(p.deathEnergy,snapshot.outputs[0]);
       else {
         this.state.pending = { id: `choice-${this.state.sequence}-${i}`, player:defender, kind:'death-energy', options:snapshot.outputs, sourceName:this.registry.cards[snapshot.card.definitionId].name, remaining:dead.slice(i+1) };
@@ -340,8 +387,8 @@ function targetOptions(state: GameState, actor: PlayerId, bindings: AbilityBindi
   let targets: string[] | null = null;
   for (const b of bindings) {
     const kind = registry.abilities[b.id].target; if (!kind) continue;
-    const side = kind === 'friendly-creature' || kind === 'friendly-field' ? actor : other(actor);
-    const options = state.players[side].board.filter((id): id is string => !!id &&
+    const side = kind === 'friendly-creature' || kind === 'friendly-field' || kind === 'friendly-hand-field' ? actor : other(actor);
+    const options = kind === 'energy-type' ? registry.energyTypes.filter(color=>color!=='neutral') : kind === 'friendly-hand-field' ? state.players[actor].hand.filter(id => definition(state,id,registry).type !== 'spell') : state.players[side].board.filter((id): id is string => !!id &&
       (!(kind === 'friendly-creature' || kind === 'enemy-creature') || definition(state,id,registry).type === 'creature'));
     if (kind === 'enemy-any') options.push(other(actor));
     targets = targets === null ? options : targets.filter(id => options.includes(id));
@@ -374,12 +421,14 @@ export function legalActions(state: GameState, registry: Registry): LegalActions
     if (!death) for (const id of p.board) {
       if (!id || state.cards[id].exhausted) continue;
       const def = definition(state,id,registry);
-      if (def.type === 'creature') legal.energy.push({cardId:id,options:def.stats!.energyOutputs});
+      if (def.type === 'creature' && def.stats!.energyOutputs.length) legal.energy.push({cardId:id,options:def.stats!.energyOutputs});
       def.abilities.forEach((binding, ability) => {
-        if (!registry.abilities[binding.id].activate) return;
+        if (!registry.abilities[binding.id].activate || registry.abilities[binding.id].canActivate?.(state.cards[id],state,binding.params,registry) === false) return;
         const targeting = targetOptions(state,actor,[binding],registry);
         if (registry.abilities[binding.id].target && !targeting.targets.length) return;
-        legal.activations.push({cardId:id,ability,targets:targeting.targets,requiresTarget:targeting.required});
+        const slots = registry.abilities[binding.id].placement ? p.board.flatMap((id,slot) => id === null ? [slot] : []) : undefined;
+        if (slots && !slots.length) return;
+        legal.activations.push({cardId:id,ability,targets:targeting.targets,requiresTarget:targeting.required,...(slots ? {slots} : {}),...(registry.abilities[binding.id].activationEnergy ? {energyOptions:registry.abilities[binding.id].activationEnergy!(binding.params,registry)} : {})});
       });
     }
     legal.canEnd = true;
@@ -454,13 +503,10 @@ export function apply(state: GameState, envelope: CommandEnvelope, registry: Reg
       for (const color of Object.keys(payment)) if (payment[color]) pool[color] = (pool[color] ?? 0) - payment[color]!;
       tx.target = command.target;
       if (payload.consume) tx.destroy(command.consume!);
-      tx.detach(card);
       if (def.type !== 'spell') {
-        card.zone = 'board'; card.slot = slot; p.board[slot] = card.id;
-        card.exhausted = tx.before(def.type === 'bastion' ? 'bastion.enter.before' : 'creature.enter.before',card,{exhausted:true}).exhausted ?? true;
-        tx.emit('card.played',`${p.name} plays ${def.name} in ${positionName(slot)}.`,{player:envelope.actor,cardId:card.id});
-        tx.emit(def.type === 'bastion' ? 'bastion.entered' : 'creature.entered',`${def.name} enters ${card.exhausted ? 'exhausted' : 'ready'}.`,{cardId:card.id});
+        tx.deploy(card,envelope.actor,slot);
       } else {
+        tx.detach(card);
         card.zone = 'discard'; p.discard.push(card.id);
         const event = tx.emit('spell.cast',`${p.name} casts ${def.name}.`,{player:envelope.actor,cardId:card.id,target:command.target});
         for (const binding of def.cast!) registry.abilities[binding.id].cast!(tx.context(card,event),binding.params);
@@ -479,10 +525,12 @@ export function apply(state: GameState, envelope: CommandEnvelope, registry: Reg
       requireRule(legal,'That ability cannot be activated now. Use a ready field card during your play phase.');
       if (legal!.requiresTarget) requireRule(command.target && legal!.targets.includes(command.target),'Select a legal target.');
       else requireRule(!command.target,'This ability has no legal target.');
+      if (legal!.slots) requireRule(command.slot !== undefined && legal!.slots.includes(command.slot), 'Choose a free battlefield position.');
+      else requireRule(command.slot === undefined, 'This ability does not use a battlefield position.');
       const card = next.cards[command.cardId], binding = definition(next,card.id,registry).abilities[command.ability];
       card.exhausted = true;
-      tx.target = command.target;
-      const event = tx.emit('ability.activated',`${definition(next,card.id,registry).name} activates ${describeAbility(binding,registry.abilities[binding.id]).name}.`,{cardId:card.id,player:envelope.actor,target:command.target});
+      tx.target = command.target; tx.slot = command.slot;
+      const event = tx.emit('ability.activated',`${definition(next,card.id,registry).name} activates ${describeAbility(binding,registry.abilities[binding.id]).name}.`,{cardId:card.id,player:envelope.actor,target:command.target,abilityId:binding.id});
       registry.abilities[binding.id].activate!(tx.context(card,event),binding.params);
     } else if (command.type === 'attack') {
       requireRule(next.phase === 'attack' && next.combat?.stage === 'declare','Declare attackers in the Attack Phase.');

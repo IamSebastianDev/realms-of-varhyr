@@ -363,3 +363,16 @@ html,body,#root{overscroll-behavior:none}
 .draw-cards{gap:36px;flex-wrap:nowrap;align-items:flex-start}
 .draw-zone{min-height:248px}
 @media(max-width:760px){.draw-cards{gap:12px}.draw-card-fallback{flex-direction:column;align-items:stretch;width:128px}.draw-card-fallback button{text-align:center}}
+
+/* Give each phase a short transition before another advance can be accepted. */
+.floating-action .phase-button-label {display:flex;flex-direction:column;gap:3px;align-items:center}
+.floating-action .phase-button-label small {font:500 8px/1.25 'Manrope',sans-serif;letter-spacing:.2px;opacity:.8}
+.floating-action .phase-transition-track {position:absolute;inset-inline:16%;bottom:8px;height:3px;border-radius:3px;overflow:hidden;background:#523b234d;pointer-events:none}
+.floating-action .phase-transition-track>span {display:block;width:100%;height:100%;transform-origin:left;background:#fff5cf;box-shadow:0 0 5px #fff0bc}
+.floating-action .primary-action.is-transitioning {opacity:.85}
+@media(min-width:951px) and (min-aspect-ratio:1/1){.floating-action .phase-transition-track {bottom:13px}}
+
+.phase-transitioning .match-status strong {animation:phase-status-enter .5s ease-out}
+@keyframes phase-status-enter {from{opacity:.35;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+
+.hand-card.rally-target{filter:none;outline:2px solid #f1cd76;box-shadow:0 0 18px #f1cd7650;cursor:pointer}

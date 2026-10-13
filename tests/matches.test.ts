@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { compileContent } from '../packages/content/src/compiler';
+import { recordedAbilities } from './fixtures/recordedMatch';
 import { replay } from '../packages/core/src';
 
 // Saved real matches, each pinned with the card pool it was played on. They must keep replaying exactly,
@@ -12,7 +13,7 @@ const read = (dir: string, file: string) => JSON.parse(readFileSync(new URL(`${d
 describe('saved matches', () => {
   for (const dir of readdirSync(root)) it(`${dir} replays to the recorded result`, () => {
     const saved = read(dir, 'match.json'), expected = read(dir, 'expected.json');
-    const registry = compileContent(read(dir, 'cards.json'), undefined, undefined, ['crownlands']);
+    const registry = compileContent(read(dir, 'cards.json'), recordedAbilities, undefined, ['crownlands']);
     expect(registry.version).toBe(saved.initial.contentVersion);
     const end = replay(saved.initial, saved.commands, registry);
     expect({ turn: end.turn, outcome: end.outcome, reason: end.outcomeReason, life: [end.players.p1.life, end.players.p2.life] }).toEqual(expected);

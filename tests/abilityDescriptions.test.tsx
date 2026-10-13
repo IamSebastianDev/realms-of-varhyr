@@ -12,6 +12,13 @@ describe('ability explanations', () => {
     });
   });
 
+  it('uses singular draw wording in English and German while retaining plural counts', () => {
+    const draw = abilities.draw;
+    expect(describeAbility({id:'draw',params:{amount:1}},draw).description).toBe('Draw 1 card from your library.');
+    expect(describeAbility({id:'draw',params:{amount:2}},draw).description).toBe('Draw 2 cards from your library.');
+    expect(describeAbility({id:'draw',params:{amount:1}},{...draw,...draw.translations!.de!}).description).toBe('Ziehe 1 Karte aus deiner Bibliothek.');
+  });
+
   it('renders creature abilities and every spell operation in the shared inspector', () => {
     const creature = renderToStaticMarkup(<CardFacts card={registry.cards['aldric-runewarden']}/>);
     expect(creature).toContain('Armor 1');

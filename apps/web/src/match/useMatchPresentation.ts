@@ -1,3 +1,4 @@
+import { factionBursts, type FactionEffect } from '../factionEffects';
 import { useAudio } from '../AudioExperience';
 import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import type { EnergyType, GameEvent, GameState, PlayerId } from '../../../../packages/contracts/src';
@@ -18,6 +19,7 @@ type Options = {
 export function useMatchPresentation({sound,reduced,covered,slotLayout,viewer,hotseat,initial,screen,historyIndex,boardRef,poolRef,enemyPoolRef}: Options) {
   const {playEffect}=useAudio();
   const [energyFlights,setEnergyFlights]=useState<EnergyFlight[]>([]),[spellCasts,setSpellCasts]=useState<SpellFx[]>([]);
+  const [factionEffects,setFactionEffects]=useState<FactionEffect[]>([]);
   const [clash,setClash]=useState<{steps:ClashStep[];i:number}|null>(null),posesRef=useRef<Poses>({}),stepping=useRef(false);
   const clashBatches=useMemo<FxBatch[]>(()=>clash?clash.steps.slice(0,clash.i+1).map((step,j)=>({key:`s${j}`,poses:j===clash.i?step.poses:[],pops:step.pops,ms:step.ms,caption:j===clash.i?step.caption:undefined})):[],[clash]);
   useCardMotion(clash?clash.steps[clash.i]:null,slotLayout,viewer,posesRef);
@@ -25,6 +27,8 @@ export function useMatchPresentation({sound,reduced,covered,slotLayout,viewer,ho
   const present=useCallback((before:GameState,after:GameState,events:GameEvent[],key:string)=>{
     const tone=events.find(e=>['damage.dealt','energy.generated','card.played','spell.cast'].includes(e.type));if(tone&&sound)playEffect(tone.type);
     if(reduced||covered)return;
+    const bursts=factionBursts(before,after,events,registry,key);
+    if(bursts.length)setFactionEffects(list=>[...list,...bursts].slice(-20));
     const board=boardRef.current?.getBoundingClientRect(),at=(slot:SlotLayout)=>board&&({x:board.left+slot.x+slot.width/2,y:board.top+slot.y+slot.height/2});
     if(board){
       for(const e of events.filter(e=>e.type==='energy.generated'&&e.cardId)){
@@ -56,11 +60,13 @@ export function useMatchPresentation({sound,reduced,covered,slotLayout,viewer,ho
   useEffect(()=>{if(!clash)return;const timer=setTimeout(()=>setClash(c=>c&&(c.i+1<c.steps.length?{...c,i:c.i+1}:null)),clash.steps[clash.i].ms);return()=>clearTimeout(timer);},[clash]);
   useEffect(()=>{setClash(null);},[viewer,initial,reduced,covered,screen]);
   // Stepping through a replay plays each step's fight; jumping around clears whatever was playing.
-  useEffect(()=>{if(stepping.current){stepping.current=false;return;}setClash(null);setSpellCasts([]);setEnergyFlights([]);},[historyIndex]);
+  useEffect(()=>{if(stepping.current){stepping.current=false;return;}setClash(null);setSpellCasts([]);setEnergyFlights([]);setFactionEffects([]);},[historyIndex]);
   useEffect(()=>{if(!clash)return;const skip=(event:KeyboardEvent)=>{if(event.key===' '||event.key==='Enter'||event.key==='Escape'){event.preventDefault();setClash(null);}};window.addEventListener('keydown',skip);return()=>window.removeEventListener('keydown',skip);},[clash]);
   useEffect(()=>{if(!spellCasts.length)return;const timer=setTimeout(()=>setSpellCasts([]),2100);return()=>clearTimeout(timer);},[spellCasts]);
   useEffect(()=>{setSpellCasts([]);},[viewer,initial,reduced,covered]);
   useEffect(()=>{if(!energyFlights.length)return;const timer=setTimeout(()=>setEnergyFlights([]),1600);return()=>clearTimeout(timer);},[energyFlights]);
   useEffect(()=>{setEnergyFlights([]);},[viewer,initial,reduced,covered]);
-  return {clash,setClash,posesRef,energyFlights,setEnergyFlights,spellCasts,setSpellCasts,clashBatches,present,stepping};
+  useEffect(()=>{if(!factionEffects.length)return;const timer=setTimeout(()=>setFactionEffects([]),2300);return()=>clearTimeout(timer);},[factionEffects]);
+  useEffect(()=>{setFactionEffects([]);},[viewer,initial,reduced,covered,screen]);
+  return {factionEffects,setFactionEffects,clash,setClash,posesRef,energyFlights,setEnergyFlights,spellCasts,setSpellCasts,clashBatches,present,stepping};
 }

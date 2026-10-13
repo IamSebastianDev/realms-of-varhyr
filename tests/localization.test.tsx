@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { registry, compileContent } from '../packages/content/src';
-import { translate, localizedCard, localizedAbility } from '../apps/web/src/i18n';
+import { translate, localizedCard, localizedAbility, subtypeLabel } from '../apps/web/src/i18n';
 import { updatePreferences } from '../apps/web/src/preferences';
 import { CardDetail } from '../apps/web/src/CardDetail';
 import { CardFacts, CardFace, CardLore } from '../apps/web/src/CardPresentation';
@@ -29,19 +29,25 @@ describe('English and German presentation',()=>{
       }
     }
   });
+  it('translates subtypes once in the shared dictionary, never per card',()=>{
+    const subtypes=new Set(Object.values(registry.cards).flatMap(card=>card.subtypes));
+    for(const subtype of subtypes)expect(Object.hasOwn(german,subtype.replace(/\b[a-z]/g,c=>c.toUpperCase())),`German term for '${subtype}'`).toBe(true);
+    expect(subtypeLabel('human','de')).toBe('Mensch');expect(subtypeLabel('human','en')).toBe('Human');
+    for(const card of Object.values(registry.cards))expect(Object.keys(card.translations?.de??{}).filter(key=>!['name','lore'].includes(key)),card.id).toEqual([]);
+  });
   it('renders German card faces, lore and rules without changing card IDs or rules',()=>{
     vi.stubGlobal('localStorage',{getItem:()=>null,setItem:()=>{}});updatePreferences({language:'de'});
     const card=registry.cards['aldric-runewarden'];
-    expect(renderToStaticMarkup(<CardFace card={card}/>)).toContain('Aldric, der Runenwächter');
-    expect(renderToStaticMarkup(<CardLore card={card}/>)).toContain('Die Krone überdauert');
+    expect(renderToStaticMarkup(<CardFace card={card}/>)).toContain('Alderic, Heermeister des Imperiums');
+    expect(renderToStaticMarkup(<CardLore card={card}/>)).toContain('Auf Ariannas Geheiß');
     expect(renderToStaticMarkup(<CardFacts card={card}/>)).toContain('Rüstung 1');
     expect(renderToStaticMarkup(<CardFacts card={card}/>)).toContain('Verringere jeden erlittenen Schaden um 1');
     vi.stubGlobal('window',{matchMedia:()=>({matches:false,addEventListener:()=>{},removeEventListener:()=>{}})});
     const inspector=renderToStaticMarkup(<CardDetail card={card}/>);
-    expect(inspector).toContain('<h2>Aldric, der Runenwächter</h2>');
+    expect(inspector).toContain('<h2>Alderic, Heermeister des Imperiums</h2>');
     expect(inspector).toContain('Die Kronlande');
-    expect(inspector).not.toContain('Aldric, the Runewarden');
-    expect(card.id).toBe('aldric-runewarden');expect(card.name).toBe('Aldric, the Runewarden');
+    expect(inspector).not.toContain('Alderic, Warmaster of the Empire');
+    expect(card.id).toBe('aldric-runewarden');expect(card.name).toBe('Alderic, Warmaster of the Empire');
   });
   it('validates author translations and excludes presentation text from the gameplay content hash',()=>{
     const {translations:_translations,...card}=registry.cards['crown-recruit'];
@@ -70,7 +76,7 @@ describe('English and German presentation',()=>{
     expect(translate(template,'en')).toBe(template);
   });
   it('keeps a German catalogue entry for each literal UI translation key',()=>{
-    const files=['ResetControls.tsx','AudioExperience.tsx','App.tsx','Lobby.tsx','SettingsPage.tsx','GameSetup.tsx','DeckBuilder.tsx','CardPresentation.tsx','CardDetail.tsx','DrawChoice.tsx','MatchSummary.tsx','BoosterOpening.tsx','ProfilePage.tsx','multiplayer/MultiplayerLobby.tsx'];
+    const files=['ResetControls.tsx','AudioExperience.tsx','App.tsx','Lobby.tsx','SettingsPage.tsx','GameSetup.tsx','DeckBuilder.tsx','CardPresentation.tsx','CardDetail.tsx','DrawChoice.tsx','MatchSummary.tsx','BoosterOpening.tsx','ProfilePage.tsx','CollectionStats.tsx','multiplayer/MultiplayerLobby.tsx'];
     const missing=new Set<string>();
     for(const file of files){const tree=ts.createSourceFile(file,readFileSync(`apps/web/src/${file}`,'utf8'),ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
       function scan(node:ts.Node){if(ts.isCallExpression(node)&&['t','msg'].includes(node.expression.getText(tree))&&node.arguments[0]&&ts.isStringLiteral(node.arguments[0])){

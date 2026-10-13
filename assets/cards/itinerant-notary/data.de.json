@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Wandernder Notar",
+  "lore": "Er trägt kein Banner. Nur Unterschriften, die sie überdauern."
+}

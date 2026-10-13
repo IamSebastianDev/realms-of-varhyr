@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/card.schema.json",
   "id": "dawn-banner",
   "revision": 4,
   "name": "Dawn Standard-bearer",
@@ -35,12 +36,5 @@
       }
     }
   ],
-  "translations": {
-    "de": {
-      "name": "Bannerträger der Morgenröte",
-      "subtypes": [
-        "Kreatur"
-      ]
-    }
-  }
+  "set": "foundations"
 }

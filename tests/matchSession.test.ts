@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { apply, projectForPlayer, replay } from '../packages/core/src';
-import { registry } from '../packages/content/src';
+import { recordedRegistry as registry } from './fixtures/recordedMatch';
 import type { Command, CommandEnvelope, GameState } from '../packages/contracts/src';
 import { LocalMatchSession, OnlineMatchSession, ReplayMatchSession, type OnlineRoom } from '../apps/web/src/match/MatchSession';
 import { localReplay } from '../apps/web/src/replayFile';

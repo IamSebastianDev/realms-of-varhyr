@@ -1,5 +1,5 @@
 import { t as msg, useLanguage } from './i18n';
-import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode, type CSSProperties } from 'react';
 import { ArrowRight, Download, Heart, Layers, Skull, Sparkles, Swords, Zap, Flame, Gift } from 'lucide-react';
 import type { GameState, PlayerId, Registry } from '../../../packages/contracts/src';
 import { other } from '../../../packages/core/src';
@@ -9,7 +9,7 @@ import { matchStats, type SideStats } from './matchStats';
 
 type Reward = { crowns: number; boosters: number; saved: boolean } | null;
 type Props = {
-  state: GameState; viewer: PlayerId; registry: Registry; reduced: boolean; symbol: string; reward: Reward;
+  state: GameState; viewer: PlayerId; registry: Registry; reduced: boolean; symbol: ReactNode; reward: Reward;
   onMenu: () => void; onAgain?: () => void; onExport?: () => void; onReview?: () => void; reviewLabel?: string;
 };
 

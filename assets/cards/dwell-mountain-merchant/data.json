@@ -1,0 +1,47 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "dwell-mountain-merchant",
+  "set": "foundations",
+  "revision": 3,
+  "name": "Dwell, Merchant of the Mountains",
+  "deckLimitKey": "dwell-mountain-merchant",
+  "type": "creature",
+  "factions": [
+    "mountain-clans"
+  ],
+  "subtypes": [
+    "dwarf",
+    "merchant",
+    "leader"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "mountain-clans": 1
+    }
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 6,
+    "energyOutputs": [
+      {
+        "mountain-clans": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "trade",
+      "params": {}
+    },
+    {
+      "id": "armor",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "lore": "The biggest dwarf in the mountains knows the weight of imperial gold. He measures promises rather more carefully."
+}

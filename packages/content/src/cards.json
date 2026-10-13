@@ -1,15 +1,17 @@
 [
   {
     "id": "aldric-runewarden",
-    "revision": 5,
-    "name": "Aldric, the Runewarden",
+    "set": "foundations",
+    "revision": 10,
+    "name": "Alderic, Warmaster of the Empire",
     "deckLimitKey": "aldric-runewarden",
     "type": "creature",
     "factions": [
       "crownlands"
     ],
     "subtypes": [
-      "creature"
+      "human",
+      "leader"
     ],
     "legendary": true,
     "rarity": "legendary",
@@ -19,14 +21,11 @@
         "crownlands": 2
       }
     },
-    "lore": "The crown endures where its runes still shine.",
+    "lore": "By Arianna’s command, he bears the empire’s wars. In every restored banner, he sees the glory still to come.",
     "translations": {
       "de": {
-        "name": "Aldric, der Runenwächter",
-        "lore": "Die Krone überdauert, solange ihre Runen noch leuchten.",
-        "subtypes": [
-          "Kreatur"
-        ]
+        "name": "Alderic, Heermeister des Imperiums",
+        "lore": "Auf Ariannas Geheiß trägt er die Kriege des Imperiums. In jedem wieder erhobenen Banner sieht er den kommenden Ruhm."
       }
     },
     "art": "/cards/aldric-the-runewarden/data.png?v=6c40324e7c98b106",
@@ -37,6 +36,10 @@
         "params": {
           "amount": 1
         }
+      },
+      {
+        "id": "fealty",
+        "params": {}
       }
     ],
     "stats": {
@@ -50,7 +53,45 @@
     }
   },
   {
+    "id": "ancient-unicorn",
+    "set": "foundations",
+    "revision": 1,
+    "name": "Ancient Unicorn",
+    "deckLimitKey": "ancient-unicorn",
+    "type": "creature",
+    "factions": [],
+    "subtypes": [
+      "unicorn"
+    ],
+    "legendary": true,
+    "rarity": "rare",
+    "cost": {
+      "generic": 1,
+      "factions": {}
+    },
+    "lore": "A rare sight, but an unforgettable one.",
+    "translations": {
+      "de": {
+        "name": "Uraltes Einhorn",
+        "lore": "Ein seltener, aber unvergesslicher Anblick."
+      }
+    },
+    "art": "/cards/ancient-unicorn/data.png?v=52a64ec741120f9a",
+    "abilities": [
+      {
+        "id": "primal",
+        "params": {}
+      }
+    ],
+    "stats": {
+      "attack": 1,
+      "defense": 2,
+      "energyOutputs": []
+    }
+  },
+  {
     "id": "ban-vale-cavalry",
+    "set": "foundations",
     "revision": 2,
     "name": "Ban Vale Cavalry",
     "deckLimitKey": "ban-vale-cavalry",
@@ -71,13 +112,10 @@
     },
     "translations": {
       "de": {
-        "name": "Kavallerie von Ban Vale",
-        "subtypes": [
-          "Mensch"
-        ]
+        "name": "Kavallerie von Ban Vale"
       }
     },
-    "art": "/cards/ban-vale-cavalry/data.png?v=140b33bf9401990e",
+    "art": "/cards/ban-vale-cavalry/data.png?v=4cf069d1371c9c7f",
     "abilities": [
       {
         "id": "adjacent-banner",
@@ -98,6 +136,7 @@
   },
   {
     "id": "battlefield-hymn",
+    "set": "foundations",
     "revision": 1,
     "name": "Battlefield Hymn",
     "deckLimitKey": "battlefield-hymn",
@@ -116,8 +155,7 @@
     },
     "translations": {
       "de": {
-        "name": "Schlachtfeldhymne",
-        "subtypes": []
+        "name": "Schlachtfeldhymne"
       }
     },
     "art": "/cards/battlefield-hymn/data.png?v=008273eb5dc86946",
@@ -136,7 +174,146 @@
     ]
   },
   {
+    "id": "borrowed-wisdom",
+    "set": "foundations",
+    "revision": 2,
+    "name": "Borrowed Wisdom",
+    "deckLimitKey": "borrowed-wisdom",
+    "type": "spell",
+    "factions": [],
+    "subtypes": [
+      "divination"
+    ],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 2,
+      "factions": {}
+    },
+    "lore": "Knowledge travels farther when someone lends the book.",
+    "translations": {
+      "de": {
+        "name": "Geliehene Weisheit",
+        "lore": "Wissen reist weiter, wenn jemand das Buch verleiht."
+      }
+    },
+    "art": "/cards/borrowed-wisdom/data.png?v=2fe16b66cd70e2d2",
+    "abilities": [],
+    "timing": [
+      "play"
+    ],
+    "cast": [
+      {
+        "id": "draw",
+        "params": {
+          "amount": 2
+        }
+      }
+    ]
+  },
+  {
+    "id": "bosci-lord-of-seacliffe",
+    "set": "foundations",
+    "revision": 4,
+    "name": "Bosci, Lord of Seacliffe",
+    "deckLimitKey": "bosci-lord-of-seacliffe",
+    "type": "creature",
+    "factions": [
+      "bright-marches"
+    ],
+    "subtypes": [
+      "human",
+      "leader"
+    ],
+    "legendary": true,
+    "rarity": "legendary",
+    "cost": {
+      "generic": 2,
+      "factions": {
+        "bright-marches": 2
+      }
+    },
+    "lore": "He gathers the petty kings against a common foe. The court has yet to learn which foe he means.",
+    "translations": {
+      "de": {
+        "name": "Bosci, Herr von Seacliffe",
+        "lore": "Er vereint die Kleinkönige gegen einen gemeinsamen Feind. Der Hof weiß noch nicht, welchen Feind er meint."
+      }
+    },
+    "art": "/cards/bosci-lord-of-seacliffe/data.png?v=c1b6f3c99c08abf9",
+    "abilities": [
+      {
+        "id": "marches-rally",
+        "params": {}
+      },
+      {
+        "id": "guard",
+        "params": {}
+      }
+    ],
+    "stats": {
+      "attack": 3,
+      "defense": 4,
+      "energyOutputs": [
+        {
+          "bright-marches": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "brut-chief-of-the-harpies",
+    "set": "foundations",
+    "revision": 4,
+    "name": "Brut, Chief of the Harpies",
+    "deckLimitKey": "brut-chief-of-the-harpies",
+    "type": "creature",
+    "factions": [
+      "horde"
+    ],
+    "subtypes": [
+      "goblin",
+      "leader"
+    ],
+    "legendary": true,
+    "rarity": "legendary",
+    "cost": {
+      "generic": 2,
+      "factions": {
+        "horde": 1
+      }
+    },
+    "lore": "No harpy ever flew above his clans. The banners look magnificent all the same.",
+    "translations": {
+      "de": {
+        "name": "Brut, Häuptling der Harpyien",
+        "lore": "Noch nie flog eine Harpyie über seinen Clans. Die Banner sehen trotzdem großartig aus."
+      }
+    },
+    "art": "/cards/brut-chief-of-the-harpies/data.png?v=c5ab77f551fb7322",
+    "abilities": [
+      {
+        "id": "raid",
+        "params": {}
+      },
+      {
+        "id": "flank-evasion",
+        "params": {}
+      }
+    ],
+    "stats": {
+      "attack": 4,
+      "defense": 3,
+      "energyOutputs": [
+        {
+          "horde": 2
+        }
+      ]
+    }
+  },
+  {
     "id": "cleansing-light",
+    "set": "foundations",
     "revision": 3,
     "name": "Cleansing Light",
     "deckLimitKey": "cleansing-light",
@@ -155,8 +332,7 @@
     },
     "translations": {
       "de": {
-        "name": "Läuterndes Licht",
-        "subtypes": []
+        "name": "Läuterndes Licht"
       }
     },
     "art": "/cards/cleansing-light/data.png?v=ce6dcaf373c1a775",
@@ -182,6 +358,7 @@
   },
   {
     "id": "crown-bastion",
+    "set": "foundations",
     "revision": 1,
     "name": "Crown Bastion",
     "deckLimitKey": "crown-bastion",
@@ -204,10 +381,7 @@
     "translations": {
       "de": {
         "name": "Kronenbastion",
-        "lore": "Ein Schwur, zu Stein geworden.",
-        "subtypes": [
-          "Befestigung"
-        ]
+        "lore": "Ein Schwur, zu Stein geworden."
       }
     },
     "art": "/cards/crown-bastion/data.png?v=f22651501ced9356",
@@ -233,6 +407,7 @@
   },
   {
     "id": "crown-recruit",
+    "set": "foundations",
     "revision": 4,
     "name": "Crownlands Recruit",
     "deckLimitKey": "crown-recruit",
@@ -253,10 +428,7 @@
     "translations": {
       "de": {
         "name": "Rekrut der Kronlande",
-        "lore": "Jedes Königreich beginnt mit einem Schwur.",
-        "subtypes": [
-          "Kreatur"
-        ]
+        "lore": "Jedes Königreich beginnt mit einem Schwur."
       }
     },
     "art": "/cards/crownlands-recruit/data.png?v=34b428de4db709c8",
@@ -272,7 +444,60 @@
     }
   },
   {
+    "id": "dark-priest-of-run",
+    "set": "foundations",
+    "revision": 4,
+    "name": "The Dark Priest of Run",
+    "deckLimitKey": "dark-priest-of-run",
+    "type": "creature",
+    "factions": [
+      "black-host"
+    ],
+    "subtypes": [
+      "necromancer",
+      "leader"
+    ],
+    "legendary": true,
+    "rarity": "legendary",
+    "cost": {
+      "generic": 2,
+      "factions": {
+        "black-host": 2
+      }
+    },
+    "lore": "Beneath the hood, a world without dawn. Behind him, an army that will never see another grave.",
+    "translations": {
+      "de": {
+        "name": "Der Dunkle Priester von Run",
+        "lore": "Unter der Kapuze liegt eine Welt ohne Morgen. Hinter ihm steht ein Heer, das kein weiteres Grab kennen wird."
+      }
+    },
+    "art": "/cards/dark-priest-of-run/data.png?v=f32e96168aa7a1ff",
+    "abilities": [
+      {
+        "id": "soul-harvest",
+        "params": {}
+      },
+      {
+        "id": "rime",
+        "params": {
+          "amount": 1
+        }
+      }
+    ],
+    "stats": {
+      "attack": 1,
+      "defense": 6,
+      "energyOutputs": [
+        {
+          "black-host": 2
+        }
+      ]
+    }
+  },
+  {
     "id": "dawn-banner",
+    "set": "foundations",
     "revision": 4,
     "name": "Dawn Standard-bearer",
     "deckLimitKey": "dawn-banner",
@@ -293,10 +518,7 @@
     },
     "translations": {
       "de": {
-        "name": "Bannerträger der Morgenröte",
-        "subtypes": [
-          "Kreatur"
-        ]
+        "name": "Bannerträger der Morgenröte"
       }
     },
     "art": "/cards/dawn-standard-bearer/data.png?v=4afb068adb49b6b5",
@@ -319,7 +541,61 @@
     }
   },
   {
+    "id": "dwell-mountain-merchant",
+    "set": "foundations",
+    "revision": 3,
+    "name": "Dwell, Merchant of the Mountains",
+    "deckLimitKey": "dwell-mountain-merchant",
+    "type": "creature",
+    "factions": [
+      "mountain-clans"
+    ],
+    "subtypes": [
+      "dwarf",
+      "merchant",
+      "leader"
+    ],
+    "legendary": true,
+    "rarity": "legendary",
+    "cost": {
+      "generic": 2,
+      "factions": {
+        "mountain-clans": 1
+      }
+    },
+    "lore": "The biggest dwarf in the mountains knows the weight of imperial gold. He measures promises rather more carefully.",
+    "translations": {
+      "de": {
+        "name": "Dwell, Händler der Berge",
+        "lore": "Der größte Zwerg der Berge kennt das Gewicht imperialen Goldes. Versprechen wiegt er etwas sorgfältiger."
+      }
+    },
+    "art": "/cards/dwell-mountain-merchant/data.png?v=36710aa9d371f280",
+    "abilities": [
+      {
+        "id": "trade",
+        "params": {}
+      },
+      {
+        "id": "armor",
+        "params": {
+          "amount": 1
+        }
+      }
+    ],
+    "stats": {
+      "attack": 1,
+      "defense": 6,
+      "energyOutputs": [
+        {
+          "mountain-clans": 2
+        }
+      ]
+    }
+  },
+  {
     "id": "first-dawn-regiment",
+    "set": "foundations",
     "revision": 1,
     "name": "First Dawn Regiment",
     "deckLimitKey": "first-dawn-regiment",
@@ -340,10 +616,7 @@
     },
     "translations": {
       "de": {
-        "name": "Regiment der ersten Morgenröte",
-        "subtypes": [
-          "Mensch"
-        ]
+        "name": "Regiment der ersten Morgenröte"
       }
     },
     "art": "/cards/first-dawn-regiment/data.png?v=a26a8cb1c1cc7e06",
@@ -367,6 +640,7 @@
   },
   {
     "id": "goldfield-farmer",
+    "set": "foundations",
     "revision": 4,
     "name": "Goldfield Farmer",
     "deckLimitKey": "goldfield-farmer",
@@ -387,10 +661,7 @@
     "translations": {
       "de": {
         "name": "Goldfeldbauer",
-        "lore": "Die goldenen Felder im Herzen des Reichs nähren jeden Ehrgeiz.",
-        "subtypes": [
-          "Mensch"
-        ]
+        "lore": "Die goldenen Felder im Herzen des Reichs nähren jeden Ehrgeiz."
       }
     },
     "art": "/cards/goldfield-farmers/data.png?v=0d6eb62b5d66c48f",
@@ -406,7 +677,186 @@
     }
   },
   {
+    "id": "hekata-lady-of-the-fields",
+    "set": "foundations",
+    "revision": 3,
+    "name": "Hekata, Lady of the Fields",
+    "deckLimitKey": "hekata-lady-of-the-fields",
+    "type": "creature",
+    "factions": [
+      "ember-fields"
+    ],
+    "subtypes": [
+      "human",
+      "warlord",
+      "leader"
+    ],
+    "legendary": true,
+    "rarity": "legendary",
+    "cost": {
+      "generic": 2,
+      "factions": {
+        "ember-fields": 2
+      }
+    },
+    "lore": "Let the weaklings keep their towers. The gold within them belongs to her.",
+    "translations": {
+      "de": {
+        "name": "Hekata, Herrin der Felder",
+        "lore": "Sollen die Schwächlinge ihre Türme behalten. Das Gold darin gehört ihr."
+      }
+    },
+    "art": "/cards/hekata-lady-of-the-fields/data.png?v=71addfe93958f174",
+    "abilities": [
+      {
+        "id": "scorch",
+        "params": {}
+      },
+      {
+        "id": "invocation",
+        "params": {
+          "amount": 2
+        }
+      }
+    ],
+    "stats": {
+      "attack": 4,
+      "defense": 4,
+      "energyOutputs": [
+        {
+          "ember-fields": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "herald-of-the-mark",
+    "set": "foundations",
+    "revision": 1,
+    "name": "Herald of the Mark",
+    "deckLimitKey": "herald-of-the-mark",
+    "type": "creature",
+    "factions": [
+      "bright-marches"
+    ],
+    "subtypes": [
+      "human"
+    ],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 0,
+      "factions": {}
+    },
+    "lore": "When the herald calls, the mark rises.",
+    "translations": {
+      "de": {
+        "name": "Herold der Mark",
+        "lore": "Wen den Herold zu den Bannern ruft, der folgt."
+      }
+    },
+    "art": "/cards/herald-of-the-mark/data.png?v=952637b9eed879a0",
+    "abilities": [],
+    "stats": {
+      "attack": 1,
+      "defense": 2,
+      "energyOutputs": [
+        {
+          "bright-marches": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "ilyria-queen-of-the-elves",
+    "set": "foundations",
+    "revision": 4,
+    "name": "Ilyria, Queen of the Elves",
+    "deckLimitKey": "ilyria-queen-of-the-elves",
+    "type": "creature",
+    "factions": [
+      "conclave"
+    ],
+    "subtypes": [
+      "elf",
+      "leader"
+    ],
+    "legendary": true,
+    "rarity": "legendary",
+    "cost": {
+      "generic": 2,
+      "factions": {
+        "conclave": 2
+      }
+    },
+    "lore": "Those who enter her woods are friends or already dead. An imperial axe is no kinder than an eastern flame.",
+    "translations": {
+      "de": {
+        "name": "Ilyria, Königin der Elfen",
+        "lore": "Wer ihre Wälder betritt, ist Freund oder bereits tot. Eine imperiale Axt ist nicht gnädiger als eine Flamme aus dem Osten."
+      }
+    },
+    "art": "/cards/ilyria-queen-of-the-elves/data.png?v=5dae514fd248c9c7",
+    "abilities": [
+      {
+        "id": "sanctuary",
+        "params": {}
+      },
+      {
+        "id": "guard",
+        "params": {}
+      }
+    ],
+    "stats": {
+      "attack": 3,
+      "defense": 4,
+      "energyOutputs": [
+        {
+          "conclave": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "itinerant-notary",
+    "set": "foundations",
+    "revision": 1,
+    "name": "Itinerant Notary",
+    "deckLimitKey": "itinerant-notary",
+    "type": "creature",
+    "factions": [],
+    "subtypes": [
+      "human",
+      "diplomat"
+    ],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 0,
+      "factions": {}
+    },
+    "lore": "He carries no banner. Only signatures that outlast them.",
+    "translations": {
+      "de": {
+        "name": "Wandernder Notar",
+        "lore": "Er trägt kein Banner. Nur Unterschriften, die sie überdauern."
+      }
+    },
+    "art": "/cards/itinerant-notary/data.png?v=952637b9eed879a0",
+    "abilities": [],
+    "stats": {
+      "attack": 0,
+      "defense": 2,
+      "energyOutputs": [
+        {
+          "neutral": 1
+        }
+      ]
+    }
+  },
+  {
     "id": "longvale-cutters",
+    "set": "foundations",
     "revision": 4,
     "name": "Longvale Cutters",
     "deckLimitKey": "longvale-cutters",
@@ -427,10 +877,7 @@
     "translations": {
       "de": {
         "name": "Holzfäller von Longvale",
-        "lore": "Selbst die Wälder schenken reichlich.",
-        "subtypes": [
-          "Mensch"
-        ]
+        "lore": "Selbst die Wälder schenken reichlich."
       }
     },
     "art": "/cards/longvale-cutters/data.png?v=6b28cb5838244117",
@@ -447,6 +894,7 @@
   },
   {
     "id": "mercenary-outriders",
+    "set": "foundations",
     "revision": 1,
     "name": "Mercenary Outriders",
     "deckLimitKey": "mercenary-outriders",
@@ -463,10 +911,7 @@
     },
     "translations": {
       "de": {
-        "name": "Berittene Söldnerspäher",
-        "subtypes": [
-          "Mensch"
-        ]
+        "name": "Berittene Söldnerspäher"
       }
     },
     "art": "/cards/mercenary-outriders/data.png?v=e7ef56af7f9dfd02",
@@ -488,6 +933,7 @@
   },
   {
     "id": "merchant-of-tris-vale",
+    "set": "foundations",
     "revision": 1,
     "name": "Merchant of Tris Vale",
     "deckLimitKey": "merchant-of-tris-vale",
@@ -508,10 +954,7 @@
     "translations": {
       "de": {
         "name": "Händler von Tris Vale",
-        "lore": "Die Händler von Tris Vale sind für ihre Gold- und Silberarbeiten bekannt.",
-        "subtypes": [
-          "Mensch"
-        ]
+        "lore": "Die Händler von Tris Vale sind für ihre Gold- und Silberarbeiten bekannt."
       }
     },
     "art": "/cards/merchant-of-tris-vale/data.png?v=266298c15e783cb2",
@@ -527,7 +970,61 @@
     }
   },
   {
+    "id": "morie-grandmistress",
+    "set": "foundations",
+    "revision": 4,
+    "name": "Morie, Grandmistress of Winter",
+    "deckLimitKey": "morie-grandmistress",
+    "type": "creature",
+    "factions": [
+      "winter-league"
+    ],
+    "subtypes": [
+      "human",
+      "mage",
+      "leader"
+    ],
+    "legendary": true,
+    "rarity": "legendary",
+    "cost": {
+      "generic": 2,
+      "factions": {
+        "winter-league": 2
+      }
+    },
+    "lore": "The League needs an empire strong enough to hold the frontier, and weak enough to leave its cities free.",
+    "translations": {
+      "de": {
+        "name": "Morie, Großmeisterin des Winters",
+        "lore": "Der Bund braucht ein Imperium, das stark genug ist, die Grenze zu halten, und schwach genug, seine Städte frei zu lassen."
+      }
+    },
+    "art": "/cards/morie-grandmistress/data.png?v=208d17c48cbb0f0d",
+    "abilities": [
+      {
+        "id": "accord",
+        "params": {}
+      },
+      {
+        "id": "invocation",
+        "params": {
+          "amount": 1
+        }
+      }
+    ],
+    "stats": {
+      "attack": 1,
+      "defense": 6,
+      "energyOutputs": [
+        {
+          "winter-league": 3
+        }
+      ]
+    }
+  },
+  {
     "id": "runeguard",
+    "set": "foundations",
     "revision": 5,
     "name": "Runeguard",
     "deckLimitKey": "runeguard",
@@ -548,10 +1045,7 @@
     },
     "translations": {
       "de": {
-        "name": "Runenwache",
-        "subtypes": [
-          "Kreatur"
-        ]
+        "name": "Runenwache"
       }
     },
     "art": "/cards/runeguard/data.png?v=179d0291566de33a",
@@ -567,14 +1061,53 @@
     }
   },
   {
-    "id": "the-lonely-wanderer",
+    "id": "snowroad-broker",
+    "set": "foundations",
     "revision": 1,
-    "name": "The lonely wanderer",
+    "name": "Snowroad Broker",
+    "deckLimitKey": "snowroad-broker",
+    "type": "creature",
+    "factions": [],
+    "subtypes": [
+      "human",
+      "merchant"
+    ],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 1,
+      "factions": {}
+    },
+    "lore": "Winter closes roads. It opens markets.",
+    "translations": {
+      "de": {
+        "name": "Händler der Schneestraße",
+        "lore": "Der Winter schließt Straßen. Er öffnet Märkte."
+      }
+    },
+    "art": "/cards/snowroad-broker/data.png?v=5e649f42a88d9919",
+    "abilities": [],
+    "stats": {
+      "attack": 1,
+      "defense": 2,
+      "energyOutputs": [
+        {
+          "neutral": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "the-lonely-wanderer",
+    "set": "foundations",
+    "revision": 3,
+    "name": "The Lonely Wanderer",
     "deckLimitKey": "the-lonely-wanderer",
     "type": "creature",
     "factions": [],
     "subtypes": [
-      "creature"
+      "wanderer",
+      "leader"
     ],
     "legendary": true,
     "rarity": "legendary",
@@ -582,34 +1115,29 @@
       "generic": 3,
       "factions": {}
     },
-    "lore": "No lord may claim the wanderers allegiance.",
+    "lore": "No court knows the name beneath the hood. No banner can claim the road ahead.",
     "translations": {
       "de": {
         "name": "Der einsame Wanderer",
-        "lore": "Kein Fürst kann die Treue des Wanderers beanspruchen.",
-        "subtypes": [
-          "Kreatur"
-        ]
+        "lore": "Kein Hof kennt den Namen unter der Kapuze. Kein Banner kann den Weg vor ihm beanspruchen."
       }
     },
-    "art": "/cards/the-lonely-wanderer/data.png?v=1ef51b32053f1306",
+    "art": "/cards/the-lonely-wanderer/data.png?v=fd2eff6f04b3c481",
     "abilities": [
+      {
+        "id": "wayfarer",
+        "params": {}
+      },
       {
         "id": "armor",
         "params": {
-          "amount": 2
-        }
-      },
-      {
-        "id": "rally",
-        "params": {
-          "amount": 2
+          "amount": 1
         }
       }
     ],
     "stats": {
-      "attack": 4,
-      "defense": 3,
+      "attack": 3,
+      "defense": 4,
       "energyOutputs": [
         {
           "neutral": 2
@@ -619,6 +1147,7 @@
   },
   {
     "id": "tower-of-the-first-morning",
+    "set": "foundations",
     "revision": 1,
     "name": "Tower of the First Morning",
     "deckLimitKey": "tower-of-the-first-morning",
@@ -641,10 +1170,7 @@
     "translations": {
       "de": {
         "name": "Turm des ersten Morgens",
-        "lore": "Niemand darf den Turm ohne Läuterung passieren.",
-        "subtypes": [
-          "Befestigung"
-        ]
+        "lore": "Niemand darf den Turm ohne Läuterung passieren."
       }
     },
     "art": "/cards/tower-of-the-first-morning/data.png?v=0f5a5b5b3d809146",

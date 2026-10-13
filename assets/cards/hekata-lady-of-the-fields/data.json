@@ -1,0 +1,47 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "hekata-lady-of-the-fields",
+  "set": "foundations",
+  "revision": 3,
+  "name": "Hekata, Lady of the Fields",
+  "deckLimitKey": "hekata-lady-of-the-fields",
+  "type": "creature",
+  "factions": [
+    "ember-fields"
+  ],
+  "subtypes": [
+    "human",
+    "warlord",
+    "leader"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "ember-fields": 2
+    }
+  },
+  "stats": {
+    "attack": 4,
+    "defense": 4,
+    "energyOutputs": [
+      {
+        "ember-fields": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "scorch",
+      "params": {}
+    },
+    {
+      "id": "invocation",
+      "params": {
+        "amount": 2
+      }
+    }
+  ],
+  "lore": "Let the weaklings keep their towers. The gold within them belongs to her."
+}

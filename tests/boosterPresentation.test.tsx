@@ -18,7 +18,7 @@ describe('reduced-motion booster reveal', () => {
     expect(html).toContain('View cards');
     expect(html).not.toContain('Breaking the seal');
     expect(html).not.toContain('Reveal all');
-    expect(html).toContain('Aldric, the Runewarden');
+    expect(html).toContain('Alderic, Warmaster of the Empire');
   });
   it('shows crown conversion and prevents opening another absent pack', () => {
     vi.stubGlobal('window', { matchMedia: () => ({ matches: false }) });

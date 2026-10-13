@@ -1,4 +1,6 @@
 import * as v from "valibot";
+import { defineAbility as extension } from "./definition";
+import { signatureAbilities } from "./signatureAbilities";
 import {
     areAdjacent,
     battlefieldPositions,
@@ -10,24 +12,19 @@ const positive = v.pipe(v.number(), v.integer(), v.minValue(1));
 const amountSchema = v.object({ amount: positive });
 const empty = v.object({});
 const chargeSchema = v.object({ amount: positive, position: v.picklist(battlefieldPositions) });
-function extension(
-    id: string,
-    schema: v.GenericSchema,
-    impl: Omit<AbilityExtension, "id" | "version" | "validate">,
-): AbilityExtension {
-    return {
-        id,
-        version: 1,
-        validate: (p) => {
-            v.parse(schema, p);
-        },
-        ...impl,
-    };
-}
 const amount = (params: Record<string, unknown>) => params.amount as number;
 // const self = (ctx: HookContext) => ctx.event.cardId === ctx.source.id;
 // Bind these IDs from a card's abilities / cast arrays in data.json.
 const activeExtensions: AbilityExtension[] = [
+    ...signatureAbilities,
+    extension("primal", v.strictObject({}), {
+        name: "Primal",
+        description: "Exhaust during your play phase: choose a faction and gain 1 energy of that faction.",
+        translations: { de: { name: "Urkraft", description: "Erschöpfe diese Kreatur während deiner Spielphase: Wähle eine Fraktion und erhalte 1 Energie dieser Fraktion." } },
+        target: "energy-type",
+        activationEnergy: (_params, registry) => registry.energyTypes.filter(color => color !== "neutral").map(color => ({ [color]: 1 })),
+        activate: ctx => ctx.issue({ type: "gain-energy", player: ctx.source.controller, output: { [ctx.target!]: 1 }, source: ctx.source.id }),
+    }),
     extension("armor", amountSchema, {
         translations: { de: {"name": "Rüstung {amount}", "description": "Verringere jeden erlittenen Schaden um {amount}, bis auf null."} },
         name: "Armor {amount}",
@@ -118,8 +115,8 @@ const activeExtensions: AbilityExtension[] = [
     }),
 
     extension("rally", amountSchema, {
-        translations: { de: {"name": "Sammeln {amount}", "description": "Erschöpfe diese Karte während deiner Spielphase, um bei dir selbst {amount} Leben wiederherzustellen."} },
-        name: "Rally {amount}",
+        translations: { de: {"name": "Erholung {amount}", "description": "Erschöpfe diese Karte während deiner Spielphase, um bei dir selbst {amount} Leben wiederherzustellen."} },
+        name: "Restore {amount}",
         description: "Exhaust during your play phase to restore {amount} life to yourself.",
         activate: (ctx, p) => ctx.issue({ type: "heal", target: ctx.source.controller, amount: amount(p) }),
     }),
@@ -128,6 +125,35 @@ const activeExtensions: AbilityExtension[] = [
         name: "Draw {amount}",
         description: "Draw {amount} cards from your library.",
         cast: (ctx, p) => ctx.issue({ type: "draw", player: ctx.source.controller, amount: amount(p) }),
+    }),
+
+    extension("rime", amountSchema, {
+        name: "Rime {amount}",
+        description: "The enemy creature or bastion directly opposite has -{amount} Attack, down to zero, while this card remains on the battlefield. Active even while exhausted.",
+        translations: { de: { name: "Raureif {amount}", description: "Die direkt gegenüberliegende gegnerische Kreatur oder Bastion hat -{amount} Angriff, bis auf null, solange diese Karte auf dem Schlachtfeld liegt. Auch im erschöpften Zustand aktiv." } },
+        static: (source, target, p) => source.controller !== target.controller && source.slot !== null && target.zone === "board" && source.slot === target.slot ? { attack: -amount(p) } : {},
+    }),
+    extension("invocation", amountSchema, {
+        name: "Invocation {amount}",
+        description: "Exhaust during your play phase to deal {amount} damage to the enemy creature directly opposite. Requires a creature in that position; cannot target bastions or players.",
+        translations: { de: { name: "Anrufung {amount}", description: "Erschöpfe diese Karte während deiner Spielphase, um der direkt gegenüberliegenden gegnerischen Kreatur {amount} Schaden zuzufügen. Dort muss eine Kreatur liegen; Bastionen und Spieler sind keine Ziele." } },
+        canActivate: (source, state, _p, registry) => {
+            if (source.slot === null) return false;
+            const id = state.players[source.controller === "p1" ? "p2" : "p1"].board[source.slot];
+            return !!id && registry.cards[state.cards[id].definitionId].type === "creature";
+        },
+        activate: (ctx, p) => {
+            if (ctx.source.slot === null) return;
+            const id = ctx.state.players[ctx.source.controller === "p1" ? "p2" : "p1"].board[ctx.source.slot];
+            if (id && ctx.registry.cards[ctx.state.cards[id].definitionId].type === "creature")
+                ctx.issue({ type: "damage", target: id, amount: amount(p), source: ctx.source.id });
+        },
+    }),
+    extension("channel-neutral", amountSchema, {
+        name: "Channel {amount} Neutral",
+        description: "Gain {amount} neutral energy in your current casting-phase pool. It can pay generic costs, but not faction-specific costs, and expires with that pool.",
+        translations: { de: { name: "Kanalisieren: {amount} Neutral", description: "Erhalte {amount} neutrale Energie im Energievorrat deiner aktuellen Zauberphase. Sie bezahlt allgemeine Kosten, aber keine Fraktionskosten, und verfällt mit diesem Vorrat." } },
+        cast: (ctx, p) => ctx.issue({ type: "gain-energy", player: ctx.source.controller, output: { neutral: amount(p) }, source: ctx.source.id }),
     }),
 
     // Inactive reference implementations. Uncomment entries to register them.
@@ -171,16 +197,14 @@ const activeExtensions: AbilityExtension[] = [
     //     },
     // }),
 
-    // collector
+    // collector (generic historical example; Black Host now uses faction-exclusive soul-harvest)
     // extension("collector", amountSchema, {
     //     name: "Collector {amount}",
     //     description: "When another friendly creature is destroyed, draw {amount} from your library.",
-    //     hooks: {
-    //         "creature.destroyed": (ctx, p) => {
-    //             if (!self(ctx) && ctx.event.snapshot?.controller === ctx.source.controller)
-    //                 ctx.issue({ type: "draw", player: ctx.source.controller, amount: amount(p) });
-    //         },
-    //     },
+    //     hooks: { "creature.destroyed": (ctx, p) => {
+    //         if (!self(ctx) && ctx.event.snapshot?.controller === ctx.source.controller)
+    //             ctx.issue({ type: "draw", player: ctx.source.controller, amount: amount(p) });
+    //     } },
     // }),
 
     // return

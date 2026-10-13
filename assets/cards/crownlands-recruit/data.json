@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/card.schema.json",
   "id": "crown-recruit",
   "revision": 4,
   "name": "Crownlands Recruit",
@@ -27,13 +28,5 @@
   },
   "abilities": [],
   "lore": "Every kingdom begins with an oath.",
-  "translations": {
-    "de": {
-      "name": "Rekrut der Kronlande",
-      "lore": "Jedes Königreich beginnt mit einem Schwur.",
-      "subtypes": [
-        "Kreatur"
-      ]
-    }
-  }
+  "set": "foundations"
 }

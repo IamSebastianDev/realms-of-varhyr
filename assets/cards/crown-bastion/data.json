@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/card.schema.json",
   "id": "crown-bastion",
   "revision": 1,
   "name": "Crown Bastion",
@@ -37,13 +38,5 @@
     }
   ],
   "lore": "An oath made stone.",
-  "translations": {
-    "de": {
-      "name": "Kronenbastion",
-      "lore": "Ein Schwur, zu Stein geworden.",
-      "subtypes": [
-        "Befestigung"
-      ]
-    }
-  }
+  "set": "foundations"
 }

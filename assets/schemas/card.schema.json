@@ -1,0 +1,1779 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "description": "Stable card ID, independent of the folder or translated name."
+    },
+    "set": {
+      "type": "string",
+      "enum": [
+        "foundations"
+      ],
+      "description": "Release ID from assets/sets/.",
+      "default": "foundations"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "name": {
+      "type": "string",
+      "pattern": "\\S",
+      "description": "English card name. The German name goes in data.de.json."
+    },
+    "deckLimitKey": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "description": "Shared copy-limit identity. Usually the card ID; reprints can share this key."
+    },
+    "type": {
+      "enum": [
+        "creature",
+        "spell",
+        "bastion"
+      ],
+      "type": "string"
+    },
+    "factions": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "black-host",
+          "bright-marches",
+          "conclave",
+          "crownlands",
+          "ember-fields",
+          "horde",
+          "mountain-clans",
+          "winter-league",
+          "neutral"
+        ],
+        "type": "string"
+      },
+      "uniqueItems": true,
+      "description": "Use named factions, [\"neutral\"], or [] for a neutral card. Neutral cannot be combined with a named faction."
+    },
+    "subtypes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "\\S"
+      },
+      "description": "Freeform subtypes, e.g. human, elf, leader or unicorn. They are not a closed enum; German labels live in the shared dictionary (apps/web/src/i18n/de.json), not per card."
+    },
+    "legendary": {
+      "type": "boolean",
+      "description": "One copy per deck and collection, regardless of rarity."
+    },
+    "rarity": {
+      "enum": [
+        "common",
+        "rare",
+        "legendary"
+      ],
+      "type": "string",
+      "description": "Booster rarity; independent of the legendary copy-limit flag."
+    },
+    "cost": {
+      "type": "object",
+      "properties": {
+        "generic": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Cost payable with any energy."
+        },
+        "factions": {
+          "type": "object",
+          "properties": {
+            "black-host": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "bright-marches": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "conclave": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "crownlands": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "ember-fields": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "horde": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "mountain-clans": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "winter-league": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false,
+          "default": {},
+          "description": "Faction-specific costs. neutral, generic and primal are not valid cost keys."
+        }
+      },
+      "required": [
+        "generic"
+      ],
+      "additionalProperties": false
+    },
+    "lore": {
+      "type": "string",
+      "description": "Optional flavor text. Rules text comes from the registered ability descriptions."
+    },
+    "abilities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ability"
+      },
+      "description": "Registered abilities. Parameters depend on the selected ID.",
+      "default": []
+    },
+    "stats": {
+      "type": "object",
+      "properties": {
+        "attack": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "defense": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "energyOutputs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "black-host": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "bright-marches": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "conclave": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "crownlands": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "ember-fields": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "horde": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "mountain-clans": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "winter-league": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "neutral": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "additionalProperties": false
+          },
+          "default": [],
+          "description": "Alternative printed production pools: choose one when channeling or receiving death energy. One pool with several keys produces all of them. [] means no printed production; Primal is an ability."
+        }
+      },
+      "required": [
+        "attack",
+        "defense"
+      ],
+      "additionalProperties": false
+    },
+    "timing": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "play",
+          "death"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "cast": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/spell-operation"
+      },
+      "minItems": 1,
+      "description": "Spell operations resolved in list order."
+    },
+    "$schema": {
+      "type": "string",
+      "description": "Editor schema reference; ignored by the game importer.",
+      "default": "../../schemas/card.schema.json"
+    }
+  },
+  "required": [
+    "id",
+    "revision",
+    "name",
+    "deckLimitKey",
+    "type",
+    "factions",
+    "subtypes",
+    "legendary",
+    "rarity",
+    "cost",
+    "abilities",
+    "set"
+  ],
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:realms-of-varhyr:card",
+  "title": "Realms of Varhyr card",
+  "description": "An authored assets/cards/<card-name>/data.json definition. Artwork comes from data.png; animation optionally comes from data.webm.",
+  "$comment": "Generated by npm run schema:cards and card imports. Edit the Valibot definitions, factions, sets or abilities instead.",
+  "additionalProperties": false,
+  "definitions": {
+    "ability-accord": {
+      "type": "object",
+      "title": "Accord",
+      "description": "After the first spell you cast during your play phase each turn, gain 1 Winter energy. Active even while exhausted.",
+      "properties": {
+        "id": {
+          "const": "accord"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-adjacent-banner": {
+      "type": "object",
+      "title": "Formation {amount}",
+      "description": "Adjacent friendly creatures and bastions get +{amount} Attack while this card is on the battlefield. Empty slots do not close the gap.",
+      "properties": {
+        "id": {
+          "const": "adjacent-banner"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-armor": {
+      "type": "object",
+      "title": "Armor {amount}",
+      "description": "Reduce each incoming damage hit by {amount}, down to zero.",
+      "properties": {
+        "id": {
+          "const": "armor"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-channel-neutral": {
+      "type": "object",
+      "title": "Channel {amount} Neutral",
+      "description": "Gain {amount} neutral energy in your current casting-phase pool. It can pay generic costs, but not faction-specific costs, and expires with that pool.",
+      "properties": {
+        "id": {
+          "const": "channel-neutral"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-charge": {
+      "type": "object",
+      "title": "Charge {amount} · {position}",
+      "description": "When played, deal {amount} damage to the enemy creature in {position}. If that position is empty or holds a bastion, deal no damage.",
+      "properties": {
+        "id": {
+          "const": "charge"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "position": {
+              "enum": [
+                "Left Flank",
+                "Left Wing",
+                "Center",
+                "Right Wing",
+                "Right Flank"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount",
+            "position"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-damage": {
+      "type": "object",
+      "title": "Damage {amount}",
+      "description": "Deal {amount} damage to an enemy field card or player.",
+      "properties": {
+        "id": {
+          "const": "damage"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-draw": {
+      "type": "object",
+      "title": "Draw {amount}",
+      "description": "Draw {amount} cards from your library.",
+      "properties": {
+        "id": {
+          "const": "draw"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-fealty": {
+      "type": "object",
+      "title": "Fealty",
+      "description": "All friendly creatures have +1 Attack and +1 Defense while this card is on the battlefield, including this creature itself.",
+      "properties": {
+        "id": {
+          "const": "fealty"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-flank-evasion": {
+      "type": "object",
+      "title": "Flank Evasion",
+      "description": "This creature cannot be blocked by cards in Left Flank or Right Flank. Cards in either wing or Center can still block it.",
+      "properties": {
+        "id": {
+          "const": "flank-evasion"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-guard": {
+      "type": "object",
+      "title": "Guard",
+      "description": "Attacks aimed at a lane next to this card are blocked by this card instead, even if that lane is empty. Stops one attacker per combat; the lane's own Guard blocks first.",
+      "properties": {
+        "id": {
+          "const": "guard"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-heal": {
+      "type": "object",
+      "title": "Heal {amount}",
+      "description": "Restore {amount} life to yourself.",
+      "properties": {
+        "id": {
+          "const": "heal"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-invocation": {
+      "type": "object",
+      "title": "Invocation {amount}",
+      "description": "Exhaust during your play phase to deal {amount} damage to the enemy creature directly opposite. Requires a creature in that position; cannot target bastions or players.",
+      "properties": {
+        "id": {
+          "const": "invocation"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-marches-rally": {
+      "type": "object",
+      "title": "Rally",
+      "description": "Exhaust during your play phase to deploy a creature or bastion from your hand into a free position without paying its energy cost. It enters exhausted and its entry abilities trigger normally.",
+      "properties": {
+        "id": {
+          "const": "marches-rally"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-primal": {
+      "type": "object",
+      "title": "Primal",
+      "description": "Exhaust during your play phase: choose a faction and gain 1 energy of that faction.",
+      "properties": {
+        "id": {
+          "const": "primal"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-raid": {
+      "type": "object",
+      "title": "Raid",
+      "description": "This card has +1 Attack for each adjacent friendly creature. Bastions do not count.",
+      "properties": {
+        "id": {
+          "const": "raid"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-rally": {
+      "type": "object",
+      "title": "Restore {amount}",
+      "description": "Exhaust during your play phase to restore {amount} life to yourself.",
+      "properties": {
+        "id": {
+          "const": "rally"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-rime": {
+      "type": "object",
+      "title": "Rime {amount}",
+      "description": "The enemy creature or bastion directly opposite has -{amount} Attack, down to zero, while this card remains on the battlefield. Active even while exhausted.",
+      "properties": {
+        "id": {
+          "const": "rime"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-sanctuary": {
+      "type": "object",
+      "title": "Sanctuary",
+      "description": "Adjacent friendly creatures have +1 Defense while this card is on the battlefield. Elves receive an additional +1 Defense.",
+      "properties": {
+        "id": {
+          "const": "sanctuary"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-scorch": {
+      "type": "object",
+      "title": "Scorch",
+      "description": "When played, deal 3 damage to the opposing creature or bastion directly opposite this card’s deployed position. An empty position takes no damage; players are not targets.",
+      "properties": {
+        "id": {
+          "const": "scorch"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-shield-wall": {
+      "type": "object",
+      "title": "Shield Wall {amount}",
+      "description": "Adjacent friendly creatures and bastions get +{amount} Defense while this card is on the battlefield. Empty slots do not close the gap.",
+      "properties": {
+        "id": {
+          "const": "shield-wall"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-soul-harvest": {
+      "type": "object",
+      "title": "Soul Harvest",
+      "description": "While this card is on the battlefield, whenever another friendly creature is destroyed, draw one card from your library. Does not trigger for bastions or this card itself.",
+      "properties": {
+        "id": {
+          "const": "soul-harvest"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-trade": {
+      "type": "object",
+      "title": "Trade",
+      "description": "When this creature channels during your play phase, it also produces 1 neutral energy. This bonus does not apply to death energy.",
+      "properties": {
+        "id": {
+          "const": "trade"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-war-banner": {
+      "type": "object",
+      "title": "War Banner {amount}",
+      "description": "Your other creatures have +{amount} Attack while this card is on the battlefield.",
+      "properties": {
+        "id": {
+          "const": "war-banner"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-wayfarer": {
+      "type": "object",
+      "title": "Wayfarer",
+      "description": "Exhaust during your play phase to return a friendly creature to its owner’s hand, clearing its damage. You may choose this card itself. Costs are not refunded; replaying it pays its normal cost and it enters exhausted.",
+      "properties": {
+        "id": {
+          "const": "wayfarer"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "enum": [
+            "accord",
+            "adjacent-banner",
+            "armor",
+            "channel-neutral",
+            "charge",
+            "damage",
+            "draw",
+            "fealty",
+            "flank-evasion",
+            "guard",
+            "heal",
+            "invocation",
+            "marches-rally",
+            "primal",
+            "raid",
+            "rally",
+            "rime",
+            "sanctuary",
+            "scorch",
+            "shield-wall",
+            "soul-harvest",
+            "trade",
+            "war-banner",
+            "wayfarer"
+          ]
+        },
+        "params": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "oneOf": [
+        {
+          "$ref": "#/definitions/ability-accord"
+        },
+        {
+          "$ref": "#/definitions/ability-adjacent-banner"
+        },
+        {
+          "$ref": "#/definitions/ability-armor"
+        },
+        {
+          "$ref": "#/definitions/ability-channel-neutral"
+        },
+        {
+          "$ref": "#/definitions/ability-charge"
+        },
+        {
+          "$ref": "#/definitions/ability-damage"
+        },
+        {
+          "$ref": "#/definitions/ability-draw"
+        },
+        {
+          "$ref": "#/definitions/ability-fealty"
+        },
+        {
+          "$ref": "#/definitions/ability-flank-evasion"
+        },
+        {
+          "$ref": "#/definitions/ability-guard"
+        },
+        {
+          "$ref": "#/definitions/ability-heal"
+        },
+        {
+          "$ref": "#/definitions/ability-invocation"
+        },
+        {
+          "$ref": "#/definitions/ability-marches-rally"
+        },
+        {
+          "$ref": "#/definitions/ability-primal"
+        },
+        {
+          "$ref": "#/definitions/ability-raid"
+        },
+        {
+          "$ref": "#/definitions/ability-rally"
+        },
+        {
+          "$ref": "#/definitions/ability-rime"
+        },
+        {
+          "$ref": "#/definitions/ability-sanctuary"
+        },
+        {
+          "$ref": "#/definitions/ability-scorch"
+        },
+        {
+          "$ref": "#/definitions/ability-shield-wall"
+        },
+        {
+          "$ref": "#/definitions/ability-soul-harvest"
+        },
+        {
+          "$ref": "#/definitions/ability-trade"
+        },
+        {
+          "$ref": "#/definitions/ability-war-banner"
+        },
+        {
+          "$ref": "#/definitions/ability-wayfarer"
+        }
+      ]
+    },
+    "spell-ability": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "enum": [
+            "accord",
+            "adjacent-banner",
+            "armor",
+            "channel-neutral",
+            "charge",
+            "damage",
+            "draw",
+            "fealty",
+            "flank-evasion",
+            "guard",
+            "heal",
+            "raid",
+            "rime",
+            "sanctuary",
+            "scorch",
+            "shield-wall",
+            "soul-harvest",
+            "trade",
+            "war-banner"
+          ]
+        },
+        "params": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "oneOf": [
+        {
+          "$ref": "#/definitions/ability-accord"
+        },
+        {
+          "$ref": "#/definitions/ability-adjacent-banner"
+        },
+        {
+          "$ref": "#/definitions/ability-armor"
+        },
+        {
+          "$ref": "#/definitions/ability-channel-neutral"
+        },
+        {
+          "$ref": "#/definitions/ability-charge"
+        },
+        {
+          "$ref": "#/definitions/ability-damage"
+        },
+        {
+          "$ref": "#/definitions/ability-draw"
+        },
+        {
+          "$ref": "#/definitions/ability-fealty"
+        },
+        {
+          "$ref": "#/definitions/ability-flank-evasion"
+        },
+        {
+          "$ref": "#/definitions/ability-guard"
+        },
+        {
+          "$ref": "#/definitions/ability-heal"
+        },
+        {
+          "$ref": "#/definitions/ability-raid"
+        },
+        {
+          "$ref": "#/definitions/ability-rime"
+        },
+        {
+          "$ref": "#/definitions/ability-sanctuary"
+        },
+        {
+          "$ref": "#/definitions/ability-scorch"
+        },
+        {
+          "$ref": "#/definitions/ability-shield-wall"
+        },
+        {
+          "$ref": "#/definitions/ability-soul-harvest"
+        },
+        {
+          "$ref": "#/definitions/ability-trade"
+        },
+        {
+          "$ref": "#/definitions/ability-war-banner"
+        }
+      ]
+    },
+    "spell-operation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "enum": [
+            "channel-neutral",
+            "damage",
+            "draw",
+            "heal"
+          ]
+        },
+        "params": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "oneOf": [
+        {
+          "$ref": "#/definitions/ability-channel-neutral"
+        },
+        {
+          "$ref": "#/definitions/ability-damage"
+        },
+        {
+          "$ref": "#/definitions/ability-draw"
+        },
+        {
+          "$ref": "#/definitions/ability-heal"
+        }
+      ]
+    },
+    "bastion-ability": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "enum": [
+            "accord",
+            "adjacent-banner",
+            "armor",
+            "channel-neutral",
+            "charge",
+            "damage",
+            "draw",
+            "fealty",
+            "flank-evasion",
+            "guard",
+            "heal",
+            "invocation",
+            "marches-rally",
+            "raid",
+            "rally",
+            "rime",
+            "sanctuary",
+            "scorch",
+            "shield-wall",
+            "soul-harvest",
+            "trade",
+            "war-banner",
+            "wayfarer"
+          ]
+        },
+        "params": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "oneOf": [
+        {
+          "$ref": "#/definitions/ability-accord"
+        },
+        {
+          "$ref": "#/definitions/ability-adjacent-banner"
+        },
+        {
+          "$ref": "#/definitions/ability-armor"
+        },
+        {
+          "$ref": "#/definitions/ability-channel-neutral"
+        },
+        {
+          "$ref": "#/definitions/ability-charge"
+        },
+        {
+          "$ref": "#/definitions/ability-damage"
+        },
+        {
+          "$ref": "#/definitions/ability-draw"
+        },
+        {
+          "$ref": "#/definitions/ability-fealty"
+        },
+        {
+          "$ref": "#/definitions/ability-flank-evasion"
+        },
+        {
+          "$ref": "#/definitions/ability-guard"
+        },
+        {
+          "$ref": "#/definitions/ability-heal"
+        },
+        {
+          "$ref": "#/definitions/ability-invocation"
+        },
+        {
+          "$ref": "#/definitions/ability-marches-rally"
+        },
+        {
+          "$ref": "#/definitions/ability-raid"
+        },
+        {
+          "$ref": "#/definitions/ability-rally"
+        },
+        {
+          "$ref": "#/definitions/ability-rime"
+        },
+        {
+          "$ref": "#/definitions/ability-sanctuary"
+        },
+        {
+          "$ref": "#/definitions/ability-scorch"
+        },
+        {
+          "$ref": "#/definitions/ability-shield-wall"
+        },
+        {
+          "$ref": "#/definitions/ability-soul-harvest"
+        },
+        {
+          "$ref": "#/definitions/ability-trade"
+        },
+        {
+          "$ref": "#/definitions/ability-war-banner"
+        },
+        {
+          "$ref": "#/definitions/ability-wayfarer"
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "spell"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "required": [
+          "cast",
+          "timing"
+        ],
+        "properties": {
+          "stats": false,
+          "abilities": {
+            "items": {
+              "$ref": "#/definitions/spell-ability"
+            }
+          }
+        }
+      },
+      "else": {
+        "required": [
+          "stats"
+        ],
+        "properties": {
+          "cast": false,
+          "timing": false
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "bastion"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "stats": {
+            "properties": {
+              "energyOutputs": {
+                "maxItems": 0
+              }
+            }
+          },
+          "abilities": {
+            "items": {
+              "$ref": "#/definitions/bastion-ability"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "factions": {
+            "contains": {
+              "const": "neutral"
+            }
+          }
+        },
+        "required": [
+          "factions"
+        ]
+      },
+      "then": {
+        "properties": {
+          "factions": {
+            "maxItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "anyOf": [
+          {
+            "properties": {
+              "abilities": {
+                "contains": {
+                  "properties": {
+                    "id": {
+                      "const": "accord"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "abilities"
+            ]
+          },
+          {
+            "properties": {
+              "cast": {
+                "contains": {
+                  "properties": {
+                    "id": {
+                      "const": "accord"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "cast"
+            ]
+          }
+        ]
+      },
+      "then": {
+        "properties": {
+          "factions": {
+            "contains": {
+              "const": "winter-league"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "anyOf": [
+          {
+            "properties": {
+              "abilities": {
+                "contains": {
+                  "properties": {
+                    "id": {
+                      "const": "fealty"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "abilities"
+            ]
+          },
+          {
+            "properties": {
+              "cast": {
+                "contains": {
+                  "properties": {
+                    "id": {
+                      "const": "fealty"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "cast"
+            ]
+          }
+        ]
+      },
+      "then": {
+        "properties": {
+          "factions": {
+            "contains": {
+              "const": "crownlands"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "anyOf": [
+          {
+            "properties": {
+              "abilities": {
+                "contains": {
+                  "properties": {
+                    "id": {
+                      "const": "marches-rally"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "abilities"
+            ]
+          },
+          {
+            "properties": {
+              "cast": {
+                "contains": {
+                  "properties": {
+                    "id": {
+                      "const": "marches-rally"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "cast"
+            ]
+          }
+        ]
+      },
+      "then": {
+        "properties": {
+          "factions": {
+            "contains": {
+              "const": "bright-marches"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "anyOf": [
+          {
+            "properties": {
+              "abilities": {
+                "contains": {
+                  "properties": {
+                    "id": {
+                      "const": "raid"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "abilities"
+            ]
+          },
+          {
+            "properties": {
+              "cast": {
+                "contains": {
+                  "properties": {
+                    "id": {
+                      "const": "raid"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "cast"
+            ]
+          }
+        ]
+      },
+      "then": {
+        "properties": {
+          "factions": {
+            "contains": {
+              "const": "horde"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "anyOf": [
+          {
+            "properties": {
+              "abilities": {
+                "contains": {
+                  "properties": {
+                    "id": {
+                      "const": "sanctuary"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "abilities"
+            ]
+          },
+          {
+            "properties": {
+              "cast": {
+                "contains": {
+                  "properties": {
+                    "id": {
+                      "const": "sanctuary"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "cast"
+            ]
+          }
+        ]
+      },
+      "then": {
+        "properties": {
+          "factions": {
+            "contains": {
+              "const": "conclave"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "anyOf": [
+          {
+            "properties": {
+              "abilities": {
+                "contains": {
+                  "properties": {
+                    "id": {
+                      "const": "scorch"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "abilities"
+            ]
+          },
+          {
+            "properties": {
+              "cast": {
+                "contains": {
+                  "properties": {
+                    "id": {
+                      "const": "scorch"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "cast"
+            ]
+          }
+        ]
+      },
+      "then": {
+        "properties": {
+          "factions": {
+            "contains": {
+              "const": "ember-fields"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "anyOf": [
+          {
+            "properties": {
+              "abilities": {
+                "contains": {
+                  "properties": {
+                    "id": {
+                      "const": "soul-harvest"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "abilities"
+            ]
+          },
+          {
+            "properties": {
+              "cast": {
+                "contains": {
+                  "properties": {
+                    "id": {
+                      "const": "soul-harvest"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "cast"
+            ]
+          }
+        ]
+      },
+      "then": {
+        "properties": {
+          "factions": {
+            "contains": {
+              "const": "black-host"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "anyOf": [
+          {
+            "properties": {
+              "abilities": {
+                "contains": {
+                  "properties": {
+                    "id": {
+                      "const": "trade"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "abilities"
+            ]
+          },
+          {
+            "properties": {
+              "cast": {
+                "contains": {
+                  "properties": {
+                    "id": {
+                      "const": "trade"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "cast"
+            ]
+          }
+        ]
+      },
+      "then": {
+        "properties": {
+          "factions": {
+            "contains": {
+              "const": "mountain-clans"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "anyOf": [
+          {
+            "properties": {
+              "abilities": {
+                "contains": {
+                  "properties": {
+                    "id": {
+                      "const": "wayfarer"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "abilities"
+            ]
+          },
+          {
+            "properties": {
+              "cast": {
+                "contains": {
+                  "properties": {
+                    "id": {
+                      "const": "wayfarer"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "cast"
+            ]
+          }
+        ]
+      },
+      "then": {
+        "properties": {
+          "factions": {
+            "enum": [
+              [],
+              [
+                "neutral"
+              ]
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

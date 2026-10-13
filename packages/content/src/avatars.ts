@@ -1,6 +1,6 @@
 import raw from './avatars.json';
 
-/** A selectable player portrait. Authored by hand in avatars.json; the first entry is the default. */
+/** A selectable player portrait. Authored by hand in avatars.json; display order is the faction grid. */
 export type AvatarDefinition = {
   id: string;
   name: string;
@@ -16,3 +16,6 @@ export type AvatarDefinition = {
 };
 
 export const avatarDefinitions: readonly AvatarDefinition[] = raw as AvatarDefinition[];
+
+/** Independent of display order: the neutral hero occupies the center of the grid. */
+export const defaultAvatarId = 'the-lonely-wanderer';

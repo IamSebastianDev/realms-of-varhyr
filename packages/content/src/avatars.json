@@ -1,92 +1,83 @@
 [
   {
-    "id": "maro-vell",
-    "name": "Maro Vell",
-    "title": "The Unsworn",
-    "lore": "No lord may claim a wanderer, and Maro has made a trade of it. Ask who pays, and the hood tilts away.",
+    "id": "alderic",
+    "name": "Alderic",
+    "title": "Runewarden of the Crown · Warmaster of the Empire",
+    "lore": "Appointed Warmaster by Princess Arianna, regent for her ailing father, Alderic commands the empire’s armies. He longs to restore the glory of the Crownlands.",
+    "accent": "#d7b66b",
+    "art": "/avatars/alderic.webp",
+    "source": "coraxdigitalart-realistic-human-heroes (440).png"
+  },
+  {
+    "id": "morie",
+    "name": "Morie",
+    "title": "Grandmistress of the League of Winter",
+    "lore": "Wise in diplomacy and magic, Morie protects the freedom of the League’s rich cities. For now, that means keeping the empire weak and the Marches at a distance.",
+    "accent": "#8fd6e8",
+    "art": "/avatars/morie.webp",
+    "source": "coraxdigitalart-realistic-human-heroes (112).png"
+  },
+  {
+    "id": "bosci",
+    "name": "Bosci",
+    "title": "Lord of Seacliffe · Leader of the Bright Marches",
+    "lore": "Once an imperial warlord granted a march as his fief, Bosci has seen the rot behind the court’s splendour. He gathers the petty kings under one banner against their common foe, striving for independence.",
+    "accent": "#e2c68a",
+    "art": "/avatars/bosci.webp",
+    "source": "coraxdigitalart-realistic-human-heroes (489).png"
+  },
+  {
+    "id": "dwell",
+    "name": "Dwell",
+    "title": "The Dwarf · Merchant of the Mountain Clans",
+    "lore": "The biggest dwarf in the mountains and the biggest merchant outside the Vales, Dwell trades ore and gems with the empire. Imperial gold is good money, whatever troubles the court.",
+    "accent": "#ba936b",
+    "art": "/avatars/dwell.webp",
+    "source": "coraxdigitalart-realistic-human-heroes (433).png"
+  },
+  {
+    "id": "the-lonely-wanderer",
+    "name": "The Lonely Wanderer",
+    "title": "An Unclaimed Path",
+    "lore": "A mysterious figure appears here and there, belonging to no court or clan. No one knows the Wanderer’s name, origin, or destination.",
     "accent": "#b9824a",
-    "art": "/avatars/maro-vell.webp",
+    "art": "/avatars/the-lonely-wanderer.webp",
     "source": "coraxdigitalart-realistic-human-heroes (81).png"
   },
   {
-    "id": "ilyan-veyr",
-    "name": "Ilyan Veyr",
-    "title": "The Bluefire Adept",
-    "lore": "He learned that cold flame burns longer. Three kings have asked him to light their lamps; none asked twice.",
-    "accent": "#5ab6e8",
-    "art": "/avatars/ilyan-veyr.webp",
-    "source": "coraxdigitalart-realistic-human-heroes (142).png"
+    "id": "ilyria",
+    "name": "Ilyria",
+    "title": "Queen of the Elves · Voice of the Conclave",
+    "lore": "Proud and dangerous, Ilyria places the woods and her people above all else. She shelters druids and tree walkers; intruders are friends or already dead. The empire’s industry threatens her realm as surely as the burning hordes.",
+    "accent": "#86b772",
+    "art": "/avatars/ilyria.webp",
+    "source": "coraxdigitalart-realistic-human-heroes (37).png"
   },
   {
-    "id": "ysolde-rime",
-    "name": "Ysolde Rime",
-    "title": "Winter's Voice",
-    "lore": "Winter came to the Crownlands once, wearing her face. It left only when she asked it to.",
-    "accent": "#8fd6e8",
-    "art": "/avatars/ysolde-rime.webp",
-    "source": "coraxdigitalart-realistic-human-heroes (113).png"
+    "id": "hekata",
+    "name": "Hekata",
+    "title": "Lady of the Ember Fields",
+    "lore": "A merciless warlord risen in the east, Hekata eyes the empire’s gold and silver. She believes those riches belong to her, not the zealous weaklings sheltering in their towers.",
+    "accent": "#e57f45",
+    "art": "/avatars/hekata.webp",
+    "source": "coraxdigitalart-realistic-human-heroes (415).png"
   },
   {
-    "id": "kael-embergate",
-    "name": "Kael Embergate",
-    "title": "Warden of the Burning Gate",
-    "lore": "He held the Embergate for nine nights with a torch and a stubborn temper. The gate still stands. So does he.",
-    "accent": "#e0702e",
-    "art": "/avatars/kael-embergate.webp",
-    "source": "coraxdigitalart-realistic-human-heroes (78).png"
+    "id": "brut",
+    "name": "Brut",
+    "title": "Chief of the Harpies · Warlord of the Horde",
+    "lore": "Brut united the goblin clans beneath the harpy banner. There are no harpies: the clans simply liked the name and the look of the banners. Now he leads them in search of fun and blood.",
+    "accent": "#b48c59",
+    "art": "/avatars/brut.webp",
+    "source": "coraxdigitalart-realistic-human-heroes (221).png"
   },
   {
-    "id": "nyra-thistledark",
-    "name": "Nyra Thistledark",
-    "title": "The Thorn Archer",
-    "lore": "Every arrow carries a thorn-mark from a court that no longer admits to existing. She has never missed twice.",
-    "accent": "#9a5cc4",
-    "art": "/avatars/nyra-thistledark.webp",
-    "source": "coraxdigitalart-realistic-human-heroes (43).png"
-  },
-  {
-    "id": "orrin-halewick",
-    "name": "Orrin Halewick",
-    "title": "Keeper of Candles",
-    "lore": "He remembers every oath sworn in the Crownlands, and exactly who broke them. He is far too polite to say so.",
-    "accent": "#deb966",
-    "art": "/avatars/orrin-halewick.webp",
-    "source": "coraxdigitalart-realistic-human-heroes (279).png"
-  },
-  {
-    "id": "seraphine-dawnmere",
-    "name": "Seraphine Dawnmere",
-    "title": "Sworn of the Dawn Banner",
-    "lore": "She took her vow at sixteen. She has not yet met a dawn worth leaving early.",
-    "accent": "#e8d9a0",
-    "art": "/avatars/seraphine-dawnmere.webp",
-    "source": "coraxdigitalart-realistic-human-heroes (275).png"
-  },
-  {
-    "id": "vorka-redtusk",
-    "name": "Vorka Redtusk",
-    "title": "Tusk-Marked Raider",
-    "lore": "The Crownlands call her a raider. Her clan calls her home. Both are right, and neither is brave enough to say it to her face.",
-    "accent": "#c4412e",
-    "art": "/avatars/vorka-redtusk.webp",
-    "source": "coraxdigitalart-realistic-human-heroes (397).png"
-  },
-  {
-    "id": "thessaly-greenhollow",
-    "name": "Thessaly Greenhollow",
-    "title": "Voice of the Hollow",
-    "lore": "The old woods speak plainly to her. Mostly they ask her to be careful, and to bring more salt.",
-    "accent": "#6fae5c",
-    "art": "/avatars/thessaly-greenhollow.webp",
-    "source": "coraxdigitalart-realistic-human-heroes (7).png"
-  },
-  {
-    "id": "haldor-wolfbrow",
-    "name": "Haldor Wolfbrow",
-    "title": "Last of the Pale Clan",
-    "lore": "He wears a wolf's pelt and the headband of a clan that is gone. He fights for both of them.",
-    "accent": "#a87a52",
-    "art": "/avatars/haldor-wolfbrow.webp",
-    "source": "coraxdigitalart-realistic-human-heroes (274).png"
+    "id": "dark-priest-of-run",
+    "name": "The Dark Priest of Run",
+    "title": "Master of the Black Host",
+    "lore": "Always hooded, the Dark Priest of Run gathers vast undead hordes. He seeks to plunge the world into darkness and make Varhyr an everlasting crypt.",
+    "accent": "#a58abd",
+    "art": "/avatars/dark-priest-of-run.webp",
+    "source": "coraxdigitalart-realistic-human-heroes (405).png"
   }
 ]

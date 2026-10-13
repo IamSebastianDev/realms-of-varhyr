@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Dwell, Händler der Berge",
+  "lore": "Der größte Zwerg der Berge kennt das Gewicht imperialen Goldes. Versprechen wiegt er etwas sorgfältiger."
+}

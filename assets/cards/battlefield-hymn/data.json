@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/card.schema.json",
   "id": "battlefield-hymn",
   "revision": 1,
   "name": "Battlefield Hymn",
@@ -29,10 +30,5 @@
       }
     }
   ],
-  "translations": {
-    "de": {
-      "name": "Schlachtfeldhymne",
-      "subtypes": []
-    }
-  }
+  "set": "foundations"
 }

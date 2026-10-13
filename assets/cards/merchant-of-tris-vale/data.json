@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/card.schema.json",
   "id": "merchant-of-tris-vale",
   "revision": 1,
   "name": "Merchant of Tris Vale",
@@ -27,13 +28,5 @@
   },
   "abilities": [],
   "lore": "The merchants of Tris Vale are known for their gold and silver works",
-  "translations": {
-    "de": {
-      "name": "Händler von Tris Vale",
-      "lore": "Die Händler von Tris Vale sind für ihre Gold- und Silberarbeiten bekannt.",
-      "subtypes": [
-        "Mensch"
-      ]
-    }
-  }
+  "set": "foundations"
 }

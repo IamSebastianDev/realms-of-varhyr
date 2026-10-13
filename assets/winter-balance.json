@@ -1,0 +1,440 @@
+{
+  "method": "Deterministic bot matches. Crownlands stays p1 and Winter stays p2; reverse initiative with the same shuffled libraries. Screening uses seed samples 1–40; validation uses unseen samples 41–100. All validation matches check engine invariants and exact replay.",
+  "screening": [
+    {
+      "variant": "baseline",
+      "changes": {},
+      "games": 80,
+      "winterWins": 24,
+      "winterFirstWins": 8,
+      "winterSecondWins": 16,
+      "winterLifeLosses": 50,
+      "winterLibraryLosses": 6,
+      "totalTurns": 1232,
+      "producerDeaths": 324,
+      "producerDeathsBeforeChannel": 153,
+      "winterEnergy": 828,
+      "winterChannels": 803,
+      "averageTurns": 15.4,
+      "durationMs": 16051
+    },
+    {
+      "variant": "free-defense",
+      "changes": {
+        "white-hall-apprentice": {
+          "defense": 2
+        },
+        "ward-attendant": {
+          "defense": 3
+        },
+        "rime-pupil": {
+          "defense": 2
+        }
+      },
+      "games": 80,
+      "winterWins": 25,
+      "winterFirstWins": 10,
+      "winterSecondWins": 15,
+      "winterLifeLosses": 38,
+      "winterLibraryLosses": 17,
+      "totalTurns": 1360,
+      "producerDeaths": 306,
+      "producerDeathsBeforeChannel": 151,
+      "winterEnergy": 1054,
+      "winterChannels": 1023,
+      "averageTurns": 17,
+      "durationMs": 18572
+    },
+    {
+      "variant": "paid-energy",
+      "changes": {
+        "rime-magistrate": {
+          "energy": 2
+        },
+        "glassfire-adept": {
+          "energy": 3
+        }
+      },
+      "games": 80,
+      "winterWins": 25,
+      "winterFirstWins": 7,
+      "winterSecondWins": 18,
+      "winterLifeLosses": 47,
+      "winterLibraryLosses": 8,
+      "totalTurns": 1287,
+      "producerDeaths": 332,
+      "producerDeathsBeforeChannel": 158,
+      "winterEnergy": 911,
+      "winterChannels": 827,
+      "averageTurns": 16.0875,
+      "durationMs": 17814
+    },
+    {
+      "variant": "ward-and-ramp",
+      "changes": {
+        "ward-attendant": {
+          "defense": 3
+        },
+        "rime-magistrate": {
+          "defense": 4,
+          "energy": 2
+        }
+      },
+      "games": 80,
+      "winterWins": 24,
+      "winterFirstWins": 7,
+      "winterSecondWins": 17,
+      "winterLifeLosses": 45,
+      "winterLibraryLosses": 11,
+      "totalTurns": 1318,
+      "producerDeaths": 320,
+      "producerDeathsBeforeChannel": 165,
+      "winterEnergy": 987,
+      "winterChannels": 915,
+      "averageTurns": 16.475,
+      "durationMs": 18698
+    },
+    {
+      "variant": "defense-and-ramp",
+      "changes": {
+        "white-hall-apprentice": {
+          "defense": 2
+        },
+        "ward-attendant": {
+          "defense": 3
+        },
+        "rime-pupil": {
+          "defense": 2
+        },
+        "rime-magistrate": {
+          "energy": 2
+        }
+      },
+      "games": 80,
+      "winterWins": 27,
+      "winterFirstWins": 11,
+      "winterSecondWins": 16,
+      "winterLifeLosses": 40,
+      "winterLibraryLosses": 13,
+      "totalTurns": 1372,
+      "producerDeaths": 312,
+      "producerDeathsBeforeChannel": 164,
+      "winterEnergy": 1087,
+      "winterChannels": 1017,
+      "averageTurns": 17.15,
+      "durationMs": 19378
+    },
+    {
+      "variant": "battery",
+      "changes": {
+        "white-hall-apprentice": {
+          "attack": 0,
+          "energy": 2
+        }
+      },
+      "games": 80,
+      "winterWins": 19,
+      "winterFirstWins": 5,
+      "winterSecondWins": 14,
+      "winterLifeLosses": 43,
+      "winterLibraryLosses": 18,
+      "totalTurns": 1310,
+      "producerDeaths": 328,
+      "producerDeathsBeforeChannel": 134,
+      "winterEnergy": 1185,
+      "winterChannels": 927,
+      "averageTurns": 16.375,
+      "durationMs": 20394
+    },
+    {
+      "variant": "battery-and-wards",
+      "changes": {
+        "white-hall-apprentice": {
+          "attack": 0,
+          "energy": 2
+        },
+        "ward-attendant": {
+          "defense": 3
+        },
+        "rime-pupil": {
+          "defense": 2
+        }
+      },
+      "games": 80,
+      "winterWins": 19,
+      "winterFirstWins": 6,
+      "winterSecondWins": 13,
+      "winterLifeLosses": 36,
+      "winterLibraryLosses": 25,
+      "totalTurns": 1388,
+      "producerDeaths": 334,
+      "producerDeathsBeforeChannel": 135,
+      "winterEnergy": 1315,
+      "winterChannels": 1067,
+      "averageTurns": 17.35,
+      "durationMs": 22525
+    },
+    {
+      "variant": "battery-and-hall",
+      "changes": {
+        "white-hall-apprentice": {
+          "attack": 0,
+          "energy": 2
+        },
+        "ward-attendant": {
+          "defense": 3
+        },
+        "hall-of-sealed-accord": {
+          "defense": 6
+        }
+      },
+      "games": 80,
+      "winterWins": 25,
+      "winterFirstWins": 6,
+      "winterSecondWins": 19,
+      "winterLifeLosses": 36,
+      "winterLibraryLosses": 19,
+      "totalTurns": 1356,
+      "producerDeaths": 303,
+      "producerDeathsBeforeChannel": 121,
+      "winterEnergy": 1293,
+      "winterChannels": 1026,
+      "averageTurns": 16.95,
+      "durationMs": 20970
+    },
+    {
+      "variant": "battery-defense-and-hall",
+      "changes": {
+        "white-hall-apprentice": {
+          "attack": 0,
+          "energy": 2
+        },
+        "ward-attendant": {
+          "defense": 3
+        },
+        "rime-pupil": {
+          "defense": 2
+        },
+        "hall-of-sealed-accord": {
+          "defense": 6
+        }
+      },
+      "games": 80,
+      "winterWins": 21,
+      "winterFirstWins": 7,
+      "winterSecondWins": 14,
+      "winterLifeLosses": 36,
+      "winterLibraryLosses": 23,
+      "totalTurns": 1402,
+      "producerDeaths": 318,
+      "producerDeathsBeforeChannel": 128,
+      "winterEnergy": 1326,
+      "winterChannels": 1071,
+      "averageTurns": 17.525,
+      "durationMs": 20627
+    },
+    {
+      "variant": "fragile-ramp",
+      "changes": {
+        "white-hall-apprentice": {
+          "energy": 2
+        }
+      },
+      "games": 80,
+      "winterWins": 26,
+      "winterFirstWins": 7,
+      "winterSecondWins": 19,
+      "winterLifeLosses": 49,
+      "winterLibraryLosses": 5,
+      "totalTurns": 1267,
+      "producerDeaths": 344,
+      "producerDeathsBeforeChannel": 165,
+      "winterEnergy": 889,
+      "winterChannels": 785,
+      "averageTurns": 15.8375,
+      "durationMs": 16367
+    },
+    {
+      "variant": "protected-ramp",
+      "changes": {
+        "white-hall-apprentice": {
+          "energy": 2
+        },
+        "ward-attendant": {
+          "defense": 3
+        },
+        "rime-pupil": {
+          "defense": 2
+        },
+        "hall-of-sealed-accord": {
+          "defense": 6
+        }
+      },
+      "games": 80,
+      "winterWins": 26,
+      "winterFirstWins": 8,
+      "winterSecondWins": 18,
+      "winterLifeLosses": 45,
+      "winterLibraryLosses": 9,
+      "totalTurns": 1332,
+      "producerDeaths": 329,
+      "producerDeathsBeforeChannel": 162,
+      "winterEnergy": 1036,
+      "winterChannels": 922,
+      "averageTurns": 16.65,
+      "durationMs": 17431
+    },
+    {
+      "variant": "reliable-paid-ramp",
+      "changes": {
+        "ward-attendant": {
+          "defense": 3
+        },
+        "rime-magistrate": {
+          "defense": 4,
+          "energy": 2
+        },
+        "glassfire-adept": {
+          "defense": 4,
+          "energy": 3
+        },
+        "first-speaker-of-the-league": {
+          "energy": 3
+        }
+      },
+      "games": 80,
+      "winterWins": 26,
+      "winterFirstWins": 8,
+      "winterSecondWins": 18,
+      "winterLifeLosses": 43,
+      "winterLibraryLosses": 11,
+      "totalTurns": 1320,
+      "producerDeaths": 328,
+      "producerDeathsBeforeChannel": 166,
+      "winterEnergy": 1032,
+      "winterChannels": 918,
+      "averageTurns": 16.5,
+      "durationMs": 19409
+    },
+    {
+      "variant": "reliable-paid-ramp-deck",
+      "changes": {
+        "ward-attendant": {
+          "defense": 3
+        },
+        "rime-magistrate": {
+          "defense": 4,
+          "energy": 2
+        },
+        "glassfire-adept": {
+          "defense": 4,
+          "energy": 3
+        },
+        "first-speaker-of-the-league": {
+          "energy": 3
+        }
+      },
+      "games": 80,
+      "winterWins": 32,
+      "winterFirstWins": 13,
+      "winterSecondWins": 19,
+      "winterLifeLosses": 38,
+      "winterLibraryLosses": 10,
+      "totalTurns": 1373,
+      "producerDeaths": 343,
+      "producerDeathsBeforeChannel": 179,
+      "winterEnergy": 1186,
+      "winterChannels": 994,
+      "averageTurns": 17.1625,
+      "durationMs": 15460
+    }
+  ],
+  "validation": {
+    "samples": 60,
+    "seatReversedLibraries": true,
+    "reports": [
+      {
+        "variant": "baseline",
+        "changes": {},
+        "games": 120,
+        "winterWins": 34,
+        "winterFirstWins": 16,
+        "winterSecondWins": 18,
+        "winterLifeLosses": 79,
+        "winterLibraryLosses": 7,
+        "totalTurns": 1887,
+        "producerDeaths": 554,
+        "producerDeathsBeforeChannel": 261,
+        "winterEnergy": 1374,
+        "winterChannels": 1330,
+        "averageTurns": 15.725,
+        "durationMs": 27394
+      },
+      {
+        "variant": "reliable-paid-ramp-deck",
+        "changes": {
+          "ward-attendant": {
+            "defense": 3
+          },
+          "rime-magistrate": {
+            "defense": 4,
+            "energy": 2
+          },
+          "glassfire-adept": {
+            "defense": 4,
+            "energy": 3
+          },
+          "first-speaker-of-the-league": {
+            "energy": 3
+          }
+        },
+        "games": 120,
+        "winterWins": 59,
+        "winterFirstWins": 28,
+        "winterSecondWins": 31,
+        "winterLifeLosses": 49,
+        "winterLibraryLosses": 12,
+        "totalTurns": 1969,
+        "producerDeaths": 458,
+        "producerDeathsBeforeChannel": 223,
+        "winterEnergy": 1686,
+        "winterChannels": 1403,
+        "averageTurns": 16.408333333333335,
+        "durationMs": 21914
+      }
+    ],
+    "seedSamples": [
+      41,
+      100
+    ],
+    "replayChecked": "every match"
+  },
+  "selectedChanges": {
+    "cards": {
+      "ward-attendant": {
+        "defense": 3
+      },
+      "rime-magistrate": {
+        "defense": 4,
+        "energy": 2
+      },
+      "glassfire-adept": {
+        "defense": 4,
+        "energy": 3
+      },
+      "first-speaker-of-the-league": {
+        "energy": 3
+      }
+    },
+    "starter": {
+      "rime-magistrate": {
+        "before": 1,
+        "after": 3
+      },
+      "thaw-the-seal": {
+        "before": 3,
+        "after": 1
+      }
+    }
+  }
+}

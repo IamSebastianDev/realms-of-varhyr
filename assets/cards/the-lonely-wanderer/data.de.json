@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Der einsame Wanderer",
+  "lore": "Kein Hof kennt den Namen unter der Kapuze. Kein Banner kann den Weg vor ihm beanspruchen."
+}

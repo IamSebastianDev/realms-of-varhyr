@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, type ReactNode } from 'react';
 import { getPreferences, usePreferences, type Language } from '../preferences';
 import german from './de.json';
-import { registry } from '../../../../packages/content/src';
+import { registry, setDefinitions } from '../../../../packages/content/src';
 import type { CardDefinition, AbilityBinding, AbilityExtension } from '../../../../packages/contracts/src';
 import { describeAbility } from '../../../../packages/extensions/src/describeAbility';
 import { eventMessages } from './messages';
@@ -14,13 +14,22 @@ for (const card of Object.values(registry.cards)) {
   if (card.translations?.de?.name) cardText[card.name] = card.translations.de.name;
   if (card.lore && card.translations?.de?.lore !== undefined) cardText[card.lore] = card.translations.de.lore;
 }
+for (const set of setDefinitions) {
+  const de=set.translations?.de;
+  if(de?.name)cardText[set.name]=de.name;
+  if(de?.description)cardText[set.description]=de.description;
+  if(set.pack && de?.pack?.name)cardText[set.pack.name]=de.pack.name;
+  if(set.pack && de?.pack?.blurb)cardText[set.pack.blurb]=de.pack.blurb;
+}
 const escape = (text:string) => text.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 const names = Object.keys(cardText).sort((a,b)=>b.length-a.length);
 const contentPattern = new RegExp(names.length ? names.map(escape).join('|') : '(?!)','g');
 export function localizedCard(card: CardDefinition, language = getPreferences().language): CardDefinition {
   const text = card.translations?.[language];
-  return text ? { ...card, name: text.name ?? card.name, lore: text.lore ?? card.lore, subtypes: text.subtypes ?? card.subtypes } : card;
+  return text ? { ...card, name: text.name ?? card.name, lore: text.lore ?? card.lore } : card;
 }
+/** Subtypes are translated once, in the shared dictionary, never per card. */
+export const subtypeLabel = (subtype: string, language = getPreferences().language) => translate(subtype.trim().replace(/\b[a-z]/g, letter => letter.toUpperCase()), language);
 export function localizedAbility(binding: AbilityBinding, extension: AbilityExtension, language = getPreferences().language) {
   const text = extension.translations?.[language];
   const params = Object.fromEntries(Object.entries(binding.params).map(([key,value])=>[key,typeof value==='string'?translate(value,language):value]));

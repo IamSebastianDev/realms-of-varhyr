@@ -1,5 +1,6 @@
 import type { CardDefinition } from '../../contracts/src';
 import { factionDefinitions } from './factions';
+import { setDefinitions } from './sets';
 
 /** POC odds per slot, independent of the number of cards in each rarity. */
 export const boosterRules = { cardsPerPack: 5, rarityWeights: { common: 70, rare: 25, legendary: 5 } } as const;
@@ -23,15 +24,17 @@ export function drawBooster(cards: CardDefinition[], random: () => number = Math
   });
 }
 
-/** Store boosters. A faction pack draws from that faction's cards; the general pack draws from everything. */
-export type BoosterPack = { id: string; name: string; blurb: string; faction: string | null };
+/** Store pools are either a logical set, a faction or the entire catalogue. Existing IDs preserve owned packs. */
+export type BoosterPack = { id: string; name: string; blurb: string; faction: string | null; set?: string };
 /** Faction packs come from each faction's optional `pack` entry in assets/factions/<id>.json. */
 export const boosterPacks: BoosterPack[] = [
   { id: 'bounty', name: 'The Realm’s Bounty', blurb: 'Five random cards from across every faction. Legendaries are rare.', faction: null },
   ...factionDefinitions.flatMap(faction => faction.pack ? [{ ...faction.pack, faction: faction.id }] : []),
+  ...setDefinitions.flatMap(set => set.pack ? [{ ...set.pack, faction: null, set: set.id }] : []),
 ];
 /** Neutral cards carry no named faction, so the Neutral pack draws the factionless cards. */
 export const packCards = (cards: CardDefinition[], pack: BoosterPack) =>
-  !pack.faction ? cards
+  pack.set ? cards.filter(card => card.set === pack.set)
+    : !pack.faction ? cards
     : pack.faction === 'neutral' ? cards.filter(card => !card.factions.length)
     : cards.filter(card => card.factions.includes(pack.faction as never));

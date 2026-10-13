@@ -2,7 +2,7 @@ import { t as msg, useLanguage } from './i18n';
 import { useState, type CSSProperties } from 'react';
 import { Check } from 'lucide-react';
 import { Avatar } from './Avatar';
-import { avatars, defaultName, maxNameLength, updateProfile, useProfile } from './profile';
+import { avatars, defaultAvatarId, defaultName, maxNameLength, updateProfile, useProfile } from './profile';
 import { useCollection } from './collectionStore';
 import { totalPacks } from './collection';
 
@@ -10,7 +10,7 @@ export function ProfilePage() {
   useLanguage();
   const profile = useProfile(), { collection } = useCollection();
   const [name, setName] = useState(profile.name === defaultName ? '' : profile.name);
-  const chosen = avatars.find(a => a.id === profile.avatar) ?? avatars[0]!;
+  const chosen = avatars.find(a => a.id === profile.avatar) ?? avatars.find(a => a.id === defaultAvatarId)!;
   const owned = Object.values(collection.counts).reduce((sum, count) => sum + count, 0);
   const facts: [string, number][] = [[msg("Victories"), collection.rewardedMatches.length], [msg("Cards owned"), owned], [msg("Boosters opened"), collection.boostersOpened], [msg("Boosters waiting"), totalPacks(collection)]];
   return <main className="profile-page">
@@ -30,14 +30,14 @@ export function ProfilePage() {
       <h2>{msg("Choose your portrait")}</h2>
       <div className="avatar-picker">
         <div role="radiogroup" aria-label={msg("Avatar")}>
-          {avatars.map(choice => <button key={choice.id} role="radio" aria-checked={choice.id === chosen.id} aria-label={msg("{v0}, {v1}", {v0: choice.name, v1: choice.title})} title={choice.name} className={choice.id === chosen.id ? 'on' : ''} onClick={() => updateProfile({ avatar: choice.id })}>
-            <Avatar id={choice.id} size={84}/>{choice.id === chosen.id && <i><Check size={12}/></i>}
+          {avatars.map(choice => <button key={choice.id} role="radio" aria-checked={choice.id === chosen.id} aria-label={msg("{v0}, {v1}", {v0: choice.name, v1: choice.title})} title={msg(choice.name)} className={choice.id === chosen.id ? 'on' : ''} onClick={() => updateProfile({ avatar: choice.id })}>
+            <Avatar id={choice.id}/>{choice.id === chosen.id && <i><Check size={12}/></i>}
           </button>)}
         </div>
         <article className="avatar-lore" style={{ '--avatar': chosen.accent } as CSSProperties}>
-          <h3>{chosen.name}</h3>
-          <p className="avatar-title">{chosen.title}</p>
-          <p>{chosen.lore}</p>
+          <h3>{msg(chosen.name)}</h3>
+          <p className="avatar-title">{msg(chosen.title)}</p>
+          <p>{msg(chosen.lore)}</p>
         </article>
       </div>
     </section>

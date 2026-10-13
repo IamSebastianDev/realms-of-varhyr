@@ -1,8 +1,9 @@
 import { useSyncExternalStore } from 'react';
-import { avatarDefinitions, type AvatarDefinition } from '../../../packages/content/src';
+import { avatarDefinitions, defaultAvatarId, type AvatarDefinition } from '../../../packages/content/src';
 
-/** The player's identity. Avatars are authored in packages/content/src/avatars.json; an unknown stored id falls back to the first. */
+/** The player's identity. Avatars are authored in packages/content/src/avatars.json; new profiles and retired portrait ids fall back to the Wanderer. */
 export type AvatarChoice = AvatarDefinition;
+export { defaultAvatarId };
 export const avatars: AvatarChoice[] = [...avatarDefinitions];
 export type Profile = { name: string; avatar: string };
 
@@ -18,7 +19,7 @@ const cleanName = (value: string) => value.trim().slice(0, maxNameLength) || def
 
 function read(): Profile {
   if (current) return current;
-  let name = defaultName, avatar = avatars[0]?.id ?? '';
+  let name = defaultName, avatar = defaultAvatarId;
   try {
     name = cleanName(localStorage.getItem(nameKey) ?? '');
     const stored = localStorage.getItem(avatarKey);

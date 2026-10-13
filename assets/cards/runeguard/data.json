@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/card.schema.json",
   "id": "runeguard",
   "revision": 5,
   "name": "Runeguard",
@@ -28,12 +29,5 @@
     ]
   },
   "abilities": [],
-  "translations": {
-    "de": {
-      "name": "Runenwache",
-      "subtypes": [
-        "Kreatur"
-      ]
-    }
-  }
+  "set": "foundations"
 }

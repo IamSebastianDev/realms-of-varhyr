@@ -2,7 +2,7 @@ import { deckRules, type CardDefinition, type GameState, type Registry } from '.
 import { drawBooster, packCards, type BoosterPack } from '../../../packages/content/src/boosters';
 import type { RewardCollection } from './boosterRewards';
 
-/** Copies belong to a card ID (including its artwork variant). Missing IDs mean zero owned. */
+/** Copies belong to a logical card ID, independent of set labels or future artwork choices. Missing IDs mean zero owned. */
 export type OwnedCopies = Readonly<Record<string, number>>;
 
 export function ownedCopyCount(collection: OwnedCopies, id: string): number {
@@ -82,6 +82,13 @@ export function parseCollection(raw: string | null, content: Registry): Collecti
       || !data.rewardedMatches.every((id: unknown) => typeof id === 'string' && id.length > 0)) return null;
     const collection: Collection = { version: 1, counts: {}, packs: { ...data.packs }, crowns: data.crowns,
       boostersOpened: data.boostersOpened, rewardedMatches: [...new Set<string>(data.rewardedMatches)] };
+    // Retired faction packs become all-card packs, so saved rewards remain usable.
+    // Removing their keys makes migration idempotent on subsequent reads/saves.
+    for (const id of ['crown','neutral','winter']) {
+      const count=collection.packs[id];
+      if(count)collection.packs.bounty=addNumber(collection.packs.bounty??0,count);
+      delete collection.packs[id];
+    }
     // If card content changes rarity/legendary status, convert surplus exactly once on the next save.
     for (const [id, count] of Object.entries<number>(data.counts)) grantCopies(collection, id, count, content);
     return collection;

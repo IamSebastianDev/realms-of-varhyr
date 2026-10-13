@@ -1,0 +1,33 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "itinerant-notary",
+  "revision": 1,
+  "name": "Itinerant Notary",
+  "deckLimitKey": "itinerant-notary",
+  "type": "creature",
+  "factions": [
+    "neutral"
+  ],
+  "subtypes": [
+    "human",
+    "diplomat"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {}
+  },
+  "abilities": [],
+  "lore": "He carries no banner. Only signatures that outlast them.",
+  "stats": {
+    "attack": 0,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "neutral": 1
+      }
+    ]
+  },
+  "set": "foundations"
+}

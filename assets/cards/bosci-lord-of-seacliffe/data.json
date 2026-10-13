@@ -1,0 +1,44 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "bosci-lord-of-seacliffe",
+  "set": "foundations",
+  "revision": 4,
+  "name": "Bosci, Lord of Seacliffe",
+  "deckLimitKey": "bosci-lord-of-seacliffe",
+  "type": "creature",
+  "factions": [
+    "bright-marches"
+  ],
+  "subtypes": [
+    "human",
+    "leader"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "bright-marches": 2
+    }
+  },
+  "stats": {
+    "attack": 3,
+    "defense": 4,
+    "energyOutputs": [
+      {
+        "bright-marches": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "marches-rally",
+      "params": {}
+    },
+    {
+      "id": "guard",
+      "params": {}
+    }
+  ],
+  "lore": "He gathers the petty kings against a common foe. The court has yet to learn which foe he means."
+}

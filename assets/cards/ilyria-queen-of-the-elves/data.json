@@ -1,0 +1,44 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "ilyria-queen-of-the-elves",
+  "set": "foundations",
+  "revision": 4,
+  "name": "Ilyria, Queen of the Elves",
+  "deckLimitKey": "ilyria-queen-of-the-elves",
+  "type": "creature",
+  "factions": [
+    "conclave"
+  ],
+  "subtypes": [
+    "elf",
+    "leader"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "conclave": 2
+    }
+  },
+  "stats": {
+    "attack": 3,
+    "defense": 4,
+    "energyOutputs": [
+      {
+        "conclave": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "sanctuary",
+      "params": {}
+    },
+    {
+      "id": "guard",
+      "params": {}
+    }
+  ],
+  "lore": "Those who enter her woods are friends or already dead. An imperial axe is no kinder than an eastern flame."
+}

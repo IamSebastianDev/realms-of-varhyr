@@ -1,4 +1,5 @@
 import type { Command, GameState, PlayerId, Pool, Registry } from '../../contracts/src';
+import { energyProductionOptions } from './production';
 import { apply, autoPayment, blockerFor, combatDamage, decisionPlayer, effectiveStats, legalActions, other, previewDamage } from './index';
 
 type EnergyPlan = { pool: Pool; commands: Command[]; penalty: number };
@@ -9,7 +10,8 @@ const add = (a: Pool, b: Pool): Pool => {
 };
 function creatureValue(state: GameState, id: string, registry: Registry): number {
   const def = registry.cards[state.cards[id].definitionId], stats = effectiveStats(state,id,registry);
-  return stats.attack * (def.type==='bastion' ? 1 : 2) + (stats.defense - state.cards[id].damage * .7) * .65 + Math.max(...(def.stats?.energyOutputs.length ? def.stats.energyOutputs : [{}]).map(p => Object.values(p).reduce((a,b) => a+b,0))) * .6
+  const outputs=energyProductionOptions(def,registry);
+  return stats.attack * (def.type==='bastion' ? 1 : 2) + (stats.defense - state.cards[id].damage * .7) * .65 + Math.max(...(outputs.length ? outputs : [{}]).map(p => Object.values(p).reduce((a,b) => a+b,0))) * .6
     + def.abilities.reduce((n,a) => n + (a.id === 'armor' ? Number(a.params.amount) : ['collector','deathbound'].includes(a.id) ? 1 : 0),0);
 }
 function colorsOnBoard(state: GameState, actor: PlayerId, registry: Registry, removed: string[] = []): Set<string> {
@@ -31,12 +33,18 @@ function tryCommand(state: GameState, command: Command, registry: Registry): Gam
 function energyPlans(state: GameState, registry: Registry): EnergyPlan[] {
   const actor = decisionPlayer(state), death = state.phase !== 'play';
   let plans: EnergyPlan[] = [{pool:death ? state.players[actor].deathEnergy : state.players[actor].energy,commands:[],penalty:0}];
-  for (const source of legalActions(state,registry).energy) {
-    const previous = plans;
-    plans = [...previous];
-    for (const plan of previous) for (const [option,output] of source.options.entries()) plans.push({
-      pool:add(plan.pool,output),commands:[...plan.commands,{type:'energy',cardId:source.cardId,option}],
-      penalty:plan.penalty + effectiveStats(state,source.cardId,registry).attack * .9 + .15,
+  const legal=legalActions(state,registry),producers=new Map<string,{command:Command;output:Pool}[]>();
+  for(const source of legal.energy)producers.set(source.cardId,source.options.map((output,option)=>({output,command:{type:'energy',cardId:source.cardId,option}})));
+  for(const action of legal.activations)if(action.energyOptions){
+    const options=action.energyOptions.map(output=>({output,command:{type:'activate' as const,cardId:action.cardId,ability:action.ability,target:Object.keys(output)[0]}}));
+    producers.set(action.cardId,[...(producers.get(action.cardId)??[]),...options]);
+  }
+  // Group by source so a plan never channels and activates the same creature.
+  for (const [cardId,options] of producers) {
+    const previous=plans;plans=[...previous];
+    for(const plan of previous)for(const {command,output} of options)plans.push({
+      pool:add(plan.pool,output),commands:[...plan.commands,command],
+      penalty:plan.penalty+effectiveStats(state,cardId,registry).attack*.9+.15,
     });
   }
   return plans.sort((a,b) => a.penalty-b.penalty || a.commands.length-b.commands.length);
@@ -68,12 +76,16 @@ function planPlay(state: GameState, registry: Registry): Command {
     funded.set(plan,next);return next;
   };
   const consider = (after: GameState, command: Command, plan: EnergyPlan) => {
-    const score = positionValue(after,actor,registry) - baseline - plan.penalty;
+    const def = command.type === 'play' ? registry.cards[state.cards[command.cardId].definitionId] : undefined;
+    // A cheap cantrip cycles a card rather than adding one. A small fixed incentive
+    // avoids inspecting unrevealed library contents and stops near deck exhaustion.
+    const cycle = !after.outcome && p.deck.length > 4 && def?.cast?.some(a=>a.id==='draw' && a.params.amount===1) ? .2 : 0;
+    const score = positionValue(after,actor,registry) - baseline - plan.penalty + cycle;
     if (score > best.score) best = {score,command:plan.commands[0] ?? command};
   };
   for (const action of legalActions(state,registry).activations) {
-    for (const target of action.requiresTarget ? action.targets : [undefined]) {
-      const command:Command={type:'activate',cardId:action.cardId,ability:action.ability,target};
+    for (const target of action.requiresTarget ? action.targets : [undefined]) for (const slot of action.slots ?? [undefined]) {
+      const command:Command={type:'activate',cardId:action.cardId,ability:action.ability,target,slot};
       const after=tryCommand(state,command,registry);
       const penalty=registry.cards[state.cards[action.cardId].definitionId].type==='creature' ? effectiveStats(state,action.cardId,registry).attack*.9 : 0;
       if(after)consider(after,command,{pool:p.energy,commands:[],penalty});
@@ -83,6 +95,25 @@ function planPlay(state: GameState, registry: Registry): Command {
   const candidates = p.hand.filter(id => {const def = state.cards[id].definitionId;if(seen.has(def))return false;seen.add(def);return true;});
   for (const id of candidates) {
     const def = registry.cards[state.cards[id].definitionId];
+    if (def.cast?.some(a => a.id === 'channel-neutral')) {
+      // Conversion is worth a card only if it enables a useful follow-up now.
+      // Do not score spare energy as value: it expires at the phase boundary.
+      if (state.phase !== 'play') continue;
+      for (const plan of plans) {
+        if (!autoPayment(plan.pool,def.cost)) continue;
+        const ready = fund(plan); if (!ready) continue;
+        for (const ritual of playOptions(ready,id,registry)) {
+          const converted = tryCommand(ready,ritual,registry); if (!converted || converted.outcome) continue;
+          for (const nextId of candidates) {
+            if (nextId === id || registry.cards[state.cards[nextId].definitionId].cast?.some(a=>a.id==='channel-neutral')) continue;
+            for (const followup of playOptions(converted,nextId,registry)) {
+              const after = tryCommand(converted,followup,registry); if (after) consider(after,ritual,plan);
+            }
+          }
+        }
+      }
+      continue;
+    }
     if (def.cast?.some(a => a.id === 'return')) {
       // Bounce only when the same turn can complete a material upgrade. Returning
       // and replaying the same creature would otherwise form an endless loop.

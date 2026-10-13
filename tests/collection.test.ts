@@ -77,7 +77,7 @@ describe('collection progression', () => {
     expect(debug.crowns).toBe(1000);
     const purchased = buyCollectionBooster(debug, boosterPacks[1]);
     expect(purchased.crowns).toBe(900);
-    expect(purchased.packs).toEqual({ crown: 1 });
+    expect(purchased.packs).toEqual({ foundations: 1 });
     expect(debug.packs).toEqual({});
     expect(original.crowns).toBe(0);
   });
@@ -95,6 +95,15 @@ describe('collection progression', () => {
     expect(claimVictory(restored, 'match-1', 'p1', true)).toBe(restored);
     // Different games with the same shuffle seed are still independently rewardable.
     expect(claimVictory(restored, 'match-2', 'p1', true)).toMatchObject({ crowns: 50, packs: { bounty: 2 }, rewardedMatches: ['match-1', 'match-2'] });
+  });
+  it('converts retired faction packs into all-card boosters exactly once without losing inventory',()=>{
+    const original={...emptyCollection(),counts:{common:2},crowns:175,packs:{bounty:2,crown:3,neutral:1,winter:4,foundations:2,retiredPack:1}};
+    const restored=parseCollection(JSON.stringify(original),content)!;
+    expect(restored.packs).toEqual({bounty:10,foundations:2,retiredPack:1});
+    expect(totalPacks(restored)).toBe(totalPacks(original));
+    expect(restored.counts).toEqual(original.counts);expect(restored.crowns).toBe(original.crowns);
+    expect(parseCollection(JSON.stringify(restored),content)).toEqual(restored);
+    expect(original.packs.crown).toBe(3);
   });
   it('validates storage, preserves retired IDs, and normalizes content changes without repeated crowns', () => {
     const original = { ...emptyCollection(), counts: { common: 5, legendary: 3, retired: 1 }, packs: { retiredPack: 1 } };

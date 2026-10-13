@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Holzfäller von Longvale",
+  "lore": "Selbst die Wälder schenken reichlich."
+}

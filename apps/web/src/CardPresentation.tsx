@@ -2,6 +2,8 @@ import { t as msg, useLanguage, localizedCard, localizedAbility } from './i18n';
 import { useEffect, useRef, useState, type ButtonHTMLAttributes } from 'react';
 import { CardHoverDetail } from './CardDetail';
 import { useSingleLineName } from './useSingleLineName';
+import { FactionIcon, GenericEnergyIcon } from '../../../packages/renderer/src/FactionIcon';
+import './faction-icons.css';
 import { CardArtwork } from '../../../packages/renderer/src/CardArtwork';
 import { HolographicFoil } from '../../../packages/renderer/src/HolographicFoil';
 import { Castle, Shield, Swords } from 'lucide-react';
@@ -35,12 +37,18 @@ function hasEnergyCost(card:CardDefinition) {
 export function Cost({card}:{card:CardDefinition}) {
   useLanguage();
   if(!hasEnergyCost(card))return null;
-  return <span className="cost-bundle">{card.cost.generic>0&&<span className="cost-generic" title={msg("Generic: any energy")}>{card.cost.generic}◇</span>}{Object.entries(card.cost.factions).filter(([,amount])=>amount>0).map(([color,amount])=><span key={color} style={{color:factionInfo[color as EnergyType].color}} title={msg(factionInfo[color as EnergyType].name)}>{amount}{factionInfo[color as EnergyType].symbol}</span>)}</span>;
+  return <span className="cost-bundle">{card.cost.generic>0&&<span className="cost-generic" role="img" aria-label={`${card.cost.generic} ${msg("Generic: any energy")}`} title={msg("Generic: any energy")}>{card.cost.generic}<GenericEnergyIcon/></span>}{Object.entries(card.cost.factions).filter(([,amount])=>amount>0).map(([color,amount])=><span key={color} style={{color:factionInfo[color as EnergyType].color}} title={msg(factionInfo[color as EnergyType].name)} role="img" aria-label={msg("{v0} {v1} energy",{v0:amount,v1:msg(factionInfo[color as EnergyType].name)})}>{amount}<FactionIcon faction={color}/></span>)}</span>;
 }
 export function Energy({pool}:{pool:Pool}) {
   useLanguage();
   const entries=Object.entries(pool).filter(([,v])=>v!>0);
-  return <span className="energy-bundle">{entries.length?entries.map(([c,n])=>{const faction=factionInfo[c as EnergyType];return <span className="energy-token" key={c} title={msg("{v0} {v1} energy", {v0: n, v1: c==='crownlands'?msg('Crownlands'):msg(faction.name)})} aria-label={msg("{v0} {v1} energy", {v0: n, v1: c==='crownlands'?msg('Crownlands'):msg(faction.name)})}><span className="energy-symbol" style={{color:faction.color}} aria-hidden="true">{faction.symbol}</span><b>{n}</b></span>;}):<span className="energy-empty">—</span>}</span>;
+  return <span className="energy-bundle">{entries.length?entries.map(([c,n])=>{
+    const faction=factionInfo[c as EnergyType];
+    const label=c==='neutral'?msg("{v0} generic energy",{v0:n}):msg("{v0} {v1} energy",{v0:n,v1:c==='crownlands'?msg('Crownlands'):msg(faction.name)});
+    return <span className="energy-token" key={c} title={label} aria-label={label}>
+      {c==='neutral'?<GenericEnergyIcon className="energy-symbol" style={{color:faction.color}}/>:<FactionIcon className="energy-symbol" faction={c} style={{color:faction.color}}/>}<b>{n}</b>
+    </span>;
+  }):<span className="energy-empty">—</span>}</span>;
 }
 export function EnergyOutput({outputs}:{outputs:Pool[]}) {
   useLanguage();
@@ -68,7 +76,7 @@ export function CardFace({card,stats,showCost=true}:{card:CardDefinition;stats?:
         <span title={card.type==='bastion'?msg("Defensive damage"):msg("Attack")}><Swords/>{stats?.attack??card.stats!.attack}</span>
         <span title={msg("Defense")}><Shield/>{stats?.defense??card.stats!.defense}</span>
       </div>
-      {card.type==='creature'&&<div className="card-energy-output"><EnergyOutput outputs={card.stats!.energyOutputs}/></div>}
+      {card.type==='creature'&&card.stats!.energyOutputs.length>0&&<div className="card-energy-output"><EnergyOutput outputs={card.stats!.energyOutputs}/></div>}
     </div>}
     </div>
     <span className="card-corners"/>
@@ -100,7 +108,7 @@ export function CardFacts({card,stats}:{card:CardDefinition;stats?:{attack:numbe
         <span><Swords size={14}/><b>{stats?.attack ?? card.stats!.attack}</b> {card.type==='bastion'?msg("Defensive damage"):msg("Attack")}</span>
         <span><Shield size={14}/><b>{stats?.defense ?? card.stats!.defense}</b> {msg("Defense")}</span>
       </div>
-      {card.type==='creature'?<div className="fact-energy"><span>{msg("ENERGY OUTPUT")}</span><EnergyOutput outputs={card.stats!.energyOutputs}/></div>:<p className="bastion-rules"><Castle size={16}/>{msg("Can block · cannot attack or generate energy.")}</p>}
+      {card.type==='creature'?(card.stats!.energyOutputs.length?<div className="fact-energy"><span>{msg("ENERGY OUTPUT")}</span><EnergyOutput outputs={card.stats!.energyOutputs}/></div>:<p className="no-energy-output">{msg("No printed energy output.")}</p>):<p className="bastion-rules"><Castle size={16}/>{msg("Can block · cannot attack or generate energy.")}</p>}
     </>}
     {abilities.length > 0 && <dl className="ability-facts" aria-label={card.type === 'spell' ? msg("Spell effects") : msg("Abilities")}>
       {abilities.map((ability, index) => <div className="ability-fact" key={index}>

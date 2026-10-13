@@ -33,7 +33,7 @@
 .profile-avatars{margin-top:26px}
 .profile-avatars h2{font:500 22px var(--serif);color:#e8dcb8;margin-bottom:12px}
 .avatar-picker{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,300px);gap:24px;align-items:start}
-.profile-avatars [role=radiogroup]{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:12px;justify-items:center}
+.profile-avatars [role=radiogroup]{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:min(100%,360px);gap:12px;justify-items:center;justify-self:center}
 .avatar-lore{padding:18px 20px;border-radius:10px;border:1px solid color-mix(in srgb,var(--avatar) 45%,transparent);background:linear-gradient(160deg,color-mix(in srgb,var(--avatar) 14%,#1d3028),#17261f);min-height:150px}
 .avatar-lore h3{font:500 24px/1.15 var(--serif);color:#f3e6bf}
 .avatar-lore .avatar-title{margin:4px 0 12px;font-size:12px;color:var(--avatar);filter:brightness(1.25)}
@@ -83,3 +83,16 @@
 .settings-reset h2{color:#e8bd9a}
 .settings-group .reset-button,.builder-dialog .reset-button{color:#f0c0a7;border-color:#cf8d7080;background:#783b292b}
 .settings-group .reset-button:hover,.builder-dialog .reset-button:hover{color:#ffe0ce;border-color:#e5a17f;background:#914e3a66}
+
+.profile-avatars button .avatar-art{width:clamp(60px,8vw,84px);height:auto;aspect-ratio:1}
+
+/* Keep all three hero rows visible on the compact desktop canvas. */
+@media(min-width:701px) and (max-height:800px){
+  .profile-page{padding-block:18px 24px}
+  .profile-page .collection-heading{margin-bottom:14px}
+  .profile-card{padding:18px 24px}
+  .profile-facts{margin:8px 0 0}
+  .profile-facts div{padding:8px 10px}
+  .profile-avatars{margin-top:18px}
+  .profile-avatars button .avatar-art{width:clamp(60px,8vw,76px)}
+}

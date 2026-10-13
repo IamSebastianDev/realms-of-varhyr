@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Der Dunkle Priester von Run",
+  "lore": "Unter der Kapuze liegt eine Welt ohne Morgen. Hinter ihm steht ein Heer, das kein weiteres Grab kennen wird."
+}

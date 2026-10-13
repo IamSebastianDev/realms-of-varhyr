@@ -1,0 +1,47 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "morie-grandmistress",
+  "set": "foundations",
+  "revision": 4,
+  "name": "Morie, Grandmistress of Winter",
+  "deckLimitKey": "morie-grandmistress",
+  "type": "creature",
+  "factions": [
+    "winter-league"
+  ],
+  "subtypes": [
+    "human",
+    "mage",
+    "leader"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "winter-league": 2
+    }
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 6,
+    "energyOutputs": [
+      {
+        "winter-league": 3
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "accord",
+      "params": {}
+    },
+    {
+      "id": "invocation",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "lore": "The League needs an empire strong enough to hold the frontier, and weak enough to leave its cities free."
+}

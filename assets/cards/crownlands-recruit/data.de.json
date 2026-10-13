@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Rekrut der Kronlande",
+  "lore": "Jedes Königreich beginnt mit einem Schwur."
+}

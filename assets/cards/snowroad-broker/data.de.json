@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Händler der Schneestraße",
+  "lore": "Der Winter schließt Straßen. Er öffnet Märkte."
+}

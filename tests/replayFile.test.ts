@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { apply, replay } from '../packages/core/src';
-import { registry } from '../packages/content/src';
+import { recordedRegistry as registry } from './fixtures/recordedMatch';
 import { localReplay, onlineReplay, parseReplay } from '../apps/web/src/replayFile';
 import { ReplayMatchSession } from '../apps/web/src/match/MatchSession';
 import { readFileSync } from 'fs';

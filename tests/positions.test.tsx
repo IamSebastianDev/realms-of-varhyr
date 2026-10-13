@@ -15,7 +15,7 @@ const banner={...base,id:'adjacent-test',deckLimitKey:'adjacent-test',abilities:
 const evader={...base,id:'evader-test',deckLimitKey:'evader-test',abilities:[{id:'flank-evasion',params:{}}]};
 const charger={...base,id:'charge-test',deckLimitKey:'charge-test',abilities:[{id:'charge',params:{amount:4,position:'Center'}}]};
 const fort={...live.cards['crown-bastion'],id:'plain-bastion',deckLimitKey:'plain-bastion',abilities:[]};
-const r=compileContent(Object.values({...old.cards,...live.cards,[banner.id]:banner,[evader.id]:evader,[charger.id]:charger,[fort.id]:fort}));
+const r=compileContent(Object.values({...old.cards,...Object.fromEntries(['crown-recruit','crown-bastion','aldric-runewarden','runeguard'].map(id=>[id,live.cards[id]])),[banner.id]:banner,[evader.id]:evader,[charger.id]:charger,[fort.id]:fort}));
 function setup(){
  const state=createMatch(r,[starterDecks.verdant,starterDecks.hollow],731);
  for(const p of Object.values(state.players)){for(const id of p.hand){state.cards[id].zone='deck';p.deck.push(id);}p.hand=[];}

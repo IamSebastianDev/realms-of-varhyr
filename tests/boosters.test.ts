@@ -53,7 +53,8 @@ describe('faction booster packs', () => {
   it('draw only from their faction, and the general pack from everything', async () => {
     const { boosterPacks, packCards } = await import('../packages/content/src/boosters');
     const all = Object.values(registry.cards);
-    for (const pack of boosterPacks.filter(pack => pack.faction)) {
+    for (const faction of ['crownlands','winter-league','neutral']) {
+      const pack={id:faction,name:faction,blurb:'Legacy faction pool',faction};
       const pool = packCards(all, pack);
       expect(pool.length).toBeGreaterThan(0);
       const inPack = (card: { factions: readonly string[] }) => pack.faction === 'neutral' ? card.factions.length === 0 : card.factions.includes(pack.faction as never);

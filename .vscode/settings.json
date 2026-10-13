@@ -1,0 +1,16 @@
+{
+  "json.schemas": [
+    {
+      "fileMatch": [
+        "/assets/cards/*/data.json"
+      ],
+      "url": "./assets/schemas/card.schema.json"
+    },
+    {
+      "fileMatch": [
+        "/assets/cards/*/data.*.json"
+      ],
+      "url": "./assets/schemas/card-translation.schema.json"
+    }
+  ]
+}

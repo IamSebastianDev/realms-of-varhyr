@@ -1,7 +1,8 @@
+import { FactionIcon } from '../../../packages/renderer/src/FactionIcon';
 import { t as msg, useLanguage } from './i18n';
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { ArrowRight, Crown, X } from 'lucide-react';
-import { factionInfo, registry } from '../../../packages/content/src';
+import { factionInfo, registry, setInfo } from '../../../packages/content/src';
 import type { BoosterPack } from '../../../packages/content/src/boosters';
 import type { CardDefinition } from '../../../packages/contracts/src';
 import type { BoosterCardReward } from './boosterRewards';
@@ -11,9 +12,10 @@ import { CrownAmount } from './Crowns';
 export type OpenBooster = { id: string; cards: (BoosterCardReward & { crowns?: number })[]; saved: boolean; pack: BoosterPack };
 
 export const packColor = (pack: BoosterPack) => {
-  const color = pack.faction ? factionInfo[pack.faction]?.color : undefined;
+  const color = pack.set ? setInfo[pack.set]?.color : pack.faction ? factionInfo[pack.faction]?.color : undefined;
   return color ? { '--pack-color': color } : undefined;
 };
+export const packSymbol = (pack: BoosterPack) => pack.set ? setInfo[pack.set]?.symbol : pack.faction && factionInfo[pack.faction] ? <FactionIcon faction={pack.faction}/> : undefined;
 /** Breaks a pack name into short lines for the pack face. */
 export function packLines(name: string) {
   const lines: string[] = [];
@@ -65,7 +67,7 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, c
         <p role="status" aria-live="polite">{complete ? msg("{v0} {v1} added{v2}", {v0: kept, v1: kept===1?'card':'cards', v2: crowns ? ` · ${crowns} crowns from extra copies` : ''}) : opened ? msg("Revealing cards · {v0} / 5", {v0: revealed}) : msg("Breaking the seal…")}</p>
       </header>
       {!opened ? <div className="booster-pack-stage" aria-hidden="true">
-        <div className="booster-pack-glow"/><div className="booster-pack"><span>REALMS OF VARHYR</span>{pack.pack.faction ? <b className="pack-symbol">{factionInfo[pack.pack.faction]?.symbol}</b> : <Crown size={55}/>}<strong>{packLines(pack.pack.name)}</strong><small>{msg("FIVE CARDS")}</small></div>
+        <div className="booster-pack-glow"/><div className="booster-pack"><span>REALMS OF VARHYR</span>{packSymbol(pack.pack) ? <b className="pack-symbol">{packSymbol(pack.pack)}</b> : <Crown size={55}/>}<strong>{packLines(msg(pack.pack.name))}</strong><small>{msg("FIVE CARDS")}</small></div>
         <div className="booster-sparks">{Array.from({length:12}, (_,index)=><i key={index} style={{'--spark-angle':`${index*30}deg`} as React.CSSProperties}/>)}</div>
       </div> : <div className="booster-grid">
         {pack.cards.map((reward, index) => {

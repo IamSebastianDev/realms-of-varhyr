@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Händler von Tris Vale",
+  "lore": "Die Händler von Tris Vale sind für ihre Gold- und Silberarbeiten bekannt."
+}

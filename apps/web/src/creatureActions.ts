@@ -1,6 +1,6 @@
 import type { PlayerView, Pool } from '../../../packages/contracts/src';
 
-export type CreatureAction = { kind:'activate'; ability:number } | { kind:'channel'; option:number; output:Pool } | { kind:'undo-channel' } | { kind:'attack'; lane:number; current:boolean } | { kind:'withdraw' };
+export type CreatureAction = { kind:'activate'; ability:number; target?:string; output?:Pool } | { kind:'channel'; option:number; output:Pool } | { kind:'undo-channel' } | { kind:'attack'; lane:number; current:boolean } | { kind:'withdraw' };
 
 export { undoableChannels, undoChannel } from '../../../packages/core/src/channelUndo';
 
@@ -12,7 +12,7 @@ export function creatureActions(view:PlayerView, cardId:string, undoable:string[
   const energy=view.legal.energy.find(a=>a.cardId===cardId);
   const playActions:CreatureAction[]=[
     ...(energy?.options.map((output,option)=>({kind:'channel' as const,option,output}))??[]),
-    ...view.legal.activations.filter(a=>a.cardId===cardId).map(a=>({kind:'activate' as const,ability:a.ability})),
+    ...view.legal.activations.filter(a=>a.cardId===cardId).flatMap(a=>a.energyOptions ? a.energyOptions.map(output=>({kind:'activate' as const,ability:a.ability,target:Object.keys(output)[0],output})) : [{kind:'activate' as const,ability:a.ability}]),
   ];
   if(playActions.length)return playActions;
   const reachable=view.legal.lanes[cardId];

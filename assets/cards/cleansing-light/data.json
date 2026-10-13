@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/card.schema.json",
   "id": "cleansing-light",
   "revision": 3,
   "name": "Cleansing Light",
@@ -35,10 +36,5 @@
       }
     }
   ],
-  "translations": {
-    "de": {
-      "name": "Läuterndes Licht",
-      "subtypes": []
-    }
-  }
+  "set": "foundations"
 }

@@ -42,7 +42,7 @@ describe('creatures and bastions',()=>{
     expect(()=>compileContent([{...live.cards['crown-recruit'],type:'monster'}])).toThrow();
     expect(()=>compileContent([{...bastion,stats:{...bastion.stats,energyOutputs:[{crownlands:1}]}}])).toThrow('cannot produce energy');
     expect(()=>compileContent([{...bastion,stats:undefined}])).toThrow('Invalid field card');
-    expect(()=>compileContent([{...live.cards['crown-recruit'],stats:{attack:1,defense:1}}])).toThrow('needs energy outputs');
+    expect(compileContent([{...live.cards['crown-recruit'],stats:{attack:1,defense:1}}]).cards['crown-recruit'].stats!.energyOutputs).toEqual([]);
     expect(()=>compileContent([{...bastion,timing:['play']}])).toThrow('Invalid field card');
     expect(()=>compileContent([{...live.cards['cleansing-light'],abilities:[{id:'rally',params:{amount:1}}]}])).toThrow('activated field ability');
   });
@@ -88,7 +88,7 @@ describe('creatures and bastions',()=>{
     expect(creatureActions(projectForPlayer(s,'p1',r),id,[],[])).toEqual([{kind:'activate',ability:1}]);
     const envelope:CommandEnvelope={actor:'p1',expectedRevision:s.revision,command:{type:'activate',cardId:id,ability:1}};
     const after=step(s,envelope.command);expect(after.players.p1.life).toBe(8);expect(after.cards[id].exhausted).toBe(true);
-    expect(after.events.some(e=>e.message==='Crown Bastion activates Rally 1.')).toBe(true);expect(replay(s,[envelope],r)).toEqual(after);
+    expect(after.events.some(e=>e.message==='Crown Bastion activates Restore 1.')).toBe(true);expect(replay(s,[envelope],r)).toEqual(after);
     expect(legalActions(after,r).activations).toEqual([]);reject(after,envelope.command);
     after.phase='end';const next=step(after,{type:'end'});expect(next.cards[id].exhausted).toBe(false);
   });
@@ -131,7 +131,7 @@ describe('creatures and bastions',()=>{
     vi.stubGlobal('window',{matchMedia:()=>({matches:false})});
     const card=renderToStaticMarkup(<ArtCard card={bastion}/>),facts=renderToStaticMarkup(<CardFacts card={bastion}/>);
     expect(card).toContain('Bastion');expect(card).toContain('bastion-card');expect(card).not.toContain('Energy produced');
-    expect(facts).toContain('Defensive damage');expect(facts).toContain('cannot attack or generate energy');expect(facts).toContain('War Banner 1');expect(facts).toContain('Rally 1');
+    expect(facts).toContain('Defensive damage');expect(facts).toContain('cannot attack or generate energy');expect(facts).toContain('War Banner 1');expect(facts).toContain('Restore 1');
     expect(facts.match(/class="ability-fact"/g)).toHaveLength(2);expect(facts).not.toContain('ENERGY OUTPUT');
   });
   it.each([11,731,2048])('finishes a full bot match with bastions at seed %s',seed=>{

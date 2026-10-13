@@ -19,7 +19,7 @@ describe('Aldric, the Runewarden',()=>{
   it('is a playable singleton in the real collection and deck builder',()=>{
     const deck=heroDeck();expect(validateDeck(deck,registry)).toEqual([]);
     expect(addDeckCard(deck,heroId,registry)).toBe(deck);
-    expect(validateDeck([...deck,heroId],registry)).toContain('Too many copies of Aldric, the Runewarden.');
+    expect(validateDeck([...deck,heroId],registry)).toContain('Too many copies of Alderic, Warmaster of the Empire.');
   });
   it('requires four energy, enters exhausted, and uses Armor while striking back as a blocker',()=>{
     let state=createMatch(registry,[heroDeck(),heroDeck()],731);
@@ -36,7 +36,7 @@ describe('Aldric, the Runewarden',()=>{
     state=step(state,{type:'attack',attackers:[attacker]});
     
     state=step(state,{type:'confirm-combat'});
-    expect(state.cards[hero].zone).toBe('board');expect(state.cards[hero].damage).toBe(2);
-    expect(state.cards[attacker].zone).toBe('board');expect(state.cards[attacker].damage).toBe(2);
+    expect(state.cards[hero].zone).toBe('board');expect(state.cards[hero].damage).toBe(3);
+    expect(state.cards[attacker].zone).toBe('board');expect(state.cards[attacker].damage).toBe(3);
   });
 });

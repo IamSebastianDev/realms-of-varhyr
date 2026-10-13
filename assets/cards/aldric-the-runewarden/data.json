@@ -1,14 +1,17 @@
 {
+  "$schema": "../../schemas/card.schema.json",
   "id": "aldric-runewarden",
-  "revision": 5,
-  "name": "Aldric, the Runewarden",
+  "set": "foundations",
+  "revision": 10,
+  "name": "Alderic, Warmaster of the Empire",
   "deckLimitKey": "aldric-runewarden",
   "type": "creature",
   "factions": [
     "crownlands"
   ],
   "subtypes": [
-    "creature"
+    "human",
+    "leader"
   ],
   "legendary": true,
   "rarity": "legendary",
@@ -27,22 +30,17 @@
       }
     ]
   },
-  "lore": "The crown endures where its runes still shine.",
   "abilities": [
     {
       "id": "armor",
       "params": {
         "amount": 1
       }
+    },
+    {
+      "id": "fealty",
+      "params": {}
     }
   ],
-  "translations": {
-    "de": {
-      "name": "Aldric, der Runenwächter",
-      "lore": "Die Krone überdauert, solange ihre Runen noch leuchten.",
-      "subtypes": [
-        "Kreatur"
-      ]
-    }
-  }
+  "lore": "By Arianna’s command, he bears the empire’s wars. In every restored banner, he sees the glory still to come."
 }

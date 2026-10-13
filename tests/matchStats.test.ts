@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { replay } from '../packages/core/src';
-import { registry } from '../packages/content/src';
+import { recordedRegistry as registry } from './fixtures/recordedMatch';
 import { matchStats } from '../apps/web/src/matchStats';
 import { existsSync, readFileSync } from 'fs';
 

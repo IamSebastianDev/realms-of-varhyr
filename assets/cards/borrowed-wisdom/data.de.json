@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Geliehene Weisheit",
+  "lore": "Wissen reist weiter, wenn jemand das Buch verleiht."
+}

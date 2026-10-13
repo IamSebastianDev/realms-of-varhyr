@@ -1,9 +1,11 @@
+import { Checkbox } from './Checkbox';
+import { FactionSelect } from './FactionSelect';
 import { t as msg, useLanguage, formatNumber } from './i18n';
 import { ChartNoAxesColumn, Check, Copy, Download, Filter, Layers, Minus, MoreHorizontal, Plus, RotateCcw, Search, Upload, X } from 'lucide-react';
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { CardDefinition } from '../../../packages/contracts/src';
 import { deckRules } from '../../../packages/contracts/src';
-import { factionInfo, registry } from '../../../packages/content/src';
+import { factionInfo, registry, setDefinitions } from '../../../packages/content/src';
 import { validateDeck } from '../../../packages/core/src';
 import { ArtCard, CardHoverButton } from './CardPresentation';
 import { BuilderDialog } from './BuilderDialog';
@@ -177,15 +179,16 @@ export function DeckBuilder({ draft, decks, ownedCopies, message, canUndo, reduc
     </aside>
     {dialog === 'filters' && <BuilderDialog title={msg("Card filters")} origin={sharingOrigin.current} close={() => setDialog(null)}>
       <div className="builder-filter-dialog-grid">
-        <label>{msg("Faction")}<select aria-label={msg("Filter by faction")} value={filters.faction} onChange={event => filter('faction', event.target.value)}><option value="all">{msg("All factions")}</option>{Object.entries(factionInfo).map(([id, faction]) => <option key={id} value={id}>{faction.symbol} {msg(faction.name)}</option>)}</select></label>
+        <label>{msg("Set")}<select aria-label={msg("Filter by set")} value={filters.set} onChange={event => filter('set', event.target.value)}><option value="all">{msg("All sets")}</option>{setDefinitions.map(set => <option key={set.id} value={set.id}>{msg(set.name)}</option>)}</select></label>
+        <label>{msg("Faction")}<FactionSelect aria-label={msg("Filter by faction")} value={filters.faction} onChange={event => filter('faction', event.target.value)}/></label>
         <label>{msg("Type")}<select aria-label={msg("Filter by card type")} value={filters.kind} onChange={event => filter('kind', event.target.value)}><option value="all">{msg("All types")}</option><option value="creature">{msg("Creatures")}</option><option value="spell">{msg("Spells")}</option><option value="bastion">{msg("Bastions")}</option></select></label>
         <label>{msg("Role")}<select aria-label={msg("Filter by role")} value={filters.role} onChange={event => filter('role', event.target.value as BuilderFilters['role'])}><option value="all">{msg("All roles")}</option><option value="producers">{msg("Energy producers")}</option><option value="free-producers">{msg("Free producers")}</option></select></label>
         <label>{msg("Rarity")}<select aria-label={msg("Filter by rarity")} value={filters.rarity} onChange={event => filter('rarity', event.target.value)}><option value="all">{msg("All rarities")}</option><option value="common">{msg("Common")}</option><option value="rare">{msg("Rare")}</option><option value="legendary">{msg("Legendary")}</option></select></label>
         <label className="builder-filter-sort">{msg("Sort cards")}<select aria-label={msg("Sort cards")} value={filters.sort} onChange={event => filter('sort', event.target.value as CardSort)}><option value="cost">{msg("Cost: low to high")}</option><option value="name">{msg("Name: A–Z")}</option><option value="attack">{msg("Attack: high to low")}</option><option value="defense">{msg("Defense: high to low")}</option></select></label>
       </div>
       <div className="builder-cost-filter" role="group" aria-label={msg("Filter by total energy cost")}><span>{msg("Cost")}</span><button aria-pressed={filters.cost === null} onClick={() => filter('cost', null)}>{msg("All")}</button>{summary.curve.map((_, cost) => <button key={cost} aria-label={msg("Cost {v0}", {v0: cost === 6 ? '6 or more' : cost})} aria-pressed={filters.cost === cost} onClick={() => filter('cost', filters.cost === cost ? null : cost)}>{cost === 6 ? '6+' : cost}</button>)}</div>
-      <label className="builder-limit-filter"><input type="checkbox" checked={showUnowned} onChange={event => setShowUnowned(event.target.checked)}/>{msg("Show cards I don’t own")}{' '}{hiddenCount > 0 && msg(" ({v0} hidden)", {v0: hiddenCount})}</label>
-      <label className="builder-limit-filter"><input type="checkbox" checked={filters.addable} onChange={event => filter('addable', event.target.checked)}/>{msg("Only cards I can add")}</label>
+      <Checkbox className="builder-limit-filter" checked={showUnowned} onChange={event => setShowUnowned(event.target.checked)}>{msg("Show cards I don’t own")}{hiddenCount > 0 && msg(" ({v0} hidden)", {v0: hiddenCount})}</Checkbox>
+      <Checkbox className="builder-limit-filter" checked={filters.addable} onChange={event => filter('addable', event.target.checked)}>{msg("Only cards I can add")}</Checkbox>
       <div className="builder-dialog-actions"><button className="outline-button" onClick={() => { setFilters(initialBuilderFilters); setShowUnowned(false); }}>{msg("Reset filters")}</button><button className="gold-button" onClick={() => setDialog(null)}>{msg("Show")}{' '}{cards.length} {msg("cards")}<Check size={15}/></button></div>
     </BuilderDialog>}
     {dialog === 'deck' && <BuilderDialog title={msg("Deck actions")} origin={sharingOrigin.current} close={() => setDialog(null)}>

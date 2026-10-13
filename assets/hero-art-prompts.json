@@ -1,0 +1,106 @@
+{
+  "tool": "built-in image_gen",
+  "referenceRoles": [
+    "Ban Vale Cavalry: painterly style",
+    "Borrowed Wisdom: painterly style",
+    "Current hero portrait: identity and appearance"
+  ],
+  "prompts": [
+    {
+      "folder": "morie-grandmistress",
+      "name": "Morie, Grandmistress of Winter",
+      "prompt": "Use case: style-transfer. Asset type: spectacular fantasy trading-card illustration for Realms of Varhyr. Transform the supplied hero portrait (Image 3) into a new full-scene painting. Images 1 (Ban Vale Cavalry) and 2 (Borrowed Wisdom) are STYLE REFERENCES ONLY: match their traditional oil-paint illustration, visible confident brush strokes, textured canvas, muted earth pigments, rich atmospheric light, believable medieval materials and strong painterly shapes. Avoid polished digital portrait aesthetics, photorealism, CGI, glossy skin, anime and neon magic. Final composition MUST be vertical 2:3 portrait, ideally 1024x1536, edge-to-edge artwork without any card frame, text, typography, logos or watermark. Hero's recognizable face is in the upper-middle, around 35% of image height, with unobstructed face and enough headroom. Three-quarter or full-body figure has a commanding silhouette, landscape-scale drama and tangible narrative setting. Bottom 20% can carry landscape/robes so game labels don't cover the face. Preserve the hero's core appearance from Image 3 while making the anatomy, clothing and lighting convincingly painterly.\nSubject and scene: A wise silver-haired human grandmistress, poised and politically formidable, wearing layered ivory wool, pale teal ceremonial robes and a fur-lined mantle. She stands on the snowy open loggia of a rich northern city, one hand over a frost-veined diplomatic treaty on a stone table, the other shaping a vast crystalline arc of winter magic that curves over distant spires. Marble, snow, ice-blue sky and restrained warm window light. The spectacle is immense delicate frost formations and winter atmosphere, not a fireball. Her expression is composed and knowing. Preserve the reference's face and silver swept-back hair, make her a mature stateswoman.",
+      "referenced_image_paths": [
+        "/Volumes/Repositories/lands-of-varhir/assets/cards/ban-vale-cavalry/data.png",
+        "/Volumes/Repositories/lands-of-varhir/assets/cards/borrowed-wisdom/data.png",
+        "/Volumes/Repositories/lands-of-varhir/assets/avatars/coraxdigitalart-realistic-human-heroes (112).png"
+      ],
+      "savedArtwork": "assets/cards/morie-grandmistress/data.png"
+    },
+    {
+      "folder": "bosci-lord-of-seacliffe",
+      "name": "Bosci, Lord of Seacliffe",
+      "prompt": "Use case: style-transfer. Asset type: spectacular fantasy trading-card illustration for Realms of Varhyr. Transform the supplied hero portrait (Image 3) into a new full-scene painting. Images 1 (Ban Vale Cavalry) and 2 (Borrowed Wisdom) are STYLE REFERENCES ONLY: match their traditional oil-paint illustration, visible confident brush strokes, textured canvas, muted earth pigments, rich atmospheric light, believable medieval materials and strong painterly shapes. Avoid polished digital portrait aesthetics, photorealism, CGI, glossy skin, anime and neon magic. Final composition MUST be vertical 2:3 portrait, ideally 1024x1536, edge-to-edge artwork without any card frame, text, typography, logos or watermark. Hero's recognizable face is in the upper-middle, around 35% of image height, with unobstructed face and enough headroom. Three-quarter or full-body figure has a commanding silhouette, landscape-scale drama and tangible narrative setting. Bottom 20% can carry landscape/robes so game labels don't cover the face. Preserve the hero's core appearance from Image 3 while making the anatomy, clothing and lighting convincingly painterly.\nSubject and scene: A dark-haired human frontier warlord with the stern clean-shaven face of the portrait, wearing weathered steel plate and an ochre cloak. He stands atop a sea-cliff fortress above crashing surf, gripping the shaft of a wind-torn unifying banner while distant marching companies gather below. Storm clouds split into bright shafts of dawn across the battered Marches. Show practical battle-worn armor and resolute leadership, an epic seaward landscape, a precarious frontier kingdom rather than a comfortable royal palace.",
+      "referenced_image_paths": [
+        "/Volumes/Repositories/lands-of-varhir/assets/cards/ban-vale-cavalry/data.png",
+        "/Volumes/Repositories/lands-of-varhir/assets/cards/borrowed-wisdom/data.png",
+        "/Volumes/Repositories/lands-of-varhir/assets/avatars/coraxdigitalart-realistic-human-heroes (489).png"
+      ],
+      "savedArtwork": "assets/cards/bosci-lord-of-seacliffe/data.png",
+      "edits": [
+        {
+          "tool": "built-in image_gen",
+          "prompt": "Use case: precise-object-edit. Edit this existing full-scene painterly fantasy card artwork of Bosci, Lord of Seacliffe.\nChange Bosci's equipment and hairstyle to a more rugged Viking / early Anglo-Saxon frontier lord:\n- Replace ALL the plate armor on his chest, shoulders, arms and legs with a believable knee-length chainmail hauberk over a coarse wool tunic and padded linen underlayer. Make the individually linked iron mail plainly visible across his chest, shoulders and sleeves. No plate cuirass, no large metal pauldrons, no plate greaves, no scale armor. Weathered leather belt and cross straps, simple leather bracers, wool trousers with cloth leg wraps and scuffed boots.\n- His dark hair is pulled back into a clearly visible high MANBUN / tied warrior topknot, with the bun recognizable in the head silhouette. Slightly turn his head into a three-quarter angle if necessary to make the manbun visible, while preserving his recognizable facial identity, stern expression and unobstructed face. Add a rugged short beard/stubble and wind-weathered skin.\n- Keep the ochre wool cloak, but make it rougher and more travel-worn, with a simple bronze cloak brooch.\nPreserve the spectacular original composition: he grips the wind-torn blue-and-gold banner on the rocky sea cliff above the fortress and crashing surf, with distant gathered companies and shafts of dawn cutting through storm clouds. Preserve the hand gripping the flagstaff, the medieval sea-cliff world, vertical 2:3 aspect ratio, atmospheric earth palette, strong visible oil-paint brushwork and painterly material textures. This is rough early-medieval iron, wool and leather rather than polished royal pageantry. No horned helmet, no text, no card frame, no watermark, no photorealism or CGI. His head stays in the upper-middle of the painting so card labels will not cover it.",
+          "input": "Bosci painting produced by the original prompt above",
+          "savedArtwork": "assets/cards/bosci-lord-of-seacliffe/data.png"
+        }
+      ]
+    },
+    {
+      "folder": "dwell-mountain-merchant",
+      "name": "Dwell, Merchant of the Mountains",
+      "prompt": "Use case: style-transfer. Asset type: spectacular fantasy trading-card illustration for Realms of Varhyr. Transform the supplied hero portrait (Image 3) into a new full-scene painting. Images 1 (Ban Vale Cavalry) and 2 (Borrowed Wisdom) are STYLE REFERENCES ONLY: match their traditional oil-paint illustration, visible confident brush strokes, textured canvas, muted earth pigments, rich atmospheric light, believable medieval materials and strong painterly shapes. Avoid polished digital portrait aesthetics, photorealism, CGI, glossy skin, anime and neon magic. Final composition MUST be vertical 2:3 portrait, ideally 1024x1536, edge-to-edge artwork without any card frame, text, typography, logos or watermark. Hero's recognizable face is in the upper-middle, around 35% of image height, with unobstructed face and enough headroom. Three-quarter or full-body figure has a commanding silhouette, landscape-scale drama and tangible narrative setting. Bottom 20% can carry landscape/robes so game labels don't cover the face. Preserve the hero's core appearance from Image 3 while making the anatomy, clothing and lighting convincingly painterly.\nSubject and scene: Dwell is a genuinely broad, stocky DWARF merchant-prince with a heavy dark-grey beard, swept-back hair and shrewd expression adapted from the portrait. His short, powerfully built body and broad hands must read unmistakably as dwarven, not a tall human. He stands inside a colossal mountain trading hall cut from warm granite, holding a polished uncut blue gemstone up to a shaft of daylight. Massive ore carts, iron scales, gold coins, brass weights, dwarven forge fires and carved vaults establish wealth built through trade. Splendid but practical purple wool, thick leather, engraved metal clasps. Spectacular scale and rich amber highlights on stone and metal, subdued mineral blues.",
+      "referenced_image_paths": [
+        "/Volumes/Repositories/lands-of-varhir/assets/cards/ban-vale-cavalry/data.png",
+        "/Volumes/Repositories/lands-of-varhir/assets/cards/borrowed-wisdom/data.png",
+        "/Volumes/Repositories/lands-of-varhir/assets/avatars/coraxdigitalart-realistic-human-heroes (433).png"
+      ],
+      "savedArtwork": "assets/cards/dwell-mountain-merchant/data.png"
+    },
+    {
+      "folder": "the-lonely-wanderer",
+      "name": "The Lonely Wanderer",
+      "prompt": "Use case: style-transfer. Asset type: spectacular fantasy trading-card illustration for Realms of Varhyr. Transform the supplied hero portrait (Image 3) into a new full-scene painting. Images 1 (Ban Vale Cavalry) and 2 (Borrowed Wisdom) are STYLE REFERENCES ONLY: match their traditional oil-paint illustration, visible confident brush strokes, textured canvas, muted earth pigments, rich atmospheric light, believable medieval materials and strong painterly shapes. Avoid polished digital portrait aesthetics, photorealism, CGI, glossy skin, anime and neon magic. Final composition MUST be vertical 2:3 portrait, ideally 1024x1536, edge-to-edge artwork without any card frame, text, typography, logos or watermark. Hero's recognizable face is in the upper-middle, around 35% of image height, with unobstructed face and enough headroom. Three-quarter or full-body figure has a commanding silhouette, landscape-scale drama and tangible narrative setting. Bottom 20% can carry landscape/robes so game labels don't cover the face. Preserve the hero's core appearance from Image 3 while making the anatomy, clothing and lighting convincingly painterly.\nSubject and scene: An enigmatic lone hooded human traveler on an ancient narrow stone road high above a mist-filled valley. Preserve the weathered brown hood, blue scarf and quiet guarded face of the portrait; place the hood so the face stays shadowed but readable. No crown, no heraldry, no obvious faction. A worn traveling staff, sturdy boots and patched cloak. Beyond him, a ruined aqueduct, faint imperial towers, winter peaks and distant dark forests hint at a world that no lord can fully claim. Wind lifts the cloak; warm late-afternoon light catches the path through cloud. Make this an epic mysterious oil painting with a large luminous landscape and one compelling solitary figure, not a close-up portrait.",
+      "referenced_image_paths": [
+        "/Volumes/Repositories/lands-of-varhir/assets/cards/ban-vale-cavalry/data.png",
+        "/Volumes/Repositories/lands-of-varhir/assets/cards/borrowed-wisdom/data.png",
+        "/Volumes/Repositories/lands-of-varhir/assets/avatars/coraxdigitalart-realistic-human-heroes (81).png"
+      ],
+      "savedArtwork": "assets/cards/the-lonely-wanderer/data.png"
+    },
+    {
+      "folder": "ilyria-queen-of-the-elves",
+      "name": "Ilyria, Queen of the Elves",
+      "prompt": "Use case: style-transfer. Asset type: spectacular fantasy trading-card illustration for Realms of Varhyr. Transform the supplied hero portrait (Image 3) into a new full-scene painting. Images 1 (Ban Vale Cavalry) and 2 (Borrowed Wisdom) are STYLE REFERENCES ONLY: match their traditional oil-paint illustration, visible confident brush strokes, textured canvas, muted earth pigments, rich atmospheric light, believable medieval materials and strong painterly shapes. Avoid polished digital portrait aesthetics, photorealism, CGI, glossy skin, anime and neon magic. Final composition MUST be vertical 2:3 portrait, ideally 1024x1536, edge-to-edge artwork without any card frame, text, typography, logos or watermark. Hero's recognizable face is in the upper-middle, around 35% of image height, with unobstructed face and enough headroom. Three-quarter or full-body figure has a commanding silhouette, landscape-scale drama and tangible narrative setting. Bottom 20% can carry landscape/robes so game labels don't cover the face. Preserve the hero's core appearance from Image 3 while making the anatomy, clothing and lighting convincingly painterly.\nSubject and scene: A proud pale elven queen with long silver-blonde hair, distinctly pointed ears, green eyes, a subtle leaf-and-branch circlet and dark emerald robes. Preserve the regal face of the portrait. She stands among the living roots of an immense ancient oak, her hand resting on a carved living-wood staff. The forest forms a cathedral around her, colossal trunks and sunlit canopy receding through golden-green mist. Behind her, only subtle distant silhouettes of druids and tree walkers. Delicate leaves swirl around her as the woodland shelters her people; powerful, beautiful and dangerous rather than sugary fairy aesthetics. Tangible moss, bark, silk and worn leather, deep forest shadows and radiant filtered sunlight.",
+      "referenced_image_paths": [
+        "/Volumes/Repositories/lands-of-varhir/assets/cards/ban-vale-cavalry/data.png",
+        "/Volumes/Repositories/lands-of-varhir/assets/cards/borrowed-wisdom/data.png",
+        "/Volumes/Repositories/lands-of-varhir/assets/avatars/coraxdigitalart-realistic-human-heroes (37).png"
+      ],
+      "savedArtwork": "assets/cards/ilyria-queen-of-the-elves/data.png"
+    },
+    {
+      "folder": "hekata-lady-of-the-fields",
+      "name": "Hekata, Lady of the Fields",
+      "prompt": "Use case: style-transfer. Asset type: spectacular fantasy trading-card illustration for Realms of Varhyr. Transform the supplied hero portrait (Image 3) into a new full-scene painting. Images 1 (Ban Vale Cavalry) and 2 (Borrowed Wisdom) are STYLE REFERENCES ONLY: match their traditional oil-paint illustration, visible confident brush strokes, textured canvas, muted earth pigments, rich atmospheric light, believable medieval materials and strong painterly shapes. Avoid polished digital portrait aesthetics, photorealism, CGI, glossy skin, anime and neon magic. Final composition MUST be vertical 2:3 portrait, ideally 1024x1536, edge-to-edge artwork without any card frame, text, typography, logos or watermark. Hero's recognizable face is in the upper-middle, around 35% of image height, with unobstructed face and enough headroom. Three-quarter or full-body figure has a commanding silhouette, landscape-scale drama and tangible narrative setting. Bottom 20% can carry landscape/robes so game labels don't cover the face. Preserve the hero's core appearance from Image 3 while making the anatomy, clothing and lighting convincingly painterly.\nSubject and scene: A merciless human warlord, woman with the sharp features and tied-back ash-brown hair of the portrait, standing on the blackened ramparts of a captured eastern stronghold. Weathered steel armor, a deep red sash and a smoke-tossed grey cloak. Her open gauntleted hand directs a tremendous twisting wall of fire sweeping across the distant battlefield; the flame reads as thick luminous oil paint rather than neon effects. Ash falls in a turbulent ochre sky; distant invaders and imperial towers suggest the gold she covets. She is calm and possessive amid destruction. Keep her face clearly lit in the upper-middle; monumental painterly fire, smoke, iron, black rock and scarlet accents.",
+      "referenced_image_paths": [
+        "/Volumes/Repositories/lands-of-varhir/assets/cards/ban-vale-cavalry/data.png",
+        "/Volumes/Repositories/lands-of-varhir/assets/cards/borrowed-wisdom/data.png",
+        "/Volumes/Repositories/lands-of-varhir/assets/avatars/coraxdigitalart-realistic-human-heroes (415).png"
+      ],
+      "savedArtwork": "assets/cards/hekata-lady-of-the-fields/data.png"
+    },
+    {
+      "folder": "brut-chief-of-the-harpies",
+      "name": "Brut, Chief of the Harpies",
+      "prompt": "Use case: style-transfer. Asset type: spectacular fantasy trading-card illustration for Realms of Varhyr. Transform the supplied hero portrait (Image 3) into a new full-scene painting. Images 1 (Ban Vale Cavalry) and 2 (Borrowed Wisdom) are STYLE REFERENCES ONLY: match their traditional oil-paint illustration, visible confident brush strokes, textured canvas, muted earth pigments, rich atmospheric light, believable medieval materials and strong painterly shapes. Avoid polished digital portrait aesthetics, photorealism, CGI, glossy skin, anime and neon magic. Final composition MUST be vertical 2:3 portrait, ideally 1024x1536, edge-to-edge artwork without any card frame, text, typography, logos or watermark. Hero's recognizable face is in the upper-middle, around 35% of image height, with unobstructed face and enough headroom. Three-quarter or full-body figure has a commanding silhouette, landscape-scale drama and tangible narrative setting. Bottom 20% can carry landscape/robes so game labels don't cover the face. Preserve the hero's core appearance from Image 3 while making the anatomy, clothing and lighting convincingly painterly.\nSubject and scene: A savage charismatic GOBLIN war-chief with olive-grey skin, broad pointed goblin ears, a black swept-back mohawk, facial scars and metal piercings adapted from the supplied portrait. He must read as a goblin, with wiry compact proportions and large expressive features, not a human warrior. He laughs fiercely while raising a notched cleaver atop a rocky outcrop; a rushing host of smaller goblins surges below. Huge ragged banners bearing SIMPLE PAINTED HARPY SILHOUETTES fill the stormy dusk wind, but there are NO ACTUAL HARPIES OR FLYING CREATURES. Patchwork leather, looted steel, red cord, muddy ochre battlefield and sparks from camp fires. A spectacular dangerous celebration of chaotic unity.",
+      "referenced_image_paths": [
+        "/Volumes/Repositories/lands-of-varhir/assets/cards/ban-vale-cavalry/data.png",
+        "/Volumes/Repositories/lands-of-varhir/assets/cards/borrowed-wisdom/data.png",
+        "/Volumes/Repositories/lands-of-varhir/assets/avatars/coraxdigitalart-realistic-human-heroes (221).png"
+      ],
+      "savedArtwork": "assets/cards/brut-chief-of-the-harpies/data.png"
+    },
+    {
+      "folder": "dark-priest-of-run",
+      "name": "The Dark Priest of Run",
+      "prompt": "Use case: style-transfer. Asset type: spectacular fantasy trading-card illustration for Realms of Varhyr. Transform the supplied hero portrait (Image 3) into a new full-scene painting. Images 1 (Ban Vale Cavalry) and 2 (Borrowed Wisdom) are STYLE REFERENCES ONLY: match their traditional oil-paint illustration, visible confident brush strokes, textured canvas, muted earth pigments, rich atmospheric light, believable medieval materials and strong painterly shapes. Avoid polished digital portrait aesthetics, photorealism, CGI, glossy skin, anime and neon magic. Final composition MUST be vertical 2:3 portrait, ideally 1024x1536, edge-to-edge artwork without any card frame, text, typography, logos or watermark. Hero's recognizable face is in the upper-middle, around 35% of image height, with unobstructed face and enough headroom. Three-quarter or full-body figure has a commanding silhouette, landscape-scale drama and tangible narrative setting. Bottom 20% can carry landscape/robes so game labels don't cover the face. Preserve the hero's core appearance from Image 3 while making the anatomy, clothing and lighting convincingly painterly.\nSubject and scene: A mysterious always-hooded necromancer, his face almost entirely swallowed by deep shadow beneath layered charcoal and muted violet priestly robes. Preserve the general hooded silhouette of the portrait, but do not present a handsome exposed face: he is an unknowable priest. He lifts a bone-and-iron ritual staff in the nave of a ruined cathedral open to a vast cold night sky. A tide of undead soldiers and skeletal banners emerges from crypt arches below him. Faint ghostly silver-lavender souls spiral around the staff like pale candle smoke, feeding the ritual. Monumental gothic stone, burial earth, tattered wool and aged iron; moonlight and dim candles with thick painterly shadows. Ominous, beautiful, spectacular and restrained, no neon-green game effects, no gore.",
+      "referenced_image_paths": [
+        "/Volumes/Repositories/lands-of-varhir/assets/cards/ban-vale-cavalry/data.png",
+        "/Volumes/Repositories/lands-of-varhir/assets/cards/borrowed-wisdom/data.png",
+        "/Volumes/Repositories/lands-of-varhir/assets/avatars/coraxdigitalart-realistic-human-heroes (405).png"
+      ],
+      "savedArtwork": "assets/cards/dark-priest-of-run/data.png"
+    }
+  ]
+}

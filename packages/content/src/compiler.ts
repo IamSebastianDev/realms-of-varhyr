@@ -7,12 +7,13 @@ import { factions } from './factions';
 const nonnegativeInteger = v.pipe(v.number(), v.integer(), v.minValue(0));
 const binding = v.object({ id: v.string(), params: v.record(v.string(), v.unknown()) });
 
-function cardSchema(factionIds: readonly string[]) {
+export function cardSchema(factionIds: readonly string[]) {
   const faction = v.picklist(factionIds);
   const affiliation = v.picklist([...factionIds, 'neutral']);
   const pool = v.record(v.picklist([...factionIds, 'neutral']), nonnegativeInteger);
   return v.object({
     id: v.string(),
+    set: v.optional(v.pipe(v.string(), v.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/))),
     revision: v.pipe(nonnegativeInteger, v.minValue(1)),
     name: v.string(),
     deckLimitKey: v.string(),
@@ -23,8 +24,9 @@ function cardSchema(factionIds: readonly string[]) {
     rarity: v.picklist(['common', 'rare', 'legendary']),
     cost: v.object({ generic: nonnegativeInteger, factions: v.optional(v.record(faction, nonnegativeInteger), {}) }),
     lore: v.optional(v.string()),
+    // Authored in assets/cards/<card>/data.<language>.json and merged by the importer; never part of data.json.
     translations: v.optional(v.record(v.picklist(['en','de']), v.strictObject({
-      name: v.optional(v.pipe(v.string(),v.trim(),v.minLength(1))), lore: v.optional(v.string()), subtypes: v.optional(v.array(v.pipe(v.string(),v.trim(),v.minLength(1)))),
+      name: v.optional(v.pipe(v.string(),v.trim(),v.minLength(1))), lore: v.optional(v.string()),
     }))),
     art: v.string(),
     animation: v.optional(v.string()),
@@ -37,6 +39,22 @@ function cardSchema(factionIds: readonly string[]) {
     timing: v.optional(v.pipe(v.array(v.picklist(['play', 'death'])), v.minLength(1))),
     cast: v.optional(v.array(binding)),
   });
+}
+
+/** What a card's data.json may contain. Translations live in data.<language>.json instead. */
+export function authoredCardSchema(factionIds: readonly string[]) {
+  return v.omit(cardSchema(factionIds), ['translations']);
+}
+
+/** The translated fields of one card in one language. Everything else (type, subtypes, rarity, rules) is translated statically. */
+export const cardTranslationSchema = v.strictObject({
+  $schema: v.optional(v.string()),
+  name: v.pipe(v.string(), v.trim(), v.minLength(1)),
+  lore: v.optional(v.string()),
+});
+export function parseCardTranslation(input: unknown) {
+  const { $schema: _schema, ...translation } = v.parse(cardTranslationSchema, input);
+  return translation;
 }
 
 function canonical(value: unknown): unknown {
@@ -74,12 +92,15 @@ export function compileContent(
     }
     if (cards[card.id]) throw new Error(`Duplicate card ID: ${card.id}`);
     if (card.type !== 'spell' && (!card.stats || card.cast || card.timing)) throw new Error(`Invalid field card: ${card.id}`);
-    if (card.type === 'creature' && !card.stats!.energyOutputs.length) throw new Error(`Creature ${card.id} needs energy outputs`);
     if (card.type === 'bastion' && card.stats!.energyOutputs.length) throw new Error(`Bastion ${card.id} cannot produce energy`);
     if (card.type === 'spell' && (card.stats || !card.cast?.length || !card.timing)) throw new Error(`Invalid spell: ${card.id}`);
     for (const binding of [...card.abilities, ...(card.cast ?? [])]) {
       const extension = extensions[binding.id];
       if (!extension) throw new Error(`Unknown ability ${binding.id} on ${card.id}`);
+      if (card.type === 'bastion' && extension.activationEnergy) throw new Error(`Bastion ${card.id} cannot produce energy`);
+      if (extension.faction && (extension.faction === 'neutral' ? card.factions.length !== 0 : !card.factions.includes(extension.faction))) {
+        throw new Error(`Ability ${binding.id} belongs to ${extension.faction}; card ${card.id} needs that affiliation`);
+      }
       extension.validate(binding.params);
       describeAbility(binding, extension);
       for (const translation of Object.values(extension.translations ?? {})) {
@@ -93,11 +114,13 @@ export function compileContent(
   }
 
   const bundle = JSON.stringify(canonical({
-    // Presentation-only translations do not invalidate saved matches or change the wire content version.
-    cards: Object.fromEntries(Object.entries(cards).map(([id,{translations:_translations,...card}])=>[id,card])),
+    // Presentation-only set membership and translations do not invalidate saved matches or change the wire content version.
+    cards: Object.fromEntries(Object.entries(cards).map(([id,{translations:_translations,set:_set,...card}])=>[id,card])),
     factions: factionIds,
     extensions: Object.keys(extensions).sort().map(id => [
       id, extensions[id].version, extensions[id].name, extensions[id].description,
+      ...(extensions[id].faction ? [extensions[id].faction] : []),
+      ...(extensions[id].placement ? [true] : []),
     ]),
   }));
   let hash = 2166136261;

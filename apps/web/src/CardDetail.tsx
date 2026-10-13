@@ -1,7 +1,7 @@
 import { t as msg, useLanguage, localizedCard } from './i18n';
 import type { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { factionInfo } from '../../../packages/content/src';
+import { factionInfo, setInfo } from '../../../packages/content/src';
 import type { CardDefinition } from '../../../packages/contracts/src';
 import { ArtCard, cardClassification, CardFacts, CardLore, Cost } from './CardPresentation';
 
@@ -24,11 +24,13 @@ export function CardDetail({ card, stats, animated = false, reduced = false, sta
   useLanguage();
   card=localizedCard(card);
   const factions = card.factions.map(f => msg(factionInfo[f].name)).join(' / ') || msg("Neutral");
+  const set=card.set ? setInfo[card.set] : undefined;
   return <div className="card-detail">
     <ArtCard card={card} animated={animated} reduced={reduced} className="card-detail-art" stats={stats} detail={false} />
     <div className="card-detail-body">
       <span className="eyebrow">{factions} · {card.legendary ? msg("Legendary ") : ''}{cardClassification(card)}</span>
       <h2>{card.name}</h2>
+      {set && <p className="card-detail-set" title={msg(set.description)}><span aria-hidden="true">{set.symbol}</span><span>{msg(set.name)}</span><small>{set.code}</small></p>}
       <Cost card={card} />
       <CardLore card={card} />
       <CardFacts card={card} stats={stats} />

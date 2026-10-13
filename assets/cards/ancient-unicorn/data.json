@@ -1,0 +1,33 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "ancient-unicorn",
+  "revision": 1,
+  "name": "Ancient Unicorn",
+  "deckLimitKey": "ancient-unicorn",
+  "type": "creature",
+  "factions": [
+    "neutral"
+  ],
+  "subtypes": [
+    "unicorn"
+  ],
+  "legendary": true,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1,
+    "factions": {}
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 2,
+    "energyOutputs": []
+  },
+  "abilities": [
+    {
+      "id": "primal",
+      "params": {}
+    }
+  ],
+  "lore": "A rare sight, but an unforgettable one.",
+  "set": "foundations"
+}

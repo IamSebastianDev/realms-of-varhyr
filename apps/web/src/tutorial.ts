@@ -57,7 +57,7 @@ export const tutorialSteps: TutorialStep[] = [
     text: 'Merchant of Tris Vale goes to the Right Wing. It will produce two energy when it readies, and it will matter again soon.',
     focus: state => [...hand('merchant-of-tris-vale')(state), slot(you, 3)], accept: playsAt('merchant-of-tris-vale', 3) },
   { id: 'enter-combat', title: 'A turn has three phases',
-    text: 'Play, combat, end. Nothing of yours is ready to fight, but you still pass through combat. Press the glowing button, or hit Space.',
+    text: 'Play, combat, end. Nothing of yours is ready to fight, but you still pass through combat. Click the glowing button, or press Space. Each phase has a brief transition before you can advance again.',
     focus: () => [button], accept: is('end') },
   { id: 'skip-combat', title: 'Skip combat', text: 'No attackers this turn. Press the button again.', focus: () => [button], accept: command => command.type === 'attack' && !command.attackers.length },
   { id: 'end-turn', title: 'End your turn',

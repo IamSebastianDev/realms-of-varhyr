@@ -3,10 +3,5 @@
   "name": "Neutral",
   "short": "Neutral",
   "color": "#c6c3b5",
-  "symbol": "◇",
-  "pack": {
-    "id": "neutral",
-    "name": "The Wayfarer’s Satchel",
-    "blurb": "Mercenaries, drifters and lone wanderers. Only Neutral cards."
-  }
+  "signatureAbility": "wayfarer"
 }

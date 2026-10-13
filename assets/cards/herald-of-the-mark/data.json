@@ -1,0 +1,32 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "herald-of-the-mark",
+  "revision": 1,
+  "name": "Herald of the Mark",
+  "deckLimitKey": "herald-of-the-mark",
+  "type": "creature",
+  "factions": [
+    "bright-marches"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {}
+  },
+  "abilities": [],
+  "lore": "When the herald calls, the mark rises.",
+  "stats": {
+    "attack": 1,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "bright-marches": 1
+      }
+    ]
+  },
+  "set": "foundations"
+}

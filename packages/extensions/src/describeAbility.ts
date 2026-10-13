@@ -11,5 +11,8 @@ export function describeAbility(binding: AbilityBinding, extension: AbilityExten
       return String(value);
     });
   }
-  return { name: fill(extension.name), description: fill(extension.description) };
+  let description = fill(extension.description);
+  // Draw uses one shared template across card counts; keep its singular readable in both supported languages.
+  if (binding.id === 'draw' && binding.params.amount === 1) description = description.replace(/\b1 cards\b/g, '1 card').replace(/\b1 Karten\b/g, '1 Karte');
+  return { name: fill(extension.name), description };
 }

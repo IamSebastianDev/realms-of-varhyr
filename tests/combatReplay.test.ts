@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { apply, projectForPlayer, replay } from '../packages/core/src';
 import { presentationState, type MatchSnapshot } from '../packages/multiplayer/src/protocol';
-import { registry } from '../packages/content/src';
+import { recordedRegistry as registry } from './fixtures/recordedMatch';
 import { buildAftermath, buildArrival, buildClash } from '../apps/web/src/combatReplay';
 import { readFileSync, existsSync } from 'fs';
 

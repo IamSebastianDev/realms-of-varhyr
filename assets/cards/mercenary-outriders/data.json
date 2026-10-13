@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/card.schema.json",
   "id": "mercenary-outriders",
   "revision": 1,
   "name": "Mercenary Outriders",
@@ -30,12 +31,5 @@
       "params": {}
     }
   ],
-  "translations": {
-    "de": {
-      "name": "Berittene Söldnerspäher",
-      "subtypes": [
-        "Mensch"
-      ]
-    }
-  }
+  "set": "foundations"
 }

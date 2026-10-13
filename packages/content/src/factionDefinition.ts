@@ -10,8 +10,8 @@ export const factionSchema = v.strictObject({
   /** Short label used on card faces. */
   short: text,
   color: v.pipe(v.string(), v.regex(/^#[0-9a-fA-F]{6}$/, 'Use a #rrggbb color.')),
-  /** One distinct character shown next to the faction's energy and on its booster pack. */
-  symbol: v.pipe(text, v.maxLength(4)),
+  /** Registered reusable ability that expresses this faction's identity. */
+  signatureAbility: v.optional(slug),
   /** Optional store booster that draws only this faction's cards. The pack ID is stable once players own packs. */
   pack: v.optional(v.strictObject({ id: slug, name: text, blurb: text })),
   /** Optional starter deck for this faction: card ID -> copies. The deck ID is stable once decks are saved. */
@@ -35,11 +35,11 @@ export function parseFactionDefinition(data: unknown): FactionDefinition {
 /** Neutral cards have no named faction and pay with generic energy. The rules are built in; its look is authored like any faction. */
 export const neutralId = 'neutral';
 
-/** Cross-faction rules: unique IDs, symbols and pack IDs. Returns the list sorted by ID. */
+/** Cross-faction rules: unique faction, pack and starter IDs. Returns the list sorted by ID. */
 export function validateFactionSet(factions: FactionDefinition[]): FactionDefinition[] {
-  const seen = { id: new Map<string, string>(), symbol: new Map<string, string>(), pack: new Map<string, string>(), starter: new Map<string, string>() };
+  const seen = { id: new Map<string, string>(), pack: new Map<string, string>(), starter: new Map<string, string>() };
   for (const faction of factions) {
-    for (const [kind, value] of [['id', faction.id], ['symbol', faction.symbol], ['pack', faction.pack?.id], ['starter', faction.starter?.id]] as const) {
+    for (const [kind, value] of [['id', faction.id], ['pack', faction.pack?.id], ['starter', faction.starter?.id]] as const) {
       if (value === undefined) continue;
       const previous = seen[kind].get(value);
       if (previous) throw new Error(`Faction '${faction.id}' reuses the ${kind === 'pack' ? 'booster pack ID' : kind === 'starter' ? 'starter deck ID' : kind} '${value}' of '${previous}'.`);
@@ -49,6 +49,6 @@ export function validateFactionSet(factions: FactionDefinition[]): FactionDefini
   }
   const defaults = factions.filter(faction => faction.starter?.default);
   if (defaults.length > 1) throw new Error(`Only one faction can mark its starter deck as the default: ${defaults.map(faction => faction.id).join(', ')}.`);
-  if (!factions.some(faction => faction.id === neutralId)) throw new Error(`Missing the built-in '${neutralId}' faction. Add ${neutralId}.json (name, short, color, symbol).`);
+  if (!factions.some(faction => faction.id === neutralId)) throw new Error(`Missing the built-in '${neutralId}' faction. Add ${neutralId}.json (name, short, color).`);
   return [...factions].sort((a, b) => a.id < b.id ? -1 : 1);
 }

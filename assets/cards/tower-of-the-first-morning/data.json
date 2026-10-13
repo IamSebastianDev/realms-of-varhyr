@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schemas/card.schema.json",
   "id": "tower-of-the-first-morning",
   "revision": 1,
   "name": "Tower of the First Morning",
@@ -37,13 +38,5 @@
     }
   ],
   "lore": "No one may pass the tower without cleansing.",
-  "translations": {
-    "de": {
-      "name": "Turm des ersten Morgens",
-      "lore": "Niemand darf den Turm ohne Läuterung passieren.",
-      "subtypes": [
-        "Befestigung"
-      ]
-    }
-  }
+  "set": "foundations"
 }

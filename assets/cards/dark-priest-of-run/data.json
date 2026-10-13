@@ -1,0 +1,46 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "dark-priest-of-run",
+  "set": "foundations",
+  "revision": 4,
+  "name": "The Dark Priest of Run",
+  "deckLimitKey": "dark-priest-of-run",
+  "type": "creature",
+  "factions": [
+    "black-host"
+  ],
+  "subtypes": [
+    "necromancer",
+    "leader"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "black-host": 2
+    }
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 6,
+    "energyOutputs": [
+      {
+        "black-host": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "soul-harvest",
+      "params": {}
+    },
+    {
+      "id": "rime",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "lore": "Beneath the hood, a world without dawn. Behind him, an army that will never see another grave."
+}

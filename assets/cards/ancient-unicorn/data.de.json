@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Uraltes Einhorn",
+  "lore": "Ein seltener, aber unvergesslicher Anblick."
+}

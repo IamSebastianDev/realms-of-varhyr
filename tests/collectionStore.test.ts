@@ -24,7 +24,7 @@ describe('shared collection persistence', () => {
     const reloaded = await import('../apps/web/src/collectionStore');
     const state = reloaded.updateCollection(current => claimVictory(current, 'won-once', 'p1', true));
     expect(state.saved).toBe(true);
-    expect(state.collection).toMatchObject({ crowns: 925, packs: { bounty: 6, crown: 1 }, rewardedMatches: ['won-once'] });
+    expect(state.collection).toMatchObject({ crowns: 925, packs: { bounty: 6, foundations: 1 }, rewardedMatches: ['won-once'] });
   });
   it('spends from the latest persisted balance rather than a stale render or another tab', async () => {
     const store = await import('../apps/web/src/collectionStore');

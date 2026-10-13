@@ -1,15 +1,31 @@
 [
   {
+    "id": "black-host",
+    "name": "The Black Host",
+    "short": "Host",
+    "color": "#a58abd",
+    "signatureAbility": "soul-harvest"
+  },
+  {
+    "id": "bright-marches",
+    "name": "The Bright Marches",
+    "short": "Marches",
+    "color": "#ebc77e",
+    "signatureAbility": "marches-rally"
+  },
+  {
+    "id": "conclave",
+    "name": "The Conclave",
+    "short": "Conclave",
+    "color": "#86b772",
+    "signatureAbility": "sanctuary"
+  },
+  {
     "id": "crownlands",
     "name": "The Crownlands",
     "short": "Crown",
     "color": "#deb966",
-    "symbol": "♜",
-    "pack": {
-      "id": "crown",
-      "name": "Banners of the Crown",
-      "blurb": "Knights, banners and bastions. Only Crownlands cards."
-    },
+    "signatureAbility": "fealty",
     "starter": {
       "id": "crown",
       "name": "Banners of the Crown",
@@ -31,15 +47,38 @@
     }
   },
   {
+    "id": "ember-fields",
+    "name": "The Ember Fields",
+    "short": "Ember",
+    "color": "#e57f45",
+    "signatureAbility": "scorch"
+  },
+  {
+    "id": "horde",
+    "name": "The Horde",
+    "short": "Horde",
+    "color": "#c36a49",
+    "signatureAbility": "raid"
+  },
+  {
+    "id": "mountain-clans",
+    "name": "The Mountain Clans",
+    "short": "Clans",
+    "color": "#bf966a",
+    "signatureAbility": "trade"
+  },
+  {
     "id": "neutral",
     "name": "Neutral",
     "short": "Neutral",
     "color": "#c6c3b5",
-    "symbol": "◇",
-    "pack": {
-      "id": "neutral",
-      "name": "The Wayfarer’s Satchel",
-      "blurb": "Mercenaries, drifters and lone wanderers. Only Neutral cards."
-    }
+    "signatureAbility": "wayfarer"
+  },
+  {
+    "id": "winter-league",
+    "name": "The League of Winter",
+    "short": "League",
+    "color": "#94d5dc",
+    "signatureAbility": "accord"
   }
 ]
