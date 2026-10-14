@@ -25,6 +25,7 @@ import { ProfilePage } from './ProfilePage';
 import { SettingsPage } from './SettingsPage';
 import { useProfile } from './profile';
 import { tutorialKey } from './tutorial';
+import { compareCards } from './deckTools';
 
 export type Screen='menu'|'cards'|'builder'|'stats'|'store'|'profile'|'settings'|'multiplayer'|'match';
 type Mode='practice'|'hotseat';
@@ -98,7 +99,7 @@ export function Lobby(props:Props){
       ...[...card.abilities,...card.cast??[]].flatMap(binding=>[registry.abilities[binding.id].name,registry.abilities[binding.id].description]),
       ...card.subtypes,card.legendary?'legendary legendär':''].join(' ').toLowerCase();
     return (showUnowned||ownedCopyCount(ownedCopies,card.id)>0)&&text.includes(query.toLowerCase().trim())&&(set==='all'||card.set===set)&&(kind==='all'||card.type===kind)&&(faction==='all'||faction==='neutral'&&!card.factions.length||card.factions.includes(faction as never));
-  }).sort((a,b)=>a.name.localeCompare(b.name)),[query,kind,faction,set,showUnowned,ownedCopies]);
+  }).sort(compareCards),[query,kind,faction,set,showUnowned,ownedCopies]);
   const change=(next:CustomDeck)=>{if(JSON.stringify(next)===JSON.stringify(draft))return;const nameOnly=next.id===draft.id&&next.cards===draft.cards;if(!nameOnly||!editingName.current)setPast(list=>[...list.slice(-49),structuredClone(draft)]);editingName.current=nameOnly;setDraft(next);setMessage('');};
   const undo=()=>{const previous=past[past.length-1];if(!previous)return;editingName.current=false;setDraft(previous);setPast(list=>list.slice(0,-1));setMessage(msg("Edit undone."));};
   const add=(id:string)=>change({...draft,cards:addDeckCard(draft.cards,id,registry,ownedCopies)});

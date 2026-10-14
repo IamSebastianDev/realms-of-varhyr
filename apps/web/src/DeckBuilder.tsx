@@ -12,7 +12,7 @@ import { BuilderDialog } from './BuilderDialog';
 import { OwnershipPips } from './OwnershipPips';
 import { deckCardAvailability, starterOptions, type CustomDeck } from './decks';
 import { missingDeckCopies, type OwnedCopies } from './collection';
-import { builderCards, cardCost, exportDeck, importDeck, initialBuilderFilters, summarizeDeck, type BuilderFilters, type CardSort } from './deckTools';
+import { builderCards, cardCost, compareCards, exportDeck, importDeck, initialBuilderFilters, summarizeDeck, type BuilderFilters, type CardSort } from './deckTools';
 
 type Props = {
   draft: CustomDeck; decks: CustomDeck[]; ownedCopies: OwnedCopies; message: string; canUndo: boolean; reduced: boolean;
@@ -61,7 +61,7 @@ export function DeckBuilder({ draft, decks, ownedCopies, message, canUndo, reduc
   const summary = useMemo(() => summarizeDeck(draft.cards, registry), [draft.cards]);
   const counts = new Map<string, number>();
   for (const id of draft.cards) counts.set(id, (counts.get(id) ?? 0) + 1);
-  const deckCards = [...counts.keys()].flatMap(id => registry.cards[id] ? [registry.cards[id]] : []).sort((a, b) => cardCost(a) - cardCost(b) || a.name.localeCompare(b.name));
+  const deckCards = [...counts.keys()].flatMap(id => registry.cards[id] ? [registry.cards[id]] : []).sort(compareCards);
   const missing = missingDeckCopies(draft.cards, ownedCopies);
   const errors = [...validateDeck(draft.cards, registry), ...(missing.length ? [msg("Missing {v0} owned copies. Open boosters or edit this deck.", {v0: missing.reduce((sum,card) => sum + card.missing, 0)})] : [])];
   const saved = decks.find(deck => deck.id === draft.id);
@@ -187,7 +187,7 @@ export function DeckBuilder({ draft, decks, ownedCopies, message, canUndo, reduc
         <label>{msg("Type")}<select aria-label={msg("Filter by card type")} value={filters.kind} onChange={event => filter('kind', event.target.value)}><option value="all">{msg("All types")}</option><option value="creature">{msg("Creatures")}</option><option value="spell">{msg("Spells")}</option><option value="bastion">{msg("Bastions")}</option></select></label>
         <label>{msg("Role")}<select aria-label={msg("Filter by role")} value={filters.role} onChange={event => filter('role', event.target.value as BuilderFilters['role'])}><option value="all">{msg("All roles")}</option><option value="producers">{msg("Energy producers")}</option><option value="free-producers">{msg("Free producers")}</option></select></label>
         <label>{msg("Rarity")}<select aria-label={msg("Filter by rarity")} value={filters.rarity} onChange={event => filter('rarity', event.target.value)}><option value="all">{msg("All rarities")}</option><option value="common">{msg("Common")}</option><option value="rare">{msg("Rare")}</option><option value="legendary">{msg("Legendary")}</option></select></label>
-        <label className="builder-filter-sort">{msg("Sort cards")}<select aria-label={msg("Sort cards")} value={filters.sort} onChange={event => filter('sort', event.target.value as CardSort)}><option value="cost">{msg("Cost: low to high")}</option><option value="name">{msg("Name: A–Z")}</option><option value="attack">{msg("Attack: high to low")}</option><option value="defense">{msg("Defense: high to low")}</option></select></label>
+        <label className="builder-filter-sort">{msg("Sort cards")}<select aria-label={msg("Sort cards")} value={filters.sort} onChange={event => filter('sort', event.target.value as CardSort)}><option value="faction">{msg("Faction, cost, name")}</option><option value="cost">{msg("Cost: low to high")}</option><option value="name">{msg("Name: A–Z")}</option><option value="attack">{msg("Attack: high to low")}</option><option value="defense">{msg("Defense: high to low")}</option></select></label>
       </div>
       <div className="builder-cost-filter" role="group" aria-label={msg("Filter by total energy cost")}><span>{msg("Cost")}</span><button aria-pressed={filters.cost === null} onClick={() => filter('cost', null)}>{msg("All")}</button>{summary.curve.map((_, cost) => <button key={cost} aria-label={msg("Cost {v0}", {v0: cost === 6 ? '6 or more' : cost})} aria-pressed={filters.cost === cost} onClick={() => filter('cost', filters.cost === cost ? null : cost)}>{cost === 6 ? '6+' : cost}</button>)}</div>
       <Checkbox className="builder-limit-filter" checked={showUnowned} onChange={event => setShowUnowned(event.target.checked)}>{msg("Show cards I don’t own")}{hiddenCount > 0 && msg(" ({v0} hidden)", {v0: hiddenCount})}</Checkbox>

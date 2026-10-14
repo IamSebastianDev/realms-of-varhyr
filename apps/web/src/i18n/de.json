@@ -820,5 +820,6 @@
   "Unsealing your deck…": "Dein Deck wird entsiegelt …",
   "{v0} cards joined your collection. Five boosters are waiting in your inventory.": "{v0} Karten sind jetzt in deiner Sammlung. Fünf Booster warten in deinem Inventar.",
   "{v0} / {v1} different cards": "{v0} / {v1} verschiedene Karten",
-  "× {v0} in your deck": "× {v0} in deinem Deck"
+  "× {v0} in your deck": "× {v0} in deinem Deck",
+  "Faction, cost, name": "Fraktion, Kosten, Name"
 }

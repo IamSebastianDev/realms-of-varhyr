@@ -77,3 +77,15 @@ describe('deck builder tools', () => {
     expect(() => importDeck(raw([{ id: 'free', count: 3 }, { id: 'variant', count: 1 }]), r)).toThrow('copies');
   });
 });
+
+describe('card order', () => {
+  it('sorts by faction, then cost, then name, with neutral cards last', async () => {
+    const { compareCards } = await import('../apps/web/src/deckTools');
+    const { registry } = await import('../packages/content/src');
+    const ordered = Object.values(registry.cards).sort(compareCards);
+    const rank = (id: string) => ordered.findIndex(card => card.id === id);
+    const neutral = ordered.filter(card => !card.factions.length);
+    expect(neutral.length ? ordered.slice(-neutral.length).every(card => !card.factions.length) : true).toBe(true);
+    expect(rank('goldfield-farmer')).toBeLessThan(rank('crown-bastion'));
+  });
+});
