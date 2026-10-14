@@ -1,5 +1,6 @@
 import { Checkbox } from './Checkbox';
 import { FactionSelect } from './FactionSelect';
+import { BurnEmbers } from './BurnEmbers';
 import { subtypeLabel, t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 import { ArrowLeft, ArrowRight, BarChart3, BookOpen, Crown, GraduationCap, Gift, Layers, Plus, Search, Settings, Swords, User, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -144,7 +145,7 @@ export function Lobby(props:Props){
     </div>}
     {isHome?<main className="start-menu" inert={setup!==null}>
       <section className="start-welcome"><h1>{msg("The realm awaits.")}</h1>
-        <button className="gold-button start-play" aria-haspopup="dialog" onClick={()=>openSetup(props.mode)}><Swords size={23}/><span>{msg("Play")}</span><ArrowRight size={21}/></button>
+        <button className="gold-button start-play" aria-haspopup="dialog" onClick={()=>openSetup(props.mode)}><BurnEmbers/><Swords size={23}/><span>{msg("Play")}</span><ArrowRight size={21}/></button>
         {canResume&&<button className="start-resume" onClick={()=>navigate('match')}><span><b>{msg("Continue match")}</b><small>{msg(props.resumeLabel)}</small></span><ArrowRight size={18}/></button>}
       </section>
       <div className="start-destinations">

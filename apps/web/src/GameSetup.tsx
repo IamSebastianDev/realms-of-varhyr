@@ -1,5 +1,6 @@
 import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 import { ArrowRight, ChevronDown, Swords, Users, X } from 'lucide-react';
+import { BurnEmbers } from './BurnEmbers';
 import { useEffect, useRef } from 'react';
 import { registry } from '../../../packages/content/src';
 import { deckRules } from '../../../packages/contracts/src';
@@ -53,7 +54,7 @@ export function GameSetup(props: Props) {
             <label>{msg("Match seed")}<input type="number" value={props.seed} onChange={event => props.setSeed(event.target.value)}/></label>
             <button className="setup-skirmish" disabled={!playable} onClick={() => props.start(true)}>{msg("Jump into a skirmish")}<ArrowRight size={14}/></button>
           </div></details>
-          <button className="gold-button start-play setup-start" disabled={!playable} onClick={() => props.start(false)}><span>{msg("Start game")}</span><Swords size={23}/></button>
+          <button className="gold-button start-play setup-start" disabled={!playable} onClick={() => props.start(false)}><BurnEmbers/><span>{msg("Start game")}</span><Swords size={23}/></button>
         </div>}
       </div>
     </section>

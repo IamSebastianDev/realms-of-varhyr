@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowRight, Volume2 } from 'lucide-react';
+import { BurnEmbers } from './BurnEmbers';
 import soundtrack from '../../../assets/audio/ambience.mp3?url';
 import { AudioController } from './audioController';
 import { getPreferences, subscribePreferences, usePreferences } from '../../../packages/ui/src/preferences';
@@ -31,7 +32,7 @@ export function AudioExperience({ children }: { children: ReactNode }) {
       <div className="splash-horizon" aria-hidden="true"/><div className="splash-sigil" aria-hidden="true"><span>V</span></div>
       <div className="splash-content"><p className="splash-kicker">REALMS OF</p><h1>VARHYR</h1>
         <div className="splash-divider" aria-hidden="true">✦</div><p className="splash-story">{msg('Your next story begins here.')}</p>
-        <button ref={enterButton} className="splash-enter" onClick={enter}>{msg('Enter the realm')}<ArrowRight size={19}/></button>
+        <button ref={enterButton} className="gold-button start-play splash-play" data-autofocus="true" onKeyDown={event=>{event.currentTarget.removeAttribute("data-autofocus");}} onClick={enter}><BurnEmbers/><span>{msg('Enter the realm')}</span><ArrowRight size={21}/></button>
         <p className="splash-audio">{(preferences.music || preferences.sound) && <><Volume2 size={13}/>{msg('Enter with sound')}<span>·</span></>}{msg('Music and sound can be adjusted in Settings.')}</p>
       </div>
     </section>}

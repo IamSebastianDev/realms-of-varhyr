@@ -14,7 +14,7 @@
   transition:transform .18s cubic-bezier(.2,.8,.3,1),filter .18s}
 .start-play::before{content:'';position:absolute;inset:-9px;border:1px solid #d6bd7b55;border-radius:7px;pointer-events:none;background:linear-gradient(#f2d99a,#f2d99a) left top/24px 1px no-repeat,linear-gradient(#f2d99a,#f2d99a) right top/24px 1px no-repeat,linear-gradient(#f2d99a,#f2d99a) left bottom/24px 1px no-repeat,linear-gradient(#f2d99a,#f2d99a) right bottom/24px 1px no-repeat,linear-gradient(#f2d99a,#f2d99a) left top/1px 12px no-repeat,linear-gradient(#f2d99a,#f2d99a) right top/1px 12px no-repeat,linear-gradient(#f2d99a,#f2d99a) left bottom/1px 12px no-repeat,linear-gradient(#f2d99a,#f2d99a) right bottom/1px 12px no-repeat}
 .start-play::after{content:'';position:absolute;inset:-3px;border-radius:6px;pointer-events:none;box-shadow:0 0 25px 4px #f1d89a44;animation:action-pulse 2.8s ease-in-out infinite}
-.start-play span{font:600 30px/1 var(--serif);letter-spacing:.5px;text-align:center}.start-play>svg{stroke-width:2.2;filter:drop-shadow(0 1px 0 #ffeab4);justify-self:center}.start-play>svg:first-child{width:26px;height:26px}.start-play>svg:last-child{margin:0;width:21px;height:21px}
+.start-play span{font:600 30px/1 var(--serif);letter-spacing:.5px;text-align:center}.start-play>svg{stroke-width:2.2;filter:drop-shadow(0 1px 0 #ffeab4);justify-self:center}.start-play>svg:nth-child(2){width:26px;height:26px}.start-play>svg:last-child{margin:0;width:21px;height:21px}
 .start-play:hover:not(:disabled){color:#2b1e08;background:radial-gradient(ellipse at 30% 0,#fff6d6aa,transparent 70%),linear-gradient(165deg,#f4e2af 0%,#e6c577 42%,#bf974d 100%);box-shadow:0 0 0 3px #15291f,0 0 0 4px #e9d298bb,0 12px 26px #06100899,inset 0 2px 2px #fff8,inset 0 -5px 9px #7a581f77;transform:translateY(-2px);filter:brightness(1.08) saturate(1.1)}
 .start-play:active:not(:disabled){transform:translateY(1px) scale(.99)}
 .start-play:focus-visible{outline:2px solid #ffe3a0;outline-offset:12px}
@@ -57,7 +57,7 @@
 @keyframes setup-enter{from{transform:translateX(35px);opacity:.5}to{transform:translateX(0);opacity:1}}
 @media(max-width:950px){.start-menu{padding-inline:26px;gap:18px 30px}.start-destinations .menu-destination{gap:13px;padding:18px}.start-destinations .menu-destination h2{font-size:29px}}
 @media(max-height:700px) and (min-width:701px){.start-menu{padding-top:22px}.start-welcome h1{font-size:54px}.start-welcome{padding-bottom:0}.start-play{margin-top:26px;height:66px}.start-destinations .menu-destination{padding:16px 22px}.start-destinations .menu-destination h2{font-size:29px}.start-destinations .menu-destination div>span{margin-top:8px}.setup-heading{padding-block:18px}.setup-scroll{padding-top:18px}}
-@media(max-width:700px){.menu-screen .lobby-header{min-height:0;padding:10px 18px}.start-menu{padding:22px;grid-template-columns:1fr;grid-template-rows:auto auto auto;gap:20px}.start-welcome{max-width:none;display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:18px;padding:0}.start-welcome .eyebrow,.start-welcome p{display:none}.start-welcome h1{font-size:38px;margin:0}.start-play{grid-column:2;grid-row:1;grid-template-columns:1fr 20px;width:150px;height:56px;margin:8px 0;padding:12px 17px;gap:10px}.start-play span{font-size:25px}.start-play>svg:first-child{display:none}.start-play>svg:last-child{width:18px;height:18px}.start-play::before{inset:-7px}.start-resume{grid-column:1/-1;padding-bottom:0}.start-destinations{gap:10px;max-height:none;grid-template-rows:repeat(3,auto)}.start-destinations .menu-destination{padding:16px;min-height:106px}.start-destinations .menu-destination h2{font-size:27px}.start-destinations .menu-destination div>span{margin-top:6px}.start-footnote{font-size:9px}}
+@media(max-width:700px){.menu-screen .lobby-header{min-height:0;padding:10px 18px}.start-menu{padding:22px;grid-template-columns:1fr;grid-template-rows:auto auto auto;gap:20px}.start-welcome{max-width:none;display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:18px;padding:0}.start-welcome .eyebrow,.start-welcome p{display:none}.start-welcome h1{font-size:38px;margin:0}.start-play{grid-column:2;grid-row:1;grid-template-columns:1fr 20px;width:150px;height:56px;margin:8px 0;padding:12px 17px;gap:10px}.start-play span{font-size:25px}.start-play>svg:nth-child(2){display:none}.start-play>svg:last-child{width:18px;height:18px}.start-play::before{inset:-7px}.start-resume{grid-column:1/-1;padding-bottom:0}.start-destinations{gap:10px;max-height:none;grid-template-rows:repeat(3,auto)}.start-destinations .menu-destination{padding:16px;min-height:106px}.start-destinations .menu-destination h2{font-size:27px}.start-destinations .menu-destination div>span{margin-top:6px}.start-footnote{font-size:9px}}
 @media(max-width:400px){.start-menu{padding:18px 16px}.start-welcome h1{font-size:31px}.start-play{width:115px;padding-inline:12px}.setup-heading{padding-inline:20px}.setup-scroll{padding-inline:20px}}
 
 .multiplayer-compact .online-join-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:10px;margin-top:12px}
@@ -86,7 +86,7 @@
 .start-play span{letter-spacing:1.5px;font-weight:600;text-shadow:0 1px 0 #fff0c4,0 -1px 0 #6f4f1a40}
 .start-play>svg{box-sizing:border-box;width:36px;height:36px;padding:8px;border-radius:50%;stroke:#f3dc9c;stroke-width:2;filter:none;
   background:radial-gradient(circle at 35% 28%,#3d5a45,#1a3125 72%);box-shadow:0 0 0 1.5px #a98131,0 0 0 3px #f2dda0aa,0 2px 3px 3px #4a33104d,inset 0 1px 2px #0008}
-.start-play>svg:first-child,.start-play>svg:last-child{width:36px;height:36px;margin:0}
+.start-play>svg:nth-child(2),.start-play>svg:last-child{width:36px;height:36px;margin:0}
 .start-play:hover:not(:disabled){--glint:-60%;filter:brightness(1.06) saturate(1.1);
   background:linear-gradient(106deg,transparent 38%,#fffbe6b3 50%,transparent 62%) var(--glint) 0/260% 100% no-repeat,
     repeating-linear-gradient(90deg,#ffffff0d 0 1px,transparent 1px 3px),
@@ -95,7 +95,7 @@
 .start-play:hover:not(:disabled)>svg:last-child{transform:translateX(2px)}
 .start-play>svg:last-child{transition:transform .18s}
 .start-play:disabled{filter:grayscale(.75) brightness(.8)}
-@media(max-width:700px){.start-play{grid-template-columns:1fr 30px;width:156px;padding:10px 12px 10px 16px;gap:6px}.start-play span{font-size:24px;letter-spacing:1px}.start-play>svg:last-child{width:28px;height:28px;padding:6px}.start-play>svg:first-child{display:none}}
+@media(max-width:700px){.start-play{grid-template-columns:1fr 30px;width:156px;padding:10px 12px 10px 16px;gap:6px}.start-play span{font-size:24px;letter-spacing:1px}.start-play>svg:last-child{width:28px;height:28px;padding:6px}.start-play>svg:nth-child(2){display:none}}
 @media(max-width:400px){.start-play{width:128px;padding-left:12px}}
 
 
@@ -118,20 +118,20 @@
 @media(max-width:700px){.start-play::before{inset:-4px}}
 
 /* Icons are pressed into the gold, like the label: dark, flat, with a thin highlight below. */
-.start-play>svg,.start-play>svg:first-child,.start-play>svg:last-child{width:26px;height:26px;padding:0;border-radius:0;background:none;box-shadow:none;stroke:#3a2a0c;stroke-width:2.1;filter:drop-shadow(0 1px 0 #fff0c4aa);justify-self:center}
+.start-play>svg,.start-play>svg:nth-child(2),.start-play>svg:last-child{width:26px;height:26px;padding:0;border-radius:0;background:none;box-shadow:none;stroke:#3a2a0c;stroke-width:2.1;filter:drop-shadow(0 1px 0 #fff0c4aa);justify-self:center}
 .start-play>svg:last-child{width:22px;height:22px}
-@media(max-width:700px){.start-play{grid-template-columns:1fr 22px;width:150px;padding-inline:16px 14px}.start-play>svg:last-child{width:20px;height:20px;padding:0}.start-play>svg:first-child{display:none}}
+@media(max-width:700px){.start-play{grid-template-columns:1fr 22px;width:150px;padding-inline:16px 14px}.start-play>svg:last-child{width:20px;height:20px;padding:0}.start-play>svg:nth-child(2){display:none}}
 @media(max-width:400px){.start-play{width:124px}}
 
 /* Start game in the setup pane uses the same plate as Play, at full width. */
 .setup-start.start-play{display:grid;grid-template-columns:40px 1fr 40px;width:100%;max-width:none;height:66px;margin:28px 0 8px;padding:14px 20px 14px 18px}
 .setup-start.start-play span{font-size:27px}
-@media(max-width:700px){.setup-start.start-play{grid-template-columns:40px 1fr 40px;width:100%;padding:14px 20px 14px 18px}.setup-start.start-play>svg:first-child{display:block}.setup-start.start-play>svg:last-child{width:22px;height:22px}.setup-start.start-play span{font-size:25px}}
+@media(max-width:700px){.setup-start.start-play{grid-template-columns:40px 1fr 40px;width:100%;padding:14px 20px 14px 18px}.setup-start.start-play>svg:nth-child(2){display:block}.setup-start.start-play>svg:last-child{width:22px;height:22px}.setup-start.start-play span{font-size:25px}}
 @media(max-height:700px) and (min-width:701px){.setup-start.start-play{height:58px;margin-top:20px}}
 
 /* Start game: label plus a single sword, sized to its content and aligned right. */
 .setup-start.start-play,.setup-start.start-play:hover:not(:disabled){grid-template-columns:auto 28px;gap:20px;width:fit-content;min-width:230px;margin-left:auto;padding:14px 22px 14px 30px}
-.setup-start.start-play>svg:last-child,.setup-start.start-play>svg:first-child{display:block;width:26px;height:26px}
+.setup-start.start-play>svg:last-child,.setup-start.start-play>svg:nth-child(2){display:block;width:26px;height:26px}
 @media(max-width:700px){.setup-start.start-play{grid-template-columns:auto 28px;width:fit-content;padding:14px 22px 14px 30px}.setup-start.start-play>svg:last-child{width:26px;height:26px}}
 
 /* Destinations are a plain title and one stat now, so they no longer need tall cards. */
@@ -141,3 +141,27 @@
 .start-destinations .menu-destination div>span{margin-top:6px}
 .local-game-setup{margin-top:22px}
 @media(min-width:701px){.lobby-header,.menu-screen .lobby-header{box-sizing:border-box;height:68px;min-height:68px;padding-block:0;background:#1e3029e6}}
+
+/* Splash entry button: same plate as Play, hover burn. */
+.splash-play.start-play{width:fit-content;min-width:300px;margin:6px auto 0;gap:16px;padding:16px 36px}
+.splash-play.start-play span{font-size:26px}
+.splash-play.start-play{grid-template-columns:1fr 24px}
+
+/* Falling embers: sparks break off the burning border and drop away. */
+.burn-embers{position:absolute;inset:-4px;pointer-events:none;z-index:2;opacity:0;transition:opacity .3s}
+.burn-embers i{position:absolute;left:var(--x);top:var(--y);width:var(--s);height:var(--s);margin:calc(var(--s) / -2);border-radius:50%;
+  background:radial-gradient(circle,#fff6d0 0 28%,#ffb23d 55%,#ff5a0a 100%);box-shadow:0 0 6px 1px #ff8a1fcc,0 0 12px 2px #c4410a66;opacity:0;
+  animation:ember-fall var(--t) cubic-bezier(.35,.1,.7,.9) var(--w) infinite paused}
+.start-play:hover:not(:disabled) .burn-embers,.start-play:focus-visible .burn-embers{opacity:1}
+.start-play:hover:not(:disabled) .burn-embers i,.start-play:focus-visible .burn-embers i{animation-play-state:running}
+@keyframes ember-fall{
+  0%{opacity:0;transform:translate(0,0) scale(1)}
+  12%{opacity:1}
+  45%{transform:translate(calc(var(--dx) * .5),calc(var(--fall) * .35)) scale(.85)}
+  100%{opacity:0;transform:translate(var(--dx),var(--fall)) scale(.25)}}
+@media(prefers-reduced-motion:reduce){.burn-embers{display:none}}
+.reduce-motion .burn-embers{display:none}
+/* The splash button is focused on load for keyboard users, but that must not light it up: only hover (or a key press) does. */
+.splash-play.start-play[data-autofocus]:focus-visible:not(:hover)::before{opacity:0;animation:none}
+.splash-play.start-play[data-autofocus]:focus-visible:not(:hover)::after{box-shadow:0 0 0 0 #ff7a1a00;animation:none}
+.splash-play.start-play[data-autofocus]:focus-visible:not(:hover) .burn-embers{opacity:0}
