@@ -19,7 +19,7 @@ function completedTestContent() {
 describe('editable Crownlands content',()=>{
   it('exposes the Crown cards and registered authoring abilities',()=>{
     expect(factions).toEqual(['black-host','bright-marches','conclave','crownlands','ember-fields','horde','mountain-clans','winter-league']);
-    expect(allCards().map(card=>card.id)).toEqual(expect.arrayContaining(['crown-recruit','dawn-banner','cleansing-light','runeguard','crown-bastion','aldric-runewarden']));
+    expect(allCards().map(card=>card.id)).toEqual(expect.arrayContaining(['crown-recruit','dawn-banner','cleansing-light','runeguard','crown-bulwark','aldric-runewarden']));
     expect(allCards().every(card=>card.factions.every(faction=>factions.includes(faction)))).toBe(true);
     expect(Object.keys(abilities).sort()).toEqual(['accord','adjacent-banner','armor','barrage','channel','charge','damage','draw','drillmaster','fealty','flank-evasion','guard','heal','invocation','longshot','marches-rally','primal','raid','rally','rime','sanctuary','scorch','shield-wall','shoulder-to-shoulder','soul-harvest','trade','war-banner','wayfarer']);
     expect(registry.cards.runeguard.stats?.energyOutputs).toEqual([{crownlands:2}]);

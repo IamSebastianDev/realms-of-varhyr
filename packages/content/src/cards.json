@@ -358,12 +358,12 @@
     ]
   },
   {
-    "id": "crown-bastion",
+    "id": "crown-bulwark",
     "set": "foundations",
     "revision": 1,
-    "name": "Crown Bastion",
-    "deckLimitKey": "crown-bastion",
-    "type": "bastion",
+    "name": "Crown Bulwark",
+    "deckLimitKey": "crown-bulwark",
+    "type": "bulwark",
     "factions": [
       "crownlands"
     ],
@@ -381,11 +381,11 @@
     "lore": "An oath made stone.",
     "translations": {
       "de": {
-        "name": "Kronenbastion",
+        "name": "Kronenbollwerk",
         "lore": "Ein Schwur, zu Stein geworden."
       }
     },
-    "art": "/cards/crown-bastion/data.png?v=f22651501ced9356",
+    "art": "/cards/crown-bulwark/data.png?v=f22651501ced9356",
     "abilities": [
       {
         "id": "war-banner",
@@ -1479,7 +1479,7 @@
     "revision": 1,
     "name": "Seacliffe Castle",
     "deckLimitKey": "seacliffe-castle",
-    "type": "bastion",
+    "type": "bulwark",
     "factions": [
       "bright-marches"
     ],
@@ -1689,7 +1689,7 @@
     "revision": 1,
     "name": "Tower of the First Morning",
     "deckLimitKey": "tower-of-the-first-morning",
-    "type": "bastion",
+    "type": "bulwark",
     "factions": [
       "crownlands"
     ],
@@ -1778,7 +1778,7 @@
     "revision": 1,
     "name": "Wooden Fort",
     "deckLimitKey": "wooden-fort",
-    "type": "bastion",
+    "type": "bulwark",
     "factions": [
       "bright-marches"
     ],

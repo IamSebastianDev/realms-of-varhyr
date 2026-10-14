@@ -72,11 +72,11 @@ describe('Foundations faction leaders', () => {
 });
 
 describe('Black Host Soul Harvest', () => {
-  it.each(['ally', 'enemy', 'bastion', 'self'] as const)('draws only for another friendly creature, when %s is destroyed', kind => {
+  it.each(['ally', 'enemy', 'bulwark', 'self'] as const)('draws only for another friendly creature, when %s is destroyed', kind => {
     const state = setup(); state.active = 'p2';
     const priest = place(state, 'dark-priest-of-run', 'p1', 2);
     const side = kind === 'enemy' ? 'p2' : 'p1';
-    const victim = kind === 'self' ? priest : place(state, kind === 'bastion' ? 'crown-bastion' : 'crown-recruit', side, 0);
+    const victim = kind === 'self' ? priest : place(state, kind === 'bulwark' ? 'crown-bulwark' : 'crown-recruit', side, 0);
     state.cards[victim].damage = registry.cards[state.cards[victim].definitionId].stats!.defense - 1;
     const spell = place(state, 'cleansing-light', side === 'p1' ? 'p2' : 'p1');
     state.active = side === 'p1' ? 'p2' : 'p1';

@@ -6,7 +6,7 @@ import { FactionIcon, GenericEnergyIcon } from '../../../packages/renderer/src/F
 import './faction-icons.css';
 import { CardArtwork } from '../../../packages/renderer/src/CardArtwork';
 import { HolographicFoil } from '../../../packages/renderer/src/HolographicFoil';
-import { Castle, Shield, Swords } from 'lucide-react';
+import { Shield, Swords } from 'lucide-react';
 import type { CardDefinition, EnergyType, Pool } from '../../../packages/contracts/src';
 import { factionInfo, registry } from '../../../packages/content/src';
 import { usePreferences } from './preferences';
@@ -73,7 +73,7 @@ export function CardFace({card,stats,showCost=true}:{card:CardDefinition;stats?:
     </div>
     {card.type!=='spell'&&<div className="card-title">
       <div className="card-statline">
-        <span title={card.type==='bastion'?msg("Defensive damage"):msg("Attack")}><Swords/>{stats?.attack??card.stats!.attack}</span>
+        <span title={card.type==='bulwark'?msg("Defensive damage"):msg("Attack")}><Swords/>{stats?.attack??card.stats!.attack}</span>
         <span title={msg("Defense")}><Shield/>{stats?.defense??card.stats!.defense}</span>
       </div>
       {card.type==='creature'&&card.stats!.energyOutputs.length>0&&<div className="card-energy-output"><EnergyOutput outputs={card.stats!.energyOutputs}/></div>}
@@ -95,7 +95,7 @@ export function ArtCard({card,onClick,selected=false,disabled=false,className=''
     {card.legendary&&<HolographicFoil playing={animated||hovered||focused} reduced={reduced}/>}
     <CardFace card={card} stats={stats}/>
   </>;
-  return onClick?<button {...interaction} onPointerEnter={e=>{if(e.pointerType!=='touch'){setHovered(true);showDetail(e.currentTarget);}interaction?.onPointerEnter?.(e);}} onPointerLeave={e=>{setHovered(false);hideDetail();interaction?.onPointerLeave?.(e);}} onPointerDown={e=>{hideDetail();interaction?.onPointerDown?.(e);}} onFocus={e=>{setFocused(true);if(e.currentTarget.matches(':focus-visible'))showDetail(e.currentTarget);interaction?.onFocus?.(e);}} onBlur={e=>{setFocused(false);hideDetail();interaction?.onBlur?.(e);}} className={`art-card ${card.legendary?'legendary-card':''} ${card.type==='bastion'?'bastion-card':''} ${className} ${selected?'selected':''} ${disabled?'unaffordable':''}`} onClick={()=>{hideDetail();onClick();}} aria-label={interaction?.['aria-label']??msg("{v0}, {v1}{v2}. {v3}", {v0: card.name, v1: card.legendary?msg('legendary')+' ':'', v2: msg(card.type), v3: [card.lore, ...cardAbilityDescriptions(card).map(ability => ability.description)].filter(Boolean).join(' ')})} aria-pressed={interaction?.['aria-label']?undefined:selected}>{body}{preview}</button>:<div className={`art-card ${card.legendary?'legendary-card':''} ${card.type==='bastion'?'bastion-card':''} ${className}`} onPointerEnter={e=>{if(e.pointerType!=='touch')showDetail(e.currentTarget);}} onPointerLeave={hideDetail} onPointerDown={hideDetail}>{body}{preview}</div>;
+  return onClick?<button {...interaction} onPointerEnter={e=>{if(e.pointerType!=='touch'){setHovered(true);showDetail(e.currentTarget);}interaction?.onPointerEnter?.(e);}} onPointerLeave={e=>{setHovered(false);hideDetail();interaction?.onPointerLeave?.(e);}} onPointerDown={e=>{hideDetail();interaction?.onPointerDown?.(e);}} onFocus={e=>{setFocused(true);if(e.currentTarget.matches(':focus-visible'))showDetail(e.currentTarget);interaction?.onFocus?.(e);}} onBlur={e=>{setFocused(false);hideDetail();interaction?.onBlur?.(e);}} className={`art-card ${card.legendary?'legendary-card':''} ${card.type==='bulwark'?'bulwark-card':''} ${className} ${selected?'selected':''} ${disabled?'unaffordable':''}`} onClick={()=>{hideDetail();onClick();}} aria-label={interaction?.['aria-label']??msg("{v0}, {v1}{v2}. {v3}", {v0: card.name, v1: card.legendary?msg('legendary')+' ':'', v2: msg(card.type), v3: [card.lore, ...cardAbilityDescriptions(card).map(ability => ability.description)].filter(Boolean).join(' ')})} aria-pressed={interaction?.['aria-label']?undefined:selected}>{body}{preview}</button>:<div className={`art-card ${card.legendary?'legendary-card':''} ${card.type==='bulwark'?'bulwark-card':''} ${className}`} onPointerEnter={e=>{if(e.pointerType!=='touch')showDetail(e.currentTarget);}} onPointerLeave={hideDetail} onPointerDown={hideDetail}>{body}{preview}</div>;
 }
 export function CardFacts({card,stats}:{card:CardDefinition;stats?:{attack:number;defense:number}}) {
   useLanguage();
@@ -105,10 +105,10 @@ export function CardFacts({card,stats}:{card:CardDefinition;stats?:{attack:numbe
     {card.legendary && <LegendaryMark/>}
     {card.type !== 'spell' && <>
       <div className="fact-stats">
-        <span><Swords size={14}/><b>{stats?.attack ?? card.stats!.attack}</b> {card.type==='bastion'?msg("Defensive damage"):msg("Attack")}</span>
+        <span><Swords size={14}/><b>{stats?.attack ?? card.stats!.attack}</b> {card.type==='bulwark'?msg("Defensive damage"):msg("Attack")}</span>
         <span><Shield size={14}/><b>{stats?.defense ?? card.stats!.defense}</b> {msg("Defense")}</span>
       </div>
-      {card.type==='creature'?(card.stats!.energyOutputs.length?<div className="fact-energy"><span>{msg("ENERGY OUTPUT")}</span><EnergyOutput outputs={card.stats!.energyOutputs}/></div>:<p className="no-energy-output">{msg("No printed energy output.")}</p>):<p className="bastion-rules"><Castle size={16}/>{msg("Can block · cannot attack or generate energy.")}</p>}
+      {card.type==='creature'?(card.stats!.energyOutputs.length?<div className="fact-energy"><span>{msg("ENERGY OUTPUT")}</span><EnergyOutput outputs={card.stats!.energyOutputs}/></div>:<p className="no-energy-output">{msg("No printed energy output.")}</p>):<p className="bulwark-rules"><Shield size={16}/>{msg("Can block · cannot attack or generate energy.")}</p>}
     </>}
     {abilities.length > 0 && <dl className="ability-facts" aria-label={card.type === 'spell' ? msg("Spell effects") : msg("Abilities")}>
       {abilities.map((ability, index) => <div className="ability-fact" key={index}>

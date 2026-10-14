@@ -8,9 +8,9 @@ import { addDeckCard, deckCardAvailability, removeDeckCard } from '../apps/web/s
 const base = Object.values(live.cards).find(card => card.type === 'creature')!;
 const free = { ...base, id: 'free', deckLimitKey: 'free', name: 'Free Recruit', factions: ['crownlands'], subtypes: ['soldier'], abilities: [], cost: { generic: 0, factions: {} }, legendary: false, rarity: 'common' as const, stats: { attack: 1, defense: 3, energyOutputs: [{ crownlands: 1 }] } };
 const champion = { ...free, id: 'champion', deckLimitKey: 'champion', name: 'Champion', legendary: true, rarity: 'legendary' as const, cost: { generic: 3, factions: { crownlands: 4 } }, stats: { attack: 6, defense: 6, energyOutputs: [{ crownlands: 2 }] } };
-const bastion = { ...free, id: 'bastion', deckLimitKey: 'bastion', name: 'Neutral Bastion', type: 'bastion' as const, factions: [], cost: { generic: 2, factions: {} }, stats: { attack: 0, defense: 5, energyOutputs: [] } };
+const bulwark = { ...free, id: 'bulwark', deckLimitKey: 'bulwark', name: 'Neutral Bulwark', type: 'bulwark' as const, factions: [], cost: { generic: 2, factions: {} }, stats: { attack: 0, defense: 5, energyOutputs: [] } };
 const spell = { ...free, id: 'spell', deckLimitKey: 'spell', name: 'Crown Spell', type: 'spell' as const, stats: undefined, cost: { generic: 1, factions: { crownlands: 1 } }, cast: [{ id: 'damage', params: { amount: 2 } }] };
-const content: Registry = { ...live, cards: { free, champion, bastion, spell } };
+const content: Registry = { ...live, cards: { free, champion, bulwark, spell } };
 
 describe('deck builder tools', () => {
   it('respects owned copies, re-enables removed copies, and treats missing ownership as zero', () => {
@@ -44,19 +44,19 @@ describe('deck builder tools', () => {
   });
   it('counts all cost requirements and every copy in the curve and producer overview', () => {
     expect(cardCost(champion)).toBe(7);
-    expect(summarizeDeck(['free', 'free', 'spell', 'bastion', 'champion'], content)).toEqual({ total: 5, unique: 4, curve: [2, 0, 2, 0, 0, 0, 1], types: { creature: 3, spell: 1, bastion: 1 }, producers: 3, freeProducers: 2, averageCost: 2.2 });
+    expect(summarizeDeck(['free', 'free', 'spell', 'bulwark', 'champion'], content)).toEqual({ total: 5, unique: 4, curve: [2, 0, 2, 0, 0, 0, 1], types: { creature: 3, spell: 1, bulwark: 1 }, producers: 3, freeProducers: 2, averageCost: 2.2 });
   });
   it('combines search, faction, role and cost filters without hiding neutral cards or spell effects', () => {
     expect(builderCards(content, [], { ...initialBuilderFilters, query: 'soldier recruit', role: 'free-producers', faction: 'crownlands', cost: 0 }).map(card => card.id)).toEqual(['free']);
     expect(builderCards(content, [], { ...initialBuilderFilters, query: 'damage 2', kind: 'spell' }).map(card => card.id)).toEqual(['spell']);
-    expect(builderCards(content, [], { ...initialBuilderFilters, faction: 'neutral' }).map(card => card.id)).toEqual(['bastion']);
+    expect(builderCards(content, [], { ...initialBuilderFilters, faction: 'neutral' }).map(card => card.id)).toEqual(['bulwark']);
     expect(builderCards(content, [], { ...initialBuilderFilters, cost: 6 }).map(card => card.id)).toEqual(['champion']);
   });
   it('sorts numerically and hides exhausted copy limits across variants', () => {
     const variant = { ...free, id: 'variant', name: 'Recruit variant' };
     const r = { ...content, cards: { ...content.cards, variant } };
-    expect(builderCards(r, ['free', 'free', 'variant', 'champion'], { ...initialBuilderFilters, addable: true }).map(card => card.id)).toEqual(['spell', 'bastion']);
-    expect(builderCards(content, [], { ...initialBuilderFilters, sort: 'defense' }).map(card => card.id)).toEqual(['champion', 'bastion', 'free', 'spell']);
+    expect(builderCards(r, ['free', 'free', 'variant', 'champion'], { ...initialBuilderFilters, addable: true }).map(card => card.id)).toEqual(['spell', 'bulwark']);
+    expect(builderCards(content, [], { ...initialBuilderFilters, sort: 'defense' }).map(card => card.id)).toEqual(['champion', 'bulwark', 'free', 'spell']);
   });
   it('exports and imports a portable composition, including incomplete decks, without local IDs', () => {
     const draft = { id: 'custom-private', name: 'My deck', cards: ['free', 'spell', 'free'] };
@@ -86,6 +86,6 @@ describe('card order', () => {
     const rank = (id: string) => ordered.findIndex(card => card.id === id);
     const neutral = ordered.filter(card => !card.factions.length);
     expect(neutral.length ? ordered.slice(-neutral.length).every(card => !card.factions.length) : true).toBe(true);
-    expect(rank('goldfield-farmer')).toBeLessThan(rank('crown-bastion'));
+    expect(rank('goldfield-farmer')).toBeLessThan(rank('crown-bulwark'));
   });
 });

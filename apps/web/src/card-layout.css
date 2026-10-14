@@ -5,7 +5,7 @@
 .art-card .card-header h3{width:100%;line-height:1.08}
 .art-card .card-cost{position:absolute;top:8px;right:8px;left:auto;z-index:2;min-width:0;height:auto;min-height:0;padding:4px 5px;border-radius:3px;background:#13291ddd;border-color:#dbc38c99;box-shadow:0 2px 6px #0003}
 .art-card>.card-cost .cost-bundle{font-size:clamp(13px,10cqw,22px);white-space:nowrap}
-.art-card.bastion-card .card-header{background:none}
+.art-card.bulwark-card .card-header{background:none}
 .art-card .card-identity{align-self:center;min-width:0}
 .art-card .card-affiliation{letter-spacing:.45px;color:#d9ddcb}
 .art-card .card-title{position:static;display:flex;align-items:center;justify-content:space-between;gap:clamp(4px,4cqw,9px);padding:clamp(4px,3cqw,7px) 4px;background:#152b23c9;border-top:1px solid #d5c79455;border-radius:2px}
@@ -15,7 +15,7 @@
 .art-card .card-energy-output .energy-bundle{font-size:clamp(13px,10cqw,22px)}
 .art-card .card-energy-output .energy-bundle b{font-size:1em}
 .art-card .card-energy-output .energy-symbol.faction-icon,.art-card .card-cost .faction-icon,.art-card .card-cost svg,.art-card .card-energy-output svg{width:clamp(9px,6cqw,13px);height:clamp(9px,6cqw,13px);font-size:inherit}
-.art-card.bastion-card .card-title{justify-content:center;background:#292633cc}
+.art-card.bulwark-card .card-title{justify-content:center;background:#292633cc}
 .art-card .card-corners{z-index:3;inset:4px;border-color:#ece4c324;border-radius:2px}
 /* A gold double rule with bright corner etching is the legendary signature. */
 .art-card.legendary-card{border:1px solid #edce8d;box-shadow:0 0 0 1px #735b37,0 0 0 3px #dfbd7224,0 9px 24px #10231865}

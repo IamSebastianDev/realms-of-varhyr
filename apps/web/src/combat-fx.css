@@ -60,8 +60,6 @@
 .combat-forecast i.bad{border-color:#ff8d7288;color:#ffc2b4}
 
 /* ── Board atmosphere ───────────────────────────────────────────── */
-.board-light{position:absolute;inset:0;z-index:1;pointer-events:none;border-radius:12px;mix-blend-mode:soft-light;
-  background:radial-gradient(ellipse 52% 62% at 50% 46%,#fff6d8cc 0%,#fff6d855 38%,transparent 72%),radial-gradient(ellipse 110% 100% at 50% 50%,transparent 45%,#00000099 100%)}
 .board-mist{position:absolute;inset:0;z-index:-1;overflow:hidden;pointer-events:none;border-radius:12px}
 .board-mist i{position:absolute;width:62%;height:70%;border-radius:50%;filter:blur(34px);opacity:.2;
   background:radial-gradient(closest-side,var(--ambient,#d1bd86),transparent);animation:mist-drift 38s ease-in-out infinite alternate}

@@ -11,7 +11,7 @@ const add = (a: Pool, b: Pool): Pool => {
 function creatureValue(state: GameState, id: string, registry: Registry): number {
   const def = registry.cards[state.cards[id].definitionId], stats = effectiveStats(state,id,registry);
   const outputs=energyProductionOptions(def,registry);
-  return stats.attack * (def.type==='bastion' ? 1 : 2) + (stats.defense - state.cards[id].damage * .7) * .65 + Math.max(...(outputs.length ? outputs : [{}]).map(p => Object.values(p).reduce((a,b) => a+b,0))) * .6
+  return stats.attack * (def.type==='bulwark' ? 1 : 2) + (stats.defense - state.cards[id].damage * .7) * .65 + Math.max(...(outputs.length ? outputs : [{}]).map(p => Object.values(p).reduce((a,b) => a+b,0))) * .6
     + def.abilities.reduce((n,a) => n + (a.id === 'armor' ? Number(a.params.amount) : ['collector','deathbound'].includes(a.id) ? 1 : 0),0);
 }
 function colorsOnBoard(state: GameState, actor: PlayerId, registry: Registry, removed: string[] = []): Set<string> {

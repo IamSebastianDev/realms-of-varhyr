@@ -14,8 +14,8 @@ const base=live.cards['crown-recruit'];
 const banner={...base,id:'adjacent-test',deckLimitKey:'adjacent-test',abilities:[{id:'adjacent-banner',params:{amount:1}}]};
 const evader={...base,id:'evader-test',deckLimitKey:'evader-test',abilities:[{id:'flank-evasion',params:{}}]};
 const charger={...base,id:'charge-test',deckLimitKey:'charge-test',abilities:[{id:'charge',params:{amount:4,position:'Center'}}]};
-const fort={...live.cards['crown-bastion'],id:'plain-bastion',deckLimitKey:'plain-bastion',abilities:[]};
-const r=compileContent(Object.values({...old.cards,...Object.fromEntries(['crown-recruit','crown-bastion','aldric-runewarden','runeguard'].map(id=>[id,live.cards[id]])),[banner.id]:banner,[evader.id]:evader,[charger.id]:charger,[fort.id]:fort}));
+const fort={...live.cards['crown-bulwark'],id:'plain-bulwark',deckLimitKey:'plain-bulwark',abilities:[]};
+const r=compileContent(Object.values({...old.cards,...Object.fromEntries(['crown-recruit','crown-bulwark','aldric-runewarden','runeguard'].map(id=>[id,live.cards[id]])),[banner.id]:banner,[evader.id]:evader,[charger.id]:charger,[fort.id]:fort}));
 function setup(){
  const state=createMatch(r,[starterDecks.verdant,starterDecks.hollow],731);
  for(const p of Object.values(state.players)){for(const id of p.hand){state.cards[id].zone='deck';p.deck.push(id);}p.hand=[];}
@@ -41,7 +41,7 @@ describe('permanent battlefield positions',()=>{
   });
   expect(positionName(null)).toBeUndefined();expect(positionName(5)).toBeUndefined();
  });
- it('buffs only immediate friendly neighbors, including bastions, while exhausted',()=>{
+ it('buffs only immediate friendly neighbors, including bulwarks, while exhausted',()=>{
   const s=setup(),source=card(s,banner.id,'p1',2,true),left=card(s,base.id,'p1',1),right=card(s,fort.id,'p1',3);
   const far=card(s,base.id,'p1',0),enemy=card(s,base.id,'p2',1);
   expect(effectiveStats(s,left,r).attack).toBe(2);expect(effectiveStats(s,right,r).attack).toBe(2);
@@ -83,7 +83,7 @@ describe('permanent battlefield positions',()=>{
 
 describe('position-based blocking restrictions',()=>{
  it('publishes reachable lanes, and neither flank can block a Flank Evasion attacker',()=>{
-  const s=setup(),attacker=card(s,evader.id,'p1',2),defenders=battlefieldPositions.map((_,slot)=>card(s,slot%2?'crown-bastion':base.id,'p2',slot,true));combat(s,[attacker]);
+  const s=setup(),attacker=card(s,evader.id,'p1',2),defenders=battlefieldPositions.map((_,slot)=>card(s,slot%2?'crown-bulwark':base.id,'p2',slot,true));combat(s,[attacker]);
   defenders.forEach((blocker,slot)=>expect(canBlock(s,attacker,blocker,r)).toBe(slot>0&&slot<4));
   expect(legalActions(s,r).lanes).toEqual({[attacker]:[1,2,3]});
   expect(projectForPlayer(s,'p2',r).legal.lanes).toEqual({});expect(projectForPlayer(s,null,r).legal.lanes).toEqual({});
@@ -97,9 +97,9 @@ describe('position-based blocking restrictions',()=>{
   expect(resolved.players.p2.life).toBe(10-effectiveStats(s,restricted,r).attack);expect(resolved.cards[flank].damage).toBe(0);expect(resolved.cards[wing].damage).toBe(effectiveStats(s,plain,r).attack);
  });
  it('the bot aims at the only lane that cannot block its attacker, and otherwise declines a pointless trade',()=>{
-  const s=setup(),attacker=card(s,evader.id,'p1',1);card(s,'crown-bastion','p2',0);card(s,'crown-bastion','p2',1);card(s,'crown-bastion','p2',2);combat(s,[attacker]);
+  const s=setup(),attacker=card(s,evader.id,'p1',1);card(s,'crown-bulwark','p2',0);card(s,'crown-bulwark','p2',1);card(s,'crown-bulwark','p2',2);combat(s,[attacker]);
   expect(botCommand(s,r)).toEqual({type:'attack',attackers:[attacker],lanes:{[attacker]:0}});step(s,botCommand(s,r));
-  const walled=setup(),lone=card(walled,evader.id,'p1',2);for(const slot of [1,2,3])card(walled,'crown-bastion','p2',slot);combat(walled,[lone]);
+  const walled=setup(),lone=card(walled,evader.id,'p1',2);for(const slot of [1,2,3])card(walled,'crown-bulwark','p2',slot);combat(walled,[lone]);
   expect(botCommand(walled,r)).toEqual({type:'attack',attackers:[],lanes:{}});
  });
 });
@@ -111,8 +111,8 @@ describe('Charge against a named position',()=>{
   expect(next.cards[target].damage).toBe(3);expect(next.cards[target].zone).toBe('board');expect(next.cards[wing].damage).toBe(0);
   expect(next.players[enemy].life).toBe(10);expect(next.cards[id].slot).toBe(4);
  });
- it('does nothing to an empty Center or a bastion there, and does not redirect to a wing',()=>{
-  for(const center of [undefined,'crown-bastion']){
+ it('does nothing to an empty Center or a bulwark there, and does not redirect to a wing',()=>{
+  for(const center of [undefined,'crown-bulwark']){
    const s=setup(),wing=card(s,base.id,'p2',1);if(center)card(s,center,'p2',2);const id=card(s,charger.id,'p1');
    const next=step(s,{type:'play',cardId:id,slot:2});
    expect(next.events.filter(e=>e.type==='damage.dealt')).toEqual([]);expect(next.cards[wing].damage).toBe(0);

@@ -29,14 +29,14 @@ function transition(state:GameState,command:Command){
 describe('faction ability visual cues',()=>{
   it('uses the real Fealty and Sanctuary modifiers, including exhausted sources, elf bonus and creature-only targets',()=>{
     const state=setup(),alderic=place(state,'aldric-runewarden','p1',0),queen=place(state,'ilyria-queen-of-the-elves','p1',2);
-    const elf=place(state,'ilyria-queen-of-the-elves','p1',1),bastion=place(state,'crown-bastion','p1',3),enemy=place(state,'crown-recruit','p2',0);
+    const elf=place(state,'ilyria-queen-of-the-elves','p1',1),bulwark=place(state,'crown-bulwark','p1',3),enemy=place(state,'crown-recruit','p2',0);
     state.cards[alderic].exhausted=state.cards[queen].exhausted=true;
     const cues=factionAuras(projectForPlayer(state,'p1',registry),registry);
     const fealty=cues.find(a=>a.kind==='fealty')!,sanctuary=cues.find(a=>a.kind==='sanctuary'&&a.source.slot===2)!;
     expect(fealty.buffs.map(b=>b.id)).toEqual([alderic,elf,queen]);
     expect(fealty.buffs.every(b=>b.attack===1&&b.defense===1)).toBe(true);
     expect(sanctuary.buffs).toEqual([{id:elf,spot:{player:'p1',slot:1},attack:0,defense:2}]);
-    expect(cues.flatMap(c=>c.buffs.map(b=>b.id))).not.toContain(bastion);
+    expect(cues.flatMap(c=>c.buffs.map(b=>b.id))).not.toContain(bulwark);
     expect(cues.flatMap(c=>c.buffs.map(b=>b.id))).not.toContain(enemy);
   });
   it('reflects Raid stacking, omits inactive bonuses, and disappears when the source leaves play',()=>{
@@ -59,7 +59,7 @@ describe('faction ability visual cues',()=>{
     expect(transition(state,{type:'energy',cardId:source,option:0}).effects).toMatchObject([{kind:'trade',source:{player:'p2',slot:1},to:{player:'p2',area:'pool'}}]);
   });
   it('preserves event counts, sequence and later draw-choice IDs when tracing faction effects',()=>{
-    const state=setup(),source=place(state,'hekata-lady-of-the-fields'),target=place(state,'crown-bastion','p2',4);
+    const state=setup(),source=place(state,'hekata-lady-of-the-fields'),target=place(state,'crown-bulwark','p2',4);
     state.players.p1.energy={neutral:2,'ember-fields':2};
     const untraced={...registry,abilities:Object.fromEntries(Object.entries(registry.abilities).map(([id,a])=>[id,{...a,faction:undefined}]))};
     let traced=state,plain=structuredClone(state);

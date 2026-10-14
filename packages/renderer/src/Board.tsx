@@ -64,7 +64,7 @@ function useCardTexture(card: CardInstance, registry: Registry, reduced:boolean)
         ctx.filter=dim?'brightness(0.76) saturate(0.6)':'none';ctx.drawImage(art,(width-cropWidth)/2,(height-cropHeight)/2,cropWidth,cropHeight,0,0,512,670);ctx.filter='none';
       }
       const fade=ctx.createLinearGradient(0,365,0,690);fade.addColorStop(0,'#08151700');fade.addColorStop(.5,dim?'#1c3027b0':'#2e4836a0');fade.addColorStop(1,dim?'#19291f':'#223e2e');ctx.fillStyle=fade;ctx.fillRect(0,365,512,355);
-      ctx.strokeStyle=def.type==='bastion'?(dim?'#796a87':'#ceb3e2'):(dim?'#796e59':'#c2aa77');ctx.lineWidth=5;ctx.strokeRect(9,9,494,702);ctx.strokeStyle='#c6ae784d';ctx.lineWidth=1;ctx.strokeRect(18,18,476,684);
+      ctx.strokeStyle=def.type==='bulwark'?(dim?'#796a87':'#ceb3e2'):(dim?'#796e59':'#c2aa77');ctx.lineWidth=5;ctx.strokeRect(9,9,494,702);ctx.strokeStyle='#c6ae784d';ctx.lineWidth=1;ctx.strokeRect(18,18,476,684);
       if(def.legendary){
         ctx.strokeStyle=dim?'#a89468':'#ffe0a0';ctx.lineWidth=7;ctx.strokeRect(7,7,498,706);
         ctx.strokeStyle=dim?'#8b7c59':'#dcc58a';ctx.lineWidth=2;ctx.strokeRect(21,21,470,678);

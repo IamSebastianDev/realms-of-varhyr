@@ -1,6 +1,7 @@
 import { deckRules, type CardDefinition, type GameState, type Registry } from '../../../packages/contracts/src';
 import { drawBooster, packCards, type BoosterPack } from '../../../packages/content/src/boosters';
 import type { RewardCollection } from './boosterRewards';
+import { currentCardId } from './cardIds';
 
 /** Copies belong to a logical card ID, independent of set labels or future artwork choices. Missing IDs mean zero owned. */
 export type OwnedCopies = Readonly<Record<string, number>>;
@@ -92,7 +93,7 @@ export function parseCollection(raw: string | null, content: Registry): Collecti
       delete collection.packs[id];
     }
     // If card content changes rarity/legendary status, convert surplus exactly once on the next save.
-    for (const [id, count] of Object.entries<number>(data.counts)) grantCopies(collection, id, count, content);
+    for (const [id, count] of Object.entries<number>(data.counts)) grantCopies(collection, currentCardId(id), count, content);
     return collection;
   } catch { return null; }
 }

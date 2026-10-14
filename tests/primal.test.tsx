@@ -33,7 +33,7 @@ describe('Primal and creatures without printed production',()=>{
     expect(unicorn.factions).toEqual([]);expect(registry.abilities.primal.name).toBe('Primal');
     expect(registry.abilities.primal.translations?.de?.name).toBe('Urkraft');
     expect(()=>compileContent([{...unicorn,abilities:[{id:'primal',params:{amount:9}}]}])).toThrow();
-    expect(()=>compileContent([{...unicorn,type:'bastion'}])).toThrow('cannot produce energy');
+    expect(()=>compileContent([{...unicorn,type:'bulwark'}])).toThrow('cannot produce energy');
   });
   it.each(colors)('chooses exactly one %s energy, exhausts, and replays deterministically',color=>{
     const before=setup(),id=place(before,unicorn.id,'p1',2),legal=legalActions(before,registry);

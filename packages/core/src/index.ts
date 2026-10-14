@@ -244,13 +244,13 @@ class Transaction {
   deploy(card: CardInstance, player: PlayerId, slot: number) {
     requireRule(card.zone === 'hand' && card.owner === player && card.controller === player, 'Deploy a field card from your own hand.');
     const def = definition(this.state,card.id,this.registry);
-    requireRule(def.type !== 'spell', 'Only creatures and bastions can be deployed.');
+    requireRule(def.type !== 'spell', 'Only creatures and bulwarks can be deployed.');
     requireRule(Number.isInteger(slot) && slot >= 0 && slot < battlefieldPositions.length && this.state.players[player].board[slot] === null, 'Choose a free battlefield position.');
     this.detach(card);
     card.zone = 'board'; card.slot = slot; this.state.players[player].board[slot] = card.id;
-    card.exhausted = this.before(def.type === 'bastion' ? 'bastion.enter.before' : 'creature.enter.before',card,{exhausted:true}).exhausted ?? true;
+    card.exhausted = this.before(def.type === 'bulwark' ? 'bulwark.enter.before' : 'creature.enter.before',card,{exhausted:true}).exhausted ?? true;
     this.emit('card.played',`${this.state.players[player].name} plays ${def.name} in ${positionName(slot)}.`,{player,cardId:card.id});
-    this.emit(def.type === 'bastion' ? 'bastion.entered' : 'creature.entered',`${def.name} enters ${card.exhausted ? 'exhausted' : 'ready'}.`,{cardId:card.id});
+    this.emit(def.type === 'bulwark' ? 'bulwark.entered' : 'creature.entered',`${def.name} enters ${card.exhausted ? 'exhausted' : 'ready'}.`,{cardId:card.id});
   }
   discard(id: string) { const card = this.state.cards[id]; this.detach(card); card.zone = 'discard'; card.damage = 0; card.exhausted = false; this.state.players[card.owner].discard.push(id); }
   destroy(id: string, combat = false) {
@@ -258,7 +258,7 @@ class Transaction {
     const snapshot = { ...card };
     if (combat && card.controller !== this.state.active && this.state.combat && definition(this.state,id,this.registry).type === 'creature') this.state.combat.dead.push({ card: snapshot, outputs: structuredClone(this.registry.cards[card.definitionId].stats!.energyOutputs) });
     this.discard(id);
-    this.emit(definition(this.state,id,this.registry).type === 'bastion' ? 'bastion.destroyed' : 'creature.destroyed',`${this.registry.cards[card.definitionId].name} is destroyed.`,{cardId:id,player:snapshot.controller,snapshot});
+    this.emit(definition(this.state,id,this.registry).type === 'bulwark' ? 'bulwark.destroyed' : 'creature.destroyed',`${this.registry.cards[card.definitionId].name} is destroyed.`,{cardId:id,player:snapshot.controller,snapshot});
   }
   stateChecks() {
     for (const p of [this.state.players.p1,this.state.players.p2]) for (const id of [...p.board]) {
@@ -366,7 +366,7 @@ class Transaction {
     const combat = this.state.combat!, assignments = combat.blocks;
     this.emit('combat.confirmed','The attacker confirms combat.',{player:this.state.active});
     this.inCombat = true;
-    for (const a of assignments) this.emit(definition(this.state,a.blocker,this.registry).type === 'bastion' ? 'bastion.blocked' : 'creature.blocked',`${definition(this.state,a.blocker,this.registry).name} blocks ${definition(this.state,a.attacker,this.registry).name}.`,{cardId:a.blocker,target:a.attacker});
+    for (const a of assignments) this.emit(definition(this.state,a.blocker,this.registry).type === 'bulwark' ? 'bulwark.blocked' : 'creature.blocked',`${definition(this.state,a.blocker,this.registry).name} blocks ${definition(this.state,a.attacker,this.registry).name}.`,{cardId:a.blocker,target:a.attacker});
     this.drain();
     for (const id of combat.attackers) {
       if (this.state.outcome) break;

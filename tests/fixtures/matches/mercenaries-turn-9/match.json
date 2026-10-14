@@ -1,7 +1,7 @@
 {
   "initial": {
     "rulesVersion": "varhir-rules-0.15",
-    "contentVersion": "varhir-core-0.1-3907c74b",
+    "contentVersion": "varhir-core-0.1-fa08efd7",
     "seed": 731,
     "rng": 2344743077,
     "revision": 0,
@@ -662,7 +662,7 @@
       },
       "p2-25": {
         "id": "p2-25",
-        "definitionId": "crown-bastion",
+        "definitionId": "crown-bulwark",
         "owner": "p2",
         "controller": "p2",
         "zone": "hand",
@@ -672,7 +672,7 @@
       },
       "p2-26": {
         "id": "p2-26",
-        "definitionId": "crown-bastion",
+        "definitionId": "crown-bulwark",
         "owner": "p2",
         "controller": "p2",
         "zone": "deck",
@@ -682,7 +682,7 @@
       },
       "p2-27": {
         "id": "p2-27",
-        "definitionId": "crown-bastion",
+        "definitionId": "crown-bulwark",
         "owner": "p2",
         "controller": "p2",
         "zone": "deck",
@@ -779,7 +779,7 @@
       {
         "seq": 7,
         "type": "card.drawn",
-        "message": "Drew Crown Bastion.",
+        "message": "Drew Crown Bulwark.",
         "visibility": "p2",
         "player": "p2",
         "cardId": "p2-25"

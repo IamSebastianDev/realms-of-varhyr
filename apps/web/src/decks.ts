@@ -2,6 +2,7 @@ import { deckRules, type CardDefinition, type Registry } from '../../../packages
 import { validateDeck } from '../../../packages/core/src';
 import { registry, starterDefinitions } from '../../../packages/content/src';
 import { ownedCopyCount, type OwnedCopies } from './collection';
+import { currentCardIds } from './cardIds';
 
 export type CustomDeck = { id: string; name: string; cards: string[] };
 export const decksKey = 'varhir-decks-v1';
@@ -43,13 +44,14 @@ export function removeDeckCard(cards: string[], id: string): string[] {
 export function parseDeck(value: unknown, allowBlankName = false, content: Registry = registry): CustomDeck | null {
   if (!value || typeof value !== 'object') return null;
   const deck = value as Partial<CustomDeck>;
+  const cards = Array.isArray(deck.cards) && deck.cards.every(id => typeof id === 'string') ? currentCardIds(deck.cards) : null;
   if (
     typeof deck.id !== 'string' || !deck.id.startsWith('custom-') ||
     typeof deck.name !== 'string' || (!allowBlankName && !deck.name.trim()) || deck.name.length > 60 ||
-    !Array.isArray(deck.cards) || !deck.cards.every(id => typeof id === 'string' && content.cards[id])
+    !cards || !cards.every(id => content.cards[id])
   ) return null;
-  if (validateDeck(deck.cards, content).some(error => !error.startsWith('A deck needs'))) return null;
-  return { id: deck.id, name: deck.name.trim(), cards: [...deck.cards] };
+  if (validateDeck(cards, content).some(error => !error.startsWith('A deck needs'))) return null;
+  return { id: deck.id, name: deck.name.trim(), cards };
 }
 
 export function parseDecks(raw: string | null, content: Registry = registry): CustomDeck[] {

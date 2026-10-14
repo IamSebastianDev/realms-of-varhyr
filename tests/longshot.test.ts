@@ -18,18 +18,18 @@ describe('Oakholme Bowmen', () => {
     expect(card.stats).toMatchObject({ attack: 3, defense: 2, energyOutputs: [{ 'bright-marches': 2 }] });
     expect(card.cost).toEqual({ generic: 1, factions: { 'bright-marches': 1 } });
   });
-  it('exhausts to hit any enemy creature, not bastions or players', () => {
+  it('exhausts to hit any enemy creature, not bulwarks or players', () => {
     const state = createMatch(registry, [deck, deck], 731);
     state.active = 'p1'; state.phase = 'play';
     const bowmen = place(state, 'oakholme-bowmen', 'p1', 0);
-    const far = place(state, 'crown-recruit', 'p2', 4), bastion = place(state, 'crown-bastion', 'p2', 2);
+    const far = place(state, 'crown-recruit', 'p2', 4), bulwark = place(state, 'crown-bulwark', 'p2', 2);
     const action = legalActions(state, registry).activations.find(a => a.cardId === bowmen)!;
     expect(action.targets).toEqual([far]);
     const hit = run(state, { type: 'activate', cardId: bowmen, ability: action.ability, target: far });
     expect(hit.error).toBeUndefined();
     expect(hit.state.cards[bowmen].exhausted).toBe(true);
     expect(hit.state.cards[far].damage + (hit.state.cards[far].zone === 'board' ? 0 : 1)).toBeGreaterThanOrEqual(1);
-    expect(run(state, { type: 'activate', cardId: bowmen, ability: action.ability, target: bastion }).error).toBeTruthy();
+    expect(run(state, { type: 'activate', cardId: bowmen, ability: action.ability, target: bulwark }).error).toBeTruthy();
   });
 });
 
@@ -64,8 +64,8 @@ describe('Channel and Gift of the March', () => {
 
 describe('Wooden Fort', () => {
   const card = registry.cards['wooden-fort'];
-  it('is a rare 2/5 Bright Marches bastion costing 1 + 2 that shields its neighbors', () => {
-    expect(card).toMatchObject({ type: 'bastion', rarity: 'rare', factions: ['bright-marches'], cost: { generic: 1, factions: { 'bright-marches': 2 } } });
+  it('is a rare 2/5 Bright Marches bulwark costing 1 + 2 that shields its neighbors', () => {
+    expect(card).toMatchObject({ type: 'bulwark', rarity: 'rare', factions: ['bright-marches'], cost: { generic: 1, factions: { 'bright-marches': 2 } } });
     expect(card.stats).toMatchObject({ attack: 2, defense: 5 });
     expect(card.abilities).toEqual([{ id: 'shield-wall', params: { amount: 1 } }]);
   });
@@ -76,14 +76,14 @@ describe('Volley and Strike the Hammer', () => {
     expect(registry.cards['volley']).toMatchObject({ type: 'spell', timing: ['play'], cost: { generic: 0, factions: { 'bright-marches': 2 } }, cast: [{ id: 'barrage', params: { amount: 1 } }] });
     expect(registry.cards['strike-the-hammer']).toMatchObject({ type: 'spell', timing: ['play'], cost: { generic: 2, factions: { 'bright-marches': 2 } }, cast: [{ id: 'damage', params: { amount: 5 } }] });
   });
-  it('Volley hits every enemy creature for 1 and leaves bastions, players and its own side alone', () => {
+  it('Volley hits every enemy creature for 1 and leaves bulwarks, players and its own side alone', () => {
     const state = createMatch(registry, [deck, deck], 731);
     state.active = 'p1'; state.phase = 'play';
     const spell = state.players.p1.deck.pop()!;
     Object.assign(state.cards[spell], { definitionId: 'volley', zone: 'hand', slot: null });
     state.players.p1.hand.push(spell);
     state.players.p1.energy = { 'bright-marches': 2 };
-    const a = place(state, 'crown-recruit', 'p2', 0), b = place(state, 'crown-recruit', 'p2', 3), fort = place(state, 'crown-bastion', 'p2', 2), mine = place(state, 'crown-recruit', 'p1', 1);
+    const a = place(state, 'crown-recruit', 'p2', 0), b = place(state, 'crown-recruit', 'p2', 3), fort = place(state, 'crown-bulwark', 'p2', 2), mine = place(state, 'crown-recruit', 'p1', 1);
     const life = state.players.p2.life;
     const result = run(state, { type: 'play', cardId: spell, payment: { 'bright-marches': 2 } });
     expect(result.error).toBeUndefined();
@@ -145,9 +145,9 @@ describe('Bright Marches starter deck', () => {
 });
 
 describe('Seacliffe Castle', () => {
-  it('is a legendary Bright Marches bastion with guard, shield wall and longshot', () => {
+  it('is a legendary Bright Marches bulwark with guard, shield wall and longshot', () => {
     const c = registry.cards['seacliffe-castle'];
-    expect(c.type).toBe('bastion');
+    expect(c.type).toBe('bulwark');
     expect(c.legendary).toBe(true);
     expect(c.abilities.map(a => a.id)).toEqual(['guard', 'shield-wall', 'longshot']);
   });

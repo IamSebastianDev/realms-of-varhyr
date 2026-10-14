@@ -32,7 +32,7 @@
       "enum": [
         "creature",
         "spell",
-        "bastion"
+        "bulwark"
       ],
       "type": "string"
     },
@@ -278,7 +278,7 @@
     "ability-adjacent-banner": {
       "type": "object",
       "title": "Formation {amount}",
-      "description": "Adjacent friendly creatures and bastions get +{amount} Attack while this card is on the battlefield. Empty slots do not close the gap.",
+      "description": "Adjacent friendly creatures and bulwarks get +{amount} Attack while this card is on the battlefield. Empty slots do not close the gap.",
       "properties": {
         "id": {
           "const": "adjacent-banner"
@@ -334,7 +334,7 @@
     "ability-barrage": {
       "type": "object",
       "title": "Barrage {amount}",
-      "description": "Deal {amount} damage to each enemy creature. Bastions and players are not affected.",
+      "description": "Deal {amount} damage to each enemy creature. Bulwarks and players are not affected.",
       "properties": {
         "id": {
           "const": "barrage"
@@ -406,7 +406,7 @@
     "ability-charge": {
       "type": "object",
       "title": "Charge {amount} · {position}",
-      "description": "When played, deal {amount} damage to the enemy creature in {position}. If that position is empty or holds a bastion, deal no damage.",
+      "description": "When played, deal {amount} damage to the enemy creature in {position}. If that position is empty or holds a bulwark, deal no damage.",
       "properties": {
         "id": {
           "const": "charge"
@@ -625,7 +625,7 @@
     "ability-invocation": {
       "type": "object",
       "title": "Invocation {amount}",
-      "description": "Exhaust during your play phase to deal {amount} damage to the enemy creature directly opposite. Requires a creature in that position; cannot target bastions or players.",
+      "description": "Exhaust during your play phase to deal {amount} damage to the enemy creature directly opposite. Requires a creature in that position; cannot target bulwarks or players.",
       "properties": {
         "id": {
           "const": "invocation"
@@ -653,7 +653,7 @@
     "ability-longshot": {
       "type": "object",
       "title": "Longshot {amount}",
-      "description": "Exhaust during your play phase to deal {amount} damage to any enemy creature. Cannot target bastions or players.",
+      "description": "Exhaust during your play phase to deal {amount} damage to any enemy creature. Cannot target bulwarks or players.",
       "properties": {
         "id": {
           "const": "longshot"
@@ -681,7 +681,7 @@
     "ability-marches-rally": {
       "type": "object",
       "title": "Rally",
-      "description": "Exhaust during your play phase to deploy a creature or bastion from your hand into a free position without paying its energy cost. It enters exhausted and its entry abilities trigger normally.",
+      "description": "Exhaust during your play phase to deploy a creature or bulwark from your hand into a free position without paying its energy cost. It enters exhausted and its entry abilities trigger normally.",
       "properties": {
         "id": {
           "const": "marches-rally"
@@ -723,7 +723,7 @@
     "ability-raid": {
       "type": "object",
       "title": "Raid",
-      "description": "This card has +1 Attack for each adjacent friendly creature. Bastions do not count.",
+      "description": "This card has +1 Attack for each adjacent friendly creature. Bulwarks do not count.",
       "properties": {
         "id": {
           "const": "raid"
@@ -772,7 +772,7 @@
     "ability-rime": {
       "type": "object",
       "title": "Rime {amount}",
-      "description": "The enemy creature or bastion directly opposite has -{amount} Attack, down to zero, while this card remains on the battlefield. Active even while exhausted.",
+      "description": "The enemy creature or bulwark directly opposite has -{amount} Attack, down to zero, while this card remains on the battlefield. Active even while exhausted.",
       "properties": {
         "id": {
           "const": "rime"
@@ -821,7 +821,7 @@
     "ability-scorch": {
       "type": "object",
       "title": "Scorch",
-      "description": "When played, deal 3 damage to the opposing creature or bastion directly opposite this card’s deployed position. An empty position takes no damage; players are not targets.",
+      "description": "When played, deal 3 damage to the opposing creature or bulwark directly opposite this card’s deployed position. An empty position takes no damage; players are not targets.",
       "properties": {
         "id": {
           "const": "scorch"
@@ -842,7 +842,7 @@
     "ability-shield-wall": {
       "type": "object",
       "title": "Shield Wall {amount}",
-      "description": "Adjacent friendly creatures and bastions get +{amount} Defense while this card is on the battlefield. Empty slots do not close the gap.",
+      "description": "Adjacent friendly creatures and bulwarks get +{amount} Defense while this card is on the battlefield. Empty slots do not close the gap.",
       "properties": {
         "id": {
           "const": "shield-wall"
@@ -870,7 +870,7 @@
     "ability-shoulder-to-shoulder": {
       "type": "object",
       "title": "Shoulder to Shoulder",
-      "description": "This card has +1 Attack while a friendly creature or bastion stands in both the slot to its left and the slot to its right. It never applies on a flank.",
+      "description": "This card has +1 Attack while a friendly creature or bulwark stands in both the slot to its left and the slot to its right. It never applies on a flank.",
       "properties": {
         "id": {
           "const": "shoulder-to-shoulder"
@@ -891,7 +891,7 @@
     "ability-soul-harvest": {
       "type": "object",
       "title": "Soul Harvest",
-      "description": "While this card is on the battlefield, whenever another friendly creature is destroyed, draw one card from your library. Does not trigger for bastions or this card itself.",
+      "description": "While this card is on the battlefield, whenever another friendly creature is destroyed, draw one card from your library. Does not trigger for bulwarks or this card itself.",
       "properties": {
         "id": {
           "const": "soul-harvest"
@@ -1256,7 +1256,7 @@
         }
       ]
     },
-    "bastion-ability": {
+    "bulwark-ability": {
       "type": "object",
       "properties": {
         "id": {
@@ -1424,7 +1424,7 @@
       "if": {
         "properties": {
           "type": {
-            "const": "bastion"
+            "const": "bulwark"
           }
         },
         "required": [
@@ -1442,7 +1442,7 @@
           },
           "abilities": {
             "items": {
-              "$ref": "#/definitions/bastion-ability"
+              "$ref": "#/definitions/bulwark-ability"
             }
           }
         }

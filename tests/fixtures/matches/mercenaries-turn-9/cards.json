@@ -152,11 +152,11 @@
     ]
   },
   {
-    "id": "crown-bastion",
+    "id": "crown-bulwark",
     "revision": 1,
-    "name": "Crown Bastion",
-    "deckLimitKey": "crown-bastion",
-    "type": "bastion",
+    "name": "Crown Bulwark",
+    "deckLimitKey": "crown-bulwark",
+    "type": "bulwark",
     "factions": [
       "crownlands"
     ],
@@ -172,7 +172,7 @@
       }
     },
     "lore": "An oath made stone.",
-    "art": "/cards/crown-bastion/data.png?v=f22651501ced9356",
+    "art": "/cards/crown-bulwark/data.png?v=f22651501ced9356",
     "abilities": [
       {
         "id": "war-banner",
@@ -507,7 +507,7 @@
     "revision": 1,
     "name": "Tower of the First Morning",
     "deckLimitKey": "tower-of-the-first-morning",
-    "type": "bastion",
+    "type": "bulwark",
     "factions": [
       "crownlands"
     ],

@@ -21,7 +21,7 @@ export function matchStats(state: GameState, registry: Registry): Record<PlayerI
     else if (event.type === 'energy.generated' && isSeat(who)) sides[who].energy++;
     else if (event.type === 'creature.attacked' && isSeat(who) && event.cardId) swings[who].set(event.cardId, (swings[who].get(event.cardId) ?? 0) + 1);
     else if (event.type === 'life.restored' && isSeat(event.target)) sides[event.target].healed += event.amount ?? 0;
-    else if ((event.type === 'creature.destroyed' || event.type === 'bastion.destroyed') && event.cardId) {
+    else if ((event.type === 'creature.destroyed' || event.type === 'bulwark.destroyed') && event.cardId) {
       const owner = event.snapshot?.controller ?? state.cards[event.cardId]?.controller;
       if (!isSeat(owner)) continue;
       sides[owner].creaturesLost++; sides[other(owner)].creaturesDestroyed++; sides[owner].fallen.push(nameOf(event.cardId));

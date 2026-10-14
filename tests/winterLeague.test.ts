@@ -103,11 +103,11 @@ describe('public positional magic',()=>{
     const next=step(state,{type:'play',cardId:removal,target:source},'p2');
     expect(next.cards[source].zone).toBe('discard');expect(effectiveStats(next,enemy,registry).attack).toBe(1);
   });
-  it('Invocation is unavailable against an empty lane or bastion and cannot redirect to another lane',()=>{
+  it('Invocation is unavailable against an empty lane or bulwark and cannot redirect to another lane',()=>{
     const state=setup(),mage=card(state,'glassfire-adept','p1',2),other=card(state,'crown-recruit','p2',1);
     expect(legalActions(state,registry).activations).toEqual([]);
     expect(apply(state,{actor:'p1',expectedRevision:0,command:{type:'activate',cardId:mage,ability:0,target:other}},registry).error).toBeTruthy();
-    card(state,'crown-bastion','p2',2);expect(legalActions(state,registry).activations).toEqual([]);
+    card(state,'crown-bulwark','p2',2);expect(legalActions(state,registry).activations).toEqual([]);
   });
   it('Invocation damages the opposing creature, respects Armor, exhausts the mage and excludes combat',()=>{
     const state=setup(),mage=card(state,'first-speaker-of-the-league','p1',2),target=card(state,'aldric-runewarden','p2',2);

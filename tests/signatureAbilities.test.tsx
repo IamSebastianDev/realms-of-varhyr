@@ -76,14 +76,14 @@ describe('Crownlands Fealty', () => {
     state.cards[leader].exhausted = true;
     const ally = place(state, 'morie-grandmistress', side, 1);
     const distant = place(state, 'crown-recruit', side, 4), opposing = place(state, 'crown-recruit', enemy, 1);
-    const bastion = place(state, 'crown-bastion', side, 3), hand = place(state, 'crown-recruit', side);
-    expect(effectiveStats(state, ally, registry)).toEqual({ attack: 3, defense: 7 }); // Fealty plus the bastion's banner.
+    const bulwark = place(state, 'crown-bulwark', side, 3), hand = place(state, 'crown-recruit', side);
+    expect(effectiveStats(state, ally, registry)).toEqual({ attack: 3, defense: 7 }); // Fealty plus the bulwark's banner.
     expect(effectiveStats(state, distant, registry)).toEqual({ attack: 3, defense: 3 });
     expect(effectiveStats(state, opposing, registry)).toEqual({ attack: 1, defense: 2 });
     expect(effectiveStats(state, leader, registry)).toEqual({ attack: 5, defense: 6 });
-    expect(effectiveStats(state, bastion, registry)).toEqual({ attack: 1, defense: 4 });
+    expect(effectiveStats(state, bulwark, registry)).toEqual({ attack: 1, defense: 4 });
     // Remove the unrelated banner to isolate Fealty's hand exclusion and disappearance.
-    state.players[side].board[3] = null; state.cards[bastion].zone = 'discard'; state.players[side].discard.push(bastion); state.cards[bastion].slot = null;
+    state.players[side].board[3] = null; state.cards[bulwark].zone = 'discard'; state.players[side].discard.push(bulwark); state.cards[bulwark].slot = null;
     expect(effectiveStats(state, hand, registry)).toEqual({attack:1,defense:2});
     expect(effectiveStats(projectForPlayer(state, side, registry), ally, registry)).toEqual(effectiveStats(state, ally, registry));
     state.players[side].board[2] = null; state.cards[leader].zone = 'discard'; state.players[side].discard.push(leader); state.cards[leader].slot = null;
@@ -153,8 +153,8 @@ describe('League of Winter Accord', () => {
 });
 
 describe('Bright Marches Rally', () => {
-  it.each(['p1','p2'] as const)('deploys any-cost creatures or bastions from %s hand without energy and replays exactly', side => {
-    for (const definitionId of ['morie-grandmistress','crown-bastion']) {
+  it.each(['p1','p2'] as const)('deploys any-cost creatures or bulwarks from %s hand without energy and replays exactly', side => {
+    for (const definitionId of ['morie-grandmistress','crown-bulwark']) {
       const state = setup(); state.active = side;
       const bosci = place(state,'bosci-lord-of-seacliffe',side,2), target = place(state,definitionId,side);
       const spell = place(state,'cleansing-light',side), enemy = place(state,'crown-recruit',side === 'p1' ? 'p2' : 'p1');
@@ -241,7 +241,7 @@ describe('Mountain Clans Trade', () => {
 });
 
 describe('Conclave Sanctuary', () => {
-  it('continuously protects adjacent creatures, grants elves a second point and excludes bastions', () => {
+  it('continuously protects adjacent creatures, grants elves a second point and excludes bulwarks', () => {
     const elf = {...registry.cards['crown-recruit'],id:'elf-test',deckLimitKey:'elf-test',subtypes:['elf','scout']};
     const content = compileContent([...Object.values(registry.cards),elf]);
     const state = setup(), queen = place(state,'ilyria-queen-of-the-elves','p1',2), ally = place(state,'crown-recruit','p1',1), neighbor = place(state,elf.id,'p1',3);
@@ -255,7 +255,7 @@ describe('Conclave Sanctuary', () => {
     state.cards[queen].exhausted = true;
     expect(effectiveStats(state,ally,content).defense).toBe(3);
     expect(effectiveStats(state,neighbor,content).defense).toBe(4);
-    state.cards[neighbor].definitionId='crown-bastion';
+    state.cards[neighbor].definitionId='crown-bulwark';
     expect(effectiveStats(state,neighbor,content).defense).toBe(4);
     state.players.p1.board[2]=null;state.cards[queen].zone='discard';state.cards[queen].slot=null;state.players.p1.discard.push(queen);
     expect(effectiveStats(state,ally,content).defense).toBe(2);
@@ -263,7 +263,7 @@ describe('Conclave Sanctuary', () => {
 });
 
 describe('Ember Fields Scorch', () => {
-  it.each(['crown-recruit','crown-bastion','aldric-runewarden'])('burns only the deployed opposite position, respecting Armor on %s', targetDef => {
+  it.each(['crown-recruit','crown-bulwark','aldric-runewarden'])('burns only the deployed opposite position, respecting Armor on %s', targetDef => {
     const state = setup(), target = place(state,targetDef,'p2',4), other = place(state,'crown-recruit','p2',2), hekata = place(state,'hekata-lady-of-the-fields');
     state.players.p1.energy = {'ember-fields':2,neutral:2};
     const next = step(state,{type:'play',cardId:hekata,slot:4});
@@ -283,17 +283,17 @@ describe('Ember Fields Scorch', () => {
 });
 
 describe('Horde Raid', () => {
-  it('stacks once per adjacent friendly creature, excluding bastions, distant slots and enemies', () => {
+  it('stacks once per adjacent friendly creature, excluding bulwarks, distant slots and enemies', () => {
     const state = setup(), brut = place(state,'brut-chief-of-the-harpies','p1',2);
-    const bastion = place(state,'tower-of-the-first-morning','p1',1);
+    const bulwark = place(state,'tower-of-the-first-morning','p1',1);
     place(state,'crown-recruit','p1',4); place(state,'crown-recruit','p2',3);
     expect(effectiveStats(state,brut,registry).attack).toBe(4);
-    state.cards[bastion].definitionId = 'crown-recruit';
+    state.cards[bulwark].definitionId = 'crown-recruit';
     expect(effectiveStats(state,brut,registry).attack).toBe(5);
     place(state,'crown-recruit','p1',3);
     expect(effectiveStats(state,brut,registry).attack).toBe(6);
     expect(effectiveStats(projectForPlayer(state,'p2',registry),brut,registry)).toEqual(effectiveStats(state,brut,registry));
-    state.cards[bastion].exhausted = true;
+    state.cards[bulwark].exhausted = true;
     expect(effectiveStats(state,brut,registry).attack).toBe(6);
   });
 });
@@ -301,9 +301,9 @@ describe('Horde Raid', () => {
 describe('Neutral Wayfarer', () => {
   it('returns a damaged friendly producer, clears its slot and damage, and exhausts the Wanderer without refunding energy', () => {
     const state = setup(), wanderer = place(state,'the-lonely-wanderer','p1',2), ally = place(state,'crown-recruit','p1',1), enemy = place(state,'crown-recruit','p2',1);
-    const bastion = place(state,'crown-bastion','p1',3); state.cards[ally].damage = 1;
+    const bulwark = place(state,'crown-bulwark','p1',3); state.cards[ally].damage = 1;
     const activation = legalActions(state,registry).activations.find(a => a.cardId === wanderer)!;
-    expect(activation.targets).toContain(ally); expect(activation.targets).not.toContain(enemy); expect(activation.targets).not.toContain(bastion);
+    expect(activation.targets).toContain(ally); expect(activation.targets).not.toContain(enemy); expect(activation.targets).not.toContain(bulwark);
     const next = step(state,{type:'activate',cardId:wanderer,ability:0,target:ally});
     expect(next.cards[ally].zone).toBe('hand'); expect(next.cards[ally].damage).toBe(0); expect(next.players.p1.board[1]).toBeNull();
     expect(next.cards[wanderer].exhausted).toBe(true); expect(next.players.p1.energy).toEqual({});

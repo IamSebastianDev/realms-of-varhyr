@@ -13,7 +13,7 @@ button svg{flex-shrink:0}
 input,select{color:#d9dfd8;background:#132326;border:1px solid #b7bc9a29;border-radius:3px;padding:12px;width:100%}
 select option{background:#17272a}
 .app{position:relative;isolation:isolate;min-height:800px;height:100dvh;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:78px minmax(420px,1fr) 192px;overflow:hidden}
-.world-bg{position:absolute;z-index:-3;inset:0;background:url('/art/sanctum.svg') center 35%/cover no-repeat;opacity:.77}
+.world-bg{position:absolute;z-index:-3;inset:0;background:url('/art/varhyr-valley.png') center/cover no-repeat;opacity:.66}
 .world-vignette{position:absolute;inset:0;pointer-events:none;z-index:-2;background:radial-gradient(ellipse at 50% 43%,transparent 4%,#07121694 82%),linear-gradient(#08171d99,transparent 30%,#08151745 58%,#081416e8 92%)}
 .eyebrow{font-size:9px;letter-spacing:1.65px;font-weight:600;color:#859b92;line-height:1.6}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 34px;border-bottom:1px solid var(--line);background:#07161973}
@@ -1034,18 +1034,18 @@ input,select,select option{background:#324b39;color:#f0edde;border-color:#bec99d
 .booster-card-caption{min-height:30px;margin-top:8px}
 .booster-actions{margin-top:14px}}
 
-/* Bastions are defensive field cards; their crest replaces energy output. */
-.art-card.bastion-card{border-color:#bcaaca;box-shadow:inset 0 0 0 1px #d9cde8,0 8px 24px #38294730}
-.card-statline .bastion-type{margin-left:auto;color:#e7d9f3;font-size:10px;gap:4px}
-.bastion-rules{display:flex;align-items:center;gap:7px;color:#ddd1e8;font-size:12px;line-height:1.5}
-.board-bastion-mark{display:flex;align-items:center;gap:4px;color:#ecdcfa;font-size:10px;text-shadow:0 1px 3px #221b30}
+/* Bulwarks are defensive field cards; their crest replaces energy output. */
+.art-card.bulwark-card{border-color:#bcaaca;box-shadow:inset 0 0 0 1px #d9cde8,0 8px 24px #38294730}
+.card-statline .bulwark-type{margin-left:auto;color:#e7d9f3;font-size:10px;gap:4px}
+.bulwark-rules{display:flex;align-items:center;gap:7px;color:#ddd1e8;font-size:12px;line-height:1.5}
+.board-bulwark-mark{display:flex;align-items:center;gap:4px;color:#ecdcfa;font-size:10px;text-shadow:0 1px 3px #221b30}
 /* Shared card hierarchy: name and faction/type at the top; stats at the foot. */
 .art-card{container-type:inline-size}
 .art-card .card-header{position:absolute;top:0;left:0;right:0;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:5px 6px;padding:10px 8px 24px;background:linear-gradient(#193025f5 0%,#193025dc 65%,transparent);text-align:left}
 .art-card .card-header h3{font:600 clamp(11px,10cqw,23px)/1.08 var(--serif);color:#fff0d4;margin:0;min-width:0;overflow-wrap:break-word;text-shadow:0 1px 3px #0008}
 .art-card.legendary-card .card-header{background:linear-gradient(#302c18f5 0%,#302c18dc 65%,transparent)}
 .art-card.legendary-card .card-header h3{color:#fff1c2}
-.art-card.bastion-card .card-header{background:linear-gradient(#352f3bf5 0%,#352f3bdc 65%,transparent)}
+.art-card.bulwark-card .card-header{background:linear-gradient(#352f3bf5 0%,#352f3bdc 65%,transparent)}
 .art-card .card-header .card-cost{position:static;align-self:start;min-width:23px;height:auto;min-height:23px;padding:3px 5px;border-radius:5px;line-height:1}
 .art-card .card-header .cost-bundle{font-size:clamp(13px,10cqw,22px);white-space:nowrap}
 .art-card .card-identity{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:5px}

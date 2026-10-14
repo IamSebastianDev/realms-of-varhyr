@@ -46,7 +46,7 @@ export function builderCards(content: Registry, deck: string[], filters: Builder
 export function summarizeDeck(ids: string[], content: Registry) {
   const cards = ids.flatMap(id => content.cards[id] ? [content.cards[id]] : []);
   const curve = Array<number>(7).fill(0);
-  const types = { creature: 0, spell: 0, bastion: 0 };
+  const types = { creature: 0, spell: 0, bulwark: 0 };
   let totalCost = 0, producers = 0, freeProducers = 0;
   for (const card of cards) {
     const cost = cardCost(card);

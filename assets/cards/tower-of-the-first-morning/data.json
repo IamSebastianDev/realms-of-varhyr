@@ -4,7 +4,7 @@
   "revision": 1,
   "name": "Tower of the First Morning",
   "deckLimitKey": "tower-of-the-first-morning",
-  "type": "bastion",
+  "type": "bulwark",
   "factions": [
     "crownlands"
   ],

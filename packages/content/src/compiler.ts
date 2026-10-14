@@ -17,7 +17,7 @@ export function cardSchema(factionIds: readonly string[]) {
     revision: v.pipe(nonnegativeInteger, v.minValue(1)),
     name: v.string(),
     deckLimitKey: v.string(),
-    type: v.picklist(['creature', 'spell', 'bastion']),
+    type: v.picklist(['creature', 'spell', 'bulwark']),
     factions: v.array(affiliation),
     subtypes: v.array(v.string()),
     legendary: v.boolean(),
@@ -92,12 +92,12 @@ export function compileContent(
     }
     if (cards[card.id]) throw new Error(`Duplicate card ID: ${card.id}`);
     if (card.type !== 'spell' && (!card.stats || card.cast || card.timing)) throw new Error(`Invalid field card: ${card.id}`);
-    if (card.type === 'bastion' && card.stats!.energyOutputs.length) throw new Error(`Bastion ${card.id} cannot produce energy`);
+    if (card.type === 'bulwark' && card.stats!.energyOutputs.length) throw new Error(`Bulwark ${card.id} cannot produce energy`);
     if (card.type === 'spell' && (card.stats || !card.cast?.length || !card.timing)) throw new Error(`Invalid spell: ${card.id}`);
     for (const binding of [...card.abilities, ...(card.cast ?? [])]) {
       const extension = extensions[binding.id];
       if (!extension) throw new Error(`Unknown ability ${binding.id} on ${card.id}`);
-      if (card.type === 'bastion' && extension.activationEnergy) throw new Error(`Bastion ${card.id} cannot produce energy`);
+      if (card.type === 'bulwark' && extension.activationEnergy) throw new Error(`Bulwark ${card.id} cannot produce energy`);
       if (extension.faction && (extension.faction === 'neutral' ? card.factions.length !== 0 : !card.factions.includes(extension.faction))) {
         throw new Error(`Ability ${binding.id} belongs to ${extension.faction}; card ${card.id} needs that affiliation`);
       }

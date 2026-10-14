@@ -5,7 +5,7 @@ import type { CardInstance } from '../packages/contracts/src';
 
 const ids = Object.keys(registry.cards);
 const axeman = 'marcher-axeman';
-const filler = (type: 'creature' | 'bastion') => ids.find(id => registry.cards[id].type === type && id !== axeman && (type === 'bastion' ? registry.cards[id].abilities.every(a => a.id === 'armor' || a.id === 'rally') : !registry.cards[id].abilities.length))!;
+const filler = (type: 'creature' | 'bulwark') => ids.find(id => registry.cards[id].type === type && id !== axeman && (type === 'bulwark' ? registry.cards[id].abilities.every(a => a.id === 'armor' || a.id === 'rally') : !registry.cards[id].abilities.length))!;
 function board(slots: (string | null)[]) {
   const cards: Record<string, CardInstance> = {};
   const row = slots.map((definitionId, slot) => {
@@ -22,8 +22,8 @@ const attackAt = (slots: (string | null)[], slot: number) => effectiveStats(boar
 describe('Shoulder to Shoulder', () => {
   const printed = registry.cards[axeman].stats!.attack;
   it('is on the Marcher Axeman', () => expect(registry.cards[axeman].abilities.map(a => a.id)).toContain('shoulder-to-shoulder'));
-  it('gives +1 Attack with a creature and a bastion beside it', () => {
-    expect(attackAt([null, filler('creature'), axeman, filler('bastion'), null], 2)).toBe(printed + 1);
+  it('gives +1 Attack with a creature and a bulwark beside it', () => {
+    expect(attackAt([null, filler('creature'), axeman, filler('bulwark'), null], 2)).toBe(printed + 1);
   });
   it('needs both sides and ignores empty slots, flanks and the enemy row', () => {
     expect(attackAt([null, filler('creature'), axeman, null, null], 2)).toBe(printed);

@@ -15,7 +15,7 @@ export type ContentLanguage = 'en' | 'de';
 export type CardTranslation = { name?: string; lore?: string };
 export type AbilityTranslation = { name: string; description: string };
 export type CardDefinition = {
-  id: string; revision: number; name: string; deckLimitKey: string; type: 'creature' | 'spell' | 'bastion';
+  id: string; revision: number; name: string; deckLimitKey: string; type: 'creature' | 'spell' | 'bulwark';
   /** Logical release membership; independent of artwork. Optional only for legacy engine fixtures. */
   set?: string;
   factions: Faction[]; subtypes: string[]; legendary: boolean; rarity: 'common' | 'rare' | 'legendary';
