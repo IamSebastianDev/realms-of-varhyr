@@ -53,7 +53,8 @@
 .builder-dialog{position:relative;width:480px;max-width:100%;max-height:calc(100dvh - 24px);overflow:auto;padding:26px;border-radius:7px;border:1px solid #dfcb9877;background:linear-gradient(145deg,#4a5e43,#293f30);box-shadow:0 24px 80px #0009}
 .builder-dialog h2{font-size:29px;margin:0 25px 20px 0}
 .builder-dialog p{font-size:11px;line-height:1.7;color:#d2dbbf;margin:12px 0}
-.builder-dialog-close{position:absolute;top:14px;right:14px;padding:4px}
+.builder-dialog-close{position:absolute;top:14px;right:14px;width:28px;height:28px;padding:0;display:grid;place-items:center;line-height:0}
+.builder-dialog-close>svg{display:block}
 .builder-filter-dialog-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .builder-filter-sort{grid-column:1/-1}
 .builder-cost-filter{display:flex;align-items:center;gap:5px;font-size:10px;margin:20px 0 16px}
@@ -95,6 +96,8 @@
 .dk-progress.incomplete span{color:#edcf96}
 .dk-progress i{display:block;height:3px;border-radius:2px;background:#15281f99;overflow:hidden}.dk-progress u{display:block;height:100%;background:linear-gradient(90deg,#c7a55f,#f1d99f)}
 .dk-progress.valid u{background:linear-gradient(90deg,#8fb77a,#cfe6a7)}
+.deck-purchase{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid #dfc78466;border-radius:5px;background:linear-gradient(90deg,#5c4a2870,#263b2ccc);font-size:10px;color:#eadcb5}
+.deck-purchase>span{display:flex;align-items:center;gap:5px;min-width:0}.deck-purchase>span>b{font-size:13px;color:#f5dfa0}.deck-purchase .crown-amount{gap:3px;margin-left:auto;font-size:10px}.deck-purchase .crown-icon{width:15px;height:15px}.deck-purchase .crown-amount>span{display:none}.deck-purchase .gold-button{display:flex;align-items:center;gap:5px;flex-shrink:0;min-height:28px;padding:5px 8px;font-size:9px}
 .builder-deck .builder-deck-grid{padding-right:2px}
 .dk-group h3{position:sticky;top:0;z-index:2;display:flex;align-items:baseline;gap:8px;margin:0;padding:8px 0 5px;font:600 15px/1 var(--serif);color:#f1d99f;background:linear-gradient(#274030 75%,#27403000)}
 .dk-group h3 span{font:500 10px 'Manrope',sans-serif;color:#c2ceaf}

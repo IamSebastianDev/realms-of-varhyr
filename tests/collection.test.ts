@@ -3,7 +3,7 @@ import type { Registry } from '../packages/contracts/src';
 import { defaultDeckId, registry as live, starterDefinitions } from '../packages/content/src';
 import { boosterPacks } from '../packages/content/src/boosters';
 import { collectionRules, emptyCollection, createCollection, parseCollection, openCollectionBooster,
-  buyCollectionBooster, buyCollectionCard, cardPrice, gainDebugCrowns, claimVictory, missingDeckCopies, packCount, totalPacks } from '../apps/web/src/collection';
+  buyCollectionBooster, buyCollectionCard, buyMissingDeckCards, cardPrice, gainDebugCrowns, claimVictory, missingDeckCopies, missingDeckPurchase, packCount, totalPacks } from '../apps/web/src/collection';
 import { addDeckCard } from '../apps/web/src/decks';
 import { apply, decisionPlayer } from '../packages/core/src';
 import { botCommand } from '../packages/core/src/bot';
@@ -154,5 +154,27 @@ describe('buying single cards', () => {
     expect(() => buyCollectionCard(emptyCollection(), common)).toThrow(/costs/);
     expect(cardPrice(common)).toBeLessThan(cardPrice(rare));
     expect(cardPrice(rare)).toBeLessThan(cardPrice(legendary));
+  });
+});
+
+describe('buying a deck’s missing cards', () => {
+  it('prices and grants every missing copy as one atomic purchase', () => {
+    const cards = ['common', 'common', 'legendary'];
+    const original = { ...emptyCollection(), counts: { common: 1 }, crowns: cardPrice(common) + cardPrice(legendary) };
+    const plan = missingDeckPurchase(cards, original.counts, content);
+    expect(plan).toMatchObject({ copies: 2, crowns: cardPrice(common) + cardPrice(legendary), complete: true });
+    expect(plan.cards.map(item => [item.id, item.copies])).toEqual([['common', 1], ['legendary', 1]]);
+    const bought = buyMissingDeckCards(original, cards, content);
+    expect(bought).toMatchObject({ counts: { common: 2, legendary: 1 }, crowns: 0 });
+    expect(original).toMatchObject({ counts: { common: 1 }, crowns: cardPrice(common) + cardPrice(legendary) });
+    expect(buyMissingDeckCards(bought, cards, content)).toBe(bought);
+  });
+
+  it('does not partially buy a deck when the wallet or deck is invalid', () => {
+    const short = { ...emptyCollection(), crowns: cardPrice(common) };
+    expect(() => buyMissingDeckCards(short, ['common', 'legendary'], content)).toThrow('crowns');
+    expect(short).toMatchObject({ counts: {}, crowns: cardPrice(common) });
+    const invalid = missingDeckPurchase(['legendary', 'legendary'], {}, content);
+    expect(invalid).toMatchObject({ complete: false, copies: 0, crowns: 0 });
   });
 });

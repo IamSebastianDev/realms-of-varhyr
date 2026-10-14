@@ -1,7 +1,7 @@
 import { Checkbox } from './Checkbox';
 import { FactionSelect } from './FactionSelect';
 import { t as msg, useLanguage, formatNumber } from '../../../packages/ui/src/i18n';
-import { ChartNoAxesColumn, Check, Copy, Download, Filter, Layers, Minus, MoreHorizontal, Plus, RotateCcw, Search, Trash2, Upload, X } from 'lucide-react';
+import { ChartNoAxesColumn, Check, Copy, Download, Filter, Layers, Minus, MoreHorizontal, Plus, RotateCcw, Search, ShoppingBag, Trash2, Upload, X } from 'lucide-react';
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { CardDefinition } from '../../../packages/contracts/src';
 import { deckRules } from '../../../packages/contracts/src';
@@ -11,19 +11,20 @@ import { ArtCard, CardHoverButton } from '../../../packages/ui/src/CardPresentat
 import { BuilderDialog } from './BuilderDialog';
 import { OwnershipPips } from './OwnershipPips';
 import { deckCardAvailability, starterOptions, type CustomDeck } from './decks';
-import { missingDeckCopies, type OwnedCopies } from './collection';
+import { missingDeckCopies, missingDeckPurchase, type OwnedCopies } from './collection';
+import { CrownAmount } from './Crowns';
 import { builderCards, cardCost, compareCards, exportDeck, importDeck, initialBuilderFilters, summarizeDeck, type BuilderFilters, type CardSort } from './deckTools';
 
 type Props = {
-  draft: CustomDeck; decks: CustomDeck[]; ownedCopies: OwnedCopies; message: string; canUndo: boolean; reduced: boolean;
+  draft: CustomDeck; decks: CustomDeck[]; ownedCopies: OwnedCopies; crowns: number; message: string; canUndo: boolean; reduced: boolean;
   change: (deck: CustomDeck) => void; add: (id: string) => void; remove: (id: string) => void;
-  load: (id: string) => void; removeDeck: () => void; save: () => void; undo: () => void; inspect: (card: CardDefinition) => void;
+  load: (id: string) => void; removeDeck: () => void; save: () => void; undo: () => void; buyMissing: () => void; inspect: (card: CardDefinition) => void;
 };
 const newDeck = (): CustomDeck => ({ id: `custom-${crypto.randomUUID()}`, name: msg("New deck"), cards: [] });
 const groups = [{ type: 'creature', name: 'Creatures' }, { type: 'bulwark', name: 'Bulwarks' }, { type: 'spell', name: 'Spells' }] as const;
 const signature = (deck: CustomDeck) => JSON.stringify([deck.name, [...deck.cards].sort()]);
 
-export function DeckBuilder({ draft, decks, ownedCopies, message, canUndo, reduced, change, add, remove, load, save, removeDeck, undo, inspect }: Props) {
+export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUndo, reduced, change, add, remove, load, save, removeDeck, undo, buyMissing, inspect }: Props) {
   useLanguage();
   const [filters, setFilters] = useState<BuilderFilters>(initialBuilderFilters);
   const [importError, setImportError] = useState('');
@@ -51,7 +52,7 @@ export function DeckBuilder({ draft, decks, ownedCopies, message, canUndo, reduc
   const codeRef = useRef<HTMLTextAreaElement>(null);
   useLayoutEffect(() => { deckGalleryRef.current?.scrollTo({ top: 0 }); }, [draft.id]);
   const filter = <K extends keyof BuilderFilters>(key: K, value: BuilderFilters[K]) => setFilters(current => ({ ...current, [key]: value }));
-  const allCards = useMemo(() => builderCards(registry, draft.cards, filters, ownedCopies), [draft.cards, filters, ownedCopies]);
+  const allCards = useMemo(() => builderCards(registry, draft.cards, filters), [draft.cards, filters]);
   // Cards you don't own are hidden unless the filter says otherwise; when shown they follow the owned ones.
   const cards = useMemo(() => {
     const owned = (card: CardDefinition) => (ownedCopies[card.id] ?? 0) > 0;
@@ -63,7 +64,9 @@ export function DeckBuilder({ draft, decks, ownedCopies, message, canUndo, reduc
   for (const id of draft.cards) counts.set(id, (counts.get(id) ?? 0) + 1);
   const deckCards = [...counts.keys()].flatMap(id => registry.cards[id] ? [registry.cards[id]] : []).sort(compareCards);
   const missing = missingDeckCopies(draft.cards, ownedCopies);
-  const errors = [...validateDeck(draft.cards, registry), ...(missing.length ? [msg("Missing {v0} owned copies. Open boosters or edit this deck.", {v0: missing.reduce((sum,card) => sum + card.missing, 0)})] : [])];
+  const purchase = missingDeckPurchase(draft.cards, ownedCopies, registry);
+  const canBuyMissing = purchase.complete && purchase.copies > 0 && crowns >= purchase.crowns;
+  const errors = [...validateDeck(draft.cards, registry), ...(missing.length ? [msg("Missing {v0} owned copies. Buy them or edit this deck.", {v0: missing.reduce((sum,card) => sum + card.missing, 0)})] : [])];
   const saved = decks.find(deck => deck.id === draft.id);
   const isSaved = saved && signature(saved) === signature(draft);
   const maxCurve = Math.max(1, ...summary.curve);
@@ -100,7 +103,7 @@ export function DeckBuilder({ draft, decks, ownedCopies, message, canUndo, reduc
   }
 
   function deckRow(card: CardDefinition) {
-    const availability = deckCardAvailability(draft.cards, card.id, registry, ownedCopies);
+    const availability = deckCardAvailability(draft.cards, card.id, registry);
     const count = availability.inDeck;
     const reason = availability.limitReached ? msg("Deck limit reached ({v0})", {v0: availability.limit}) : !availability.owned ? msg("No copies owned") : msg("All owned copies are in this deck");
     return <li key={card.id} className={`dk-row ${card.legendary ? 'is-legendary' : ''} ${drag?.id === card.id && drag.from === 'deck' ? 'dragging' : ''}`} draggable onDragStart={event => startDrag(event, card.id, 'deck')} onDragEnd={endDrag} onContextMenu={event => { event.preventDefault(); inspect(card); }}>
@@ -116,11 +119,12 @@ export function DeckBuilder({ draft, decks, ownedCopies, message, canUndo, reduc
   }
 
   function tile(card: CardDefinition, inDeck: boolean, index = 0) {
-    const availability = deckCardAvailability(draft.cards, card.id, registry, ownedCopies);
+    const availability = deckCardAvailability(draft.cards, card.id, registry);
+    const ownership = deckCardAvailability(draft.cards, card.id, registry, ownedCopies);
     const count = availability.inDeck;
     const unavailable = availability.remaining === 0;
-    const reason = availability.limitReached ? msg("Deck limit reached ({v0})", {v0: availability.limit}) : !availability.owned ? msg("No copies owned") : msg("All owned copies are in this deck");
-    const copySummary = msg("{v0} in deck · {v1} owned · deck limit {v2}", {v0: count, v1: availability.owned, v2: availability.limit});
+    const reason = availability.limitReached ? msg("Deck limit reached ({v0})", {v0: availability.limit}) : !ownership.owned ? msg("No copies owned") : msg("All owned copies are in this deck");
+    const copySummary = msg("{v0} in deck · {v1} owned · deck limit {v2}", {v0: count, v1: ownership.owned, v2: availability.limit});
     return <article key={card.id} draggable={!inDeck && !unavailable} onDragStart={event => startDrag(event, card.id, 'collection')} onDragEnd={endDrag} className={`builder-card-tile ${drag?.id === card.id && drag.from === 'collection' ? 'dragging' : ''} ${card.legendary ? 'is-legendary' : ''} ${count ? 'has-copies' : ''} ${inDeck ? 'in-deck' : ''} ${!inDeck && unavailable ? 'unavailable' : ''}`}
       style={inDeck ? { zIndex: deckCards.length - index, ['--deck-stagger' as string]: `${index % 2 ? 10 : 0}px` } : undefined}>
       <div className="builder-tile-art">
@@ -165,6 +169,10 @@ export function DeckBuilder({ draft, decks, ownedCopies, message, canUndo, reduc
         <span>{!errors.length && <Check size={13}/>}<b>{summary.total}</b> / {deckRules.minimumCards} {msg("cards")}</span>
         <i aria-hidden><u style={{ width: `${Math.min(100, summary.total / deckRules.minimumCards * 100)}%` }}/></i>
       </div>
+      {purchase.copies > 0 && <div className="deck-purchase" role="status">
+        <span><b>{purchase.copies}</b> {msg("cards to collect")}<CrownAmount amount={purchase.crowns}/></span>
+        <button className="gold-button" disabled={!canBuyMissing} title={!canBuyMissing ? msg("Not enough crowns.") : undefined} onClick={buyMissing}><ShoppingBag size={14}/>{msg("Buy missing cards")}</button>
+      </div>}
       <div className="builder-deck-grid" ref={deckGalleryRef} tabIndex={0} aria-label={msg("Cards in deck")}>
         {!deckCards.length ? <div className="collection-empty deck-empty"><Layers size={26}/><p>{msg("Your deck starts here.")}</p>
           <div className="deck-empty-starters">{starterOptions.map(deck => <button key={deck.id} className="outline-button" onClick={() => load(deck.id)}>{msg(deck.name)}</button>)}</div></div>

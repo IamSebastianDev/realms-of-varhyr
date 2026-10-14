@@ -45,6 +45,28 @@ export function missingDeckCopies(cards: string[], owned: OwnedCopies) {
   });
 }
 
+export type DeckPurchasePlan = {
+  cards: { id: string; copies: number; card: CardDefinition; crowns: number }[];
+  copies: number;
+  crowns: number;
+  /** False for malformed or over-limit imported decks, which cannot be completed by buying cards. */
+  complete: boolean;
+};
+
+/** Price every copy the current deck lacks. This is deliberately a pure preview, so the builder can disable a purchase
+ * before touching the collection. */
+export function missingDeckPurchase(cards: string[], owned: OwnedCopies, content: Registry): DeckPurchasePlan {
+  let complete = true;
+  const purchases = missingDeckCopies(cards, owned).flatMap(missing => {
+    const card = content.cards[missing.id];
+    if (!card || missing.owned + missing.missing > ownershipLimit(card)) { complete = false; return []; }
+    const crowns = cardPrice(card) * missing.missing;
+    return [{ id: missing.id, copies: missing.missing, card, crowns }];
+  });
+  return { cards: purchases, copies: purchases.reduce((total, purchase) => total + purchase.copies, 0),
+    crowns: purchases.reduce((total, purchase) => total + purchase.crowns, 0), complete };
+}
+
 function addNumber(a: number, b: number) { return Math.min(Number.MAX_SAFE_INTEGER, a + b); }
 function grantCopies(collection: Collection, id: string, amount: number, content: Registry) {
   const previous = ownedCopyCount(collection.counts, id), card = content.cards[id];
@@ -120,6 +142,17 @@ export function buyCollectionCard(collection: Collection, card: CardDefinition):
   if (owned >= ownershipLimit(card)) throw new Error(`You already own every copy of ${card.name}.`);
   if (collection.crowns < price) throw new Error(`${card.name} costs ${price} crowns.`);
   return { ...collection, crowns: collection.crowns - price, counts: { ...collection.counts, [card.id]: owned + 1 } };
+}
+
+/** Complete a deck's missing collection copies together. Validation comes before any balance or ownership mutation. */
+export function buyMissingDeckCards(collection: Collection, cards: string[], content: Registry): Collection {
+  const purchase = missingDeckPurchase(cards, collection.counts, content);
+  if (!purchase.complete) throw new Error('This deck has invalid card copies.');
+  if (!purchase.copies) return collection;
+  if (collection.crowns < purchase.crowns) throw new Error(`You need ${purchase.crowns} crowns to complete this deck.`);
+  const counts = { ...collection.counts };
+  for (const item of purchase.cards) counts[item.id] = ownedCopyCount(counts, item.id) + item.copies;
+  return { ...collection, crowns: collection.crowns - purchase.crowns, counts };
 }
 export function gainDebugCrowns(collection: Collection): Collection {
   return { ...collection, crowns: addNumber(collection.crowns, 1000) };

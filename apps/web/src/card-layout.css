@@ -39,7 +39,8 @@
 .collection-card-detail .ability-fact{padding:12px 14px;border-color:#d8ca9640;background:#e1d1a00a;border-radius:5px}
 .collection-card-detail .ability-fact dt{font-size:12px;margin-bottom:6px}
 .collection-card-detail .ability-fact dd{font-size:12px;line-height:1.65}
-.collection-close{top:10px;right:10px;width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:#172d2266}
+.collection-close{top:10px;right:10px;width:30px;height:30px;padding:0;display:grid;place-items:center;line-height:0;border-radius:50%;background:#172d2266}
+.collection-close>svg{display:block}
 .collection-close:hover{background:#cdbb8822}
 @media(min-width:540px) and (max-width:700px){.lobby-header{flex-wrap:nowrap;gap:16px;padding:12px 20px}
 .lobby-header .brand{flex:0 0 auto}
