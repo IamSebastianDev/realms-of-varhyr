@@ -1,10 +1,11 @@
 import { ResetControls } from './ResetControls';
 import { useState } from 'react';
 import { useAudio } from './AudioExperience';
+import { useFullscreen } from './useFullscreen';
 import { Eye, GraduationCap } from 'lucide-react';
 import { RULES_VERSION } from '../../../packages/core/src';
 import { registry } from '../../../packages/content/src';
-import { ReplayMatchSession, type ExternalMatchSession } from './match/MatchSession';
+import { ReplayMatchSession, type MatchSession } from './match/MatchSession';
 import { updatePreferences, usePreferences, type Language, type Motion } from '../../../packages/ui/src/preferences';
 import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 
@@ -19,6 +20,7 @@ export function PreferenceControls() {
   useLanguage();
   const preferences = usePreferences();
   const audio = useAudio();
+  const fullscreen = useFullscreen();
   return <>
     <section className="settings-group" aria-label={msg('Language')}><div><h2>{msg('Language')}</h2><p>{msg('Choose the language for the interface, tutorial and cards.')}</p></div>
       <select aria-label={msg('Language')} value={preferences.language} onChange={event => updatePreferences({ language: event.target.value as Language })}><option value="en">English</option><option value="de">Deutsch</option></select>
@@ -26,6 +28,9 @@ export function PreferenceControls() {
     <section className="settings-group" aria-label={msg('Animations')}><div><h2>{msg('Animations')}</h2><p>{msg('Reduced motion uses still artwork and skips combat effects.')}</p></div>
       <select aria-label={msg('Animations')} value={preferences.motion} onChange={event => updatePreferences({ motion: event.target.value as Motion })}><option value="system">{msg('Follow system')}</option><option value="full">{msg('Full animations')}</option><option value="reduced">{msg('Reduced motion')}</option></select>
     </section>
+    {!fullscreen.installed && <section className="settings-group" aria-label={msg('Fullscreen')}><div><h2>{msg('Fullscreen')}</h2><p>{fullscreen.supported ? msg('Hide the browser bars to give the board the whole screen.') : msg('For fullscreen, add this page to your home screen: Share, then Add to Home Screen.')}</p></div>
+      {fullscreen.supported && <div className="settings-audio-controls"><button className={`toggle ${fullscreen.active ? 'on' : ''}`} role="switch" aria-checked={fullscreen.active} aria-label={msg('Fullscreen')} onClick={() => void fullscreen.toggle()}><span/></button></div>}
+    </section>}
     <section className="settings-group" aria-label={msg('Skip empty response steps')}><div><h2>{msg('Skip empty response steps')}</h2><p>{msg('Automatically pass your response step when you have no spell to cast. Turn off to see every window.')}</p></div>
       <div className="settings-audio-controls"><button className={`toggle ${preferences.skipEmptyWindows ? 'on' : ''}`} role="switch" aria-checked={preferences.skipEmptyWindows} aria-label={msg('Skip empty response steps')} onClick={() => updatePreferences({ skipEmptyWindows: !preferences.skipEmptyWindows })}><span/></button></div>
     </section>
@@ -40,7 +45,7 @@ export function PreferenceControls() {
     {audio.blocked && <p className="settings-audio-error" role="status">{msg('Music could not start.')}<button onClick={audio.retry}>{msg('Try again')}</button></p>}
   </>;
 }
-export function SettingsPage({ learn, watch }: { learn: () => void; watch: (session: ExternalMatchSession) => void }) {
+export function SettingsPage({ learn, watch }: { learn: () => void; watch: (session: MatchSession) => void }) {
   useLanguage();
   const [error, setError] = useState('');
   return <main className="settings-page">

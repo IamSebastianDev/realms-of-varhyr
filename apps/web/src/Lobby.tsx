@@ -20,7 +20,7 @@ import { CollectionStats } from './CollectionStats';
 import { CrownAmount, CrownIcon } from './Crowns';
 import { DeckBuilder } from './DeckBuilder';
 import { GameSetup, type SetupMode } from './GameSetup';
-import type { ExternalMatchSession } from './match/MatchSession';
+import type { MatchSession } from './match/MatchSession';
 import { Avatar } from './Avatar';
 import { ProfilePage } from './ProfilePage';
 import { SettingsPage } from './SettingsPage';
@@ -36,7 +36,7 @@ type Props={
   mode:Mode; setMode:(mode:Mode)=>void; selected:string; setSelected:(id:string)=>void;
   opponentId:string; setOpponentId:(id:string)=>void;
   seed:string; setSeed:(seed:string)=>void; start:(skirmish:boolean)=>void;
-  startSession:(session:ExternalMatchSession)=>void;
+  startSession:(session:MatchSession)=>void;
   /** Starts the guided first match. */
   learn:()=>void;
 };

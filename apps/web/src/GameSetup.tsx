@@ -7,7 +7,7 @@ import { deckRules } from '../../../packages/contracts/src';
 import { validateDeck } from '../../../packages/core/src';
 import { missingDeckCopies } from './collection';
 import { MultiplayerLobby } from './multiplayer/MultiplayerLobby';
-import type { ExternalMatchSession } from './match/MatchSession';
+import type { MatchSession } from './match/MatchSession';
 
 export type SetupMode = 'practice' | 'hotseat' | 'online';
 type Props = {
@@ -16,7 +16,7 @@ type Props = {
   selected: string; setSelected: (id: string) => void;
   ownedCopies: Record<string, number>; opponentId: string; setOpponentId: (id: string) => void;
   seed: string; setSeed: (seed: string) => void;
-  start: (skirmish: boolean) => void; startSession: (session: ExternalMatchSession) => void;
+  start: (skirmish: boolean) => void; startSession: (session: MatchSession) => void;
 };
 
 export function GameSetup(props: Props) {

@@ -9,7 +9,7 @@ export const accountKey = 'varhyr-account-v1';
 export function hasAccount(): boolean {
   try {
     if (localStorage.getItem(accountKey)) return true;
-    return [collectionKey, nameKey, tutorialKey, decksKey, 'varhir-session-v1'].some(key => localStorage.getItem(key) !== null);
+    return [collectionKey, nameKey, tutorialKey, decksKey].some(key => localStorage.getItem(key) !== null);
   } catch { return true; /* Without storage nothing can be saved, so don't gate the game on it. */ }
 }
 export function markAccount() { try { localStorage.setItem(accountKey, '1'); } catch { /* Best effort. */ } }

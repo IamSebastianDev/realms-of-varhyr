@@ -1049,11 +1049,11 @@
     }
   },
   {
-    "id": "herald-of-the-mark",
+    "id": "herald-of-the-marches",
     "set": "foundations",
     "revision": 2,
-    "name": "Herald of the Mark",
-    "deckLimitKey": "herald-of-the-mark",
+    "name": "Herald of the Marches",
+    "deckLimitKey": "herald-of-the-marches",
     "type": "creature",
     "factions": [
       "bright-marches"
@@ -1070,11 +1070,11 @@
     "lore": "When the herald calls, the Mark rises.",
     "translations": {
       "de": {
-        "name": "Herold der Mark",
+        "name": "Herold der Marken",
         "lore": "Wenn der Herold ruft, erhebt sich die Mark."
       }
     },
-    "art": "/cards/herald-of-the-mark/data.png?v=016da170a1475d3a",
+    "art": "/cards/herald-of-the-marches/data.png?v=016da170a1475d3a",
     "abilities": [
       {
         "id": "banner",

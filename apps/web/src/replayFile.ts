@@ -14,19 +14,6 @@ const watchable = (view: PlayerView): PlayerView => ({ ...structuredClone(view),
 const stepOf = (view: PlayerView, seat: PlayerId, matchId: string): MatchSnapshot => ({ type: 'snapshot', version: NETWORK_VERSION, matchId, seat, view: watchable(view), undoable: [], forecast: null });
 const wrap = (steps: MatchSnapshot[], seat: PlayerId, matchId: string): ReplayFile => ({ kind: REPLAY_KIND, version: 1, rules: RULES_VERSION, content: steps[0].view.contentVersion, matchId, seat, recordedAt: new Date().toISOString(), steps });
 
-/** A match played on this device: view it from one seat after every accepted command. */
-export function localReplay(initial: GameState, commands: CommandEnvelope[], seat: PlayerId, registry: Registry, matchId: string): ReplayFile {
-  let state = structuredClone(initial);
-  const steps = [stepOf(projectForPlayer(state, seat, registry), seat, matchId)];
-  for (const envelope of commands) {
-    const result = apply(state, envelope, registry);
-    if (result.error) throw new Error(result.error);
-    state = result.state;
-    steps.push(stepOf(projectForPlayer(state, seat, registry), seat, matchId));
-  }
-  return wrap(steps, seat, matchId);
-}
-
 /** An online match: the snapshots this seat received are already everything it was allowed to see. */
 export function onlineReplay(history: MatchSnapshot[], seat: PlayerId): ReplayFile {
   return wrap(history.map(snapshot => stepOf(snapshot.view, seat, snapshot.matchId)), seat, history[0].matchId);

@@ -1,9 +1,8 @@
-import type { CommandEnvelope, GameState, Registry } from '../../../packages/contracts/src';
-import { apply, createMatch, decisionPlayer, replay, RULES_VERSION, validateDeck } from '../../../packages/core/src';
+import type { GameState, Registry } from '../../../packages/contracts/src';
+import { apply, createMatch, decisionPlayer, validateDeck } from '../../../packages/core/src';
 import { botCommand } from '../../../packages/core/src/bot';
 import { avatarDefinitions, defaultDeckId, registry, starterDefinitions } from '../../../packages/content/src';
 import type { CustomDeck } from './decks';
-import { currentCardIds } from './cardIds';
 import type { StarterDeck } from '../../../packages/content/src/starters';
 
 export type DeckName = string;
@@ -42,38 +41,18 @@ export function startMatch(seed: number, deck: DeckName = defaultDeckId, skirmis
   return state;
 }
 
-export type SavedSession = {
+/** Everything needed to start a match on this machine. */
+export type MatchSetup = {
   initial: GameState;
-  commands: CommandEnvelope[];
   mode: 'practice' | 'hotseat';
   deck: DeckName;
   skirmish: boolean;
   customDeck?: CustomDeck;
   /** Chosen opponent deck; absent means the automatic pick. */
   opponentDeck?: { id: string; name: string; cards: string[] };
-  started?: boolean;
   /** Local identity for a once-only victory reward; independent of shuffle seed. */
   rewardId?: string;
-  /** Replay imports cannot grant rewards. */
   rewardEligible?: boolean;
   /** The guided first match: scripted opponent, no rewards. */
   tutorial?: boolean;
 };
-
-export function compatibleMatch(state: GameState, content = matchContent): boolean {
-  return state.rulesVersion === RULES_VERSION && state.contentVersion === content.registry.version;
-}
-
-// Incompatible sessions restart only when their content still makes a legal deck.
-// The app returns to its authoring menu if a content reset removed that deck.
-export function restoreSession(saved: SavedSession, content = matchContent): SavedSession {
-  const customDeck = saved.customDeck && { ...saved.customDeck, cards: currentCardIds(saved.customDeck.cards) };
-  const opponentDeck = saved.opponentDeck && { ...saved.opponentDeck, cards: currentCardIds(saved.opponentDeck.cards) };
-  if (!compatibleMatch(saved.initial, content)) return {
-    ...saved, customDeck, opponentDeck,
-    initial: startMatch(saved.initial.seed, saved.deck, saved.skirmish, customDeck, content, opponentDeck),
-    commands: [],
-  };
-  replay(saved.initial, saved.commands, content.registry);
-  return { ...saved, customDeck, opponentDeck };
-}

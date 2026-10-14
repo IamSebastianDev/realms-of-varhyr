@@ -109,4 +109,14 @@ describe('WebRTC match authority and protocol',()=>{
       expect(room.snapshot('p1').view.outcome).toBe(room.snapshot('p2').view.outcome);
     }
   });
+  it('keeps activated-ability energy choices (Primal) across the wire',()=>{
+    const ids=Object.values(live.cards).filter(c=>!c.legendary&&c.id!=='ancient-unicorn').slice(0,10).map(c=>c.id);
+    const state=createMatch(live,[ids.flatMap(i=>[i,i,i]),ids.flatMap(i=>[i,i,i])],5,{mulligan:false});
+    const id=state.players.p1.hand[0];state.cards[id].definitionId='ancient-unicorn';state.cards[id].zone='board';state.cards[id].slot=0;state.cards[id].exhausted=false;
+    state.players.p1.hand=state.players.p1.hand.filter(card=>card!==id);state.players.p1.board[0]=id;state.phase='play';state.active='p1';state.pending=null;
+    const view=projectForPlayer(state,'p1',live);
+    expect(view.legal.activations[0].energyOptions?.length).toBeGreaterThan(1);
+    const wire=parseHostMessage(JSON.parse(JSON.stringify({type:'snapshot',version:NETWORK_VERSION,matchId:'x',seat:'p1',view,undoable:[],forecast:null})));
+    expect(wire.type==='snapshot'&&wire.view.legal.activations).toEqual(view.legal.activations);
+  });
 });

@@ -1,7 +1,7 @@
 import type { Command, CommandEnvelope, GameState, PlayerId } from '../../../packages/contracts/src';
 import { createMatch } from '../../../packages/core/src';
 import { registry, starterDefinitions, defaultDeckId } from '../../../packages/content/src';
-import type { SavedSession } from './session';
+import type { MatchSetup } from './session';
 
 /**
  * The guided first match. Everything here is deterministic: both libraries are stacked, the opponent follows a written script
@@ -102,7 +102,7 @@ export function stepAfter(actions: number): number {
   return tutorialSteps.length - 1;
 }
 export const actionCount = () => tutorialSteps.filter(step => step.accept).length;
-export const playerCommands = (commands: CommandEnvelope[]) => commands.filter(envelope => envelope.actor === you).length;
+export const playerCommands = (commands: readonly CommandEnvelope[]) => commands.filter(envelope => envelope.actor === you).length;
 
 /** Opponent coaching, shown while it plays. `from` is the number of opponent commands already made. */
 export const opponentNotes: { from: number; title: string; text: string }[] = [
@@ -136,11 +136,11 @@ const script: ((state: GameState) => Command)[] = [
   () => ({ type: 'end' }),
   () => ({ type: 'end' }),
 ];
-export const opponentMoves = (commands: CommandEnvelope[]) => commands.filter(envelope => envelope.actor === rival).length;
+export const opponentMoves = (commands: readonly CommandEnvelope[]) => commands.filter(envelope => envelope.actor === rival).length;
 export const opponentCommand = (state: GameState, made: number): Command | null => script[made]?.(state) ?? null;
 export const scriptFinished = (made: number) => made >= script.length;
 
-export function startTutorial(): SavedSession {
+export function startTutorial(): MatchSetup {
   const starter = starterDefinitions.find(deck => deck.id === defaultDeckId) ?? starterDefinitions[0];
   const initial = createMatch(registry, [starter.cards, starter.cards], tutorialSeed, {
     mulligan: true,
@@ -153,5 +153,5 @@ export function startTutorial(): SavedSession {
   });
   initial.players.p1.name = 'You';
   initial.players.p2.name = 'Sparring partner';
-  return { initial, commands: [], mode: 'practice', deck: starter.id, skirmish: false, started: true, rewardEligible: false, tutorial: true };
+  return { initial, mode: 'practice', deck: starter.id, skirmish: false, rewardEligible: false, tutorial: true };
 }

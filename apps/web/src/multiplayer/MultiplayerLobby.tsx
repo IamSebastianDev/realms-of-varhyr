@@ -8,10 +8,10 @@ import { missingDeckCopies } from '../collection';
 import { useCollection } from '../collectionStore';
 import { RtcRoom, normalizeRoomCode, validRoomCode } from './RtcRoom';
 import { useRoom } from './useRoom';
-import { OnlineMatchSession } from '../match/MatchSession';
+import { LiveMatchSession } from '../match/MatchSession';
 
 type DeckChoice={id:string;name:string;cards:string[]};
-export function MultiplayerLobby({decks,selected,onStart,compact=false,onSelectDeck}:{decks:DeckChoice[];selected:string;onStart:(session:OnlineMatchSession)=>void;compact?:boolean;onSelectDeck?:(id:string)=>void}){
+export function MultiplayerLobby({decks,selected,onStart,compact=false,onSelectDeck}:{decks:DeckChoice[];selected:string;onStart:(session:LiveMatchSession)=>void;compact?:boolean;onSelectDeck?:(id:string)=>void}){
   useLanguage();
   const {collection}=useCollection();
   const [deckId,setDeckId]=useState(selected),[name,setName]=useState(()=>{try{return localStorage.getItem('varhyr-player-name')||msg("Wanderer");}catch{return msg("Wanderer");}});
@@ -21,7 +21,7 @@ export function MultiplayerLobby({decks,selected,onStart,compact=false,onSelectD
   const errors=chosen?[...validateDeck(chosen.cards,registry),...(missingDeckCopies(chosen.cards,collection.counts).length?[msg("You do not own all copies in this deck.")]:[])]:[msg("Choose a deck.")];
   const ready=!errors.length&&!!name.trim()&&!creating;
   useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;if(!handedOff.current)roomRef.current?.leave();};},[]);
-  useEffect(()=>{if(room&&state.snapshot&&!handedOff.current){handedOff.current=true;onStart(new OnlineMatchSession(room));}},[room,state.snapshot,onStart]);
+  useEffect(()=>{if(room&&state.snapshot&&!handedOff.current){handedOff.current=true;onStart(new LiveMatchSession(room));}},[room,state.snapshot,onStart]);
   async function connect(role:'host'|'guest'){
     if(!ready||!chosen)return;setCreating(true);setError('');
     try{

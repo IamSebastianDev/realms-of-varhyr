@@ -1,9 +1,9 @@
 {
   "$schema": "../../schemas/card.schema.json",
-  "id": "herald-of-the-mark",
+  "id": "herald-of-the-marches",
   "revision": 2,
-  "name": "Herald of the Mark",
-  "deckLimitKey": "herald-of-the-mark",
+  "name": "Herald of the Marches",
+  "deckLimitKey": "herald-of-the-marches",
   "type": "creature",
   "factions": [
     "bright-marches"

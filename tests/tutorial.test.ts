@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { createLocalMatch } from '../apps/web/src/match/localMatch';
+import { describe, expect, it, vi } from 'vitest';
 import type { Command, CommandEnvelope, GameState } from '../packages/contracts/src';
 import { apply, decisionPlayer, replay } from '../packages/core/src';
 import { registry } from '../packages/content/src';
@@ -46,6 +47,33 @@ function play() {
   opponent();
   return { saved, state, commands, log };
 }
+
+describe('tutorial on the loopback room', () => {
+  it('plays the same scripted path through the room the online host uses', () => {
+    vi.useFakeTimers();
+    try {
+      const { session, script } = createLocalMatch(startTutorial());
+      const drain = () => { for (let i = 0; i < 300; i++) { const bot = session.getSnapshot().bot; if (!bot?.thinking) return; if (bot.gate) session.advanceOpponent(); else vi.advanceTimersByTime(2000); } throw new Error('opponent never handed back the turn'); };
+      for (const step of tutorialSteps.filter(step => step.accept)) {
+        drain();
+        const state = session.getSnapshot().state;
+        expect(session.frame(null, 'p1').view.legal.actor, `${step.id} is the player's decision`).toBe('p1');
+        const command = golden(state, step.id);
+        expect(step.accept!(command, state), `${step.id} accepts its own golden command`).toBe(true);
+        session.act(command);
+      }
+      drain();
+      const { state, commands } = session.getSnapshot();
+      expect(state.turn).toBe(5);
+      expect(state.players.p2.life).toBe(9);
+      expect(state.players.p1.life).toBe(11);
+      expect(state.pending?.kind).toBe('draw');
+      expect(scriptFinished(opponentMoves(commands))).toBe(true);
+      expect(script.active).toBe(true);
+      session.leave();
+    } finally { vi.useRealTimers(); }
+  });
+});
 
 describe('tutorial', () => {
   it('can be played to the end along its scripted path', () => {

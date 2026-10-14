@@ -4,7 +4,7 @@ import type { Command } from '../../../../packages/contracts/src';
 import { registry } from '../../../../packages/content/src';
 import { RULES_VERSION } from '../../../../packages/core/src';
 import { MatchAuthority } from '../../../../packages/multiplayer/src/authority';
-import { NETWORK_VERSION, parseClientMessage, parseHostMessage, type MatchAction, type MatchDeck, type MatchSnapshot } from '../../../../packages/multiplayer/src/protocol';
+import { NETWORK_VERSION, parseClientMessage, parseHostMessage, type AttackPreview, type Forecast, type MatchAction, type MatchDeck, type MatchSnapshot } from '../../../../packages/multiplayer/src/protocol';
 
 export type RoomState = { role:'host'|'guest';code:string;phase:'connecting'|'waiting'|'playing'|'disconnected'|'error'|'closed';connected:boolean;busy:boolean;message:string;snapshot:MatchSnapshot|null };
 const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -23,6 +23,7 @@ export class RtcRoom {
   private pending:MatchAction|null=null;
   private listeners=new Set<()=>void>();
   private timers=new Set<ReturnType<typeof setTimeout>>();
+  private previews=new Map<string,(forecast:Forecast)=>void>();
   private closed=false;
   private state:RoomState;
   private constructor(role:'host'|'guest',code:string,private name:string,private deck:MatchDeck){
@@ -118,7 +119,7 @@ export class RtcRoom {
           if(message.type==='action'){
             const result=this.authority.act('p2',message.action);
             this.safeSend(connection,result);this.publish({snapshot:this.authority.snapshot('p1')});
-          }
+          }else if(message.type==='preview')this.safeSend(connection,{type:'preview',id:message.id,forecast:this.authority.forecast('p2',message.draft)});
         }else throw new Error('Join the room before sending moves.');
       }catch(error){
         const message=error instanceof Error?error.message:'Invalid multiplayer message.';
@@ -146,6 +147,7 @@ export class RtcRoom {
         const message=parseHostMessage(this.wire(input));
         if(message.type==='reject'){this.publish({phase:'error',connected:false,busy:false,message:message.message});this.clearTimer(deadline);return;}
         if(message.type==='ping'){this.safeSend(connection,{type:'pong'});return;}
+        if(message.type==='preview'){const resolve=this.previews.get(message.id);this.previews.delete(message.id);resolve?.(message.forecast);return;}
         if(message.seat!=='p2'||message.view.rulesVersion!==RULES_VERSION||message.view.contentVersion!==registry.version
           ||Object.values(message.view.cards).some(card=>!registry.cards[card.definitionId]))throw new Error('Host rules or card content differs. Update both browsers.');
         if(this.state.snapshot&&message.matchId!==this.state.snapshot.matchId)throw new Error('The host started a different match. Join a new room.');
@@ -163,6 +165,17 @@ export class RtcRoom {
   private disconnect(){if(!this.closed)this.publish({phase:'disconnected',connected:false,busy:!!this.pending,message:this.state.role==='host'?'Opponent disconnected. The match is paused until they reconnect.':'Connection lost. Reconnect to restore the current board.'});}
   act(command:Command){return this.perform({kind:'command',command});}
   undoChannel(cardId:string){return this.perform({kind:'undo-channel',cardId});}
+  /** What the next combat would do for the attackers being drafted. The host holds the real state, so a guest asks it. */
+  forecast(draft:AttackPreview|null):Promise<Forecast>{
+    if(!draft?.attackers.length||!this.state.connected)return Promise.resolve(null);
+    if(this.state.role==='host')return Promise.resolve(this.authority?.forecast('p1',draft)??null);
+    const connection=this.connection;if(!connection)return Promise.resolve(null);
+    return new Promise(resolve=>{
+      const id=crypto.randomUUID(),timer=setTimeout(()=>{this.previews.delete(id);resolve(null);},4000);
+      this.previews.set(id,forecast=>{clearTimeout(timer);resolve(forecast);});
+      if(!this.safeSend(connection,{type:'preview',id,draft})){clearTimeout(timer);this.previews.delete(id);resolve(null);}
+    });
+  }
   private perform(intent:MatchAction['intent']){
     if(!this.state.connected||this.state.busy||!this.state.snapshot)throw new Error('Wait for the connection or the previous move.');
     const action:MatchAction={id:crypto.randomUUID(),revision:this.state.snapshot.view.revision,intent};

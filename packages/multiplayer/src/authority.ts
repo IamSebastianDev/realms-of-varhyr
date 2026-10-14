@@ -1,7 +1,7 @@
 import type { CommandEnvelope, GameState, PlayerId, Registry } from '../../contracts/src';
 import { apply, createMatch, decisionPlayer, projectForPlayer, RULES_VERSION, validateDeck } from '../../core/src';
 import { undoChannel, undoableChannels } from '../../core/src/channelUndo';
-import { combatForecast } from '../../core/src/combatForecast';
+import { combatForecast, type AttackDraft } from '../../core/src/combatForecast';
 import { NETWORK_VERSION, type Hello, type MatchAction, type MatchDeck, type MatchSnapshot } from './protocol';
 
 /** Browser host today, server worker later. No sockets, browser APIs or React dependencies. */
@@ -11,11 +11,23 @@ export class MatchAuthority {
   private commands: CommandEnvelope[] = [];
   private revision = 0;
   private accepted = new Map<string, { serialized: string; error?: string }>();
-  constructor(private registry: Registry, readonly matchId: string, decks: [MatchDeck,MatchDeck], names: [string,string], seed: number, avatars?: [string|undefined,string|undefined]) {
-    this.initial = createMatch(registry,[decks[0].cards,decks[1].cards],seed,{mulligan:true});
-    this.initial.players.p1.name=names[0];this.initial.players.p2.name=names[1];
-    if(avatars?.[0])this.initial.players.p1.avatar=avatars[0];if(avatars?.[1])this.initial.players.p2.avatar=avatars[1];
+  constructor(registry: Registry, matchId: string, start: GameState);
+  constructor(registry: Registry, matchId: string, decks: [MatchDeck,MatchDeck], names: [string,string], seed: number, avatars?: [string|undefined,string|undefined]);
+  constructor(private registry: Registry, readonly matchId: string, start: GameState|[MatchDeck,MatchDeck], names?: [string,string], seed?: number, avatars?: [string|undefined,string|undefined]) {
+    if(Array.isArray(start)){
+      this.initial = createMatch(registry,[start[0].cards,start[1].cards],seed!,{mulligan:true});
+      this.initial.players.p1.name=names![0];this.initial.players.p2.name=names![1];
+      if(avatars?.[0])this.initial.players.p1.avatar=avatars[0];if(avatars?.[1])this.initial.players.p2.avatar=avatars[1];
+    }else this.initial = structuredClone(start);
     this.state=structuredClone(this.initial);
+  }
+  /** Host-side access for seats that run inside the authority's own process (a bot, the tutorial script). Never sent to a client. */
+  get fullState(): GameState { return this.state; }
+  get log(): readonly CommandEnvelope[] { return this.commands; }
+  /** What the next combat would do for `seat`'s draft attack, computed on a disposable copy of the real state. */
+  forecast(seat: PlayerId, draft: AttackDraft|null): MatchSnapshot['forecast'] {
+    if(decisionPlayer(this.state)!==seat)return null;
+    return combatForecast(this.state,draft,this.registry);
   }
   static validateHello(hello: Hello, registry: Registry) {
     if (hello.version !== NETWORK_VERSION || hello.rules !== RULES_VERSION || hello.content !== registry.version) throw new Error('Rules or card content differs. Both players must use the same game build.');

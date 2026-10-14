@@ -385,6 +385,7 @@ html,body,#root{overscroll-behavior:none}
 .match-menu{display:flex;flex-direction:column;gap:14px}
 .match-menu .text-button{display:flex;gap:8px;align-items:center;justify-content:flex-start}
 .match-skip{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.match-menu-hint{margin:0;font-size:13px;line-height:1.45;opacity:.7}
 .match-menu-dialog{max-width:380px;padding:34px 34px 30px}
 .match-menu-dialog h2{font-size:34px;margin:0 0 20px}
 .match-menu-dialog .outline-button{display:flex;align-items:center;justify-content:center;gap:8px}

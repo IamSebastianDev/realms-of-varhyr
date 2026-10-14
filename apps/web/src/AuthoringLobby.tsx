@@ -4,15 +4,15 @@ import { useEffect, useState } from 'react';
 import { defaultDeckId } from '../../../packages/content/src';
 import { Lobby, type Screen } from './Lobby';
 import { decksKey, parseDecks, starterOptions, type CustomDeck } from './decks';
-import { startMatch, type SavedSession } from './session';
+import { startMatch, type MatchSetup } from './session';
 import { getProfile } from './profile';
 import { startTutorial } from './tutorial';
 import { missingDeckCopies } from './collection';
 import { useCollection } from './collectionStore';
-import type { ExternalMatchSession } from './match/MatchSession';
+import type { MatchSession } from './match/MatchSession';
 
 /** Browsing/editing content must work even when no legal match can be created. */
-export function AuthoringLobby({ onStart, onSessionStart }: { onStart: (session: SavedSession) => void; onSessionStart:(session:ExternalMatchSession)=>void }) {
+export function AuthoringLobby({ onStart, onSessionStart }: { onStart: (session: MatchSetup) => void; onSessionStart:(session:MatchSession)=>void }) {
   useLanguage();
   const { collection } = useCollection();
   const { reduced } = usePreferences();
@@ -22,7 +22,7 @@ export function AuthoringLobby({ onStart, onSessionStart }: { onStart: (session:
   });
   const [selected, setSelected] = useState(defaultDeckId);
   const [opponentId, setOpponentId] = useState('auto');
-  const [mode, setMode] = useState<SavedSession['mode']>('practice');
+  const [mode, setMode] = useState<MatchSetup['mode']>('practice');
   const [seed, setSeed] = useState('731');
   const [error, setError] = useState('');
   const options = [...starterOptions, ...decks];
@@ -54,7 +54,7 @@ export function AuthoringLobby({ onStart, onSessionStart }: { onStart: (session:
       if (chosen && missingDeckCopies(chosen.cards, collection.counts).length) throw new Error(msg("You do not own enough copies to play this deck."));
       const opponentDeck = options.find(option => option.id === opponentId);
       const initial = startMatch(Number(seed) || 731, deck, skirmish, customDeck, undefined, opponentDeck, getProfile().name, mode === 'hotseat' ? undefined : getProfile().avatar);
-      onStart({ initial, commands: [], mode, deck, skirmish, customDeck, opponentDeck: opponentDeck && structuredClone(opponentDeck), started: true, rewardId: crypto.randomUUID(), rewardEligible: true });
+      onStart({ initial, mode, deck, skirmish, customDeck, opponentDeck: opponentDeck && structuredClone(opponentDeck), rewardId: crypto.randomUUID(), rewardEligible: true });
     } catch (cause) { setError(cause instanceof Error ? cause.message : msg("This deck cannot start a match.")); }
   }
 

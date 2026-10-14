@@ -10,7 +10,7 @@ import { PeekBackdrop } from './Peek';
 import { EnergyChoiceArc, type EnergyAction } from './EnergyChoiceArc';
 import { BattleLog } from './BattleLog';
 import { lazy, type CSSProperties, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowRight, ChevronLeft, ChevronRight, Pause, SkipBack, Heart, CircleHelp, Download, Eye, Leaf, RotateCcw, ScrollText, Settings2, Menu, Shield, Sparkles, Swords, X, Zap, Moon, Check, Play, SkipForward, BookOpen, Terminal, Skull, Hand } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, Pause, SkipBack, Heart, CircleHelp, Download, Eye, Leaf, RotateCcw, ScrollText, Settings2, Menu, Shield, Sparkles, Swords, X, Zap, Moon, Check, Play, SkipForward, BookOpen, Terminal, Skull, Hand, Maximize, Minimize } from 'lucide-react';
 import { deckRules, positionName } from '../../../packages/contracts/src';
 import type { CardDefinition, Command, GameState, PlayerId, Pool, PlayerView } from '../../../packages/contracts/src';
 import { decisionPlayer, effectiveStats, laneBlocks, other } from '../../../packages/core/src';
@@ -38,7 +38,7 @@ import { Coach } from './Coach';
 import { opponentCommand, opponentMoves, opponentNote, playerCommands, scriptFinished, startTutorial, stepAfter, tutorialKey, tutorialSteps } from './tutorial';
 import { Lobby, type Screen } from './Lobby';
 import { decksKey, parseDecks, starterOptions, type CustomDeck } from './decks';
-import { compatibleMatch, restoreSession, startMatch, type DeckName, type SavedSession } from './session';
+import { startMatch, type DeckName, type MatchSetup } from './session';
 import { claimVictory, collectionRules, missingDeckCopies } from './collection';
 import { updateCollection, useCollection } from './collectionStore';
 import { MatchSummary } from './MatchSummary';
@@ -46,8 +46,11 @@ import { Avatar } from './Avatar';
 import { Onboarding } from './Onboarding';
 import { hasAccount } from './onboardingState';
 import { getProfile, useProfile } from './profile';
-import { LocalMatchSession, type ExternalMatchSession } from './match/MatchSession';
+import type { MatchSession } from './match/MatchSession';
+import { createLocalMatch, type TutorialScript } from './match/localMatch';
+import type { Forecast } from '../../../packages/multiplayer/src/protocol';
 import { useMatchSession } from './match/useMatchSession';
+import { useFullscreen } from './useFullscreen';
 type Mode='practice'|'hotseat';
 type Draft=PlayDraft & {activation?:number;target?:string};
 type PreviewRequest={pinned?:boolean;cardId:string;left:number;top:number;right:number;bottom:number};
@@ -65,69 +68,60 @@ function DiscardCount({count,top,onOpen}:{count:number;top?:CardDefinition;onOpe
     <span className={`discard-top ${top?'':'empty'}`}>{top&&<img src={top.art} alt="" draggable={false}/>}</span><strong>{count}</strong><small>{msg("DISCARD")}</small>
   </button>;
 }
-const savedKey='varhir-session-v1';
-function readSaved():SavedSession|null {
-  try { const raw=localStorage.getItem(savedKey);if(!raw)return null;const saved=JSON.parse(raw) as SavedSession;return restoreSession(saved); } catch { return null; }
-}
-type BootSession = SavedSession & { hasSaved: boolean; openMatch?: boolean };
+type LiveMatch={match:MatchSession;setup?:MatchSetup;script?:TutorialScript};
 export function App() {
   useLanguage();
+  const {reduced}=usePreferences();
   const [onboarded,setOnboarded]=useState(hasAccount);
-  const [externalSession,setExternalSession]=useState<ExternalMatchSession|null>(null);
-  const [session, setSession] = useState<BootSession | null>(() => {
-    const saved = readSaved();
-    return saved && saved.started !== false ? { ...saved, hasSaved: true } : null;
-  });
-  const leaveSession=()=>{externalSession?.leave();setExternalSession(null);const saved=readSaved();setSession(saved&&saved.started!==false?{...saved,hasSaved:true}:null);};
-  const externalSnapshot=useMatchSession(externalSession);
+  const [live,setLive]=useState<LiveMatch|null>(null);
+  const liveRef=useRef(live);liveRef.current=live;
+  const replace=(next:LiveMatch|null)=>{liveRef.current?.match.leave();setLive(next);};
+  const begin=(setup:MatchSetup)=>{const {session,script}=createLocalMatch(setup,reduced);replace({match:session,setup,script});};
+  const attach=(session:MatchSession)=>replace({match:session});
   if(!onboarded)return <Onboarding onDone={()=>setOnboarded(true)}/>;
-  if(externalSession&&externalSnapshot)return <MatchApp key={externalSnapshot.matchId} externalSession={externalSession} leaveSession={leaveSession} onSessionStart={setExternalSession} boot={{initial:externalSnapshot.initial,commands:[],mode:'hotseat',deck:defaultDeckId,skirmish:false,started:true,hasSaved:true,openMatch:true,rewardId:externalSnapshot.matchId,rewardEligible:externalSession.kind==='online'}}/>;
-  return session ? <MatchApp boot={session} onSessionStart={setExternalSession}/> : <AuthoringLobby onStart={saved => setSession({ ...saved, hasSaved: true, openMatch: true })} onSessionStart={setExternalSession}/>;
+  if(!live)return <AuthoringLobby onStart={begin} onSessionStart={attach}/>;
+  return <MatchApp key={live.match.getSnapshot().matchId} {...live} leave={()=>replace(null)} onBegin={begin} onAttach={attach}/>;
 }
-function MatchApp({boot,externalSession,leaveSession,onSessionStart}: {boot: BootSession;externalSession?:ExternalMatchSession;leaveSession?:()=>void;onSessionStart:(session:ExternalMatchSession)=>void}) {
+function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSession;setup?:MatchSetup;script?:TutorialScript;leave:()=>void;onBegin:(setup:MatchSetup)=>void;onAttach:(session:MatchSession)=>void}) {
   useLanguage();
-  const [localSession]=useState(()=>new LocalMatchSession(boot.initial,boot.commands,registry));
-  const match=externalSession??localSession;
   const {sound,reduced,skipEmptyWindows}=usePreferences();
   const sessionSnapshot=useMatchSession(match);
-  const {initial,commands,state,connection,historySteps}=sessionSnapshot;
-  const watching=match.kind==='replay';
+  const fullscreen=useFullscreen();
+  const {initial,commands,state,connection,historySteps,bot}=sessionSnapshot;
+  const watching=match.kind==='replay',local=match.kind==='live'&&match.local,online=match.kind==='live'&&!match.local,hotseat=sessionSnapshot.hotseat,mode:Mode=hotseat?'hotseat':'practice';
   const {collection,saved:collectionSaved}=useCollection();
-  const [rewardId,setRewardId]=useState<string|undefined>(()=>boot.rewardId??(state.outcome?undefined:crypto.randomUUID()));
-  const [rewardEligible,setRewardEligible]=useState(boot.rewardEligible!==false);
-  const [tutorial,setTutorial]=useState(!!boot.tutorial&&!externalSession),[tutorialStep,setTutorialStep]=useState(()=>stepAfter(playerCommands(boot.commands))),[coachNudge,setCoachNudge]=useState(0);
+  const rewardId=setup?setup.rewardId:online?sessionSnapshot.matchId:undefined,rewardEligible=setup?setup.rewardEligible!==false:online;
+  const [tutorial,setTutorial]=useState(!!setup?.tutorial),[tutorialStep,setTutorialStep]=useState(()=>stepAfter(playerCommands(commands))),[coachNudge,setCoachNudge]=useState(0);
   const collectionOutcome=sessionSnapshot.seat?(state.outcome===sessionSnapshot.seat?'p1':state.outcome==='draw'?'draw':state.outcome?'p2':null):state.outcome;
   useEffect(()=>{updateCollection(current=>claimVictory(current,rewardId,collectionOutcome,rewardEligible));},[rewardId,collectionOutcome,rewardEligible]);
-  const [mode,setMode]=useState<Mode>(boot.mode),[deck,setDeck]=useState<DeckName>(boot.deck),[skirmish,setSkirmish]=useState(boot.skirmish);
-  const [screen,setScreen]=useState<Screen>(boot.openMatch?'match':'menu'),[hasMatch,setHasMatch]=useState(boot.hasSaved);
-  const [customDeck,setCustomDeck]=useState<CustomDeck|undefined>(boot.customDeck);
+  const deck:DeckName=setup?.deck??defaultDeckId,customDeck=setup?.customDeck,opponentDeck=setup?.opponentDeck;
+  const [screen,setScreen]=useState<Screen>('match');
   const [savedDecks,setSavedDecks]=useState<CustomDeck[]>(()=>{try{return parseDecks(localStorage.getItem(decksKey));}catch{return [];}});
   const deckOptions=[...starterOptions,...savedDecks,...(customDeck&&!savedDecks.some(d=>d.id===customDeck.id)?[customDeck]:[])];
   const setupPrefs=useMemo<{mode?:Mode;deckId?:string;opponentId?:string;seed?:string}>(()=>{try{const p=JSON.parse(localStorage.getItem('varhir-setup-v1')??'{}');return {mode:p.mode==='practice'||p.mode==='hotseat'?p.mode:undefined,deckId:typeof p.deckId==='string'?p.deckId:undefined,opponentId:typeof p.opponentId==='string'?p.opponentId:undefined,seed:typeof p.seed==='string'?p.seed:undefined};}catch{return {};}},[]);
-  const [setupMode,setSetupMode]=useState<Mode>(setupPrefs.mode??boot.mode),[setupDeck,setSetupDeck]=useState<string>(deckOptions.some(d=>d.id===setupPrefs.deckId)?setupPrefs.deckId!:boot.customDeck?.id??boot.deck);
-  const [setupOpponent,setSetupOpponent]=useState<string>(()=>setupPrefs.opponentId&&(setupPrefs.opponentId==='auto'||deckOptions.some(d=>d.id===setupPrefs.opponentId))?setupPrefs.opponentId:boot.opponentDeck?.id??'auto'),[opponentDeck,setOpponentDeck]=useState(boot.opponentDeck);
-  const [viewer,setViewer]=useState<PlayerId>(sessionSnapshot.seat??(mode==='hotseat'?decisionPlayer(state):'p1')),[covered,setCovered]=useState(false);
+  const [setupMode,setSetupMode]=useState<Mode>(setupPrefs.mode??mode),[setupDeck,setSetupDeck]=useState<string>(deckOptions.some(d=>d.id===setupPrefs.deckId)?setupPrefs.deckId!:customDeck?.id??deck);
+  const [setupOpponent,setSetupOpponent]=useState<string>(()=>setupPrefs.opponentId&&(setupPrefs.opponentId==='auto'||deckOptions.some(d=>d.id===setupPrefs.opponentId))?setupPrefs.opponentId:opponentDeck?.id??'auto');
+  const [viewer,setViewer]=useState<PlayerId>(sessionSnapshot.seat??decisionPlayer(state)),[covered,setCovered]=useState(false);
   const [selected,setSelected]=useState<string|null>(null),[hovered,setHovered]=useState<string|null>(null),[draft,setDraft]=useState<Draft|null>(null),[stage,setStage]=useState<'none'|'consume'|'position'|'target'>('none');
   const [attackers,setAttackers]=useState<string[]>([]),[lanes,setLanes]=useState<Record<string,number>>({});
   const [mulliganPick,setMulliganPick]=useState<string[]>([]),[drawOther,setDrawOther]=useState<'discard'|'bottom'>('discard'),[logOpen,setLogOpen]=useState(()=>(window.innerWidth>=951&&window.innerWidth>window.innerHeight)||(window.innerWidth<=950&&window.innerHeight>=800&&window.innerHeight>window.innerWidth)),[panel,setPanel]=useState<'rules'|'menu'|'settings'|'journal'|'debug'|'discard'|null>(null),[error,setError]=useState(''),[seed,setSeed]=useState(setupPrefs.seed??String(initial.seed));
   const [confirmConcede,setConfirmConcede]=useState(false);
-  useEffect(()=>{if(externalSession)return;try{localStorage.setItem('varhir-setup-v1',JSON.stringify({mode:setupMode,deckId:setupDeck,opponentId:setupOpponent,seed}));}catch{/* Optional setup preferences. */}},[setupMode,setupDeck,setupOpponent,seed,externalSession]);
+  useEffect(()=>{if(!local)return;try{localStorage.setItem('varhir-setup-v1',JSON.stringify({mode:setupMode,deckId:setupDeck,opponentId:setupOpponent,seed}));}catch{/* Optional setup preferences. */}},[setupMode,setupDeck,setupOpponent,seed,local]);
   const boardRef=useRef<HTMLDivElement>(null),enemyAvatarRef=useRef<HTMLButtonElement>(null);
   const poolRef=useRef<HTMLDivElement>(null),enemyPoolRef=useRef<HTMLDivElement>(null),previewRef=useRef<HTMLElement>(null);
   const actionPopoverRef=useRef<HTMLDivElement>(null);
   const [actionCard,setActionCard]=useState<string|null>(null);
   const [slotLayout,setSlotLayout]=useState<SlotLayout[]>([]),[previewRequest,setPreviewRequest]=useState<PreviewRequest|null>(null),[preview,setPreview]=useState<PreviewRequest|null>(null);
   const [historyIndex,setHistoryIndex]=useState<number|null>(watching?0:null),[autoplay,setAutoplay]=useState(false);
-  const profile=useProfile(),ownArt=externalSession?!watching:mode!=='hotseat';
+  const profile=useProfile(),ownArt=!watching&&!hotseat;
   // A portrait id travels with each player; an older match without one still shows your own profile avatar.
   const artFor=(id:PlayerId):string|undefined=>view.players[id].avatar??(id===viewer&&ownArt?profile.avatar:undefined);
   const historyLength=historySteps.length;
-  const {clash,setClash,posesRef,energyFlights,setEnergyFlights,spellCasts,setSpellCasts,clashBatches,factionEffects,setFactionEffects,present,stepping}=useMatchPresentation({sound,reduced,covered,slotLayout,viewer,hotseat:match.kind==='local'&&mode==='hotseat',initial,screen,historyIndex,boardRef,poolRef,enemyPoolRef});
+  const {clash,setClash,posesRef,energyFlights,setEnergyFlights,spellCasts,setSpellCasts,clashBatches,factionEffects,setFactionEffects,present,stepping}=useMatchPresentation({sound,reduced,covered,slotLayout,viewer,hotseat,initial,screen,historyIndex,boardRef,poolRef,enemyPoolRef});
   const frame=useMemo(()=>match.frame(historyIndex,viewer),[match,sessionSnapshot,historyIndex,viewer]);
   const displayedState=clash?clash.steps[clash.i].state:frame.state;
   const view=useMemo(()=>{
     if(!clash)return frame.view;
-    if(match.kind==='local')return match.project(displayedState,viewer);
     // Animation overlays only public board changes; hands and legal actions keep the received seat's view.
     const base=frame.view,pick=(id:PlayerId)=>({...base.players[id],life:displayedState.players[id].life,board:displayedState.players[id].board,discard:displayedState.players[id].discard,energy:displayedState.players[id].energy});
     return {...base,players:{p1:pick('p1'),p2:pick('p2')},cards:displayedState.cards,combat:displayedState.combat};
@@ -145,16 +139,25 @@ function MatchApp({boot,externalSession,leaveSession,onSessionStart}: {boot: Boo
     if(!next)return;
     const id=Date.now();setBanner({id,...next});const t=setTimeout(()=>setBanner(b=>b?.id===id?null:b),1500);return()=>clearTimeout(t);
   },[view.turn,view.active,view.combat?.stage]);
-  const actor=externalSession?view.legal.actor:decisionPlayer(state),thinking=!externalSession&&mode==='practice'&&actor==='p2'&&!state.outcome,live=screen==='match'&&!watching&&compatibleMatch(state)&&historyIndex===null&&!clash&&!covered&&!thinking&&(!externalSession||!!connection?.connected&&!connection.busy&&actor===viewer);
-  // The opponent pauses before each phase change so the player confirms it (enter combat, resolve combat, end turn).
-  // In the tutorial the opponent follows a written script; once that runs out (or outside it) the regular bot plays.
-  const opponentPlay=useCallback((s:GameState)=>(tutorial?opponentCommand(s,opponentMoves(commands)):null)??botCommand(s,registry),[tutorial,commands]);
-  const botGate=useMemo(()=>{if(screen!=='match'||mode!=='practice'||actor!=='p2'||state.outcome||historyIndex!==null||!compatibleMatch(state)||state.pending)return null;const cmd=opponentPlay(state);return cmd.type==='confirm-combat'||(cmd.type==='end'&&state.combat?.stage!=='response')?cmd:null;},[screen,mode,actor,state,historyIndex,opponentPlay]);
+  const actor=view.legal.actor,thinking=!!bot?.thinking,botGate=bot?.gate??null;
+  const live=screen==='match'&&!watching&&historyIndex===null&&!clash&&!covered&&!thinking&&actor===viewer&&(!online||!!connection?.connected&&!connection.busy);
+  // The opponent waits while the screen is busy showing the last move or the player is looking elsewhere.
+  const hold=!!clash||covered||historyIndex!==null||screen!=='match';
+  useEffect(()=>{if(match.kind==='live')match.setHold(hold);},[match,hold]);
+  useEffect(()=>{if(match.kind==='live'&&hotseat)match.setSeat(viewer);},[match,hotseat,viewer]);
   const selectedLegal=view.legal.playable.find(a=>a.cardId===draft?.cardId);
   const undoable=live&&view.phase==='play'?match.undoable(viewer):[];
   const visibleAttacks=view.combat?.stage==='declare'?attackers:view.combat?.attackers??[];
   const draftLanes=useMemo(()=>Object.fromEntries(attackers.map(id=>[id,lanes[id]??displayedState.cards[id]?.slot??0])),[attackers,lanes,displayedState]);
-  const forecast=useMemo(()=>externalSession?sessionSnapshot.forecast:combatForecast(displayedState,attackers.length?{attackers,lanes:draftLanes}:null,registry),[displayedState,attackers,draftLanes,externalSession,sessionSnapshot.forecast]);
+  // What a drafted attack would do is asked of whoever holds the real state, exactly as it is online.
+  const [draftForecast,setDraftForecast]=useState<Forecast>(null);
+  useEffect(()=>{
+    if(match.kind!=='live'||view.combat?.stage!=='declare'||!attackers.length){setDraftForecast(null);return;}
+    let stale=false;
+    match.forecast({attackers,lanes:draftLanes}).then(next=>{if(!stale)setDraftForecast(next);},()=>{if(!stale)setDraftForecast(null);});
+    return()=>{stale=true;};
+  },[match,attackers,draftLanes,view.revision,view.combat?.stage]);
+  const forecast=view.combat?.stage==='declare'?draftForecast:sessionSnapshot.forecast;
   const selectedActivation=view.legal.activations.find(a=>a.cardId===draft?.cardId&&a.ability===draft?.activation);
   const targets=stage==='target'?(selectedActivation?.targets??selectedLegal?.targets??[]):stage==='consume'?selectedLegal?.consumes??[]:[];
   /** Every session supplies review frames; a single step forward also presents that exchange. */
@@ -174,23 +177,18 @@ function MatchApp({boot,externalSession,leaveSession,onSessionStart}: {boot: Boo
     const timer=setTimeout(()=>stepTo(historyIndex+1),reduced?500:1300);return()=>clearTimeout(timer);
   },[autoplay,historyIndex,historyLength,clash,stepTo,reduced]);
   const send=useCallback((command:Command)=>{
-    if(screen!=='match'||historyIndex!==null||!compatibleMatch(state)||clash)return;
-    if(tutorial&&!externalSession&&decisionPlayer(state)==='p1'){const step=tutorialSteps[tutorialStep];if(!step?.accept||!step.accept(command,state)){setCoachNudge(n=>n+1);return;}}
+    if(screen!=='match'||historyIndex!==null||clash)return;
+    if(tutorial&&actor==='p1'){const step=tutorialSteps[tutorialStep];if(!step?.accept||!step.accept(command,state)){setCoachNudge(n=>n+1);return;}}
     if(match.kind==='replay')return;
     try{
-      const actor=decisionPlayer(state);
       match.act(command);
       if(tutorial&&actor==='p1')setTutorialStep(stepAfter(playerCommands(match.getSnapshot().commands)));
       setActionCard(null);setError('');setDraft(null);setStage('none');setAttackers([]);setLanes({});setSelected(null);setHovered(null);setPreviewRequest(null);
     }catch(cause){setError(cause instanceof Error?cause.message:msg("Could not send the move."));}
-  },[state,historyIndex,screen,match,tutorial,tutorialStep,clash]);
-  useEffect(()=>{
-    if(screen==='match'&&compatibleMatch(state)&&mode==='practice'&&actor==='p2'&&!state.outcome&&historyIndex===null&&!botGate&&!clash){const timer=setTimeout(()=>send(opponentPlay(state)),state.combat?.stage==='review'?1800:reduced?130:650);return()=>clearTimeout(timer);}
-  },[state,mode,actor,send,reduced,historyIndex,screen,botGate,opponentPlay,clash]);
-  useEffect(()=>{if(!externalSession&&mode==='hotseat'&&actor!==viewer&&!state.outcome)setCovered(true);},[actor,viewer,mode,state.outcome,externalSession]);
-  useEffect(()=>{if(externalSession)return;try{localStorage.setItem(savedKey,JSON.stringify({initial,commands,mode,deck,skirmish,customDeck,opponentDeck,started:hasMatch,rewardId,rewardEligible,tutorial} satisfies SavedSession));}catch{/* Saving is best-effort. */}},[initial,commands,mode,deck,skirmish,customDeck,opponentDeck,hasMatch,rewardId,rewardEligible,tutorial,externalSession]);
+  },[state,actor,historyIndex,screen,match,tutorial,tutorialStep,clash]);
+  useEffect(()=>{if(hotseat&&actor!==viewer&&!state.outcome)setCovered(true);},[actor,viewer,hotseat,state.outcome]);
   useEffect(()=>{if(sessionSnapshot.error)setError(sessionSnapshot.error);},[sessionSnapshot.error]);
-  useEffect(()=>{if(externalSession){setActionCard(null);setDraft(null);setStage('none');setAttackers([]);setLanes({});}},[externalSession,view.revision]);
+  useEffect(()=>{if(online){setActionCard(null);setDraft(null);setStage('none');setAttackers([]);setLanes({});}},[online,view.revision]);
   const previousSession=useRef(sessionSnapshot),historyRef=useRef<number|null>(null);historyRef.current=historyIndex;
   useEffect(()=>{
     const previous=previousSession.current;previousSession.current=sessionSnapshot;
@@ -202,7 +200,7 @@ function MatchApp({boot,externalSession,leaveSession,onSessionStart}: {boot: Boo
   useEffect(()=>{if(error){const t=setTimeout(()=>setError(''),5500);return()=>clearTimeout(t);}},[error]);
   useEffect(()=>{const handler=(event:KeyboardEvent)=>{if(event.key===msg("Escape")){setSelected(null);setDraft(null);setStage('none');setPanel(null);setActionCard(null);} };window.addEventListener('keydown',handler);return()=>window.removeEventListener('keydown',handler);},[]);
   function navigate(next:Screen) {
-    if(externalSession&&next!=='match'){leaveSession?.();return;}
+    if(!local&&next!=='match'){leave();return;}
     setScreen(next);setPanel(null);setActionCard(null);setSelected(null);setHovered(null);setPreviewRequest(null);setPreview(null);setDraft(null);setStage('none');setEnergyFlights([]);
   }
   function saveDeck(next:CustomDeck):string|null {
@@ -216,37 +214,24 @@ function MatchApp({boot,externalSession,leaveSession,onSessionStart}: {boot: Boo
     setSavedDecks(decks);if(setupDeck===id)setSetupDeck(defaultDeckId);return null;
   }
   function reset(isSkirmish:boolean,nextMode:Mode=mode,nextDeck:string=customDeck?.id??deck,nextSeed:number=Number(seed)||731,override?:CustomDeck,nextOpponent:string=setupOpponent) {
-    if(externalSession)return;
+    if(!local)return;
     const custom=override??savedDecks.find(d=>d.id===nextDeck)??(customDeck?.id===nextDeck?customDeck:undefined);
     const starter:DeckName=starterOptions.some(d=>d.id===nextDeck)?nextDeck:defaultDeckId;
     const chosen=custom??starterOptions.find(d=>d.id===starter);
     if(chosen&&missingDeckCopies(chosen.cards,collection.counts).length){setError(msg("You do not own enough copies to play this deck."));return;}
-    let next:GameState;try{const chosenOpponent=deckOptions.find(d=>d.id===nextOpponent);next=startMatch(nextSeed,starter,isSkirmish,custom,undefined,chosenOpponent,getProfile().name,nextMode==='hotseat'?undefined:getProfile().avatar);setOpponentDeck(chosenOpponent?structuredClone(chosenOpponent):undefined);}catch(e){setError(e instanceof Error?e.message:msg("This deck cannot start a match."));return;}
-    setCustomDeck(custom?structuredClone(custom):undefined);setHasMatch(true);setScreen('match');
-    setRewardId(crypto.randomUUID());setRewardEligible(true);
-    setTutorial(false);setActionCard(null);localSession.reset(next,[],registry);setMode(nextMode);setDeck(starter);setSkirmish(isSkirmish);setViewer('p1');setCovered(false);setSelected(null);setHovered(null);setPreviewRequest(null);setDraft(null);setStage('none');setHistoryIndex(null);setPanel(null);setAttackers([]);setLanes({});setError('');
+    let next:GameState,chosenOpponent;try{chosenOpponent=deckOptions.find(d=>d.id===nextOpponent);next=startMatch(nextSeed,starter,isSkirmish,custom,undefined,chosenOpponent,getProfile().name,nextMode==='hotseat'?undefined:getProfile().avatar);}catch(e){setError(e instanceof Error?e.message:msg("This deck cannot start a match."));return;}
+    onBegin({initial:next,mode:nextMode,deck:starter,skirmish:isSkirmish,customDeck:custom?structuredClone(custom):undefined,opponentDeck:chosenOpponent?structuredClone(chosenOpponent):undefined,rewardId:crypto.randomUUID(),rewardEligible:true});
   }
   function startTutorialMatch() {
-    if(externalSession)return;
-    const saved=startTutorial();
+    if(!local)return;
     try{localStorage.setItem(tutorialKey,'started');}catch{/* Optional. */}
-    setTutorial(true);setTutorialStep(0);setCoachNudge(0);setCustomDeck(undefined);setOpponentDeck(undefined);setHasMatch(true);setScreen('match');
-    setRewardId(undefined);setRewardEligible(false);
-    setActionCard(null);localSession.reset(saved.initial,[],registry);setMode('practice');setDeck(saved.deck);setSkirmish(false);setViewer('p1');setCovered(false);setSelected(null);setHovered(null);setPreviewRequest(null);setDraft(null);setStage('none');setHistoryIndex(null);setPanel(null);setAttackers([]);setLanes({});setError('');
+    onBegin(startTutorial());
   }
   function endTutorial(finished:boolean) {
     try{localStorage.setItem(tutorialKey,finished?'done':'skipped');}catch{/* Optional. */}
+    if(script)script.active=false;
     setTutorial(false);
   }
-  const compatible=compatibleMatch(state);
-  useEffect(()=>{
-    if(compatible)return;
-    if(externalSession){setError(msg("Rules or cards changed. Leave the room and rejoin using the same build."));return;}
-    if(tutorial){startTutorialMatch();return;}
-    reset(skirmish,mode,customDeck?.id??deck,initial.seed,customDeck);
-    setScreen(screen);
-    setError(msg("The game rules updated. A fresh match has started with your current setup."));
-  },[compatible,skirmish,mode,deck,initial.seed,customDeck,screen,externalSession]);
   /** Saves what this seat saw, never more: the same file whether the match was local or online. */
   function exportReplay(){if(match.kind==='replay')return;try{const file=match.exportReplay(mode==='hotseat'?viewer:'p1',rewardId??String(initial.seed)),url=URL.createObjectURL(new Blob([JSON.stringify(file)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=`varhyr-replay-${file.matchId.slice(0,8)}.json`;a.click();URL.revokeObjectURL(url);}catch(cause){setError(cause instanceof Error?cause.message:msg("Could not save the replay."));}}
   function beginPlay(nextDraft:Draft) {
@@ -390,12 +375,12 @@ function MatchApp({boot,externalSession,leaveSession,onSessionStart}: {boot: Boo
   const discardTop=(pile:string[])=>pile.length?registry.cards[view.cards[pile[pile.length-1]]?.definitionId]:undefined;
   const playerName=(name:string)=>name==='You'||name==='Sparring partner'?msg(name):name;
   const laneOccupant=(lane:number)=>{const id=view.players[other(viewer)].board[lane];return id?msg(registry.cards[view.cards[id].definitionId].name):msg("Open · hits player");};
-  let prompt=watching?msg("Watching a recorded match."):externalSession&&!live?connection?.connected?connection?.busy?msg("Sending your move…"):msg("Opponent’s turn…"):connection?.message:thinking?botGate?(botGate.type==='confirm-combat'?msg("The opponent’s attack is set. Review the arrows, then resolve combat."):view.phase==='play'?msg("The opponent is ready to attack."):msg("The opponent is done. Begin your turn.")):view.combat?.stage==='review'?msg("Lanes are set. The opponent is reviewing the attack…"):msg("Opponent’s turn…"):stage==='consume'?msg("Choose a friendly creature to Consume."):stage==='position'?msg("Choose a highlighted position. Deployment is permanent."):stage==='target'?selectedActivation?.slots?msg("Choose a creature or holding from your hand to rally."):msg("Choose a highlighted target."):responseStep?msg("The fallen leave energy behind. Cast a spell or close the window."):view.phase==='draw'?msg("Draw two. Keep one."):view.phase==='play'?undoable.length?msg("Click a channelled creature to undo. Drag a card to play."):msg("Click a ready field card for actions. Drag a card to play."):view.combat?.stage==='declare'?attackers.length?msg("Gold arrows hit the player; cyan arrows meet a blocker. Drag an attacker to another lane to change it."):msg("Drag a ready creature onto a highlighted lane, or click it to choose one."):view.combat?.stage==='review'?msg("Defenders in the targeted lanes block automatically. Review the arrows, then confirm combat."):responseStep?msg("The fallen leave energy behind. Cast a spell or close the window."):msg("End your turn to ready your field cards.");
+  let prompt=watching?msg("Watching a recorded match."):online&&!live?connection?.connected?connection?.busy?msg("Sending your move…"):msg("Opponent’s turn…"):connection?.message:thinking?botGate?(botGate.type==='confirm-combat'?msg("The opponent’s attack is set. Review the arrows, then resolve combat."):view.phase==='play'?msg("The opponent is ready to attack."):msg("The opponent is done. Begin your turn.")):view.combat?.stage==='review'?msg("Lanes are set. The opponent is reviewing the attack…"):msg("Opponent’s turn…"):stage==='consume'?msg("Choose a friendly creature to Consume."):stage==='position'?msg("Choose a highlighted position. Deployment is permanent."):stage==='target'?selectedActivation?.slots?msg("Choose a creature or holding from your hand to rally."):msg("Choose a highlighted target."):responseStep?msg("The fallen leave energy behind. Cast a spell or close the window."):view.phase==='draw'?msg("Draw two. Keep one."):view.phase==='play'?undoable.length?msg("Click a channelled creature to undo. Drag a card to play."):msg("Click a ready field card for actions. Drag a card to play."):view.combat?.stage==='declare'?attackers.length?msg("Gold arrows hit the player; cyan arrows meet a blocker. Drag an attacker to another lane to change it."):msg("Drag a ready creature onto a highlighted lane, or click it to choose one."):view.combat?.stage==='review'?msg("Defenders in the targeted lanes block automatically. Review the arrows, then confirm combat."):responseStep?msg("The fallen leave energy behind. Cast a spell or close the window."):msg("End your turn to ready your field cards.");
   const factionSymbol=(id:PlayerId)=>{const tally:Record<string,number>={};for(const c of Object.values(state.cards))if(c.owner===id)for(const f of registry.cards[c.definitionId]?.factions??[])tally[f]=(tally[f]??0)+1;const top=Object.entries(tally).sort((a,b)=>b[1]-a[1])[0]?.[0];return <FactionIcon faction={top??'neutral'}/>;};
   const enemyPhase=view.combat?1:view.phase==='play'?0:2;
-  const mainLabel=watching?msg("Replay"):externalSession&&!live?connection?.connected?connection?.busy?msg("Sending…"):msg("Opponent’s turn"):msg("Disconnected"):thinking&&botGate?(botGate.type==='confirm-combat'?msg("Resolve combat"):view.phase==='play'?msg("Enemy combat"):msg("Your turn")):responseStep?msg("Close response step"):view.phase==='play'?msg("Enter combat"):view.combat?.stage==='declare'?attackers.length?msg("Attack with {v0}", {v0: attackers.length}):msg("Skip combat"):view.combat?.stage==='review'?msg("Confirm combat"):responseStep?msg("Close response step"):msg("End turn");
+  const mainLabel=watching?msg("Replay"):online&&!live?connection?.connected?connection?.busy?msg("Sending…"):msg("Opponent’s turn"):msg("Disconnected"):thinking&&botGate?(botGate.type==='confirm-combat'?msg("Resolve combat"):view.phase==='play'?msg("Enemy combat"):msg("Your turn")):responseStep?msg("Close response step"):view.phase==='play'?msg("Enter combat"):view.combat?.stage==='declare'?attackers.length?msg("Attack with {v0}", {v0: attackers.length}):msg("Skip combat"):view.combat?.stage==='review'?msg("Confirm combat"):responseStep?msg("Close response step"):msg("End turn");
   const phaseIndex=enemyPhase;
-  function mainAction(){if(thinking&&botGate){send(botGate);return;}if(view.combat?.stage==='declare')send({type:'attack',attackers,lanes:draftLanes});else if(view.combat?.stage==='review')send({type:'confirm-combat'});else send({type:'end'});}
+  function mainAction(){if(thinking&&botGate){if(match.kind==='live')match.advanceOpponent();return;}if(view.combat?.stage==='declare')send({type:'attack',attackers,lanes:draftLanes});else if(view.combat?.stage==='review')send({type:'confirm-combat'});else send({type:'end'});}
   const advanceEnabled=(live||thinking&&!!botGate&&!covered&&screen==='match')&&!clash&&!view.pending&&!view.outcome&&!panel&&!drag&&!actionCard&&stage==='none';
   const advancePhaseKey=`${rewardId??sessionSnapshot.matchId}:${view.turn}:${view.active}:${view.phase}:${view.combat?.stage??''}:${view.responseStep??''}`;
   const windowKey=`${view.revision}:${view.responseStep??''}`;
@@ -403,11 +388,11 @@ function MatchApp({boot,externalSession,leaveSession,onSessionStart}: {boot: Boo
   useEffect(()=>{if(!skippable)return;const t=setTimeout(()=>send({type:'end'}),450);return()=>clearTimeout(t);},[skippable,windowKey]);
   const phaseAdvance=usePhaseAdvance({enabled:advanceEnabled,phaseKey:advancePhaseKey},mainAction);
   const transitioning=phaseAdvance.transitionStartedAt!==null;
-  if(screen!=='match')return <><Lobby reduced={reduced} screen={screen} navigate={navigate} canResume={hasMatch&&!state.outcome} resumeLabel={msg("Turn {v0} · {v1}", {v0: state.turn, v1: state.players.p1.name})} decks={savedDecks} options={deckOptions} saveDeck={saveDeck} deleteDeck={deleteDeck} mode={setupMode} setMode={setSetupMode} selected={setupDeck} setSelected={setSetupDeck} opponentId={setupOpponent} setOpponentId={setSetupOpponent} seed={seed} setSeed={setSeed} start={isSkirmish=>reset(isSkirmish,setupMode,setupDeck)} startSession={onSessionStart} learn={startTutorialMatch}/>{error&&<div className="toast" role="alert">{msg(error)}</div>}</>;
-  return <div className={`app ${drag?'is-dragging':''} ${reduced?'reduce-motion':''} ${tutorial&&!externalSession?'tutorial-on':''} ${transitioning?'phase-transitioning':''}`} style={{'--arena-image':`url("${arena.art}")`} as CSSProperties}>
+  if(screen!=='match')return <><Lobby reduced={reduced} screen={screen} navigate={navigate} canResume={!state.outcome} resumeLabel={msg("Turn {v0} · {v1}", {v0: state.turn, v1: state.players.p1.name})} decks={savedDecks} options={deckOptions} saveDeck={saveDeck} deleteDeck={deleteDeck} mode={setupMode} setMode={setSetupMode} selected={setupDeck} setSelected={setSetupDeck} opponentId={setupOpponent} setOpponentId={setSetupOpponent} seed={seed} setSeed={setSeed} start={isSkirmish=>reset(isSkirmish,setupMode,setupDeck)} startSession={onAttach} learn={startTutorialMatch}/>{error&&<div className="toast" role="alert">{msg(error)}</div>}</>;
+  return <div className={`app ${drag?'is-dragging':''} ${reduced?'reduce-motion':''} ${tutorial?'tutorial-on':''} ${transitioning?'phase-transitioning':''}`} style={{'--arena-image':`url("${arena.art}")`} as CSSProperties}>
     <div className="world-bg"/><div className="world-vignette"/>
-    <header className="topbar"><button className="brand" aria-label={msg("Realms of Varhyr home")} onClick={()=>navigate('menu')}><span className="brand-mark">V<span/></span><span><small>REALMS OF</small><strong>VARHYR</strong></span></button><div className="match-status" aria-label={msg("Turn {v0}, {v1} initiative", {v0: view.turn, v1: view.active===viewer?'your':'opponent’s'})}><span>{msg("Turn")}{' '}{view.turn}</span><i/><strong>{externalSession&&actor!==viewer?msg("Opponent’s turn"):thinking?msg("Opponent’s turn"):view.combat?.stage==='review'?msg("Review combat"):responseStep?msg("Response energy"):view.phase==='play'?msg("Play & channel"):view.phase==='attack'?msg("Select attackers"):view.phase==='draw'?msg("Choose a card"):msg("End turn")}</strong></div><div className="match-corner"><button onClick={()=>setPanel('menu')} aria-label={msg("Match menu")}><Menu size={18}/></button></div></header>
-    {externalSession&&!watching&&<div className={`online-connection-strip ${connection?.connected?'connected':'offline'}`} role="status"><span className="online-status-dot"/><span>{msg("Room")}{' '}{connection?.code} · {connection?.connected?connection?.busy?msg("Sending move…"):msg("Connected"):connection?.message}</span>{!connection?.connected&&<button onClick={()=>externalSession.kind==='online'&&externalSession.reconnect()}>{msg("Reconnect")}</button>}</div>}
+    <header className="topbar"><button className="brand" aria-label={msg("Realms of Varhyr home")} onClick={()=>navigate('menu')}><span className="brand-mark">V<span/></span><span><small>REALMS OF</small><strong>VARHYR</strong></span></button><div className="match-status" aria-label={msg("Turn {v0}, {v1} initiative", {v0: view.turn, v1: view.active===viewer?'your':'opponent’s'})}><span>{msg("Turn")}{' '}{view.turn}</span><i/><strong>{online&&actor!==viewer?msg("Opponent’s turn"):thinking?msg("Opponent’s turn"):view.combat?.stage==='review'?msg("Review combat"):responseStep?msg("Response energy"):view.phase==='play'?msg("Play & channel"):view.phase==='attack'?msg("Select attackers"):view.phase==='draw'?msg("Choose a card"):msg("End turn")}</strong></div><div className="match-corner"><button onClick={()=>setPanel('menu')} aria-label={msg("Match menu")}><Menu size={18}/></button></div></header>
+    {online&&!watching&&<div className={`online-connection-strip ${connection?.connected?'connected':'offline'}`} role="status"><span className="online-status-dot"/><span>{msg("Room")}{' '}{connection?.code} · {connection?.connected?connection?.busy?msg("Sending move…"):msg("Connected"):connection?.message}</span>{!connection?.connected&&<button onClick={()=>match.kind==='live'&&match.reconnect()}>{msg("Reconnect")}</button>}</div>}
     <main className={`arena-shell ${logOpen?'with-log':''}`}>
       <section className="battlefield">
         <div className={`player-banner opponent ${targets.includes(other(viewer))||drag&&resolveDrop(view,viewer,registry,drag.cardId,{player:other(viewer)})?'targetable':''}`}>
@@ -452,7 +437,7 @@ function MatchApp({boot,externalSession,leaveSession,onSessionStart}: {boot: Boo
           <div className="board-key-row own-keys">{you.board.map((id,i)=><button key={i} onFocus={()=>id&&hoverBoard(id)} onBlur={()=>hoverBoard(null)} onContextMenu={e=>{e.preventDefault();if(id)inspectBoard(id);}} onClick={e=>id?(e.shiftKey?inspectBoard(id):selectBoard(id)):draft&&live&&beginPlay({...draft,slot:i})} disabled={!live||!id&&(!draft||stage!=='position'||!(selectedActivation?.slots??selectedLegal?.slots)?.includes(i))} aria-label={msg("Your {v0}: {v1}", {v0: positionName(i), v1: id?registry.cards[view.cards[id].definitionId].name:'empty'})} title={msg("{v0} · {v1}", {v0: positionName(i), v1: id?registry.cards[view.cards[id].definitionId].name:'Deploy here'})}>{i+1}</button>)}</div>
 
         </div>
-        <div className="player-banner own"><div className="portrait"><div className={`avatar ${artFor(viewer)?'has-art':''}`}>{artFor(viewer)?<Avatar id={artFor(viewer)!}/>:factionSymbol(viewer)}</div><div className="life-counter"><Heart size={11} aria-hidden="true"/><strong>{you.life}</strong><small>{msg("LIFE")}</small></div></div><div className="player-name">{!externalSession&&viewer!=='p1'&&<span className="eyebrow">{msg("PLAYER TWO")}</span>}<h2>{playerName(you.name)}</h2></div><div ref={poolRef} title={msg("Energy pool")} className={`energy-meter ${responseStep&&view.active!==viewer?'response-pool':''} ${energyFlights.some(f=>f.player===viewer)?'receiving-energy':''}`}><Zap className="pool-icon" size={20}/>{responseStep&&view.active!==viewer&&<span className="eyebrow">{msg("RESPONSE ENERGY")}</span>}<Energy pool={responseStep&&view.active!==viewer?you.responseEnergy:you.energy}/></div><div className="player-meta"><span title={msg("Deck")}><LayersIcon/>{you.deckCount}</span></div><div className="piles"><HandCount count={you.handCount}/><LibraryCount count={you.deckCount}/><DiscardCount count={you.discard.length} top={discardTop(you.discard)} onOpen={()=>setPanel('discard')}/></div></div>
+        <div className="player-banner own"><div className="portrait"><div className={`avatar ${artFor(viewer)?'has-art':''}`}>{artFor(viewer)?<Avatar id={artFor(viewer)!}/>:factionSymbol(viewer)}</div><div className="life-counter"><Heart size={11} aria-hidden="true"/><strong>{you.life}</strong><small>{msg("LIFE")}</small></div></div><div className="player-name">{hotseat&&viewer!=='p1'&&<span className="eyebrow">{msg("PLAYER TWO")}</span>}<h2>{playerName(you.name)}</h2></div><div ref={poolRef} title={msg("Energy pool")} className={`energy-meter ${responseStep&&view.active!==viewer?'response-pool':''} ${energyFlights.some(f=>f.player===viewer)?'receiving-energy':''}`}><Zap className="pool-icon" size={20}/>{responseStep&&view.active!==viewer&&<span className="eyebrow">{msg("RESPONSE ENERGY")}</span>}<Energy pool={responseStep&&view.active!==viewer?you.responseEnergy:you.energy}/></div><div className="player-meta"><span title={msg("Deck")}><LayersIcon/>{you.deckCount}</span></div><div className="piles"><HandCount count={you.handCount}/><LibraryCount count={you.deckCount}/><DiscardCount count={you.discard.length} top={discardTop(you.discard)} onOpen={()=>setPanel('discard')}/></div></div>
         <div className="floating-action"><div className="action-guidance"><p id="turn-guidance" role="status">{msg(prompt??'')}</p>{stage!=='none'&&<button className="outline-button" onClick={()=>{setDraft(null);setStage('none');setSelected(null);setPreviewRequest(null);setPreview(null);}}>{msg("Cancel")}</button>}{forecast&&(!thinking||view.combat?.stage==='review')&&<span className="combat-forecast" aria-label={msg("{v0} blocked, {v1} defenders and {v2} attackers lost, {v3} life damage", {v0: forecast.blocked, v1: forecast.fallen, v2: forecast.attackersFallen, v3: forecast.lifeDamage})}>{(()=>{const mine=view.active===viewer,lostOwn=mine?forecast.attackersFallen:forecast.fallen,lostFoe=mine?forecast.fallen:forecast.attackersFallen;return <>
           {forecast.blocked>0&&<i title={msg("Blocked attackers")}><Shield size={12}/>{forecast.blocked}</i>}
           {lostFoe>0&&<i className="good" title={msg("Enemy cards destroyed")}><Skull size={12}/>{lostFoe}</i>}
@@ -468,19 +453,19 @@ function MatchApp({boot,externalSession,leaveSession,onSessionStart}: {boot: Boo
     {error&&<div className="toast" role="alert">{msg(error)}<button aria-label={msg("Dismiss error")} onClick={()=>setError('')}><X size={14}/></button></div>}
     {historyIndex!==null&&<div className={`replay-bar ${watching?'watching':''}`}><Eye size={16}/><span>{watching?msg("Replay"):msg("Viewing")} {msg("· step")}{' '}{historyIndex} {msg("of")}{' '}{historyLength}</span>
       {watching&&<span className="replay-controls"><button aria-label={msg("First step")} disabled={historyIndex===0} onClick={()=>{setAutoplay(false);stepTo(0);}}><SkipBack size={14}/></button><button aria-label={msg("Previous step")} disabled={historyIndex===0} onClick={()=>{setAutoplay(false);stepTo(historyIndex-1);}}><ChevronLeft size={15}/></button><button className="replay-play" aria-label={autoplay?msg("Pause"):msg("Play")} onClick={()=>{if(historyIndex>=historyLength)stepTo(0);setAutoplay(a=>!a);}}>{autoplay?<Pause size={14}/>:<Play size={14}/>}</button><button aria-label={msg("Next step")} disabled={historyIndex>=historyLength} onClick={()=>{setAutoplay(false);stepTo(historyIndex+1);}}><ChevronRight size={15}/></button><button aria-label={msg("Last step")} disabled={historyIndex>=historyLength} onClick={()=>{setAutoplay(false);stepTo(historyLength);}}><SkipForward size={14}/></button></span>}
-      {watching?<button onClick={()=>leaveSession?.()}>{msg("Close replay")}<X size={13}/></button>:<button onClick={()=>setHistoryIndex(null)}>{msg("Return to live match")}<Play size={13}/></button>}</div>}
+      {watching?<button onClick={()=>leave()}>{msg("Close replay")}<X size={13}/></button>:<button onClick={()=>setHistoryIndex(null)}>{msg("Return to live match")}<Play size={13}/></button>}</div>}
     {covered&&<div className="modal-backdrop privacy"><div className="privacy-card"><span className="brand-mark">V</span><h2>{playerName(state.players[actor].name)}</h2>{state.combat?.stage==='review'?<p>{msg("Review the lanes and blockers, then confirm combat.")}</p>:state.combat?.stage==='response'?<p>{msg("Spend your fallen creatures’ energy.")}</p>:null}<button className="gold-button" onClick={()=>{setViewer(actor);setCovered(false);setSelected(null);setHovered(null);}}>{msg("Reveal my hand")}<Eye size={16}/></button></div></div>}
-    {!watching&&view.pending?.kind==='mulligan'&&!covered&&!thinking&&<PeekBackdrop back={msg("Back to your hand")}><div className="choice-dialog mulligan-dialog"><h2>{msg("Replace up to")}{' '}{view.pending.max} {msg("cards")}</h2><div className="choice-options mulligan-options">{view.pending.options.map(id=>{const picked=mulliganPick.includes(id),full=!picked&&mulliganPick.length>=(view.pending as {max:number}).max;return <div key={id} className={`mulligan-card ${picked?'picked':''} ${full?'locked':''}`}><ArtCard detail={false} reduced={reduced} card={registry.cards[view.cards[id].definitionId]} interaction={{id:`mull-${id}`,onPointerEnter:e=>{if(e.pointerType!=='touch')requestPreview(id,e.currentTarget.getBoundingClientRect());},onPointerLeave:clearHoverPreview,onFocus:e=>requestPreview(id,e.currentTarget.getBoundingClientRect()),onBlur:clearHoverPreview,onContextMenu:e=>{e.preventDefault();pinPreview(id,e.currentTarget.getBoundingClientRect());}}} onClick={()=>setMulliganPick(list=>picked?list.filter(x=>x!==id):full?list:[...list,id])}/><span className="mulligan-mark">{picked?msg("Replace"):msg("Keep")}</span></div>;})}</div><button className="gold-button mulligan-confirm" disabled={!!externalSession&&!live} onClick={()=>{const cardIds=mulliganPick;setMulliganPick([]);send({type:'mulligan',cardIds});}}>{mulliganPick.length?msg("Replace {v0} {v1}", {v0: mulliganPick.length, v1: mulliganPick.length===1?'card':'cards'}):msg("Keep this hand")}<ArrowRight size={14}/></button></div></PeekBackdrop>}
+    {!watching&&view.pending?.kind==='mulligan'&&!covered&&!thinking&&<PeekBackdrop back={msg("Back to your hand")}><div className="choice-dialog mulligan-dialog"><h2>{msg("Replace up to")}{' '}{view.pending.max} {msg("cards")}</h2><div className="choice-options mulligan-options">{view.pending.options.map(id=>{const picked=mulliganPick.includes(id),full=!picked&&mulliganPick.length>=(view.pending as {max:number}).max;return <div key={id} className={`mulligan-card ${picked?'picked':''} ${full?'locked':''}`}><ArtCard detail={false} reduced={reduced} card={registry.cards[view.cards[id].definitionId]} interaction={{id:`mull-${id}`,onPointerEnter:e=>{if(e.pointerType!=='touch')requestPreview(id,e.currentTarget.getBoundingClientRect());},onPointerLeave:clearHoverPreview,onFocus:e=>requestPreview(id,e.currentTarget.getBoundingClientRect()),onBlur:clearHoverPreview,onContextMenu:e=>{e.preventDefault();pinPreview(id,e.currentTarget.getBoundingClientRect());}}} onClick={()=>setMulliganPick(list=>picked?list.filter(x=>x!==id):full?list:[...list,id])}/><span className="mulligan-mark">{picked?msg("Replace"):msg("Keep")}</span></div>;})}</div><button className="gold-button mulligan-confirm" disabled={!!online&&!live} onClick={()=>{const cardIds=mulliganPick;setMulliganPick([]);send({type:'mulligan',cardIds});}}>{mulliganPick.length?msg("Replace {v0} {v1}", {v0: mulliganPick.length, v1: mulliganPick.length===1?'card':'cards'}):msg("Keep this hand")}<ArrowRight size={14}/></button></div></PeekBackdrop>}
     {!watching&&view.pending?.kind==='draw'&&!covered&&!thinking&&<DrawChoice reduced={reduced} cards={(view.pending.options as string[]).map(id=>({id,card:registry.cards[view.cards[id].definitionId]}))} discardCount={you.discard.length} discardTop={discardTop(you.discard)} libraryCount={you.deckCount} choose={(keep,other)=>send({type:'choose',choiceId:view.pending!.id,option:keep,other})}/>}
     {view.pending&&view.pending.kind==='response-energy'&&!covered&&!thinking&&<PeekBackdrop back={msg("Back to the choice")}><div className="choice-dialog"><h2>{msg(view.pending.sourceName)}{msg(": choose its energy")}</h2><div className="choice-options">{view.pending.options.map((pool,i)=><button className="energy-choice" key={i} onClick={()=>send({type:'choose',choiceId:view.pending!.id,option:i})}><Energy pool={pool}/><span>{msg("Choose this output")}<ArrowRight size={14}/></span></button>)}</div></div></PeekBackdrop>}
-    {state.outcome&&!clash&&!covered&&(historyIndex===null||watching&&historyIndex>=historyLength)&&<MatchSummary state={state} viewer={viewer} registry={registry} reduced={reduced} symbol={factionSymbol(viewer)} reward={!watching&&(externalSession?state.outcome===viewer:state.outcome==='p1')&&rewardId&&collection.rewardedMatches.includes(rewardId)?{crowns:collectionRules.victoryCrowns,boosters:collectionRules.victoryBoosters,saved:collectionSaved}:null} onMenu={()=>navigate('menu')} onAgain={externalSession?undefined:()=>reset(false)} onExport={watching?undefined:exportReplay} reviewLabel={watching?msg("Watch again"):undefined} onReview={watching?()=>{setHistoryIndex(0);}:()=>{setHistoryIndex(historyLength);setPanel('debug');}}/>}
+    {state.outcome&&!clash&&!covered&&(historyIndex===null||watching&&historyIndex>=historyLength)&&<MatchSummary state={state} viewer={viewer} registry={registry} reduced={reduced} symbol={factionSymbol(viewer)} reward={!watching&&(hotseat?state.outcome==='p1':state.outcome===viewer)&&rewardId&&collection.rewardedMatches.includes(rewardId)?{crowns:collectionRules.victoryCrowns,boosters:collectionRules.victoryBoosters,saved:collectionSaved}:null} onMenu={()=>navigate('menu')} onAgain={local?()=>reset(false):undefined} onExport={watching?undefined:exportReplay} reviewLabel={watching?msg("Watch again"):undefined} onReview={watching?()=>{setHistoryIndex(0);}:()=>{setHistoryIndex(historyLength);setPanel('debug');}}/>}
     {actionCard&&actionInstance&&live&&!covered&&!panel&&useEnergyArc&&<EnergyChoiceArc cardName={msg(registry.cards[actionInstance.definitionId].name)} actions={availableActions as EnergyAction[]} getAnchor={energyAnchor} containerRef={actionPopoverRef} reduced={reduced} onClose={()=>setActionCard(null)} onChoose={action=>performCreatureAction(actionCard,action)} actionName={action=>action.kind==='channel'?msg("Channel"):cardAbilityDescriptions(registry.cards[actionInstance.definitionId])[action.ability].name}/>}
     {actionCard&&actionInstance&&live&&!covered&&!panel&&!useEnergyArc&&<div ref={actionPopoverRef} className="creature-actions" role="dialog" aria-label={msg("{v0} actions", {v0: registry.cards[actionInstance.definitionId].name})} style={{...actionPosition,maxHeight:window.innerHeight-actionPosition.top-12}}><div className="creature-actions-heading"><span>{msg(registry.cards[actionInstance.definitionId].name)}</span><button aria-label={msg("Close card actions")} onClick={()=>setActionCard(null)}><X size={14}/></button></div>{availableActions.map((action,i)=><button autoFocus={i===0} key={i} className="inline-creature-action" onClick={()=>performCreatureAction(actionCard,action)}>{action.kind==='channel'?<><Zap size={15}/><span>{msg("Channel")}</span><Energy pool={action.output}/></>:action.kind==='activate'?<><Sparkles size={15}/><span>{cardAbilityDescriptions(registry.cards[actionInstance.definitionId])[action.ability].name}</span>{action.output&&<Energy pool={action.output}/>}</>:action.kind==='undo-channel'?<><RotateCcw size={15}/>{msg("Undo channel")}</>:action.kind==='attack'?<><Swords size={15}/><span>{action.current?msg("Attacking"):msg("Attack")} · {msg(positionName(action.lane)??'')}</span><small>{laneOccupant(action.lane)}</small></>:<><RotateCcw size={15}/>{msg("Withdraw attack")}</>}</button>)}<button className="inline-inspect-action" onClick={()=>inspectBoard(actionCard)}><Eye size={13}/>{msg("Inspect card")}</button><small>{view.combat?.stage==='declare'?msg("Choose a lane to attack."):msg("Choose an action.")}</small></div>}
     {drag&&dragDef&&<div className="drag-ghost" style={{left:drag.x,top:drag.y}}><ArtCard detail={false} card={dragDef} className="drag-card"/><span className={dropPlay||dropLane!==null?'valid':''}>{draggingAttacker?dropLane!==null?msg("Release to attack this lane"):msg("Choose a highlighted lane"):dropPlay?dropPlay.consume?msg("Release to Consume"):dropPlay.target||dragDef.type==='spell'?msg("Release to cast"):msg("Release to deploy"):view.legal.playable.some(a=>a.cardId===drag.cardId)?msg("Choose a highlighted slot or target"):msg("Needs energy or legal timing")}</span></div>}
     {preview&&previewCard&&previewDef&&!actionCard&&!drag&&!panel&&!covered&&(!view.pending||view.pending.kind==='mulligan')&&!state.outcome&&<div className="preview-anchor" aria-hidden style={{left:preview.left,top:preview.top,width:preview.right-preview.left,height:preview.bottom-preview.top}}/>}
     {preview&&previewCard&&previewDef&&!actionCard&&!drag&&!panel&&!covered&&(!view.pending||view.pending.kind==='mulligan')&&!state.outcome&&<aside ref={previewRef} className={`hover-preview ${preview.pinned?'pinned-preview':''}`} role={preview.pinned?'dialog':'tooltip'} aria-label={msg("{v0} preview", {v0: previewDef.name})} style={{['--px' as string]:`${previewX}px`,['--py' as string]:`${previewY}px`,width:previewWidth,maxHeight:previewHeight}}>{preview.pinned&&<button className="preview-close" aria-label={msg("Close card preview")} onClick={closePreview}><X size={16}/></button>}<CardDetail card={previewDef} animated reduced={reduced} stats={previewStats?{...previewStats,defense:previewStats.defense-previewCard.damage}:undefined} state={previewCard.zone==='board'?<>{msg(positionName(previewCard.slot)??'')} · {previewCard.exhausted?msg("Exhausted · can still block"):previewDef.type==='holding'?msg("Ready · can block{v0}", {v0: previewDef.abilities.some(b=>registry.abilities[b.id].activate)?' or activate':''}):msg("Ready to channel or attack{v0}", {v0: previewDef.abilities.some(b=>registry.abilities[b.id].activate)?' · can activate':''})}{previewCard.damage>0?msg(" · {v0} damage", {v0: previewCard.damage}):''}</>:undefined}></CardDetail></aside>}
     {(()=>{
-      if(!tutorial||externalSession||screen!=='match'||covered||state.outcome||historyIndex!==null)return null;
+      if(!tutorial||screen!=='match'||covered||state.outcome||historyIndex!==null)return null;
       const step=tutorialSteps[tutorialStep],progress={index:tutorialStep,total:tutorialSteps.length};
       if(actor==='p2'&&step.id!=='finish'){
         if(scriptFinished(opponentMoves(commands)))return null;
@@ -492,7 +477,7 @@ function MatchApp({boot,externalSession,leaveSession,onSessionStart}: {boot: Boo
     })()}
     {!covered&&!panel&&!view.outcome&&<FactionAbilityEffects auras={clash?[]:factionAuras(view,registry)} bursts={factionEffects} board={boardRef.current} slots={slotLayout} viewer={viewer} reduced={reduced}/>}
     <EnergyFlow flights={energyFlights}/><SpellCast casts={spellCasts}/><ClashLayer batches={clashBatches} board={boardRef.current} slots={slotLayout} viewer={viewer} onSkip={clash?()=>setClash(null):undefined}/>
-    {panel==='menu'&&<div className="modal-backdrop" onClick={()=>setPanel(null)}><section className="choice-dialog match-menu-dialog" role="dialog" aria-modal="true" aria-label={msg("Menu")} onClick={e=>e.stopPropagation()}><h2>{msg("Menu")}</h2><div className="match-menu">{externalSession?.kind==='online'&&<><p>{msg(connection?.message??'')}</p>{(connection?.role==='guest'||!connection?.connected)&&<button className="outline-button full" onClick={()=>externalSession.reconnect()}>{msg("Reconnect")}</button>}</>}<button className="outline-button full" onClick={()=>externalSession?setPanel('settings'):navigate('settings')}><Settings2 size={15}/>{msg("Settings")}</button><button className="outline-button full" onClick={()=>setPanel('rules')}><CircleHelp size={15}/>{msg("How to play")}</button><button className="outline-button full" onClick={()=>setPanel('journal')}><ScrollText size={15}/>{msg("Battle journal")}</button><button className="outline-button full" aria-pressed={logOpen} onClick={()=>{setLogOpen(open=>!open);setPanel(null);}}><ScrollText size={15}/>{logOpen?msg("Hide battle log"):msg("Show battle log")}</button><div className="match-skip"><span>{msg("Skip empty response steps")}</span><button className={`toggle ${skipEmptyWindows?'on':''}`} role="switch" aria-checked={skipEmptyWindows} aria-label={msg("Skip empty response steps")} onClick={()=>updatePreferences({skipEmptyWindows:!skipEmptyWindows})}><span/></button></div><button className="outline-button full" onClick={()=>{setPanel(null);navigate('menu');}}>{watching?msg("Close replay"):externalSession?msg("Leave online game"):msg("Main menu")}</button>{!watching&&!tutorial&&!state.outcome&&(confirmConcede?<div className="concede-confirm" role="alertdialog" aria-label={msg("Concede")}><p>{msg("Give up this match? Your opponent wins.")}</p><div><button className="outline-button danger" onClick={concede}>{msg("Concede")}</button><button className="outline-button" onClick={()=>setConfirmConcede(false)}>{msg("Keep playing")}</button></div></div>:<button className="outline-button full danger" onClick={()=>setConfirmConcede(true)}>{msg("Concede")}</button>)}</div></section></div>}
+    {panel==='menu'&&<div className="modal-backdrop" onClick={()=>setPanel(null)}><section className="choice-dialog match-menu-dialog" role="dialog" aria-modal="true" aria-label={msg("Menu")} onClick={e=>e.stopPropagation()}><h2>{msg("Menu")}</h2><div className="match-menu">{online&&<><p>{msg(connection?.message??'')}</p>{(connection?.role==='guest'||!connection?.connected)&&<button className="outline-button full" onClick={()=>match.kind==='live'&&match.reconnect()}>{msg("Reconnect")}</button>}</>}{fullscreen.supported?<button className="outline-button full" onClick={()=>void fullscreen.toggle()}>{fullscreen.active?<Minimize size={15}/>:<Maximize size={15}/>}{fullscreen.active?msg("Exit fullscreen"):msg("Fullscreen")}</button>:!fullscreen.installed&&<p className="match-menu-hint">{msg("For fullscreen, add this page to your home screen: Share, then Add to Home Screen.")}</p>}<button className="outline-button full" onClick={()=>!local?setPanel('settings'):navigate('settings')}><Settings2 size={15}/>{msg("Settings")}</button><button className="outline-button full" onClick={()=>setPanel('rules')}><CircleHelp size={15}/>{msg("How to play")}</button><button className="outline-button full" onClick={()=>setPanel('journal')}><ScrollText size={15}/>{msg("Battle journal")}</button><button className="outline-button full" aria-pressed={logOpen} onClick={()=>{setLogOpen(open=>!open);setPanel(null);}}><ScrollText size={15}/>{logOpen?msg("Hide battle log"):msg("Show battle log")}</button><div className="match-skip"><span>{msg("Skip empty response steps")}</span><button className={`toggle ${skipEmptyWindows?'on':''}`} role="switch" aria-checked={skipEmptyWindows} aria-label={msg("Skip empty response steps")} onClick={()=>updatePreferences({skipEmptyWindows:!skipEmptyWindows})}><span/></button></div><button className="outline-button full" onClick={()=>{setPanel(null);navigate('menu');}}>{watching?msg("Close replay"):!local?msg("Leave online game"):msg("Main menu")}</button>{!watching&&!tutorial&&!state.outcome&&(confirmConcede?<div className="concede-confirm" role="alertdialog" aria-label={msg("Concede")}><p>{msg("Give up this match? Your opponent wins.")}</p><div><button className="outline-button danger" onClick={concede}>{msg("Concede")}</button><button className="outline-button" onClick={()=>setConfirmConcede(false)}>{msg("Keep playing")}</button></div></div>:<button className="outline-button full danger" onClick={()=>setConfirmConcede(true)}>{msg("Concede")}</button>)}</div></section></div>}
     {panel&&panel!=='menu'&&<div className="panel-backdrop" onClick={()=>setPanel(null)}><section className={`side-panel `} onClick={e=>e.stopPropagation()} role="dialog" aria-modal="true" aria-label={panel==='rules'?msg("Rules"):panel==='settings'?msg("Settings"):panel==='journal'?msg("Battle journal"):panel==='discard'?msg("Discard piles"):msg("Match laboratory")}><div className="panel-header"><div><h2>{panel==='rules'?msg("Rules"):panel==='settings'?msg("Settings"):panel==='journal'?msg("Battle journal"):panel==='discard'?msg("Discard piles"):msg("Match laboratory")}</h2></div><button aria-label={msg("Close panel")} onClick={()=>setPanel(null)}><X size={20}/></button></div>
       {panel==='rules'&&<div className="rules-content">{[
         ['01',msg("Draw & choose"),msg("Begin with five cards. Each turn, draw two and keep one; the other goes to your discard pile or under your library, as you choose. The first player skips their first draw.")],
@@ -506,7 +491,7 @@ function MatchApp({boot,externalSession,leaveSession,onSessionStart}: {boot: Boo
       
       {panel==='discard'&&<div className="discard-content">{[viewer,other(viewer)].map(owner=><section key={owner}><h3>{playerName(view.players[owner].name)} <small>{view.players[owner].discard.length} {msg(view.players[owner].discard.length===1?'card':'cards')}</small></h3>{view.players[owner].discard.length?<div className="codex-grid">{[...view.players[owner].discard].reverse().map(id=><article key={id}><ArtCard reduced card={registry.cards[view.cards[id].definitionId]}/></article>)}</div>:<p className="empty-pile">{msg("Nothing here yet.")}</p>}</section>)}</div>}
       {panel==='journal'&&<div className="journal-content"><div className="discard-summary">{(['p1','p2'] as PlayerId[]).map(p=><div key={p}><h3>{playerName(view.players[p].name)}</h3><p className="journal-counts">{view.players[p].handCount} {msg("in hand ·")}{' '}{view.players[p].deckCount} {msg("in deck")}</p><span className="eyebrow">{msg("DISCARD ·")}{' '}{view.players[p].discard.length}</span>{view.players[p].discard.map(id=><p key={id}>{msg(registry.cards[view.cards[id].definitionId].name)}</p>)}</div>)}</div><h3>{msg("Match events")}</h3><ol className="event-list">{[...view.events].reverse().map(e=><li key={e.seq}><span>{String(e.seq).padStart(3,'0')}</span><p>{msg(e.message)}</p></li>)}</ol></div>}
-      {panel==='debug'&&<div className="debug-content"><div className="debug-metrics"><span>{msg("Revision")}<b>{view.revision}</b></span><span>{msg("Steps")}<b>{historyLength}</b></span><span>{msg("Seed")}<b>{initial.seed}</b></span></div><label>{msg("TIME TRAVEL")}<input type="range" min={0} max={historyLength} value={historyIndex??historyLength} onChange={e=>{setHistoryIndex(Number(e.target.value));setSelected(null);}}/></label><div className="debug-actions"><button className="outline-button" onClick={()=>setHistoryIndex(null)}>{msg("Return to live")}</button>{!externalSession&&<button className="outline-button" onClick={exportReplay}>{msg("Export replay")}<Download size={14}/></button>}</div><details><summary>{msg("Player projection")}</summary><pre>{JSON.stringify(view,null,2)}</pre></details><h3>{externalSession?msg("What happened"):msg("Accepted commands")}</h3><ol className="command-list">{historySteps.map((e,i)=><li key={i}><button onClick={()=>setHistoryIndex(i+1)}><span>{i+1}</span><b>{e.who}</b>{msg(e.label)}<ChevronRight size={13}/></button></li>)}</ol></div>}
+      {panel==='debug'&&<div className="debug-content"><div className="debug-metrics"><span>{msg("Revision")}<b>{view.revision}</b></span><span>{msg("Steps")}<b>{historyLength}</b></span><span>{msg("Seed")}<b>{initial.seed}</b></span></div><label>{msg("TIME TRAVEL")}<input type="range" min={0} max={historyLength} value={historyIndex??historyLength} onChange={e=>{setHistoryIndex(Number(e.target.value));setSelected(null);}}/></label><div className="debug-actions"><button className="outline-button" onClick={()=>setHistoryIndex(null)}>{msg("Return to live")}</button>{local&&<button className="outline-button" onClick={exportReplay}>{msg("Export replay")}<Download size={14}/></button>}</div><details><summary>{msg("Player projection")}</summary><pre>{JSON.stringify(view,null,2)}</pre></details><h3>{!local?msg("What happened"):msg("Accepted commands")}</h3><ol className="command-list">{historySteps.map((e,i)=><li key={i}><button onClick={()=>setHistoryIndex(i+1)}><span>{i+1}</span><b>{e.who}</b>{msg(e.label)}<ChevronRight size={13}/></button></li>)}</ol></div>}
     </section></div>}
   </div>;
 }
