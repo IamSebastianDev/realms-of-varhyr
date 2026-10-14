@@ -385,5 +385,8 @@ html,body,#root{overscroll-behavior:none}
 .match-menu{display:flex;flex-direction:column;gap:14px}
 .match-menu .text-button{display:flex;gap:8px;align-items:center;justify-content:flex-start}
 .match-skip{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.panel-backdrop:has(.menu-overlay){justify-content:center;align-items:center}
-.side-panel.menu-overlay{margin:auto;width:min(380px,calc(100vw - 32px));height:auto;max-height:calc(100vh - 32px);border:1px solid var(--line);border-radius:14px;overflow:auto;padding-bottom:22px}
+.match-menu-dialog{max-width:380px;padding:34px 34px 30px}
+.match-menu-dialog h2{font-size:34px;margin:0 0 20px}
+.match-menu-dialog .outline-button{display:flex;align-items:center;justify-content:center;gap:8px}
+.match-menu-dialog .match-skip{text-align:left;font-size:11px;color:#c9d3c0}
+.match-menu-dialog .match-menu{gap:8px}.match-menu-dialog .outline-button{margin:0}
