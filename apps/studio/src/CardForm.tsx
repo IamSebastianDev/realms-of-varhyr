@@ -49,7 +49,7 @@ export function CardForm({ draft, patch, onArt, hasArt, folderLocked }: { draft:
       <Field title="ID" hint={draft.isNew ? 'Also the folder name. Cannot change after the first save.' : 'Fixed after the first save.'}>
         <input value={draft.id} disabled={!draft.isNew} onChange={event => patch({ id: slugify(event.target.value) })}/></Field>
       <div className="row"><Field title="Type"><select value={draft.type} onChange={event => patch({ type: event.target.value as Draft['type'] })}>
-        <option value="creature">Creature</option><option value="spell">Spell</option><option value="bulwark">Bulwark</option></select></Field>
+        <option value="creature">Creature</option><option value="spell">Spell</option><option value="holding">Holding</option></select></Field>
       <Field title="Set"><select value={draft.set} onChange={event => patch({ set: event.target.value })}>
         {setDefinitions.map(set => <option key={set.id} value={set.id}>{set.name}</option>)}</select></Field>
       <Field title="Rarity"><select value={draft.rarity} onChange={event => patch({ rarity: event.target.value as Draft['rarity'] })}>
@@ -60,7 +60,7 @@ export function CardForm({ draft, patch, onArt, hasArt, folderLocked }: { draft:
 
     <fieldset><legend>Factions and cost</legend>
       <div className="chips" role="group" aria-label="Factions">{picks.map(id => <button type="button" key={id} style={{ '--c': factionInfo[id]?.color } as React.CSSProperties} aria-pressed={draft.factions.includes(id)} onClick={() => toggleFaction(id)}>{label(id).replace(/^The /, '')}</button>)}</div>
-      <small>No faction selected means the card is neutral.</small>
+      <small>No faction means neutral. Pick two or more for a hybrid card.</small>
       <div className="grid">
         <Field group title="Generic"><Num name="Generic cost" value={draft.cost.generic} onChange={generic => patch({ cost: { ...draft.cost, generic } })}/></Field>
         {draft.factions.map(id => <Field group key={id} title={label(id)}><Num name={`${label(id)} cost`} value={draft.cost.factions[id] ?? 0} onChange={n => patch({ cost: { ...draft.cost, factions: { ...draft.cost.factions, [id]: n } } })}/></Field>)}

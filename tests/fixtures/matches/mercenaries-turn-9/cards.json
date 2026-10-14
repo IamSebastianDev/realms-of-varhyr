@@ -152,11 +152,11 @@
     ]
   },
   {
-    "id": "crown-bulwark",
+    "id": "crown-holding",
     "revision": 1,
-    "name": "Crown Bulwark",
-    "deckLimitKey": "crown-bulwark",
-    "type": "bulwark",
+    "name": "Crown Holding",
+    "deckLimitKey": "crown-holding",
+    "type": "holding",
     "factions": [
       "crownlands"
     ],
@@ -172,7 +172,7 @@
       }
     },
     "lore": "An oath made stone.",
-    "art": "/cards/crown-bulwark/data.png?v=f22651501ced9356",
+    "art": "/cards/crown-holding/data.png?v=f22651501ced9356",
     "abilities": [
       {
         "id": "war-banner",
@@ -507,7 +507,7 @@
     "revision": 1,
     "name": "Tower of the First Morning",
     "deckLimitKey": "tower-of-the-first-morning",
-    "type": "bulwark",
+    "type": "holding",
     "factions": [
       "crownlands"
     ],

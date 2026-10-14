@@ -19,7 +19,7 @@ export const cardCost = (card: CardDefinition) => card.cost.generic + Object.val
 /** Cards with no faction count as neutral; a card shared by two factions counts toward both. */
 export const cardGroups = (card: CardDefinition) => card.factions.length ? card.factions : [neutralId];
 const rarityOrder = ['common', 'rare', 'legendary'];
-const typeOrder = ['creature', 'spell', 'bulwark'];
+const typeOrder = ['creature', 'spell', 'holding'];
 
 export function collectionStats(owned: OwnedCopies, registry: Registry, factionOrder: string[] = []): CollectionStats {
   const cards = Object.values(registry.cards);

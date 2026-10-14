@@ -4,7 +4,7 @@
   "revision": 1,
   "name": "Wooden Fort",
   "deckLimitKey": "wooden-fort",
-  "type": "bulwark",
+  "type": "holding",
   "factions": [
     "bright-marches"
   ],

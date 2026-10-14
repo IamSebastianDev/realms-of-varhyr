@@ -54,16 +54,16 @@ const activeExtensions: AbilityExtension[] = [
     }),
 
     extension("adjacent-banner", amountSchema, {
-        translations: { de: {"name": "Formation {amount}", "description": "Benachbarte eigene Kreaturen und Bollwerke erhalten +{amount} Angriff, solange diese Karte auf dem Schlachtfeld liegt. Leere Plätze schließen die Lücke nicht."} },
+        translations: { de: {"name": "Formation {amount}", "description": "Benachbarte eigene Kreaturen und Besitzungen erhalten +{amount} Angriff, solange diese Karte auf dem Schlachtfeld liegt. Leere Plätze schließen die Lücke nicht."} },
         name: "Formation {amount}",
         description:
-            "Adjacent friendly creatures and bulwarks get +{amount} Attack while this card is on the battlefield. Empty slots do not close the gap.",
+            "Adjacent friendly creatures and holdings get +{amount} Attack while this card is on the battlefield. Empty slots do not close the gap.",
         static: (source, target, p) => (areAdjacent(source, target) ? { attack: amount(p) } : {}),
     }),
     extension("shoulder-to-shoulder", empty, {
-        translations: { de: { name: "Schulter an Schulter", description: "Diese Karte erhält +1 Angriff, solange links und rechts von ihr je eine eigene Kreatur oder ein Bollwerk steht. Auf den äußeren Plätzen ist das nie erfüllt." } },
+        translations: { de: { name: "Schulter an Schulter", description: "Diese Karte erhält +1 Angriff, solange links und rechts von ihr je eine eigene Kreatur oder eine Besitzung steht. Auf den äußeren Plätzen ist das nie erfüllt." } },
         name: "Shoulder to Shoulder",
-        description: "This card has +1 Attack while a friendly creature or bulwark stands in both the slot to its left and the slot to its right. It never applies on a flank.",
+        description: "This card has +1 Attack while a friendly creature or holding stands in both the slot to its left and the slot to its right. It never applies on a flank.",
         static: (source, target, _p, _registry, state) => {
             if (source.id !== target.id || !state || source.slot === null) return {};
             const row = state.players[source.controller].board;
@@ -80,10 +80,10 @@ const activeExtensions: AbilityExtension[] = [
                 : {},
     }),
     extension("shield-wall", amountSchema, {
-        translations: { de: {"name": "Schildwall {amount}", "description": "Benachbarte eigene Kreaturen und Bollwerke erhalten +{amount} Verteidigung, solange diese Karte auf dem Schlachtfeld liegt. Leere Plätze schließen die Lücke nicht."} },
+        translations: { de: {"name": "Schildwall {amount}", "description": "Benachbarte eigene Kreaturen und Besitzungen erhalten +{amount} Verteidigung, solange diese Karte auf dem Schlachtfeld liegt. Leere Plätze schließen die Lücke nicht."} },
         name: "Shield Wall {amount}",
         description:
-            "Adjacent friendly creatures and bulwarks get +{amount} Defense while this card is on the battlefield. Empty slots do not close the gap.",
+            "Adjacent friendly creatures and holdings get +{amount} Defense while this card is on the battlefield. Empty slots do not close the gap.",
         static: (source, target, p) => (areAdjacent(source, target) ? { defense: amount(p) } : {}),
     }),
 
@@ -105,10 +105,10 @@ const activeExtensions: AbilityExtension[] = [
     }),
 
     extension("charge", chargeSchema, {
-        translations: { de: {"name": "Ansturm {amount} · {position}", "description": "Beim Ausspielen: Füge der gegnerischen Kreatur auf Position {position} {amount} Schaden zu. Ist der Platz leer oder mit einem Bollwerk besetzt, entsteht kein Schaden."} },
+        translations: { de: {"name": "Ansturm {amount} · {position}", "description": "Beim Ausspielen: Füge der gegnerischen Kreatur auf Position {position} {amount} Schaden zu. Ist der Platz leer oder mit einer Besitzung besetzt, entsteht kein Schaden."} },
         name: "Charge {amount} · {position}",
         description:
-            "When played, deal {amount} damage to the enemy creature in {position}. If that position is empty or holds a bulwark, deal no damage.",
+            "When played, deal {amount} damage to the enemy creature in {position}. If that position is empty or holds a holding, deal no damage.",
         hooks: {
             "card.played": (ctx, p) => {
                 if (ctx.event.cardId !== ctx.source.id) return;
@@ -131,9 +131,9 @@ const activeExtensions: AbilityExtension[] = [
     }),
 
     extension("barrage", amountSchema, {
-        translations: { de: { name: "Sperrfeuer {amount}", description: "Füge jeder gegnerischen Kreatur {amount} Schaden zu. Bollwerke und Spieler sind nicht betroffen." } },
+        translations: { de: { name: "Sperrfeuer {amount}", description: "Füge jeder gegnerischen Kreatur {amount} Schaden zu. Besitzungen und Spieler sind nicht betroffen." } },
         name: "Barrage {amount}",
-        description: "Deal {amount} damage to each enemy creature. Bulwarks and players are not affected.",
+        description: "Deal {amount} damage to each enemy creature. Holdings and players are not affected.",
         cast: (ctx, p) => {
             const enemy = ctx.source.controller === "p1" ? "p2" : "p1";
             for (const id of ctx.state.players[enemy].board)
@@ -164,14 +164,14 @@ const activeExtensions: AbilityExtension[] = [
 
     extension("rime", amountSchema, {
         name: "Rime {amount}",
-        description: "The enemy creature or bulwark directly opposite has -{amount} Attack, down to zero, while this card remains on the battlefield. Active even while exhausted.",
-        translations: { de: { name: "Raureif {amount}", description: "Die direkt gegenüberliegende gegnerische Kreatur oder das Bollwerk hat -{amount} Angriff, bis auf null, solange diese Karte auf dem Schlachtfeld liegt. Auch im erschöpften Zustand aktiv." } },
+        description: "The enemy creature or holding directly opposite has -{amount} Attack, down to zero, while this card remains on the battlefield. Active even while exhausted.",
+        translations: { de: { name: "Raureif {amount}", description: "Die direkt gegenüberliegende gegnerische Kreatur oder die Besitzung hat -{amount} Angriff, bis auf null, solange diese Karte auf dem Schlachtfeld liegt. Auch im erschöpften Zustand aktiv." } },
         static: (source, target, p) => source.controller !== target.controller && source.slot !== null && target.zone === "board" && source.slot === target.slot ? { attack: -amount(p) } : {},
     }),
     extension("invocation", amountSchema, {
         name: "Invocation {amount}",
-        description: "Exhaust during your play phase to deal {amount} damage to the enemy creature directly opposite. Requires a creature in that position; cannot target bulwarks or players.",
-        translations: { de: { name: "Anrufung {amount}", description: "Erschöpfe diese Karte während deiner Spielphase, um der direkt gegenüberliegenden gegnerischen Kreatur {amount} Schaden zuzufügen. Dort muss eine Kreatur liegen; Bollwerke und Spieler sind keine Ziele." } },
+        description: "Exhaust during your play phase to deal {amount} damage to the enemy creature directly opposite. Requires a creature in that position; cannot target holdings or players.",
+        translations: { de: { name: "Anrufung {amount}", description: "Erschöpfe diese Karte während deiner Spielphase, um der direkt gegenüberliegenden gegnerischen Kreatur {amount} Schaden zuzufügen. Dort muss eine Kreatur liegen; Besitzungen und Spieler sind keine Ziele." } },
         canActivate: (source, state, _p, registry) => {
             if (source.slot === null) return false;
             const id = state.players[source.controller === "p1" ? "p2" : "p1"].board[source.slot];
@@ -186,8 +186,8 @@ const activeExtensions: AbilityExtension[] = [
     }),
     extension("longshot", amountSchema, {
         name: "Longshot {amount}",
-        description: "Exhaust during your play phase to deal {amount} damage to any enemy creature. Cannot target bulwarks or players.",
-        translations: { de: { name: "Fernschuss {amount}", description: "Erschöpfe diese Karte während deiner Spielphase, um einer beliebigen gegnerischen Kreatur {amount} Schaden zuzufügen. Bollwerke und Spieler sind keine Ziele." } },
+        description: "Exhaust during your play phase to deal {amount} damage to any enemy creature. Cannot target holdings or players.",
+        translations: { de: { name: "Fernschuss {amount}", description: "Erschöpfe diese Karte während deiner Spielphase, um einer beliebigen gegnerischen Kreatur {amount} Schaden zuzufügen. Besitzungen und Spieler sind keine Ziele." } },
         target: "enemy-creature",
         activate: (ctx, p) => { if (ctx.target) ctx.issue({ type: "damage", target: ctx.target, amount: amount(p), source: ctx.source.id }); },
     }),

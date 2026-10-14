@@ -1,0 +1,36 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "shrine-to-the-river-gods",
+  "revision": 1,
+  "name": "Shrine to the River Gods",
+  "deckLimitKey": "shrine-to-the-river-gods",
+  "type": "holding",
+  "factions": [
+    "bright-marches"
+  ],
+  "subtypes": [
+    "shrine"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "bright-marches": 2
+    }
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 2
+  },
+  "abilities": [
+    {
+      "id": "channel",
+      "params": {
+        "amount": 2,
+        "energy": "bright-marches"
+      }
+    }
+  ],
+  "set": "foundations"
+}

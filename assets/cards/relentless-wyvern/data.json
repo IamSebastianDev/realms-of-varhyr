@@ -1,0 +1,37 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "relentless-wyvern",
+  "revision": 1,
+  "name": "Relentless Wyvern",
+  "deckLimitKey": "relentless-wyvern",
+  "type": "creature",
+  "factions": [
+    "neutral"
+  ],
+  "subtypes": [
+    "dragon"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 3
+  },
+  "stats": {
+    "attack": 4,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "neutral": 3
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "damage",
+      "params": {
+        "amount": 3
+      }
+    }
+  ],
+  "set": "foundations"
+}

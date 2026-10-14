@@ -358,12 +358,12 @@
     ]
   },
   {
-    "id": "crown-bulwark",
+    "id": "crown-holding",
     "set": "foundations",
     "revision": 1,
-    "name": "Crown Bulwark",
-    "deckLimitKey": "crown-bulwark",
-    "type": "bulwark",
+    "name": "Crown Holding",
+    "deckLimitKey": "crown-holding",
+    "type": "holding",
     "factions": [
       "crownlands"
     ],
@@ -381,11 +381,11 @@
     "lore": "An oath made stone.",
     "translations": {
       "de": {
-        "name": "Kronenbollwerk",
+        "name": "Kronenbesitzung",
         "lore": "Ein Schwur, zu Stein geworden."
       }
     },
-    "art": "/cards/crown-bulwark/data.png?v=f22651501ced9356",
+    "art": "/cards/crown-holding/data.png?v=f22651501ced9356",
     "abilities": [
       {
         "id": "war-banner",
@@ -620,7 +620,8 @@
     "lore": "No longer wanted by the Crown, they look now for a new Leader.",
     "translations": {
       "de": {
-        "name": "Verbannte Kompanie"
+        "name": "Verbannte Kompanie",
+        "lore": "Die Krone will sie nicht mehr. Nun suchen sie einen neuen Anführer."
       }
     },
     "art": "/cards/exiled-company/data.png?v=8afd24a141a9a0bd",
@@ -1410,6 +1411,47 @@
     ]
   },
   {
+    "id": "relentless-wyvern",
+    "set": "foundations",
+    "revision": 1,
+    "name": "Relentless Wyvern",
+    "deckLimitKey": "relentless-wyvern",
+    "type": "creature",
+    "factions": [],
+    "subtypes": [
+      "dragon"
+    ],
+    "legendary": false,
+    "rarity": "rare",
+    "cost": {
+      "generic": 3,
+      "factions": {}
+    },
+    "translations": {
+      "de": {
+        "name": "Unermüdlicher Lindwurm"
+      }
+    },
+    "art": "/cards/relentless-wyvern/data.png?v=3bf5984a89f2dbf9",
+    "abilities": [
+      {
+        "id": "damage",
+        "params": {
+          "amount": 3
+        }
+      }
+    ],
+    "stats": {
+      "attack": 4,
+      "defense": 3,
+      "energyOutputs": [
+        {
+          "neutral": 3
+        }
+      ]
+    }
+  },
+  {
     "id": "revenge",
     "set": "foundations",
     "revision": 1,
@@ -1466,7 +1508,8 @@
     "lore": "Those who see the beauty of the Riverlands never forgets it.",
     "translations": {
       "de": {
-        "name": "Gesandter der Flusslande"
+        "name": "Gesandter der Flusslande",
+        "lore": "Wer die Schönheit der Flusslande gesehen hat, vergisst sie nie."
       }
     },
     "art": "/cards/riverlands-envoy/data.png?v=c79d065b1dd3f069",
@@ -1573,7 +1616,7 @@
     "revision": 1,
     "name": "Seacliffe Castle",
     "deckLimitKey": "seacliffe-castle",
-    "type": "bulwark",
+    "type": "holding",
     "factions": [
       "bright-marches"
     ],
@@ -1650,6 +1693,48 @@
           "bright-marches": 1
         }
       ]
+    }
+  },
+  {
+    "id": "shrine-to-the-river-gods",
+    "set": "foundations",
+    "revision": 1,
+    "name": "Shrine to the River Gods",
+    "deckLimitKey": "shrine-to-the-river-gods",
+    "type": "holding",
+    "factions": [
+      "bright-marches"
+    ],
+    "subtypes": [
+      "shrine"
+    ],
+    "legendary": false,
+    "rarity": "rare",
+    "cost": {
+      "generic": 2,
+      "factions": {
+        "bright-marches": 2
+      }
+    },
+    "translations": {
+      "de": {
+        "name": "Schrein für die Flussgötter"
+      }
+    },
+    "art": "/cards/shrine-to-the-river-gods/data.png?v=aea61d56f2194ea1",
+    "abilities": [
+      {
+        "id": "channel",
+        "params": {
+          "amount": 2,
+          "energy": "bright-marches"
+        }
+      }
+    ],
+    "stats": {
+      "attack": 1,
+      "defense": 2,
+      "energyOutputs": []
     }
   },
   {
@@ -1783,7 +1868,7 @@
     "revision": 1,
     "name": "Tower of the First Morning",
     "deckLimitKey": "tower-of-the-first-morning",
-    "type": "bulwark",
+    "type": "holding",
     "factions": [
       "crownlands"
     ],
@@ -1872,7 +1957,7 @@
     "revision": 1,
     "name": "Wooden Fort",
     "deckLimitKey": "wooden-fort",
-    "type": "bulwark",
+    "type": "holding",
     "factions": [
       "bright-marches"
     ],

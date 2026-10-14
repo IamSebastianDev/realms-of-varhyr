@@ -33,8 +33,8 @@ export const signatureAbilities: AbilityExtension[] = [
   }),
   factionAbility('marches-rally', 'bright-marches', {
     name: 'Rally',
-    description: 'Exhaust during your play phase to deploy a creature or bulwark from your hand into a free position without paying its energy cost. It enters exhausted and its entry abilities trigger normally.',
-    translations: { de: { name: 'Aufgebot', description: 'Erschöpfe diese Karte während deiner Spielphase, um eine Kreatur oder ein Bollwerk aus deiner Hand auf einem freien Platz einzusetzen, ohne ihre Energiekosten zu bezahlen. Sie kommt erschöpft ins Spiel und ihre Eintrittsfähigkeiten werden normal ausgelöst.' } },
+    description: 'Exhaust during your play phase to deploy a creature or holding from your hand into a free position without paying its energy cost. It enters exhausted and its entry abilities trigger normally.',
+    translations: { de: { name: 'Aufgebot', description: 'Erschöpfe diese Karte während deiner Spielphase, um eine Kreatur oder eine Besitzung aus deiner Hand auf einem freien Platz einzusetzen, ohne ihre Energiekosten zu bezahlen. Sie kommt erschöpft ins Spiel und ihre Eintrittsfähigkeiten werden normal ausgelöst.' } },
     target: 'friendly-hand-field',
     placement: true,
     activate: ctx => { if (ctx.target && ctx.slot !== undefined) ctx.issue({ type: 'deploy', target: ctx.target, player: ctx.source.controller, slot: ctx.slot }); },
@@ -56,8 +56,8 @@ export const signatureAbilities: AbilityExtension[] = [
   }, 3),
   factionAbility('scorch', 'ember-fields', {
     name: 'Scorch',
-    description: 'When played, deal 3 damage to the opposing creature or bulwark directly opposite this card’s deployed position. An empty position takes no damage; players are not targets.',
-    translations: { de: { name: 'Versengen', description: 'Beim Ausspielen: Füge der direkt gegenüberliegenden gegnerischen Kreatur oder dem Bollwerk 3 Schaden zu. Ein leerer Platz erleidet keinen Schaden; Spieler sind keine Ziele.' } },
+    description: 'When played, deal 3 damage to the opposing creature or holding directly opposite this card’s deployed position. An empty position takes no damage; players are not targets.',
+    translations: { de: { name: 'Versengen', description: 'Beim Ausspielen: Füge der direkt gegenüberliegenden gegnerischen Kreatur oder der Besitzung 3 Schaden zu. Ein leerer Platz erleidet keinen Schaden; Spieler sind keine Ziele.' } },
     hooks: { 'card.played': ctx => {
       if (ctx.event.cardId !== ctx.source.id) return;
       const id = opposite(ctx.source, ctx.state);
@@ -66,8 +66,8 @@ export const signatureAbilities: AbilityExtension[] = [
   }),
   factionAbility('raid', 'horde', {
     name: 'Raid',
-    description: 'This card has +1 Attack for each adjacent friendly creature. Bulwarks do not count.',
-    translations: { de: { name: 'Überfall', description: 'Diese Karte erhält +1 Angriff für jede benachbarte eigene Kreatur. Bollwerke zählen nicht.' } },
+    description: 'This card has +1 Attack for each adjacent friendly creature. Holdings do not count.',
+    translations: { de: { name: 'Überfall', description: 'Diese Karte erhält +1 Angriff für jede benachbarte eigene Kreatur. Besitzungen zählen nicht.' } },
     static: (source, target, _params, registry, state) => {
       if (source.id !== target.id || !state) return {};
       const neighbors = state.players[source.controller].board.filter(id => id &&
@@ -77,8 +77,8 @@ export const signatureAbilities: AbilityExtension[] = [
   }, 3),
   factionAbility('soul-harvest', 'black-host', {
     name: 'Soul Harvest',
-    description: 'While this card is on the battlefield, whenever another friendly creature is destroyed, draw one card from your library. Does not trigger for bulwarks or this card itself.',
-    translations: { de: { name: 'Seelenernte', description: 'Solange diese Karte auf dem Schlachtfeld liegt: Wird eine andere eigene Kreatur zerstört, ziehe eine Karte aus deiner Bibliothek. Gilt nicht für Bollwerke oder diese Karte selbst.' } },
+    description: 'While this card is on the battlefield, whenever another friendly creature is destroyed, draw one card from your library. Does not trigger for holdings or this card itself.',
+    translations: { de: { name: 'Seelenernte', description: 'Solange diese Karte auf dem Schlachtfeld liegt: Wird eine andere eigene Kreatur zerstört, ziehe eine Karte aus deiner Bibliothek. Gilt nicht für Besitzungen oder diese Karte selbst.' } },
     hooks: { 'creature.destroyed': ctx => {
       if (ctx.event.cardId !== ctx.source.id && ctx.event.snapshot?.controller === ctx.source.controller)
         ctx.issue({ type: 'draw', player: ctx.source.controller, amount: 1 });

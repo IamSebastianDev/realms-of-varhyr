@@ -7,7 +7,7 @@ import { totalPacks, type Collection } from './collection';
 import { cardCost, collectionStats, type StatSlice } from './collectionBreakdown';
 
 const percent = (part: number, whole: number) => whole ? Math.round(part / whole * 100) : 0;
-const typeNames: Record<string, string> = { creature: 'Creatures', spell: 'Spells', bulwark: 'Bulwarks' };
+const typeNames: Record<string, string> = { creature: 'Creatures', spell: 'Spells', holding: 'Holdings' };
 
 function Row({ label, slice, color }: { label: ReactNode; slice: StatSlice; color?: string }) {
   return <li className="stat-row" style={color ? { '--tint': color } as CSSProperties : undefined}>

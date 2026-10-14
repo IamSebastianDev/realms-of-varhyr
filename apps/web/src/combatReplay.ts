@@ -36,7 +36,7 @@ function remove(state: GameState, id: string) {
 }
 const doomed = (state: GameState, registry: Registry, id: string) =>
   !isPlayer(id) && !!state.cards[id] && state.cards[id].damage >= effectiveStats(state, id, registry).defense;
-const isDeath = (e: GameEvent) => (e.type === 'creature.destroyed' || e.type === 'bulwark.destroyed') && !!e.cardId;
+const isDeath = (e: GameEvent) => (e.type === 'creature.destroyed' || e.type === 'holding.destroyed') && !!e.cardId;
 
 type Exchange = { attacker?: string; defender?: string; hits: { target: string; amount: number }[]; deaths: string[]; heals: { target: PlayerId; amount: number }[] };
 

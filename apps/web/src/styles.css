@@ -965,9 +965,9 @@ input,select,select option{background:#324b39;color:#f0edde;border-color:#bec99d
 .booster-card-caption{min-height:30px;margin-top:8px}
 .booster-actions{margin-top:14px}}
 
-/* Bulwarks are defensive field cards; their crest replaces energy output. */
-.bulwark-rules{display:flex;align-items:center;gap:7px;color:#ddd1e8;font-size:12px;line-height:1.5}
-.board-bulwark-mark{display:flex;align-items:center;gap:4px;color:#ecdcfa;font-size:10px;text-shadow:0 1px 3px #221b30}
+/* Holdings are defensive field cards; their crest replaces energy output. */
+.holding-rules{display:flex;align-items:center;gap:7px;color:#ddd1e8;font-size:12px;line-height:1.5}
+.board-holding-mark{display:flex;align-items:center;gap:4px;color:#ecdcfa;font-size:10px;text-shadow:0 1px 3px #221b30}
 /* Shared card hierarchy: name and faction/type at the top; stats at the foot. */
 .board-card-label .board-status{top:38%}
 

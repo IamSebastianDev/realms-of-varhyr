@@ -4,7 +4,7 @@
   "revision": 1,
   "name": "Seacliffe Castle",
   "deckLimitKey": "seacliffe-castle",
-  "type": "bulwark",
+  "type": "holding",
   "factions": [
     "bright-marches"
   ],

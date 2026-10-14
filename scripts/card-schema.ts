@@ -67,7 +67,7 @@ export function buildCardJsonSchema(factions:readonly FactionDefinition[],sets:r
   definitions.ability=bindings(ids);
   definitions['spell-ability']=bindings(ids.filter(id=>!abilities[id].activate));
   definitions['spell-operation']=bindings(ids.filter(id=>!!abilities[id].cast));
-  definitions['bulwark-ability']=bindings(ids.filter(id=>!abilities[id].activationEnergy));
+  definitions['holding-ability']=bindings(ids.filter(id=>!abilities[id].activationEnergy));
   schema.definitions=definitions;
   properties.abilities={type:'array',items:ref('ability'),description:'Registered abilities. Parameters depend on the selected ID.',default:[]};
   properties.cast={type:'array',items:ref('spell-operation'),minItems:1,description:'Spell operations resolved in list order.'};
@@ -75,7 +75,7 @@ export function buildCardJsonSchema(factions:readonly FactionDefinition[],sets:r
 
   schema.allOf=[
     {if:condition('spell'),then:{required:['cast','timing'],properties:{stats:false,abilities:{items:ref('spell-ability')}}},else:{required:['stats'],properties:{cast:false,timing:false}}},
-    {if:condition('bulwark'),then:{properties:{stats:{properties:{energyOutputs:{maxItems:0}}},abilities:{items:ref('bulwark-ability')}}}},
+    {if:condition('holding'),then:{properties:{stats:{properties:{energyOutputs:{maxItems:0}}},abilities:{items:ref('holding-ability')}}}},
     {if:{properties:{factions:{contains:{const:'neutral'}}},required:['factions']},then:{properties:{factions:{maxItems:1}}}},
     ...ids.flatMap(id=>{
       const faction=abilities[id].faction;

@@ -4,7 +4,7 @@ import { factions as factionIds } from '../../../packages/content/src/factions';
 import schema from '../../../assets/schemas/card.schema.json';
 
 export type Binding = { id: string; params: Record<string, unknown> };
-export type CardKind = 'creature' | 'spell' | 'bulwark';
+export type CardKind = 'creature' | 'spell' | 'holding';
 export type Timing = 'play' | 'death';
 /** Everything the form edits. Neutral cards have no factions; stats and outputs only apply to field cards. */
 export type Draft = {
@@ -19,9 +19,9 @@ export type Draft = {
 export const slug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 export const slugify = (text: string) => text.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
-export function newDraft(set = 'foundations'): Draft {
+export function newDraft(set = 'foundations', faction = ''): Draft {
   return { isNew: true, folder: '', id: '', revision: 1, name: '', deckLimitKey: '', type: 'creature', set, rarity: 'common', legendary: false,
-    factions: [], subtypes: [], cost: { generic: 0, factions: {} }, attack: 1, defense: 1, outputs: [], abilities: [], timing: ['play'], cast: [], lore: '', de: { name: '', lore: '' } };
+    factions: faction.split('+').filter(id => id && id !== 'neutral'), subtypes: [], cost: { generic: 0, factions: {} }, attack: 1, defense: 1, outputs: [], abilities: [], timing: ['play'], cast: [], lore: '', de: { name: '', lore: '' } };
 }
 
 type Json = Record<string, any>;
@@ -101,10 +101,93 @@ export const newBinding = (id: string): Binding => ({ id, params: Object.fromEnt
 export function allowedAbilities(draft: Draft, slot: 'field' | 'cast'): string[] {
   return Object.values(abilities).filter(ability => {
     if (slot === 'cast') return !!ability.cast;
-    if (draft.type === 'bulwark' && ability.activationEnergy) return false;
+    if (draft.type === 'holding' && ability.activationEnergy) return false;
     if (ability.faction && (ability.faction === 'neutral' ? draft.factions.length !== 0 : !draft.factions.includes(ability.faction))) return false;
     return true;
   }).map(ability => ability.id).sort();
 }
 export const abilityLabel = (id: string) => (abilities[id]?.name ?? id).replace(/\s*\{[^}]+\}/g, '');
 export const energyTypes = [...factionIds, 'neutral'];
+
+/** Filters for the card list. An empty string means "any". */
+export type Filters = { query: string; faction: string; set: string; type: string; rarity: string; show: '' | 'no-art' | 'no-german' };
+export const noFilters: Filters = { query: '', faction: '', set: '', type: '', rarity: '', show: '' };
+export type Stored = { folder: string; data: Record<string, any>; de?: Record<string, any>; art?: Blob };
+
+/** The named factions on a card; neutral is not one. */
+export const named = (data: Record<string, any>): string[] => ((data.factions as string[] | undefined) ?? []).filter(id => id !== 'neutral');
+/** Two or more named factions. */
+export const isHybrid = (data: Record<string, any>) => named(data).length > 1;
+export const affiliation = (data: Record<string, any>) => named(data)[0] ?? 'neutral';
+/** A card's row in the set table: its faction, 'neutral', or the sorted pair for a hybrid ("a+b"). */
+export const groupOf = (data: Record<string, any>, order: string[]) => named(data).length ? [...named(data)].sort((a, b) => order.indexOf(a) - order.indexOf(b)).join('+') : 'neutral';
+export const costOf = (data: Record<string, any>) => (data.cost?.generic ?? 0) + Object.values((data.cost?.factions ?? {}) as Record<string, number>).reduce((sum, n) => sum + n, 0);
+
+/** Faction filter values: a faction id, 'neutral', 'hybrid' (any hybrid) or 'a+b' (that exact hybrid). A hybrid also matches each of its factions. */
+export function factionMatches(data: Record<string, any>, wanted: string): boolean {
+  if (!wanted) return true;
+  const factions = named(data);
+  if (wanted === 'neutral') return !factions.length;
+  if (wanted === 'hybrid') return factions.length > 1;
+  if (wanted.includes('+')) { const parts = wanted.split('+'); return factions.length === parts.length && parts.every(id => factions.includes(id)); }
+  return factions.includes(wanted);
+}
+/** A German name is missing, or the card has English lore without a German version. */
+export const germanIncomplete = (card: Stored) => !card.de?.name || (!!card.data.lore && !card.de?.lore);
+export function matches(card: Stored, filters: Filters): boolean {
+  const { data } = card, query = filters.query.toLowerCase().trim();
+  return (!query || data.name.toLowerCase().includes(query) || card.de?.name?.toLowerCase().includes(query) || data.id.includes(query))
+    && factionMatches(data, filters.faction)
+    && (!filters.set || data.set === filters.set)
+    && (!filters.type || data.type === filters.type)
+    && (!filters.rarity || data.rarity === filters.rarity)
+    && (filters.show !== 'no-art' || !card.art)
+    && (filters.show !== 'no-german' || germanIncomplete(card));
+}
+
+/** Counts for one set, for judging whether it is balanced and finished. */
+export type Rarity = 'legendary' | 'rare' | 'common';
+export type FactionRow = {
+  /** A faction id, 'neutral', or 'a+b' for a hybrid. */
+  id: string; members: string[]; creature: number; spell: number; holding: number; total: number;
+  rarity: Record<Rarity, number>;
+  /** Creatures that cost nothing: the opening economy. */
+  free: Record<Rarity, number>;
+  legendaryCreatures: number;
+};
+export type SetStats = {
+  total: number; legendary: number; curveMax: number;
+  type: Record<string, number>; rarity: Record<string, number>;
+  /** Per affiliation (neutral last): cards by type. */
+  factions: FactionRow[];
+  /** Cards at each total cost; the last bucket is "N or more". */
+  curve: Record<string, number>[];
+  missingArt: string[]; missingGerman: string[];
+  /** How many hybrid cards include each faction (also counted in the hybrid rows). */
+  hybridIn: Record<string, number>;
+  hybrids: number;
+};
+export function setStats(cards: Stored[], factionOrder: string[], curveMax = 7): SetStats {
+  const stats: SetStats = { total: cards.length, legendary: 0, curveMax, type: {}, rarity: {}, factions: [], curve: Array.from({ length: curveMax + 1 }, () => ({})), missingArt: [], missingGerman: [], hybridIn: {}, hybrids: 0 };
+  const blank = (id: string): FactionRow => ({ id, members: id === 'neutral' ? [] : id.split('+'), creature: 0, spell: 0, holding: 0, total: 0, rarity: { legendary: 0, rare: 0, common: 0 }, free: { legendary: 0, rare: 0, common: 0 }, legendaryCreatures: 0 });
+  const rows = new Map<string, FactionRow>();
+  for (const id of [...factionOrder, 'neutral']) rows.set(id, blank(id));
+  for (const { data, de, art } of cards) {
+    stats.type[data.type] = (stats.type[data.type] ?? 0) + 1;
+    stats.rarity[data.rarity] = (stats.rarity[data.rarity] ?? 0) + 1;
+    if (data.legendary) stats.legendary += 1;
+    const group = groupOf(data, factionOrder);
+    if (isHybrid(data)) { stats.hybrids += 1; for (const id of named(data)) stats.hybridIn[id] = (stats.hybridIn[id] ?? 0) + 1; }
+    const row = rows.get(group) ?? (rows.set(group, blank(group)), rows.get(group)!);
+    (row as any)[data.type] += 1; row.total += 1; row.rarity[data.rarity as Rarity] += 1;
+    if (data.type === 'creature') { if (costOf(data) === 0) row.free[data.rarity as Rarity] += 1; if (data.rarity === 'legendary') row.legendaryCreatures += 1; }
+    const bucket = stats.curve[Math.min(curveMax, costOf(data))];
+    bucket[data.type] = (bucket[data.type] ?? 0) + 1;
+    if (!art) stats.missingArt.push(data.name);
+    if (germanIncomplete({ data, de } as Stored)) stats.missingGerman.push(data.name);
+  }
+  // Single factions in game order, then neutral, then hybrid pairs in game order.
+  const all = [...rows.values()], rank = (row: FactionRow) => row.members.map(id => factionOrder.indexOf(id)).join(',');
+  stats.factions = [...all.filter(row => row.members.length === 1), ...all.filter(row => row.id === 'neutral' && row.total), ...all.filter(row => row.members.length > 1).sort((a, b) => rank(a).localeCompare(rank(b)))];
+  return stats;
+}

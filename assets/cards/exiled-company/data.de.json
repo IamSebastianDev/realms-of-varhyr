@@ -1,4 +1,5 @@
 {
   "$schema": "../../schemas/card-translation.schema.json",
-  "name": "Verbannte Kompanie"
+  "name": "Verbannte Kompanie",
+  "lore": "Die Krone will sie nicht mehr. Nun suchen sie einen neuen Anführer."
 }

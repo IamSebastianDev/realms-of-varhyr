@@ -21,7 +21,7 @@ type Props = {
   load: (id: string) => void; removeDeck: () => void; save: () => void; undo: () => void; buyMissing: () => void; inspect: (card: CardDefinition) => void;
 };
 const newDeck = (): CustomDeck => ({ id: `custom-${crypto.randomUUID()}`, name: msg("New deck"), cards: [] });
-const groups = [{ type: 'creature', name: 'Creatures' }, { type: 'bulwark', name: 'Bulwarks' }, { type: 'spell', name: 'Spells' }] as const;
+const groups = [{ type: 'creature', name: 'Creatures' }, { type: 'holding', name: 'Holdings' }, { type: 'spell', name: 'Spells' }] as const;
 const signature = (deck: CustomDeck) => JSON.stringify([deck.name, [...deck.cards].sort()]);
 
 export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUndo, reduced, change, add, remove, load, save, removeDeck, undo, buyMissing, inspect }: Props) {
@@ -192,7 +192,7 @@ export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUnd
       <div className="builder-filter-dialog-grid">
         <label>{msg("Set")}<select aria-label={msg("Filter by set")} value={filters.set} onChange={event => filter('set', event.target.value)}><option value="all">{msg("All sets")}</option>{setDefinitions.map(set => <option key={set.id} value={set.id}>{msg(set.name)}</option>)}</select></label>
         <label>{msg("Faction")}<FactionSelect aria-label={msg("Filter by faction")} value={filters.faction} onChange={event => filter('faction', event.target.value)}/></label>
-        <label>{msg("Type")}<select aria-label={msg("Filter by card type")} value={filters.kind} onChange={event => filter('kind', event.target.value)}><option value="all">{msg("All types")}</option><option value="creature">{msg("Creatures")}</option><option value="spell">{msg("Spells")}</option><option value="bulwark">{msg("Bulwarks")}</option></select></label>
+        <label>{msg("Type")}<select aria-label={msg("Filter by card type")} value={filters.kind} onChange={event => filter('kind', event.target.value)}><option value="all">{msg("All types")}</option><option value="creature">{msg("Creatures")}</option><option value="spell">{msg("Spells")}</option><option value="holding">{msg("Holdings")}</option></select></label>
         <label>{msg("Role")}<select aria-label={msg("Filter by role")} value={filters.role} onChange={event => filter('role', event.target.value as BuilderFilters['role'])}><option value="all">{msg("All roles")}</option><option value="producers">{msg("Energy producers")}</option><option value="free-producers">{msg("Free producers")}</option></select></label>
         <label>{msg("Rarity")}<select aria-label={msg("Filter by rarity")} value={filters.rarity} onChange={event => filter('rarity', event.target.value)}><option value="all">{msg("All rarities")}</option><option value="common">{msg("Common")}</option><option value="rare">{msg("Rare")}</option><option value="legendary">{msg("Legendary")}</option></select></label>
         <label className="builder-filter-sort">{msg("Sort cards")}<select aria-label={msg("Sort cards")} value={filters.sort} onChange={event => filter('sort', event.target.value as CardSort)}><option value="faction">{msg("Faction, cost, name")}</option><option value="cost">{msg("Cost: low to high")}</option><option value="name">{msg("Name: A–Z")}</option><option value="attack">{msg("Attack: high to low")}</option><option value="defense">{msg("Defense: high to low")}</option></select></label>

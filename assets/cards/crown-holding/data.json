@@ -1,10 +1,10 @@
 {
   "$schema": "../../schemas/card.schema.json",
-  "id": "crown-bulwark",
+  "id": "crown-holding",
   "revision": 1,
-  "name": "Crown Bulwark",
-  "deckLimitKey": "crown-bulwark",
-  "type": "bulwark",
+  "name": "Crown Holding",
+  "deckLimitKey": "crown-holding",
+  "type": "holding",
   "factions": [
     "crownlands"
   ],

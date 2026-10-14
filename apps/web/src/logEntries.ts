@@ -5,7 +5,7 @@ export type LogEntry = { seq: number; kind: LogKind; text: string; player?: Play
 
 const kinds: Record<string, LogKind> = {
   'turn.started': 'turn', 'card.played': 'play', 'spell.cast': 'spell', 'ability.activated': 'spell', 'creature.attacked': 'attack',
-  'creature.blocked': 'block', 'bulwark.blocked': 'block', 'damage.dealt': 'damage', 'creature.destroyed': 'death', 'bulwark.destroyed': 'death',
+  'creature.blocked': 'block', 'holding.blocked': 'block', 'damage.dealt': 'damage', 'creature.destroyed': 'death', 'holding.destroyed': 'death',
   'life.restored': 'heal', 'card.returned': 'info', 'card.discarded': 'info', 'card.bottomed': 'info', 'card.drawn': 'draw', 'energy.generated': 'energy',
   'mulligan.replaced': 'info', 'mulligan.kept': 'info', 'game.ended': 'info',
 };

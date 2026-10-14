@@ -8,8 +8,10 @@ export const supported = typeof window !== 'undefined' && 'showDirectoryPicker' 
 
 // The folder handle outlives reloads in IndexedDB, so the folder is picked once.
 const open = () => new Promise<IDBDatabase>((resolve, reject) => {
-  const request = indexedDB.open('varhyr-studio', 1);
-  request.onupgradeneeded = () => request.result.createObjectStore('handles');
+  const request = indexedDB.open('varhyr-studio', 2);
+  request.onupgradeneeded = () => {
+    for (const name of ['handles', 'drafts']) if (!request.result.objectStoreNames.contains(name)) request.result.createObjectStore(name);
+  };
   request.onsuccess = () => resolve(request.result);
   request.onerror = () => reject(request.error);
 });
@@ -17,6 +19,39 @@ async function store<T>(mode: IDBTransactionMode, run: (s: IDBObjectStore) => ID
   const db = await open();
   return new Promise((resolve, reject) => { const request = run(db.transaction('handles', mode).objectStore('handles')); request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error); });
 }
+
+/** An unsaved card kept in the browser so it survives switching cards and reloading. */
+export type SavedDraft = { draft: unknown; art: Blob | null; artChanged: boolean };
+const draftKey = (scope: string, key: string) => `${scope}|${key}`;
+export async function loadDrafts(scope: string): Promise<Record<string, SavedDraft>> {
+  try {
+    const db = await open(), out: Record<string, SavedDraft> = {};
+    const tx = db.transaction('drafts', 'readonly'), drafts = tx.objectStore('drafts');
+    await new Promise<void>((resolve, reject) => {
+      const cursor = drafts.openCursor();
+      cursor.onsuccess = () => { const hit = cursor.result; if (!hit) return resolve(); const key = String(hit.key); if (key.startsWith(`${scope}|`)) out[key.slice(scope.length + 1)] = hit.value; hit.continue(); };
+      cursor.onerror = () => reject(cursor.error);
+    });
+    return out;
+  } catch { return {}; }
+}
+/** Makes the stored drafts for this folder exactly the given set. */
+export async function storeDrafts(scope: string, drafts: Record<string, SavedDraft>) {
+  try {
+    const db = await open(), tx = db.transaction('drafts', 'readwrite'), table = tx.objectStore('drafts');
+    await new Promise<void>((resolve, reject) => {
+      const cursor = table.openCursor();
+      cursor.onsuccess = () => {
+        const hit = cursor.result;
+        if (!hit) { for (const [key, value] of Object.entries(drafts)) table.put(value, draftKey(scope, key)); return resolve(); }
+        const key = String(hit.key); if (key.startsWith(`${scope}|`)) hit.delete();
+        hit.continue();
+      };
+      cursor.onerror = () => reject(cursor.error);
+    });
+  } catch { /* Drafts are a convenience; failing to keep them must not block editing. */ }
+}
+
 export const rememberRepo = (repo: Repo) => store('readwrite', s => s.put(repo, 'repo'));
 export const recallRepo = async () => { try { return (await store('readonly', s => s.get('repo'))) as Repo | undefined; } catch { return undefined; } };
 export const forgetRepo = () => store('readwrite', s => s.delete('repo'));

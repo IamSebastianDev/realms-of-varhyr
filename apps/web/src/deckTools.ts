@@ -6,6 +6,7 @@ import { describeAbility } from '../../../packages/extensions/src/describeAbilit
 import { copyCount, copyLimit, deckCardAvailability, type CustomDeck } from './decks';
 import { subtypeLabel } from '../../../packages/ui/src/i18n';
 import type { OwnedCopies } from './collection';
+import { currentCardId } from './cardIds';
 export { copyLimit } from './decks';
 
 export const cardCost = (card: CardDefinition) => card.cost.generic + Object.values(card.cost.factions).reduce((sum, n) => sum + n, 0);
@@ -46,7 +47,7 @@ export function builderCards(content: Registry, deck: string[], filters: Builder
 export function summarizeDeck(ids: string[], content: Registry) {
   const cards = ids.flatMap(id => content.cards[id] ? [content.cards[id]] : []);
   const curve = Array<number>(7).fill(0);
-  const types = { creature: 0, spell: 0, bulwark: 0 };
+  const types = { creature: 0, spell: 0, holding: 0 };
   let totalCost = 0, producers = 0, freeProducers = 0;
   for (const card of cards) {
     const cost = cardCost(card);
@@ -76,8 +77,9 @@ export function importDeck(raw: string, content: Registry): Pick<CustomDeck, 'na
   const cards: string[] = [];
   for (const entry of data.cards) {
     if (!entry || typeof entry !== 'object') throw new Error('The card list is invalid.');
-    const { id, count } = entry as { id?: unknown; count?: unknown };
-    if (typeof id !== 'string' || !Object.hasOwn(content.cards, id)) throw new Error(`Unknown card: ${String(id)}.`);
+    const { id: savedId, count } = entry as { id?: unknown; count?: unknown };
+    const id = typeof savedId === 'string' ? currentCardId(savedId) : savedId;
+    if (typeof id !== 'string' || !Object.hasOwn(content.cards, id)) throw new Error(`Unknown card: ${String(savedId)}.`);
     const card = content.cards[id];
     if (typeof count !== 'number' || !Number.isSafeInteger(count) || count < 1 || count > copyLimit(card)
       || copyCount(cards, id, content) + count > copyLimit(card)) throw new Error(`Too many or invalid copies of ${card.name}.`);

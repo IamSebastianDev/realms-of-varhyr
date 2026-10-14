@@ -84,9 +84,9 @@ function grantCopies(collection: Collection, id: string, amount: number, content
  */
 export function createCollection(content: Registry, starter: string[], legacy?: RewardCollection): Collection {
   const collection = emptyCollection();
-  for (const id of starter) if (content.cards[id]) grantCopies(collection, id, 1, content);
+  for (const savedId of starter) { const id = currentCardId(savedId); if (content.cards[id]) grantCopies(collection, id, 1, content); }
   if (legacy) {
-    for (const [id, count] of Object.entries(legacy.counts)) grantCopies(collection, id, count, content);
+    for (const [id, count] of Object.entries(legacy.counts)) grantCopies(collection, currentCardId(id), count, content);
     collection.boostersOpened = legacy.boostersOpened;
   }
   collection.packs[collectionRules.starterPack] = collectionRules.startingBoosters;

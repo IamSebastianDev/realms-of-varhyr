@@ -1,4 +1,5 @@
 {
   "$schema": "../../schemas/card-translation.schema.json",
-  "name": "Gesandter der Flusslande"
+  "name": "Gesandter der Flusslande",
+  "lore": "Wer die Schönheit der Flusslande gesehen hat, vergisst sie nie."
 }

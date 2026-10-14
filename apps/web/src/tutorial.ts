@@ -146,7 +146,7 @@ export function startTutorial(): SavedSession {
       // Opening hand, then the two cards the mulligan brings in.
       ['goldfield-farmer', 'crown-recruit', 'merchant-of-tris-vale', 'tower-of-the-first-morning', 'aldric-runewarden', 'runeguard', 'dawn-banner'],
       // Opening hand, then the opponent's two draws (cards it cannot afford) and the next turn's pair.
-      ['goldfield-farmer', 'longvale-cutters', 'crown-recruit', 'runeguard', 'crown-bulwark', 'tower-of-the-first-morning', 'aldric-runewarden', 'ban-vale-cavalry', 'battlefield-hymn'],
+      ['goldfield-farmer', 'longvale-cutters', 'crown-recruit', 'runeguard', 'crown-holding', 'tower-of-the-first-morning', 'aldric-runewarden', 'ban-vale-cavalry', 'battlefield-hymn'],
     ],
   });
   initial.players.p1.name = 'You';
