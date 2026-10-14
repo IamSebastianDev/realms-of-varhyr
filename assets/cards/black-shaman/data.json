@@ -11,8 +11,8 @@
   "subtypes": [
     "human"
   ],
-  "legendary": false,
-  "rarity": "rare",
+  "legendary": true,
+  "rarity": "legendary",
   "cost": {
     "generic": 0
   },

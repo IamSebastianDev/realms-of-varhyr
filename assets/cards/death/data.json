@@ -19,7 +19,8 @@
   },
   "abilities": [],
   "timing": [
-    "play"
+    "play",
+    "response"
   ],
   "cast": [
     {
@@ -27,6 +28,6 @@
       "params": {}
     }
   ],
-  "set": "foundations",
-  "lore": "He is never in a hurry, and never late."
+  "lore": "He is never in a hurry, and never late.",
+  "set": "foundations"
 }
