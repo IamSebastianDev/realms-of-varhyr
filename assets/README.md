@@ -1,10 +1,10 @@
 # Adding test cards
 
-The current catalogue has 26 cards across eight factions plus Neutral, including one legendary leader for each faction and the neutral Wanderer. Definitions live in `assets/factions/`, and cards live in `assets/cards/`. Banners of the Crown remains a legal 30-card starter. The original 15 Winter POC cards and Winter Accord starter are retired; the remaining factions start with their leaders for authoring new content. All current cards belong to **RoV: Foundations**, defined in `assets/sets/foundations.json`. The 30-card minimum and normal/legendary copy limits still apply to every deck.
+The current catalogue has 58 cards across eight factions plus Neutral, all in **RoV: Foundations** (`assets/sets/foundations.json`). Definitions live in `assets/factions/`, and cards live in `assets/cards/`. Banners of the Crown (Crownlands) and Hearth and Stone (Bright Marches) are complete 30-card starters; the Black Host has a small card set, and the other factions have their leader so far. The original Winter POC cards and starter are retired. The 30-card minimum and normal/legendary copy limits apply to every deck.
 
 ## Sets and expansions
 
-A card belongs to exactly one set via its required `set` ID. All 26 current cards use `"set": "foundations"`. Factions describe the card’s affiliations; sets describe its release. A set may feature one faction, several factions, neutral cards, or introduce factions. Faction focus is descriptive and does not constrain membership or deck construction.
+A card belongs to exactly one set via its required `set` ID. All current cards use `"set": "foundations"`. Factions describe the card’s affiliations; sets describe its release. A set may feature one faction, several factions, neutral cards, or introduce factions. Faction focus is descriptive and does not constrain membership or deck construction.
 
 Author one file per set at `assets/sets/<set-id>.json`, with a matching stable `id`:
 
@@ -137,7 +137,7 @@ extension("rest", amountSchema, {
 
 Rally (`marches-rally`) is exclusive to the Marches. The healing keyword is called `rest` (**Rast** in German), so it cannot be confused with the Marches deployment action.
 
-An extension's `target` can be `enemy-any` (enemy player or any enemy field card), `friendly-field`, `enemy-field`, `friendly-creature`, or `enemy-creature`. Targeted activations select their own target at activation, not deployment. They are unavailable when no valid target exists. Creature-only effects and Consume exclude holdings. Holding entry, blocking and death events are `holding.enter.before`, `holding.entered`, `holding.blocked`, and `holding.destroyed`; creature events retain the `creature` prefix. Activation emits `ability.activated`. For hand-to-field activations, use `target: "friendly-hand-field"` with `placement: true`: legal actions provide private hand targets and free `slots`, and an `activate` command includes both `target` and `slot`. The handler issues a `deploy` order; deployment reuses normal entry events without energy payment. The client selects a hand card first, then a free position. No valid field card or free position means no activation is offered.
+An extension's `target` can be `enemy-any` (enemy player or any enemy field card), `friendly-field`, `enemy-field`, `friendly-creature`, or `enemy-creature`, or `friendly-discard-creature` (a creature in your own discard pile, filtered by the binding's `subtype` param). Targeted activations select their own target at activation, not deployment. They are unavailable when no valid target exists. Creature-only effects and Consume exclude holdings. Holding entry, blocking and death events are `holding.enter.before`, `holding.entered`, `holding.blocked`, and `holding.destroyed`; creature events retain the `creature` prefix. Activation emits `ability.activated`. For hand-to-field activations, use `target: "friendly-hand-field"` with `placement: true`: legal actions provide private hand targets and free `slots`, and an `activate` command includes both `target` and `slot`. The handler issues a `deploy` order; deployment reuses normal entry events without energy payment. The client selects a hand card first, then a free position. No valid field card or free position means no activation is offered.
 
 `legendary: true` gives a one-copy limit and the gilded frame; also set `rarity: "legendary"`. Keep `id` and `deckLimitKey` stable for the logical card. Future artwork choices will be separate from ownership and do not create additional card copies.
 
@@ -251,9 +251,13 @@ Spell:
 | `draw` | `{ "amount": 2 }` | Draw cards from the caster's library |
 | `rage` | `{ "amount": 1 }` | A friendly creature gains Attack until end of turn |
 | `steadfast` | `{ "amount": 1 }` | A friendly creature gains Defense until end of turn |
+| `destroy` | `{}` | Destroy a target enemy creature (holdings and players cannot be chosen) |
+| `raise` | `{ "subtype": "undead" }` | Choose a creature of that subtype in your discard pile, then a free friendly slot; it returns to the battlefield ready. Only castable with a match in the pile and a free slot |
 | `channel` | `{ "amount": 2, "energy": "bright-marches" }` | Adds that much energy of the chosen faction (or `"neutral"`) to the current casting pool after the cost is paid. Faction energy also pays generic costs; neutral energy cannot pay faction costs |
 
-Faction keywords such as `soul-harvest` (Black Host: draw a card when another friendly creature is destroyed) are described with their faction.
+Faction keywords such as `soul-harvest` (Black Host: draw a card when another friendly creature is destroyed) and `dark-harvest` (Black Host: exhaust to put your top library card into the discard pile and gain 2 Host energy; unavailable when it would empty your library) are described with their faction.
+
+Spell abilities are cast-only: creatures and holdings cannot carry them, and the import rejects a field card that does. A spell effect with `placement: true` (such as `raise`) also asks the player for a free friendly slot; the `play` command then includes `slot`.
 
 Ready, Consume, Battlecry, Deathbound, Collector, Return, Blood Price and Reckoning are kept as commented reference implementations in that file. Uncomment an entry and any indicated helper/import before using its ID. Unknown or disabled abilities fail import; they are never silently ignored. A genuinely new mechanic needs a validated engine handler and a meaningful test. Increment the handler's `version` when its behavior changes.
 
@@ -339,7 +343,7 @@ Leaders are normal legendary creatures with the `leader` subtype, not a separate
 | Conclave | Ilyria / `ilyria-queen-of-the-elves` | Sanctuary and Guard protect forest approaches |
 | Ember Fields | Hekata / `hekata-lady-of-the-fields` | Scorch burns the deployment lane; Charge strikes the opposite creature |
 | Horde | Brut / `brut-chief-of-the-harpies` | Raid rewards neighboring creatures |
-| Black Host | Dark Priest of Run / `dark-priest-of-run` | Weaken and Soul Harvest turn casualties into cards |
+| Black Host | Dark Priest of Run / `dark-priest-of-run` | Weaken and Soul Harvest turn casualties into cards; Dark Harvest (Black Shaman) trades library cards for Host energy |
 
 Alderic's original `aldric-runewarden` ID and deck-limit key are retained for existing collections and the Crown starter. Winter's retired mechanics remain test-only fixtures; do not restore them under `assets/cards/` unless you intend them to rejoin the live catalogue. The three existing neutral Winter-era support cards remain neutral cards.
 

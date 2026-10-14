@@ -810,6 +810,42 @@
     }
   },
   {
+    "id": "death",
+    "set": "foundations",
+    "revision": 1,
+    "name": "Death",
+    "deckLimitKey": "death",
+    "type": "spell",
+    "factions": [
+      "black-host"
+    ],
+    "subtypes": [],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 1,
+      "factions": {
+        "black-host": 1
+      }
+    },
+    "translations": {
+      "de": {
+        "name": "Tod"
+      }
+    },
+    "art": "/cards/death/data.png?v=6395c129241b44dd",
+    "abilities": [],
+    "timing": [
+      "play"
+    ],
+    "cast": [
+      {
+        "id": "destroy",
+        "params": {}
+      }
+    ]
+  },
+  {
     "id": "dwell-mountain-merchant",
     "set": "foundations",
     "revision": 3,

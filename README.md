@@ -1,96 +1,113 @@
 # Realms of Varhyr
 
-React + React Three Fiber card-game prototype with a 2.5D battlefield and a deterministic browser/server-capable engine. Gameplay runs in the frontend; no account or game backend is required. Online rooms use PeerJS Cloud for signaling and WebRTC for match traffic.
+A collectible fantasy card game. Five battlefield slots, energy from your own creatures, and a deterministic rules engine that runs in the browser. Play the bot, a friend on the same device, or a friend online.
+
+> **Vibecoded, on purpose.** This project is built almost entirely by AI coding agents (Claude and GPT) working from my specs and design decisions. I steer, review and playtest; I do not read and hand-verify every line. It is a hobby prototype: expect rough edges, unbalanced cards, and code that is correct mostly because there are tests. Treat it accordingly before you build on it or trust it with anything important. Bug reports and balance opinions are welcome.
+
+The game is a static web app. There is no account system and no game backend. Everything you own is saved in your browser, and online matches run peer to peer over WebRTC (PeerJS Cloud is used only for the handshake).
 
 ## Run
 
-Requires Node.js 22.12+.
+Requires Node.js 22.12 or newer.
 
 ```sh
 npm install
 npm run dev
 ```
 
-Open **<http://localhost:5173>**. Browse cards and build decks from the main menu. Matches, custom decks and drafts save locally in this browser.
+Open **<http://localhost:5173>**. The first run imports the card catalogue from `assets/`, and it re-imports whenever you change a card file.
 
-The current catalogue contains **26 cards** across **eight factions plus Neutral**, all in **RoV: Foundations**. The nine legendary leaders match the lore and player portraits; they are creatures with the `leader` subtype and the normal one-copy legendary limit. **Banners of the Crown** remains the complete 30-card starter. The original Winter POC cards and Winter Accord starter have been retired; the other factions currently provide their leaders as a foundation for new content. Their definitions live in `assets/factions/<faction-id>.json`, cards and artwork in `assets/cards/<card-name>/`, and sets in `assets/sets/<set-id>.json`. All active cards have German names and lore and bilingual ability descriptions.
+## The game in short
 
-Existing Crown/Wanderer card IDs remain stable. Old Winter ownership is retained in local storage but those cards no longer appear in the live catalogue or boosters. Decks containing retired cards need rebuilding; earlier match/replay content is incompatible with the new roster. The [Winter balance audit](assets/winter-balance.json) is historical, and retired card definitions used by mechanics tests live only in `tests/fixtures/winterContent.ts`.
+- **Setup:** 10 life, a 30-card minimum deck (three copies per card, one per legendary), five cards in hand, five empty battlefield slots.
+- **Energy:** creatures produce it. Click a ready creature to channel, click again to undo until you play something. Costs have a generic part and a faction part.
+- **Turn:** draw two and keep one (the other goes to the discard pile or under the library), channel, play cards, attack, end turn. Drawing your last card loses the game.
+- **Slots:** Left Flank, Left Wing, Center, Right Wing, Right Flank. A card stays where you deploy it. New creatures and holdings enter exhausted unless an effect says otherwise.
+- **Combat:** each attacker picks its own lane or an adjacent one (one attacker per lane). The card opposite blocks automatically, and an empty lane hits the player. You review the arrows before damage resolves.
+- **Response step:** whenever a creature dies, its owner receives that creature's energy as response energy and a chance to cast response-timed spells. The attacker's window comes first.
+- **Cards:** creatures, spells and holdings (persistent defensive cards that cannot attack). Spells declare `play` and/or `response` timing.
 
-New collections receive the starter's cards and **five free boosters**. Decks require at least **30 cards**, with at most three copies per card identity and one per legendary, and must use copies you own. Extra copies become **Crowns**, which buy boosters in the Store. Wins award 25 Crowns and one Realm’s Bounty booster; tutorials and imported replays do not grant rewards. All progression is saved on this device.
+The full rules and the engine's decisions are in [docs/prototype.md](docs/prototype.md) and the [architecture draft](fantasy-card-game-architecture.md). Both are historical in places: when they disagree with the code, the code and this README win.
 
-## Play, learn and review
+## What is in the box
 
-- **Play** opens the setup drawer: practice against the bot, an online room, or two players sharing one device. Opponent deck, match seed and skirmish options are under Advanced.
-- **Collection** contains the card browser and deck builder. Cards, factions and sets reload automatically while developing. The card browser shows owned cards by default; enable **Show unowned** in its filters to browse the full catalogue. Set filters are available in both the browser and deck builder; inspectors identify each card’s set. The Store offers a Foundations booster and the all-card Realm’s Bounty booster. Previously owned Crownlands, Winter and Neutral boosters become Realm’s Bounty packs on loading the collection.
-- **Profile** sets the name and portrait used in matches. **Settings** selects English or German, animation mode (system/full/reduced), and separate music/effect switches and volumes, and starts the tutorial or opens a replay. A brief, immediately dismissible splash unlocks browser audio; the soundtrack loops across screens and pauses while the tab is hidden. Preferences persist on this device and apply to menus, matches, replays and card previews. The match gear exposes the same preferences without disconnecting an online game. Full reset in Settings deletes all locally saved game data (including legacy saves and online seat tokens), then restarts with the starter collection and five free boosters after confirmation.
-- The tutorial uses a scripted opponent and the normal rules engine. Reloading a saved tutorial restores its progress.
-- Finished matches show a summary and can export a replay. Recordings contain only one player's view, including their hand and public events; they exclude the opponent's hand, libraries and shuffle seed. Replay viewing is read-only and requires matching rules/content versions.
+- **58 cards** in one set, **RoV: Foundations**, across the Crownlands, Bright Marches, Black Host, Horde, Mountain Clans, Ember Fields, Conclave, League of Winter and Neutral. The Crownlands and Bright Marches have complete 30-card starters (Banners of the Crown and Hearth and Stone); the Black Host has a small starter set, and each remaining faction has only its leader so far.
+- **English and German.** All card names, lore and ability text are translated, and so is the interface.
+- **Play modes:** practice against the bot, hotseat on one device, online room, scripted tutorial, and read-only replay viewing.
+- **Collection:** new players receive the default starter and five Realm's Bounty boosters. Wins pay 25 Crowns and a booster. Extra copies turn into Crowns, and Crowns buy boosters or individual cards in the Store. Tutorials and imported replays pay nothing.
+- **Touch and fullscreen:** the menu and Play drawer have touch-sized controls. A fullscreen button is in the menu and in Settings. On iPad, keyboard use leaves fullscreen (a Safari limit); adding the game to the Home Screen gives a fullscreen app without browser chrome.
+- **Card studio:** a local editor for card data (`npm run dev:studio`), see below.
 
-For **online play**, both players need the same build and card content. Host a room, share its eight-character code, and have the other player join with an owned legal deck. The host validates commands and sends each player their own view. A disconnected guest can reconnect or reload and rejoin from the same tab; the host must keep the page open. Host reload recovery, accounts and protection against a dishonest host are future work. This remains a trusted-player POC.
+Matches are not saved. Reloading or leaving a match ends it. Collection, decks, profile, settings and whether you finished the tutorial stay in the browser, and **Settings → Full reset** wipes them.
 
-Optional signaling configuration: `VITE_PEER_HOST`, `VITE_PEER_PORT`, `VITE_PEER_PATH`, and `VITE_PEER_SECURE`. `VITE_RTC_ICE_SERVERS` accepts a JSON array of ICE servers for custom STUN/TURN configuration. Defaults use PeerJS Cloud and PeerJS's bundled ICE configuration.
+## Online play
 
-## Add your test content
+Both players need the same build. Host a room, share the eight-character code, and the other player joins with a legal deck. The host's browser runs the authoritative engine and sends each player only their own view: hands, libraries, shuffle seed and the other player's choices are never sent.
 
-The files you need are:
+Keep the host tab open: if the host reloads, the match is gone. A guest can reload and rejoin from the same tab. This is a trusted-friends setup and does not protect against a dishonest host. Details and the optional signaling variables (`VITE_PEER_*`, `VITE_RTC_ICE_SERVERS`) are in [docs/multiplayer.md](docs/multiplayer.md).
 
-| File | Edit here for |
+Local matches use the same machinery as online ones. The bot is simply a remote seat answered by a loopback room around the same authority, so there is one match session class and one place where the rules are enforced.
+
+## Make cards
+
+Each card is a folder in `assets/cards/<card-id>/`:
+
+| File | Purpose |
 | --- | --- |
-| `assets/cards/<card-name>/data.json` | Card name, cost, stats, faction IDs, text and ability bindings |
-| `assets/cards/<card-name>/data.png` | Required still artwork |
-| `assets/cards/<card-name>/data.webm` | Optional animated artwork |
-| `assets/sets/<set-id>.json` | A set: name, code, description, faction focus, introduced factions and optional booster |
-| `assets/factions/<faction-id>.json` | A faction: name, short label, color, optional booster pack and starter deck |
-| `packages/extensions/src/index.ts` | Existing ability handlers and commented reference implementations |
-| `packages/contracts/src/deckRules.ts` | Shared deck size and copy limits |
+| `data.json` | Name, type, cost, stats, factions, subtypes, rarity, abilities, lore |
+| `data.de.json` | German name and lore |
+| `data.png` | Required artwork (optional `data.webm` for animated art) |
 
-See **[the card authoring guide](assets/README.md)** for a full JSON template, spell examples and the ability list.
+Factions are `assets/factions/<id>.json` and sets are `assets/sets/<id>.json`. Copy an existing card folder, give it a new `id` and `deckLimitKey`, and the importer, UI and engine pick it up. Bump `revision` when you change a card. Generated files (`packages/content/src/*.json`, `public/cards/`) are never edited by hand. `npm run import:cards` rebuilds them, reports the file and reason for any error, and keeps the last good import.
 
-Start with a copy of a retained card folder and give it a new stable `id` and `deckLimitKey`. Add a new faction as one file in `assets/factions/`; the importer, UI and engine use that definition. Add starter references after the card exists. Ordinary cards allow three copies; legendary cards allow one. Each card must specify one known `set` ID, currently `foundations`. Set membership is independent of factions and does not restrict decks. Artwork choices will later be separate from logical card identity; changing a set label does not create more collection copies.
+`npm run schema:cards` regenerates `assets/schemas/card.schema.json` after you change an ability, which gives editors autocomplete and validation.
 
-During development, asset changes validate and reload automatically. Run `npm run import:cards` for a manual import. `npm run assets` is an alias. Missing PNGs, malformed JSON, removed faction IDs, disabled abilities, duplicate IDs or invalid starter references report the source of the error and preserve the last successful import. Unfinished starter decks may be imported. Generated `packages/content/src/{cards,factions,sets}.json` and `public/cards/` should not be edited.
+**Abilities** are registered once and cards bind them by ID. They live in three files under `packages/extensions/src/`:
 
-Armor, War Banner, Formation (Adjacent Banner), Shield Wall, Flank Evasion, Guard, Charge, Damage, Heal, Restore (internal `rally` ID), Rage and Steadfast (a friendly creature gets +N Attack or +N Defense until end of turn), Draw, Rime, Invocation, Channel Neutral, Fealty, Accord, Soul Harvest, Rally (Marches), Trade, Sanctuary, Scorch, Raid and Wayfarer are enabled. Faction files select their exclusive `signatureAbility` as authoring metadata. These keywords belong to their factions and appear as ordinary ability rules in inspectors, with no extra label. Each faction keyword is an unnumbered fixed rule with `params: {}`; shared abilities such as Armor and Formation remain scalable. Cards shared by multiple factions can use the keywords of those factions. Ready, Consume, Battlecry, Deathbound, Collector, Return, Blood Price and Reckoning remain commented in the extension file. Uncomment an entry and its indicated helper/import to use it again. Ability descriptions supply displayed rules text; behavior comes from the registered handlers. Optional card lore supplies flavor text. Handler behavior changes require a version bump and meaningful tests.
+- `index.ts`: evergreen keywords any card can use (Armor, Banner, Drillmaster, Shield Wall, Guard, Charge, Rest, Weaken, Longshot, Primal).
+- `spellAbilities.ts`: effects that resolve when a spell is cast, listed under `cast`. They are Damage, Barrage, Heal, Draw, Rage, Steadfast, Channel, **Destroy** and **Raise**. Creatures and holdings cannot carry them, and the import rejects a field card that does.
+- `signatureAbilities.ts`: faction keywords: Fealty (Crownlands), Marches Rally (Bright Marches), Soul Harvest and **Dark Harvest** (Black Host), Raid (Horde), Trade (Mountain Clans), Scorch (Ember Fields), Sanctuary (Conclave), Accord (League of Winter) and Wayfarer (Neutral).
 
-The obsolete card seed and temporary art generators were removed. Old content remains only in regression fixtures under `tests/fixtures/`, which are not bundled with the game. Saved decks or matches referring to removed cards cannot resume with the current pool; browser storage is not erased automatically.
+Two of the spell effects have parameters worth knowing: `raise` takes a creature `subtype`, lets you choose a matching creature from your discard pile and a free slot, and returns it ready; `destroy` takes none and destroys a target enemy creature.
 
-## Check changes
+The complete guide, with JSON templates, ability tables, targeting kinds and hooks, is [assets/README.md](assets/README.md). A genuinely new mechanic needs an engine handler and a test.
+
+**Card studio:** `npm run dev:studio` opens a local form editor over the same folders. It is a development tool and is not deployed.
+
+## Check your changes
 
 ```sh
-npm test                 # rules, active content, importer, deck and input checks
-npm run check:engine     # check the engine without browser/DOM libraries
-npm run build            # type-check and build dist/
-npm run simulate         # complete matches + exact replay
+npm test                 # rules, content, importer, deck rules, multiplayer, tutorial
+npm run check:engine     # type-check the engine without browser/DOM libraries
+npm run build            # import cards, type-check and build dist/
+npm run simulate         # complete matches with exact replay
 npm run audit:bot        # starter matchup audit
-npm run audit:balance -- --pairs 1000 # paired mirror matches with first-player reversal
+npm run audit:balance -- --pairs 1000   # paired mirror matches, first player reversed
 npm run preview          # serve the built site
 ```
 
-The rules regression suite uses stable test-only content, so adding or removing your authored cards does not break unrelated combat fixtures. Active content and authoring paths are checked separately. Headless simulations and bot audits explain when no starter is complete yet.
+The rules tests use their own fixed content in `tests/fixtures/`, so adding or rebalancing cards does not break unrelated combat tests.
 
-## Playing a complete deck
+## Code layout
 
-Drag cards onto legal slots or targets. Click ready creatures to channel energy; click again to undo until a play or phase change commits the choice. Hover/focus previews cards; right-click opens a pinned preview. Animated artwork plays on hover, in full previews and on the battlefield; reduced motion uses still artwork.
+| Path | Contents |
+| --- | --- |
+| `packages/contracts` | Shared types, command and order shapes, deck rules |
+| `packages/core` | The engine: `apply(state, envelope, registry)`, legal actions, bot |
+| `packages/extensions` | Ability handlers |
+| `packages/content` | Compiler, generated catalogue, boosters |
+| `packages/multiplayer` | Match authority and wire protocol (no browser APIs) |
+| `packages/renderer` | React Three Fiber battlefield |
+| `packages/ui` | Shared UI, card presentation, translations |
+| `apps/web` | The game client |
+| `apps/studio` | The card studio |
 
-Click the phase button or press Space once to advance. Each phase transition locks further advances for 500 ms; the button displays transition progress. Presses and clicks during the transition are ignored, and holding Space cannot repeat into the next phase.
+The engine takes a command and returns a new state or a rejection; nothing outside `packages/core` decides legality. The client reads projections of that state, so a seat never sees what it should not.
 
-Cast normal spells before combat, then choose attackers. Each attacker chooses a lane (its own or an adjacent one, one attacker per lane); the card in that lane blocks automatically, and an empty lane lets the hit through to the player. The attacker reviews the arrows and confirms before damage resolves. Guard can intercept an adjacent lane; Flank Evasion can bypass flank defenders. Attackers and blockers strike simultaneously; exhausted creatures and holdings can still block. Whenever a creature with an energy output dies, on any turn and from any cause (your own sacrifices included), its owner gets that energy as response energy and a response step to cast death-timed spells. After combat the attacker's window comes first, then the defender's; deaths from one action share one window per player, and creatures that die inside a window add to their owner's pool. Unused response energy fades when the window closes. There are no combat tricks or second normal spell phase. End turn readies your field cards and clears damage/energy. Drawing the last card loses immediately; discards do not recycle.
+## Deploying
 
-Card types are `creature`, `spell`, and `holding` (`monster` has been renamed). Holdings are persistent defensive cards such as landmarks, buildings, relics, banners, and shrines. They share the five field slots, cannot attack or generate energy, and use their Attack value only when blocking. Continuous effects remain active while on the field; activated abilities exhaust a ready card during its controller’s play phase. Crown Holding demonstrates both with War Banner and Rally; its still artwork temporarily reuses Runeguard. See the [content guide](assets/README.md) for definitions and ability hooks.
+The build is static files. [docs/deployment.md](docs/deployment.md) covers Cloudflare (Workers static assets or Pages) and the WebP art conversion done at build time.
 
-The engine lives in `packages/core/src`, shared types in `packages/contracts/src`, presentation in `packages/renderer/src`, and the React client in `apps/web/src`. `apply(state, envelope, registry)` is also usable in a future server. The original [architecture draft](fantasy-card-game-architecture.md) and [prototype history](docs/prototype.md) preserve earlier designs; this README and the authoring guide describe the current prototype.
+## Credits
 
-### Client match boundaries
-
-`apps/web/src/match/MatchSession.ts` defines the shared match-session reader and its adapters:
-
-- `LocalMatchSession` owns local engine state, accepted commands, channel undo and review frames. Practice, hotseat and tutorial play use this adapter; tutorial guidance still chooses which commands to allow.
-- `OnlineMatchSession` wraps the WebRTC room, records received projections and forwards commands to the host. It never predicts engine state or changes the received seat.
-- `ReplayMatchSession` reads recorded projections. It has no command or reconnect methods and no live connection.
-
-The match screen reads state and review frames through `useMatchSession`. `useMatchPresentation` owns combat animation playback, spell/energy flights, sound and their cleanup; it renders accepted transitions without changing session state. Saved local matches keep the existing initial-state/command format, and exported replay files keep their existing format.
-
-Battlefield positions are Left Flank, Left Wing, Center, Right Wing and Right Flank. Deployment is permanent while a card is on the field. Position abilities and JSON examples are documented in [the card authoring guide](assets/README.md#battlefield-positions).
-
-Faction abilities have presentation-only effects: Fealty uses gold oath links, Sanctuary leafy wards (a stronger elf ward), and Raid stacking claw accents. Rally, Trade, Scorch, Accord, Soul Harvest and Wayfarer each have a short burst or flight. Static cues read the real ability handlers; resolved hooks decorate their existing public event with `effects` attribution (ability, source and target), preserving event sequencing and saved choices, without revealing drawn cards. `factionEffects.ts` builds cues from accepted transitions and `FactionAbilityEffects.tsx` paints them around the actual battlefield cards. Effects also work in online projections and replay steps; reduced motion retains static cues and suppresses bursts.
+Card art, portraits and music are prototype assets. Check where they came from before reusing or redistributing any of them.

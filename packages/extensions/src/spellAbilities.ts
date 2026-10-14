@@ -18,6 +18,14 @@ export const spellAbilities: AbilityExtension[] = [
         },
     }),
 
+    extension("destroy", v.strictObject({}), {
+        translations: { de: { name: "Vernichten", description: "Zerstöre eine gegnerische Kreatur." } },
+        name: "Destroy",
+        description: "Destroy target enemy creature.",
+        target: "enemy-creature",
+        cast: ctx => { if (ctx.target) ctx.issue({ type: "destroy", target: ctx.target }); },
+    }),
+
     extension("rage", amountSchema, {
         translations: { de: { name: "Wut {amount}", description: "Eine eigene Kreatur erhält bis zum Ende des Zuges +{amount} Angriff." } },
         name: "Rage {amount}",

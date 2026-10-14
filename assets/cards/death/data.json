@@ -1,0 +1,31 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "death",
+  "revision": 1,
+  "name": "Death",
+  "deckLimitKey": "death",
+  "type": "spell",
+  "factions": [
+    "black-host"
+  ],
+  "subtypes": [],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "black-host": 1
+    }
+  },
+  "abilities": [],
+  "timing": [
+    "play"
+  ],
+  "cast": [
+    {
+      "id": "destroy",
+      "params": {}
+    }
+  ],
+  "set": "foundations"
+}

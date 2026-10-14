@@ -1,6 +1,8 @@
 node_modules/
 dist/
-docs
+# docs/ holds screenshots and audit output; only the written guides are tracked
+docs/*
+!docs/*.md
 .test-results/
 playwright-report/
 .DS_Store

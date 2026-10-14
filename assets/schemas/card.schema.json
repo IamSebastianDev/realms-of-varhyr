@@ -480,6 +480,27 @@
       ],
       "additionalProperties": false
     },
+    "ability-destroy": {
+      "type": "object",
+      "title": "Destroy",
+      "description": "Destroy target enemy creature.",
+      "properties": {
+        "id": {
+          "const": "destroy"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
     "ability-draw": {
       "type": "object",
       "title": "Draw {amount}",
@@ -996,6 +1017,7 @@
             "charge",
             "damage",
             "dark-harvest",
+            "destroy",
             "draw",
             "drillmaster",
             "fealty",
@@ -1050,6 +1072,9 @@
         },
         {
           "$ref": "#/definitions/ability-dark-harvest"
+        },
+        {
+          "$ref": "#/definitions/ability-destroy"
         },
         {
           "$ref": "#/definitions/ability-draw"
@@ -1126,6 +1151,7 @@
             "channel",
             "charge",
             "damage",
+            "destroy",
             "draw",
             "drillmaster",
             "fealty",
@@ -1172,6 +1198,9 @@
         },
         {
           "$ref": "#/definitions/ability-damage"
+        },
+        {
+          "$ref": "#/definitions/ability-destroy"
         },
         {
           "$ref": "#/definitions/ability-draw"
@@ -1229,6 +1258,7 @@
             "barrage",
             "channel",
             "damage",
+            "destroy",
             "draw",
             "heal",
             "rage",
@@ -1253,6 +1283,9 @@
         },
         {
           "$ref": "#/definitions/ability-damage"
+        },
+        {
+          "$ref": "#/definitions/ability-destroy"
         },
         {
           "$ref": "#/definitions/ability-draw"
@@ -1285,6 +1318,7 @@
             "charge",
             "damage",
             "dark-harvest",
+            "destroy",
             "draw",
             "drillmaster",
             "fealty",
@@ -1338,6 +1372,9 @@
         },
         {
           "$ref": "#/definitions/ability-dark-harvest"
+        },
+        {
+          "$ref": "#/definitions/ability-destroy"
         },
         {
           "$ref": "#/definitions/ability-draw"

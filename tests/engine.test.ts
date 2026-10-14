@@ -169,6 +169,21 @@ describe('simultaneous combat and response energy',()=>{
    expect(legalActions(s,harvestRegistry).activations.some(a=>a.cardId===id)).toBe(true);
   });
  });
+ describe('destroy',()=>{
+  const destroyRegistry=compileContent([...raw,{...registry.cards['cleansing-light'],id:'destroy-test',deckLimitKey:'destroy-test',cast:[{id:'destroy',params:{}}]}]);
+  it('destroys a targeted enemy creature, and only an enemy creature',()=>{
+   const s=setup(destroyRegistry);const spell=fixture(s,'cleansing-light','p1','hand');s.cards[spell].definitionId='destroy-test';s.players.p1.energy={crownlands:1,neutral:1};
+   const enemy=fixture(s,'ashen-initiate','p2','board',2),own=fixture(s,'crown-recruit','p1','board',1);
+   const legal=legalActions(s,destroyRegistry).playable.find(a=>a.cardId===spell)!;
+   expect(legal.targets).toEqual([enemy]);expect(legal.requiresTarget).toBe(true);
+   const r=step(s,{type:'play',cardId:spell,target:enemy},'p1',destroyRegistry);
+   expect(r.cards[enemy].zone).toBe('discard');expect(r.cards[own].zone).toBe('board');assertInvariants(r);
+  });
+  it('is not offered with no enemy creature',()=>{
+   const s=setup(destroyRegistry);const spell=fixture(s,'cleansing-light','p1','hand');s.cards[spell].definitionId='destroy-test';s.players.p1.energy={crownlands:1,neutral:1};
+   expect(legalActions(s,destroyRegistry).playable.some(a=>a.cardId===spell)).toBe(false);
+  });
+ });
  describe('raise',()=>{
   const raiseRegistry=compileContent([...raw,{...registry.cards['cleansing-light'],id:'raise-test',deckLimitKey:'raise-test',timing:['play','response'],cast:[{id:'raise',params:{subtype:'human'}}]},{...registry.cards['crown-recruit'],id:'raise-human',deckLimitKey:'raise-human',subtypes:['human']},{...registry.cards['crown-recruit'],id:'raise-orc',deckLimitKey:'raise-orc',subtypes:['orc']}]);
   const dead=(s:GameState,kind:string)=>{const id=fixture(s,'crown-recruit','p1','discard');s.cards[id].definitionId=kind;return id;};
