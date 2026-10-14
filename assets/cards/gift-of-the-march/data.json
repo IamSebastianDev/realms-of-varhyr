@@ -21,7 +21,7 @@
   "lore": "The marches feed the people.",
   "timing": [
     "play",
-    "death"
+    "response"
   ],
   "cast": [
     {

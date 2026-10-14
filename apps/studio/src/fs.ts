@@ -29,7 +29,7 @@ export async function loadDrafts(scope: string): Promise<Record<string, SavedDra
     const tx = db.transaction('drafts', 'readonly'), drafts = tx.objectStore('drafts');
     await new Promise<void>((resolve, reject) => {
       const cursor = drafts.openCursor();
-      cursor.onsuccess = () => { const hit = cursor.result; if (!hit) return resolve(); const key = String(hit.key); if (key.startsWith(`${scope}|`)) out[key.slice(scope.length + 1)] = hit.value; hit.continue(); };
+      cursor.onsuccess = () => { const hit = cursor.result; if (!hit) return resolve(); const key = String(hit.key); if (key.startsWith(`${scope}|`)) { const value = hit.value; const form = value?.draft ?? value; if (Array.isArray(form?.timing)) form.timing = form.timing.map((t: string) => t === 'death' ? 'response' : t); out[key.slice(scope.length + 1)] = value; } hit.continue(); };
       cursor.onerror = () => reject(cursor.error);
     });
     return out;

@@ -198,7 +198,7 @@
             "additionalProperties": false
           },
           "default": [],
-          "description": "Alternative printed production pools: choose one when channeling or receiving death energy. One pool with several keys produces all of them. [] means no printed production; Primal is an ability."
+          "description": "Alternative printed production pools: choose one when channeling or receiving response energy. One pool with several keys produces all of them. [] means no printed production; Primal is an ability."
         }
       },
       "required": [
@@ -212,7 +212,7 @@
       "items": {
         "enum": [
           "play",
-          "death"
+          "response"
         ],
         "type": "string"
       },
@@ -912,7 +912,7 @@
     "ability-trade": {
       "type": "object",
       "title": "Trade",
-      "description": "When this creature channels during your play phase, it also produces 1 neutral energy. This bonus does not apply to death energy.",
+      "description": "When this creature channels during your play phase, it also produces 1 neutral energy. This bonus does not apply to response energy.",
       "properties": {
         "id": {
           "const": "trade"

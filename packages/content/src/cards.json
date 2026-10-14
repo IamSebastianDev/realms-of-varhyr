@@ -249,7 +249,7 @@
     "abilities": [],
     "timing": [
       "play",
-      "death"
+      "response"
     ],
     "cast": [
       {
@@ -288,7 +288,7 @@
     "abilities": [],
     "timing": [
       "play",
-      "death"
+      "response"
     ],
     "cast": [
       {
@@ -427,7 +427,7 @@
     "abilities": [],
     "timing": [
       "play",
-      "death"
+      "response"
     ],
     "cast": [
       {
@@ -805,7 +805,7 @@
     "abilities": [],
     "timing": [
       "play",
-      "death"
+      "response"
     ],
     "cast": [
       {
@@ -1563,7 +1563,7 @@
     "art": "/cards/revenge/data.png?v=450de3a5f7b45cd2",
     "abilities": [],
     "timing": [
-      "death"
+      "response"
     ],
     "cast": [
       {

@@ -5,7 +5,7 @@ import schema from '../../../assets/schemas/card.schema.json';
 
 export type Binding = { id: string; params: Record<string, unknown> };
 export type CardKind = 'creature' | 'spell' | 'holding';
-export type Timing = 'play' | 'death';
+export type Timing = 'play' | 'response';
 /** Everything the form edits. Neutral cards have no factions; stats and outputs only apply to field cards. */
 export type Draft = {
   isNew: boolean; folder: string; id: string; revision: number; name: string; deckLimitKey: string; type: CardKind;
@@ -32,7 +32,7 @@ export function draftFromFiles(folder: string, data: Json, de?: Json): Draft {
     type: data.type, rarity: data.rarity, legendary: !!data.legendary, factions: [...(data.factions ?? [])].filter((id: string) => id !== 'neutral'), subtypes: [...(data.subtypes ?? [])],
     cost: { generic: data.cost?.generic ?? 0, factions: { ...(data.cost?.factions ?? {}) } },
     attack: data.stats?.attack ?? 0, defense: data.stats?.defense ?? 1, outputs: (data.stats?.energyOutputs ?? []).map((pool: Record<string, number>) => ({ ...pool })),
-    abilities: (data.abilities ?? []).map((b: Binding) => ({ id: b.id, params: { ...b.params } })), timing: [...(data.timing ?? [])], cast: (data.cast ?? []).map((b: Binding) => ({ id: b.id, params: { ...b.params } })),
+    abilities: (data.abilities ?? []).map((b: Binding) => ({ id: b.id, params: { ...b.params } })), timing: [...(data.timing ?? [])].map((t: string) => t === 'death' ? 'response' : t) as Timing[], cast: (data.cast ?? []).map((b: Binding) => ({ id: b.id, params: { ...b.params } })),
     lore: data.lore ?? '', de: { name: de?.name ?? '', lore: de?.lore ?? '' } };
 }
 

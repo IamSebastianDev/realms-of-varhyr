@@ -24,7 +24,7 @@ export const eventMessages: [RegExp, string][] = [
   [/^(.+) replaces (\d+) opening cards?\.$/, '$1 ersetzt $2 Karten der Starthand.'],
   [/^(.+) may replace up to (\d+) cards\.$/, '$1 darf bis zu $2 Karten ersetzen.'],
   [/^(.+) puts a card under their library\.$/, '$1 legt eine Karte unter die Bibliothek.'],
-  [/^(.+) may cast death-window spells, then close the window\.$/, '$1 darf Todesfenster-Zauber wirken und dann das Fenster schließen.'],
+  [/^(.+) may cast response spells, then close the window\.$/, '$1 darf Reaktionszauber wirken und dann das Fenster schließen.'],
   [/^(.+) loses: their library is empty\.$/, '$1 verliert: Die Bibliothek ist leer.'],
   [/^(.+) wins\.$/, '$1 gewinnt.'],
   [/^Replace at most (\d+) different cards from your opening hand\.$/, 'Ersetze höchstens $1 verschiedene Karten deiner Starthand.'],

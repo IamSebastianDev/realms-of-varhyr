@@ -34,7 +34,7 @@ export function CardDetail({ card, stats, animated = false, reduced = false, sta
       <Cost card={card} />
       <CardLore card={card} />
       <CardFacts card={card} stats={stats} />
-      {card.timing && <p className="detail-timing">{msg("Play during")}{' '}{card.timing.map(t => t === 'death' ? msg("the death-energy window") : msg("your play phase")).join(msg(" or "))}.</p>}
+      {card.timing && <p className="detail-timing">{msg("Play during")}{' '}{card.timing.map(t => t === 'response' ? msg("a response step (after one of your energy creatures dies)") : msg("your play phase")).join(msg(" or "))}.</p>}
       {state && <p className="card-detail-state">{state}</p>}
       {children}
     </div>

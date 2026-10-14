@@ -53,9 +53,10 @@ export class LocalMatchSession implements MatchSessionReader {
     this.registry = registry;
     this.publish(next);
   }
-  act(command: Command) {
+  /** `actor` is only needed when someone other than the decision player acts (conceding). */
+  act(command: Command, actor?: PlayerId) {
     const { state, commands } = this.snapshot;
-    const envelope: CommandEnvelope = { actor: decisionPlayer(state), expectedRevision: state.revision, command, clientActionId: `local-${crypto.randomUUID()}` };
+    const envelope: CommandEnvelope = { actor: actor ?? decisionPlayer(state), expectedRevision: state.revision, command, clientActionId: `local-${crypto.randomUUID()}` };
     const result = apply(state, envelope, this.registry);
     if (result.error) throw new Error(result.error);
     this.publish({ ...this.snapshot, state: result.state, commands: [...commands, envelope], revision: this.snapshot.revision + 1,
@@ -112,7 +113,7 @@ export class OnlineMatchSession implements MatchSessionReader {
     return { state: presentationState(snapshot), view: snapshot.view };
   }
   undoable(_viewer: PlayerId) { return this.history.at(-1)!.undoable; }
-  act(command: Command) { this.room.act(command); }
+  act(command: Command, _actor?: PlayerId) { this.room.act(command); }
   undoChannel(cardId: string, _viewer: PlayerId) { this.room.undoChannel(cardId); }
   reconnect() { this.room.reconnect(); }
   exportReplay(_viewer: PlayerId, _matchId: string) { return onlineReplay(this.history, this.snapshot.seat!); }

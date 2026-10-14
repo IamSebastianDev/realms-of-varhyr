@@ -67,8 +67,8 @@
 .energy-meter .energy-bundle{min-height:0;gap:5px;flex-wrap:nowrap;font-size:13px}
 .energy-meter .energy-token{display:inline-flex;align-items:center;gap:4px;padding:1px 8px 1px 5px;border-radius:999px;background:radial-gradient(circle at 25% 30%,#ffffff1c,#ffffff08);border:1px solid #ffffff1c}
 .energy-meter .energy-empty{color:#6d8176;font-size:12px}
-.app .energy-meter.death-pool{border-color:#d9907f;box-shadow:0 0 14px #c25a4c55}
-.energy-meter.death-pool .eyebrow{position:static;width:auto;height:auto;clip:auto;font-size:7px;letter-spacing:1.2px;color:#f0b5a6}
+.app .energy-meter.response-pool{border-color:#d9907f;box-shadow:0 0 14px #c25a4c55}
+.energy-meter.response-pool .eyebrow{position:static;width:auto;height:auto;clip:auto;font-size:7px;letter-spacing:1.2px;color:#f0b5a6}
 .app .energy-meter.receiving-energy{border-color:var(--brass-hi);box-shadow:0 0 18px #f1d89a66,inset 0 0 12px #f1d89a22}
 .piles{grid-area:piles;display:flex;align-items:center;gap:20px;padding-right:10px}
 .app .library-count,.app .discard-count{position:relative;display:block;width:34px;height:47px;min-width:0;margin:0;padding:0;border-radius:4px;color:#f0e6cc;flex:none}
@@ -245,7 +245,7 @@ html,body,#root{overscroll-behavior:none}
 .app .energy-meter .energy-symbol{font-size:17px}
 .app .energy-meter .energy-empty{font-size:0}
 .app .energy-meter .energy-empty::after{content:'none';font-size:11px;color:#6d8176}
-.app .energy-meter.death-pool .eyebrow{color:#f0b5a6}
+.app .energy-meter.response-pool .eyebrow{color:#f0b5a6}
 .player-banner .piles{padding-bottom:16px;gap:34px}
 .app .library-count small,.app .discard-count small{position:absolute;left:50%;top:calc(100% + 6px);transform:translateX(-50%);width:auto;height:auto;clip:auto;font-size:8px;letter-spacing:1.1px;color:#93a69b;text-transform:uppercase}
 /* mat: leave a channel on the right for the round action button */

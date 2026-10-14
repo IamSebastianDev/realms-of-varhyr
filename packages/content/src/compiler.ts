@@ -36,7 +36,7 @@ export function cardSchema(factionIds: readonly string[]) {
       defense: v.pipe(nonnegativeInteger, v.minValue(1)),
       energyOutputs: v.optional(v.array(pool), []),
     })),
-    timing: v.optional(v.pipe(v.array(v.picklist(['play', 'death'])), v.minLength(1))),
+    timing: v.optional(v.pipe(v.array(v.picklist(['play', 'response'])), v.minLength(1))),
     cast: v.optional(v.array(binding)),
   });
 }

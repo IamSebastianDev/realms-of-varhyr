@@ -56,7 +56,7 @@ describe('colored payments and additional costs',()=>{
  it('Consume frees a full slot before entry; no universal sacrifice',()=>{let s=setup();s.active='p2';for(let i=0;i<5;i++)fixture(s,i<3?'ashen-initiate':'wayfarer','p2','board',i);const victim=s.players.p2.board[1]!,id=fixture(s,'hollow-devourer','p2','hand');s.players.p2.energy={ashen:1,neutral:1};s=step(s,{type:'play',cardId:id,consume:victim});expect(s.players.p2.board[1]).toBe(id);expect(s.players.p2.discard).toContain(victim);expect(s.cards[id].exhausted).toBe(true);assertInvariants(s);});
  it('rejects absent/hostile Consume costs without spending energy',()=>{const s=setup();s.active='p2';const id=fixture(s,'hollow-devourer','p2','hand'),enemy=fixture(s,'forest-sprite','p1','board');fixture(s,'ashen-initiate','p2','board');s.players.p2.energy={ashen:1,neutral:1};for(const consume of [undefined,enemy]){const result=apply(s,{actor:'p2',expectedRevision:s.revision,command:{type:'play',cardId:id,consume}},registry);expect(result.error).toBeTruthy();expect(result.state).toBe(s);}});
 });
-describe('simultaneous combat and death energy',()=>{
+describe('simultaneous combat and response energy',()=>{
  it('holds committed blockers for attacker review, serializes and resolves only on confirmation',()=>{
   let s=attackState();const attacker=fixture(s,'wild-guardian','p1','board'),blocker=fixture(s,'clan-scout','p2','board',0,true);
   s=step(s,{type:'attack',attackers:[attacker]});const before=s;
@@ -70,7 +70,7 @@ describe('simultaneous combat and death energy',()=>{
   expect(botCommand(restored,registry)).toEqual({type:'confirm-combat'});
   const envelope:CommandEnvelope={actor:'p1',expectedRevision:s.revision,command:{type:'confirm-combat'}};
   const resolved=step(restored,envelope.command);expect(replay(s,[envelope],registry)).toEqual(resolved);
-  expect(resolved.cards[blocker].zone).toBe('discard');expect(resolved.combat?.stage).toBe('death');expect(resolved.players.p2.deathEnergy).toEqual({clans:1});
+  expect(resolved.cards[blocker].zone).toBe('discard');expect(resolved.combat?.stage).toBe('response');expect(resolved.players.p2.responseEnergy).toEqual({clans:1});
  });
  it('also waits for confirmation when no blockers are set, before lethal damage',()=>{
   let s=attackState();const attacker=fixture(s,'wild-guardian','p1','board');s.players.p2.life=1;
@@ -84,7 +84,7 @@ describe('simultaneous combat and death energy',()=>{
   assignments[0].blocker='edited-after-submit';assignments.length=0;
   expect(s.combat?.blocks).toEqual([{attacker,blocker}]);s=step(s,{type:'confirm-combat'});expect(s.cards[blocker].zone).toBe('discard');
  });
- it('allows exhausted blockers to strike back, without spillover',()=>{let s=attackState();const attacker=fixture(s,'wild-guardian','p1','board'),blocker=fixture(s,'clan-scout','p2','board',0,true);s=step(s,{type:'attack',attackers:[attacker]});expect(decisionPlayer(s)).toBe('p1');s=step(s,{type:'confirm-combat'});expect(s.cards[attacker].damage).toBe(1);expect(s.cards[blocker].zone).toBe('discard');expect(s.players.p2.life).toBe(10);expect(s.players.p2.deathEnergy).toEqual({clans:1});expect(s.combat?.stage).toBe('death');});
+ it('allows exhausted blockers to strike back, without spillover',()=>{let s=attackState();const attacker=fixture(s,'wild-guardian','p1','board'),blocker=fixture(s,'clan-scout','p2','board',0,true);s=step(s,{type:'attack',attackers:[attacker]});expect(decisionPlayer(s)).toBe('p1');s=step(s,{type:'confirm-combat'});expect(s.cards[attacker].damage).toBe(1);expect(s.cards[blocker].zone).toBe('discard');expect(s.players.p2.life).toBe(10);expect(s.players.p2.responseEnergy).toEqual({clans:1});expect(s.combat?.stage).toBe('response');});
  it('rejects reused attackers, shared or unreachable lanes and out-of-turn declarations without committing',()=>{
   const s=attackState();const a=fixture(s,'forest-sprite','p1','board'),b=fixture(s,'crown-recruit','p1','board',1);fixture(s,'wayfarer','p2','board');
   const reject=(actor:PlayerId,command:Command)=>{const result=apply(s,{actor,expectedRevision:s.revision,command},registry);expect(result.error).toBeTruthy();expect(result.state).toBe(s);};
@@ -178,9 +178,64 @@ describe('simultaneous combat and death energy',()=>{
  });
  it('unblocked attacks damage the player, with victory after resolution',()=>{let s=attackState();const a=fixture(s,'wild-guardian','p1','board'),b=fixture(s,'grove-keeper','p1','board',1);s.players.p2.life=4;s=step(s,{type:'attack',attackers:[b,a]});expect(s.combat?.attackers).toEqual([a,b]);s=step(s,{type:'confirm-combat'});expect(s.players.p2.life).toBe(-1);expect(s.outcome).toBe('p1');});
  it('marked damage accumulates, then clears at end of turn',()=>{let s=attackState();const attacker=fixture(s,'crown-recruit','p1','board'),blocker=fixture(s,'wayfarer','p2','board');s.cards[blocker].damage=1;s=step(s,{type:'attack',attackers:[attacker]});s=step(s,{type:'confirm-combat'});expect(s.cards[blocker].zone).toBe('discard');s=step(s,{type:'end'});s=step(s,{type:'end'});expect(s.cards[attacker].damage).toBe(0);});
- it('requires a defender choice for a dual-output combat death',()=>{let s=attackState();s.active='p2';const attacker=fixture(s,'hollow-devourer','p2','board'),blocker=fixture(s,'runeguard','p1','board');s=step(s,{type:'attack',attackers:[attacker]});s=step(s,{type:'confirm-combat'});expect(s.pending?.kind).toBe('death-energy');const choice=s.pending!;s=JSON.parse(JSON.stringify(s));s=step(s,{type:'choose',choiceId:choice.id,option:1});expect(s.players.p1.deathEnergy).toEqual({ironbound:1});expect(s.pending).toBeNull();});
- it('only the defender can cast eligible spells using the death pool',()=>{let s=attackState();const attacker=fixture(s,'crown-recruit','p1','board'),blocker=fixture(s,'ashen-initiate','p2','board'),spell=fixture(s,'final-bargain','p2','hand');s=step(s,{type:'attack',attackers:[attacker]});s=step(s,{type:'confirm-combat'});expect(legalActions(s,registry).playable.map(a=>a.cardId)).toContain(spell);s=step(s,{type:'play',cardId:spell});expect(s.players.p2.life).toBe(12);expect(s.cards[spell].zone).toBe('discard');expect(s.players.p2.deathEnergy.ashen).toBe(0);s=step(s,{type:'end'});expect(s.players.p2.deathEnergy).toEqual({});expect(s.phase).toBe('end');});
- it('does not grant death energy for spell deaths',()=>{let s=setup();const target=fixture(s,'ashen-initiate','p2','board'),spell=fixture(s,'cleansing-light','p1','hand');s.players.p1.energy={crownlands:1,neutral:1};s=step(s,{type:'play',cardId:spell,target});expect(s.cards[target].zone).toBe('discard');expect(s.players.p2.deathEnergy).toEqual({});});
+ it('requires a defender choice for a dual-output combat death',()=>{let s=attackState();s.active='p2';const attacker=fixture(s,'hollow-devourer','p2','board'),blocker=fixture(s,'runeguard','p1','board');s=step(s,{type:'attack',attackers:[attacker]});s=step(s,{type:'confirm-combat'});expect(s.pending?.kind).toBe('response-energy');const choice=s.pending!;s=JSON.parse(JSON.stringify(s));s=step(s,{type:'choose',choiceId:choice.id,option:1});expect(s.players.p1.responseEnergy).toEqual({ironbound:1});expect(s.pending).toBeNull();});
+ it('only the defender can cast eligible spells using the response pool',()=>{let s=attackState();const attacker=fixture(s,'crown-recruit','p1','board'),blocker=fixture(s,'ashen-initiate','p2','board'),spell=fixture(s,'final-bargain','p2','hand');s=step(s,{type:'attack',attackers:[attacker]});s=step(s,{type:'confirm-combat'});expect(legalActions(s,registry).playable.map(a=>a.cardId)).toContain(spell);s=step(s,{type:'play',cardId:spell});expect(s.players.p2.life).toBe(12);expect(s.cards[spell].zone).toBe('discard');expect(s.players.p2.responseEnergy.ashen).toBe(0);s=step(s,{type:'end'});expect(s.players.p2.responseEnergy).toEqual({});expect(s.phase).toBe('end');});
+ it('grants response energy when a creature dies to a spell on the opponent’s turn, and lets its owner answer',()=>{
+  let s=setup();const target=fixture(s,'ashen-initiate','p2','board'),spell=fixture(s,'cleansing-light','p1','hand'),bargain=fixture(s,'final-bargain','p2','hand');
+  s.players.p1.energy={crownlands:1,neutral:1};s=step(s,{type:'play',cardId:spell,target});
+  expect(s.cards[target].zone).toBe('discard');expect(s.responseStep).toBe('p2');expect(decisionPlayer(s)).toBe('p2');
+  expect(Object.values(s.players.p2.responseEnergy).reduce((a,b)=>a+b,0)).toBeGreaterThan(0);expect(s.players.p1.responseEnergy).toEqual({});
+  expect(legalActions(s,registry).energy).toEqual([]);expect(legalActions(s,registry).playable.map(a=>a.cardId)).toEqual([bargain]);
+  s=step(s,{type:'play',cardId:bargain});expect(s.cards[bargain].zone).toBe('discard');
+  s=step(s,{type:'end'});expect(s.responseStep).toBeNull();expect(s.players.p2.responseEnergy).toEqual({});expect(decisionPlayer(s)).toBe('p1');expect(s.phase).toBe('play');
+ });
+ it('adds response energy from deaths that happen inside the window to the same pool, without a second window',()=>{
+  const gasp:AbilityExtension={id:'last-gasp',name:'Last Gasp',description:'When this dies, it deals 9 damage to an enemy creature.',version:1,validate:p=>{v.parse(v.object({}),p);},
+   hooks:{'creature.destroyed':ctx=>{if(ctx.event.cardId!==ctx.source.id)return;const foe=ctx.source.controller==='p1'?'p2':'p1',id=ctx.state.players[foe].board.find(Boolean);if(id)ctx.issue({type:'damage',target:id,amount:9,source:ctx.source.id});}}};
+  const cards=structuredClone(raw);cards.find(c=>c.id==='forest-sprite')!.abilities=[{id:'last-gasp',params:{}}] as never;
+  const bargain=cards.find(c=>c.id==='final-bargain')!;bargain.cast=[{id:'damage',params:{amount:9}}];bargain.cost={generic:0,factions:{}};
+  const r=compileContent(cards,{...abilities,'last-gasp':gasp});
+  let s=setup(r);const first=fixture(s,'ashen-initiate','p2','board',0),second=fixture(s,'ashen-initiate','p2','board',3),sprite=fixture(s,'forest-sprite','p1','board',2),light=fixture(s,'cleansing-light','p1','hand'),spell=fixture(s,'final-bargain','p2','hand');
+  s.players.p1.energy={crownlands:1,neutral:1};s=step(s,{type:'play',cardId:light,target:first},'p1',r);
+  const output=Object.values(registry.cards['ashen-initiate'].stats!.energyOutputs[0]).reduce((a,b)=>a+b,0),pool=()=>Object.values(s.players.p2.responseEnergy).reduce((a,b)=>a+b,0);
+  expect(s.responseStep).toBe('p2');expect(pool()).toBe(output);
+  s=step(s,{type:'play',cardId:spell,target:sprite},'p2',r);
+  expect(s.cards[sprite].zone).toBe('discard');expect(s.cards[second].zone).toBe('discard');
+  expect(pool()).toBe(output*2);expect(s.responseStep).toBe('p2');expect(decisionPlayer(s)).toBe('p2');
+ });
+ it('gives response energy for a creature you lose to your own effect, so a sacrifice can fuel a combo',()=>{
+  const burn:AbilityExtension={id:'burn-own',name:'Burn own',description:'Deal 9 damage to your first creature.',version:1,validate:p=>{v.parse(v.object({}),p);},
+   cast:ctx=>{const id=ctx.state.players[ctx.source.controller].board.find(Boolean);if(id)ctx.issue({type:'damage',target:id,amount:9,source:ctx.source.id});}};
+  const cards=structuredClone(raw),bargain=cards.find(c=>c.id==='final-bargain')!;bargain.cast=[{id:'burn-own',params:{}}];bargain.cost={generic:0,factions:{}};
+  const r=compileContent(cards,{...abilities,'burn-own':burn});
+  let s=setup(r);const first=fixture(s,'ashen-initiate','p2','board',0),second=fixture(s,'ashen-initiate','p2','board',3),light=fixture(s,'cleansing-light','p1','hand'),spell=fixture(s,'final-bargain','p2','hand');
+  s.players.p1.energy={crownlands:1,neutral:1};s=step(s,{type:'play',cardId:light,target:first},'p1',r);
+  const before=Object.values(s.players.p2.responseEnergy).reduce((a,b)=>a+b,0);s=step(s,{type:'play',cardId:spell},'p2',r);
+  expect(s.cards[second].zone).toBe('discard');expect(Object.values(s.players.p2.responseEnergy).reduce((a,b)=>a+b,0)).toBeGreaterThan(before);expect(s.responseStep).toBe('p2');
+ });
+ it('lets a sacrifice on your own turn fuel a chain: the fallen creature’s energy pays for the next death spell',()=>{
+  const burn:AbilityExtension={id:'burn-own',name:'Burn own',description:'Deal 9 damage to your first creature.',version:1,validate:p=>{v.parse(v.object({}),p);},
+   cast:ctx=>{const id=ctx.state.players[ctx.source.controller].board.find(Boolean);if(id)ctx.issue({type:'damage',target:id,amount:9,source:ctx.source.id});}};
+  const cards=structuredClone(raw),light=cards.find(c=>c.id==='cleansing-light')!;light.cast=[{id:'burn-own',params:{}}];light.cost={generic:1,factions:{}};light.timing=['play','response'];
+  const r=compileContent(cards,{...abilities,'burn-own':burn});
+  let s=setup(r);const first=fixture(s,'forest-sprite','p1','board',0),second=fixture(s,'forest-sprite','p1','board',1),third=fixture(s,'forest-sprite','p1','board',2),one=fixture(s,'cleansing-light','p1','hand'),two=fixture(s,'cleansing-light','p1','hand'),three=fixture(s,'cleansing-light','p1','hand');
+  const total=(pool:Record<string,number>)=>Object.values(pool).reduce((a,b)=>a+b,0),output=total(registry.cards['forest-sprite'].stats!.energyOutputs[0]);
+  s.players.p1.energy={neutral:1};s=step(s,{type:'play',cardId:one},'p1',r);
+  expect(s.cards[first].zone).toBe('discard');expect(s.responseStep).toBe('p1');expect(total(s.players.p1.responseEnergy)).toBe(output);expect(total(s.players.p1.energy)).toBe(0);
+  s=step(s,{type:'play',cardId:two},'p1',r);
+  expect(s.cards[second].zone).toBe('discard');expect(s.responseStep).toBe('p1');expect(total(s.players.p1.responseEnergy)).toBe(output*2-1);
+  s=step(s,{type:'play',cardId:three},'p1',r);
+  expect(s.cards[third].zone).toBe('discard');expect(total(s.players.p1.responseEnergy)).toBe(output*3-2);
+  s=step(s,{type:'end'},'p1',r);expect(s.responseStep??null).toBeNull();expect(total(s.players.p1.responseEnergy)).toBe(0);expect(s.phase).toBe('play');expect(decisionPlayer(s)).toBe('p1');
+ });
+ it('lets either player concede at any time, even when it is not their decision',()=>{
+  let s=setup();expect(decisionPlayer(s)).toBe('p1');
+  const result=apply(s,{actor:'p2',expectedRevision:s.revision,command:{type:'concede'}},registry);
+  expect(result.error).toBeUndefined();expect(result.state.outcome).toBe('p1');expect(result.state.outcomeReason).toBe('concede');
+  const after=apply(result.state,{actor:'p1',expectedRevision:result.state.revision,command:{type:'end'}},registry);expect(after.error).toBeTruthy();
+  s=step(s,{type:'end'});const own=apply(s,{actor:s.active,expectedRevision:s.revision,command:{type:'concede'}},registry);
+  expect(own.state.outcome).toBe(s.active==='p1'?'p2':'p1');
+ });
 });
 describe('reusable extension composition',()=>{
  it('runs deathbound using last-known state after battlefield removal',()=>{let s=attackState();s.active='p2';const attacker=fixture(s,'abyss-whelp','p2','board'),blocker=fixture(s,'grove-keeper','p1','board');const before=s.players.p1.hand.length;s=step(s,{type:'attack',attackers:[attacker]});s=step(s,{type:'confirm-combat'});expect(s.players.p1.hand).toHaveLength(before+1);});
@@ -236,10 +291,10 @@ describe('library depletion during effects',()=>{
   expect(s.players.p2.deck).toEqual([]);expect(s.pending).toBeNull();
   expect(apply(s,{actor:'p2',expectedRevision:s.revision,command:{type:'end'}},registry).error).toContain('ended');expect(legalActions(s,registry).playable).toEqual([]);
  });
- it('a deathbound draw can end combat before later attackers and death-energy choices',()=>{
+ it('a deathbound draw can end combat before later attackers and response-energy choices',()=>{
   let s=attackState();s.active='p2';const first=fixture(s,'abyss-whelp','p2','board'),later=fixture(s,'hollow-devourer','p2','board',1),blocker=fixture(s,'grove-keeper','p1','board');trim(s,'p1',1);
   s=step(s,{type:'attack',attackers:[first,later]});s=step(s,{type:'confirm-combat'});
-  expect(s.outcome).toBe('p2');expect(s.outcomeReason).toBe('empty-library');expect(s.players.p1.life).toBe(10);expect(s.pending).toBeNull();expect(s.players.p1.deathEnergy).toEqual({});
+  expect(s.outcome).toBe('p2');expect(s.outcomeReason).toBe('empty-library');expect(s.players.p1.life).toBe(10);expect(s.pending).toBeNull();expect(s.players.p1.responseEnergy).toEqual({});
  });
  it('the first library to empty wins precedence over another queued draw',()=>{
   const custom:AbilityExtension={id:'two-draws',name:'two-draws',description:'Draw twice in separate effects.',version:1,validate:()=>{},cast:ctx=>{
@@ -258,7 +313,10 @@ describe('single blockers and simultaneous retaliation',()=>{
  function resolve(s:GameState,attacker:string,blocker:string,r=registry){s=step(s,{type:'attack',attackers:[attacker]},s.active,r);return step(s,{type:'confirm-combat'},s.active,r);}
  it('mutually lethal creatures strike before either is destroyed',()=>{
   let s=attackState();const attacker=fixture(s,'forest-sprite','p1','board'),blocker=fixture(s,'clan-scout','p2','board',0,true);
-  s=resolve(s,attacker,blocker);expect(s.cards[attacker].zone).toBe('discard');expect(s.cards[blocker].zone).toBe('discard');expect(s.players.p2.life).toBe(10);expect(s.players.p2.deathEnergy).toEqual({clans:1});expect(s.players.p1.deathEnergy).toEqual({});
+  s=resolve(s,attacker,blocker);expect(s.cards[attacker].zone).toBe('discard');expect(s.cards[blocker].zone).toBe('discard');expect(s.players.p2.life).toBe(10);
+  // Both fell: the attacker's window comes first and holds only the attacker's energy, then the defender's.
+  expect(s.responseStep).toBe('p1');expect(s.players.p1.responseEnergy).toEqual(registry.cards['forest-sprite'].stats!.energyOutputs[0]);expect(s.players.p2.responseEnergy).toEqual({});
+  s=step(s,{type:'end'});expect(s.responseStep).toBe('p2');expect(s.players.p1.responseEnergy).toEqual({});expect(s.players.p2.responseEnergy).toEqual({clans:1});
   const hits=s.events.filter(e=>e.type==='damage.dealt'),deaths=s.events.filter(e=>e.type==='creature.destroyed');expect(hits).toHaveLength(2);expect(Math.max(...hits.map(e=>e.seq))).toBeLessThan(Math.min(...deaths.map(e=>e.seq)));assertInvariants(s);
  });
  it('applies full attack damage to a marked armored blocker and still receives retaliation',()=>{
@@ -274,8 +332,10 @@ describe('single blockers and simultaneous retaliation',()=>{
   let s=attackState();const attacker=fixture(s,'dawn-banner','p1','board'),sprite=fixture(s,'forest-sprite','p1','board',1),blocker=fixture(s,'abyss-whelp','p2','board');
   expect(effectiveStats(s,sprite,registry).attack).toBe(2);s=resolve(s,attacker,blocker);expect(s.cards[attacker].zone).toBe('discard');expect(s.cards[blocker].zone).toBe('discard');expect(effectiveStats(s,sprite,registry).attack).toBe(1);
  });
- it('attacker deaths alone do not grant defender death energy',()=>{
-  let s=attackState();const attacker=fixture(s,'forest-sprite','p1','board'),blocker=fixture(s,'stone-golem','p2','board');s=resolve(s,attacker,blocker);expect(s.cards[attacker].zone).toBe('discard');expect(s.cards[blocker].zone).toBe('board');expect(s.phase).toBe('end');expect(s.combat).toBeNull();expect(s.players.p2.deathEnergy).toEqual({});
+ it('gives an attacker that falls alone its own window, and none to the defender',()=>{
+  let s=attackState();const attacker=fixture(s,'forest-sprite','p1','board'),blocker=fixture(s,'stone-golem','p2','board');s=resolve(s,attacker,blocker);
+  expect(s.cards[attacker].zone).toBe('discard');expect(s.cards[blocker].zone).toBe('board');expect(s.responseStep).toBe('p1');expect(decisionPlayer(s)).toBe('p1');expect(s.players.p2.responseEnergy).toEqual({});
+  s=step(s,{type:'end'});expect(s.responseStep??null).toBeNull();expect(s.phase).toBe('end');expect(s.combat).toBeNull();
  });
  it('serializes separate one-to-one pairs and replays their simultaneous trades exactly',()=>{
   let s=attackState();const one=fixture(s,'forest-sprite','p1','board'),two=fixture(s,'crown-recruit','p1','board',1),first=fixture(s,'clan-scout','p2','board'),second=fixture(s,'wayfarer','p2','board',1);

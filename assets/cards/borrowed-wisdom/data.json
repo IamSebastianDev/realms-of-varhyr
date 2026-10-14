@@ -21,7 +21,7 @@
   "lore": "Knowledge travels farther when someone lends the book.",
   "timing": [
     "play",
-    "death"
+    "response"
   ],
   "cast": [
     {

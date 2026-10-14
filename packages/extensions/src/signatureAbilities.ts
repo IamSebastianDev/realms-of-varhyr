@@ -41,7 +41,7 @@ export const signatureAbilities: AbilityExtension[] = [
   }),
   factionAbility('trade', 'mountain-clans', {
     name: 'Trade',
-    description: 'When this creature channels during your play phase, it also produces 1 neutral energy. This bonus does not apply to death energy.',
+    description: 'When this creature channels during your play phase, it also produces 1 neutral energy. This bonus does not apply to response energy.',
     translations: { de: { name: 'Handel', description: 'Wenn diese Kreatur während deiner Spielphase Energie kanalisiert, erzeugt sie zusätzlich 1 neutrale Energie. Dieser Bonus gilt nicht für Todesenergie.' } },
     before: { 'energy.generate.before': (_ctx, _params, payload) => ({ ...payload, output: { ...payload.output, neutral: (payload.output?.neutral ?? 0) + 1 } }) },
   }),

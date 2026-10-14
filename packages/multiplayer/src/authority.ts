@@ -35,7 +35,7 @@ export class MatchAuthority {
     if(previous)return this.snapshot(seat,action.id,previous.serialized===serialized?previous.error:'This action ID was already used for a different move.');
     let error: string|undefined;
     if(action.revision!==this.revision)error='The match advanced. Review the refreshed board and try again.';
-    else if(decisionPlayer(this.state)!==seat)error='Wait for your decision.';
+    else if(decisionPlayer(this.state)!==seat&&!(action.intent.kind==='command'&&(action.intent.command as {type?:unknown})?.type==='concede'))error='Wait for your decision.';
     else if(this.state.outcome)error='This match has ended.';
     else if(action.intent.kind==='undo-channel'){
       const undone=undoChannel(this.initial,this.commands,seat,action.intent.cardId,this.registry);

@@ -12,7 +12,7 @@ const golden = (state: GameState, step: string): Command => {
     case 'play-farmer': return { type: 'play', cardId: me('goldfield-farmer'), slot: 2 };
     case 'play-recruit': return { type: 'play', cardId: me('crown-recruit'), slot: 1 };
     case 'play-merchant': return { type: 'play', cardId: me('merchant-of-tris-vale'), slot: 3 };
-    case 'enter-combat': case 'end-turn': case 'enter-combat-2': case 'end-turn-2': case 'close-death': return { type: 'end' };
+    case 'enter-combat': case 'end-turn': case 'enter-combat-2': case 'end-turn-2': case 'close-response': return { type: 'end' };
     case 'skip-combat': return { type: 'attack', attackers: [] };
     case 'draw': { const pending = state.pending!; return { type: 'choose', choiceId: pending.id, option: (pending.options as string[]).find(id => state.cards[id].definitionId === 'cleansing-light')!, other: 'discard' }; }
     case 'channel-farmer': return { type: 'energy', cardId: me('goldfield-farmer', 'board'), option: 0 };
@@ -20,7 +20,7 @@ const golden = (state: GameState, step: string): Command => {
     case 'play-runeguard': return { type: 'play', cardId: me('runeguard'), slot: 0 };
     case 'attack': { const recruit = me('crown-recruit', 'board'); return { type: 'attack', attackers: [recruit], lanes: { [recruit]: 0 } }; }
     case 'confirm': return { type: 'confirm-combat' };
-    case 'death': return { type: 'play', cardId: me('cleansing-light'), target: find(state, 'p2', 'crown-recruit', 'board')! };
+    case 'response': return { type: 'play', cardId: me('cleansing-light'), target: find(state, 'p2', 'crown-recruit', 'board')! };
   }
   throw new Error(`No command for ${step}`);
 };

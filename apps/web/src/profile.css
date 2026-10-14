@@ -96,3 +96,4 @@
   .profile-avatars{margin-top:18px}
   .profile-avatars button .avatar-art{width:clamp(60px,8vw,76px)}
 }
+.settings-version{margin:22px 2px 6px;font-size:10.5px;line-height:1.4;color:#9d927a;opacity:.6;text-align:center;letter-spacing:.03em}

@@ -85,11 +85,11 @@ export const tutorialSteps: TutorialStep[] = [
     text: 'The arrow points at an empty lane, so the attack goes straight to the opponent. If a card stood there, it would block automatically. Confirm combat.',
     focus: () => [button], accept: is('confirm-combat') },
   { id: 'end-turn-2', title: 'Pass the turn', text: 'The opponent is down to nine. End your turn.', focus: () => [button], accept: is('end') },
-  { id: 'death', title: 'The last gift',
-    text: 'Your Merchant blocked and fell. Its two energy stays in your death pool until this window closes. Drag Cleansing Light onto the wounded Recruit: it deals two damage and heals you for one.',
-    focus: state => [...hand('cleansing-light')(state), slot(rival, 3), '.death-pool'],
+  { id: 'response', title: 'The last gift',
+    text: 'Your Merchant blocked and fell. Its two energy stays in your response pool until this window closes, and any creature that falls gives its owner a window like this one. Drag Cleansing Light onto the wounded Recruit: it deals two damage and heals you for one.',
+    focus: state => [...hand('cleansing-light')(state), slot(rival, 3), '.response-pool'],
     accept: (command, state) => command.type === 'play' && definitionOf(state, command.cardId) === 'cleansing-light' && definitionOf(state, command.target) === 'crown-recruit' && state.cards[command.target!]?.owner === rival },
-  { id: 'close-death', title: 'Close the window', text: 'Unused death energy fades. Close the window to finish the combat.', focus: () => [button], accept: is('end') },
+  { id: 'close-response', title: 'Close the window', text: 'Unused response energy fades. Close the response step to finish the combat.', focus: () => [button], accept: is('end') },
   { id: 'finish', title: 'You know the basics', next: 'Play on',
     text: 'Creatures make the energy, energy plays the cards, and anything that falls in defense can still pay for a last spell. Play on against the opponent, or head back and build a deck.' },
 ];
@@ -112,7 +112,8 @@ export const opponentNotes: { from: number; title: string; text: string }[] = [
   { from: 7, title: 'Their turn ends', text: 'Their creatures ready up now, just like yours did. Continue.' },
   { from: 8, title: 'Their second turn', text: 'The opponent’s creatures are ready. Watch what they do.' },
   { from: 11, title: 'Their attack is set', text: 'Their Recruit aims at your Right Wing. Blocking is automatic: your Merchant defends that lane, and it is only a 1/1. Check the arrows, then resolve combat.' },
-  { from: 12, title: 'Their turn ends', text: 'The opponent passes. Continue.' },
+  { from: 12, title: 'Their response step', text: 'Their Recruit fell too, so they get response energy and a window of their own. They have nothing to cast and close it. Continue.' },
+  { from: 13, title: 'Their turn ends', text: 'The opponent passes. Continue.' },
 ];
 export const opponentNote = (made: number) => [...opponentNotes].reverse().find(note => note.from <= made) ?? opponentNotes[0];
 
@@ -132,6 +133,7 @@ const script: ((state: GameState) => Command)[] = [
   () => ({ type: 'end' }),
   state => { const recruit = mine(state, 'crown-recruit', 'board'); return { type: 'attack', attackers: [recruit], lanes: { [recruit]: 3 } }; },
   () => ({ type: 'confirm-combat' }),
+  () => ({ type: 'end' }),
   () => ({ type: 'end' }),
 ];
 export const opponentMoves = (commands: CommandEnvelope[]) => commands.filter(envelope => envelope.actor === rival).length;

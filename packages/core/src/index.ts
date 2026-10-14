@@ -2,7 +2,7 @@ import * as v from 'valibot';
 import type { AbilityBinding, BattlefieldState, BeforePayload, CardDefinition, CardInstance, Combat, Command, CommandEnvelope, Cost, DeadSnapshot, EnergyType, GameEvent, GameState, HookContext, InternalOrder, LegalActions, Player, PlayerId, PlayerView, Pool, Registry } from '../../contracts/src';
 import { battlefieldPositions, deckRules, positionName } from '../../contracts/src';
 import { describeAbility } from '../../extensions/src/describeAbility';
-export const RULES_VERSION = 'varhir-rules-0.15';
+export const RULES_VERSION = 'varhir-rules-0.18';
 const nonnegative = v.pipe(v.number(), v.integer(), v.minValue(0));
 const paymentSchema = v.record(v.pipe(v.string(), v.regex(/^[a-z][a-z0-9_-]*$/)), nonnegative);
 const commandSchema = v.variant('type', [
@@ -14,6 +14,7 @@ const commandSchema = v.variant('type', [
   v.object({ type: v.literal('mulligan'), cardIds: v.array(v.string()) }),
   v.object({ type: v.literal('choose'), choiceId: v.string(), option: v.union([v.string(),nonnegative]), other: v.optional(v.picklist(['discard','bottom'])) }),
   v.object({ type: v.literal('end') }),
+  v.object({ type: v.literal('concede') }),
 ]);
 /** The network boundary uses exactly the engine's command schema. */
 export const parseCommand = (input: unknown): Command => v.parse(commandSchema, input);
@@ -157,15 +158,17 @@ function validPayment(pool: Pool, cost: Cost, paid: Pool, colors: EnergyType[]) 
   return total === required;
 }
 function addEnergy(pool: Pool, output: Pool) { for (const color of Object.keys(output)) if (output[color]) pool[color] = (pool[color] ?? 0) + output[color]!; }
+/** Whenever a creature with an energy output dies, its owner gets that energy as response energy and a window to spend it on response spells. */
+export const inResponseStep = (state: Pick<GameState,'responseStep'>) => !!state.responseStep;
 export function decisionPlayer(state: GameState): PlayerId {
-  return state.pending?.player ?? (state.phase === 'attack' && state.combat?.stage === 'death' ? other(state.active) : state.active);
+  return state.pending?.player ?? state.responseStep ?? state.active;
 }
-function blankPlayer(id: PlayerId, name: string): Player { return { id, name, life: 10, deck: [], hand: [], board: [null,null,null,null,null], discard: [], energy: {}, deathEnergy: {} }; }
+function blankPlayer(id: PlayerId, name: string): Player { return { id, name, life: 10, deck: [], hand: [], board: [null,null,null,null,null], discard: [], energy: {}, responseEnergy: {} }; }
 export const MULLIGAN_MAX = 2;
 /** `mulligan` lets each player replace up to two opening cards, player one first. */
 export function createMatch(registry: Registry, decks: [string[], string[]], seed = 731, options: { mulligan?: boolean; /** Fixed card order per library, applied after the shuffle. Used by the tutorial. */ stack?: [string[], string[]] } = {}): GameState {
   for (const deck of decks) requireRule(!validateDeck(deck, registry).length, validateDeck(deck, registry).join(' '));
-  const state: GameState = { rulesVersion: RULES_VERSION, contentVersion: registry.version, seed: seed >>> 0, rng: (seed >>> 0) || 1, revision: 0, sequence: 0, turn: 1, active: 'p1', phase: 'play', players: { p1: blankPlayer('p1','Player one'), p2: blankPlayer('p2','Player two') }, cards: {}, combat: null, pending: null, outcome: null, outcomeReason: null, events: [] };
+  const state: GameState = { rulesVersion: RULES_VERSION, contentVersion: registry.version, seed: seed >>> 0, rng: (seed >>> 0) || 1, revision: 0, sequence: 0, turn: 1, active: 'p1', phase: 'play', players: { p1: blankPlayer('p1','Player one'), p2: blankPlayer('p2','Player two') }, cards: {}, combat: null, responseStep: null, pending: null, outcome: null, outcomeReason: null, events: [] };
   decks.forEach((deck, index) => {
     const player: PlayerId = index === 0 ? 'p1' : 'p2';
     deck.forEach((definitionId, i) => { const id = `${player}-${i}`; state.cards[id] = { id, definitionId, owner: player, controller: player, zone: 'deck', slot: null, exhausted: false, damage: 0 }; state.players[player].deck.push(id); });
@@ -187,7 +190,7 @@ export function createMatch(registry: Registry, decks: [string[], string[]], see
   return state;
 }
 class Transaction {
-  queue: { order: InternalOrder; effect?: { cardId: string; abilityId: string; target?: string; event: GameEvent } }[] = []; budget = 256; inCombat = false; target?: string; slot?: number;
+  queue: { order: InternalOrder; effect?: { cardId: string; abilityId: string; target?: string; event: GameEvent } }[] = []; budget = 256; inCombat = false; /** Deaths outside combat on the inactive player's side, waiting to open a response step. */ fresh: DeadSnapshot[] = []; target?: string; slot?: number;
   constructor(public state: GameState, public registry: Registry) {}
   context(source: CardInstance, event: GameEvent, abilityId?: string): HookContext {
     return { state: this.state, registry: this.registry, source, event, target: this.target, slot: this.slot, issue: order => {
@@ -256,7 +259,11 @@ class Transaction {
   destroy(id: string, combat = false) {
     const card = this.state.cards[id]; if (!card || card.zone !== 'board') return;
     const snapshot = { ...card };
-    if (combat && card.controller !== this.state.active && this.state.combat && definition(this.state,id,this.registry).type === 'creature') this.state.combat.dead.push({ card: snapshot, outputs: structuredClone(this.registry.cards[card.definitionId].stats!.energyOutputs) });
+    // A creature leaves response energy for its owner, on any turn and whatever killed it.
+    if (definition(this.state,id,this.registry).type === 'creature') {
+      const outputs = structuredClone(this.registry.cards[card.definitionId].stats!.energyOutputs);
+      if (outputs.length) this.fresh.push({ card: snapshot, outputs });
+    }
     this.discard(id);
     this.emit(definition(this.state,id,this.registry).type === 'holding' ? 'holding.destroyed' : 'creature.destroyed',`${this.registry.cards[card.definitionId].name} is destroyed.`,{cardId:id,player:snapshot.controller,snapshot});
   }
@@ -297,10 +304,10 @@ class Transaction {
         this.draw(order.player,order.amount);
       } else if (order.type === 'gain-energy') {
         requireRule(order.player === 'p1' || order.player === 'p2','Invalid energy recipient.');
-        requireRule(this.state.phase === 'play' || this.state.phase === 'attack' && this.state.combat?.stage === 'death','Energy spells require a casting phase.');
+        requireRule(this.state.phase === 'play' || inResponseStep(this.state),'Energy spells require a casting phase.');
         for (const [color,amount] of Object.entries(order.output)) requireRule(this.registry.energyTypes.includes(color) && Number.isSafeInteger(amount) && amount >= 0,'Invalid generated energy.');
         const player = this.state.players[order.player];
-        addEnergy(this.state.phase === 'play' ? player.energy : player.deathEnergy, order.output);
+        addEnergy(inResponseStep(this.state) ? player.responseEnergy : player.energy, order.output);
         const source = order.source ? this.state.cards[order.source] : undefined;
         this.emit('energy.generated',`${source ? this.registry.cards[source.definitionId].name : player.name} generates energy.`,{player:order.player,cardId:source?.id,amount:Object.values(order.output).reduce((sum,value)=>sum+value,0)});
       } else if (order.type === 'deploy') {
@@ -349,18 +356,50 @@ class Transaction {
       this.finish(outcome,'life',outcome === 'draw' ? 'The match ends in a draw.' : `${this.state.players[outcome].name} wins.`);
     }
   }
-  deathOutputs(dead: DeadSnapshot[]) {
-    const defender = other(this.state.active), p = this.state.players[defender];
+  /** Gives `player` the energy of their fallen creatures. A creature with two outputs asks which one first. */
+  responseOutputs(player: PlayerId, dead: DeadSnapshot[]) {
+    const p = this.state.players[player];
     for (let i = 0; i < dead.length; i++) {
       const snapshot = dead[i];
       if (!snapshot.outputs.length) continue;
-      if (snapshot.outputs.length === 1) addEnergy(p.deathEnergy,snapshot.outputs[0]);
+      if (snapshot.outputs.length === 1) addEnergy(p.responseEnergy,snapshot.outputs[0]);
       else {
-        this.state.pending = { id: `choice-${this.state.sequence}-${i}`, player:defender, kind:'death-energy', options:snapshot.outputs, sourceName:this.registry.cards[snapshot.card.definitionId].name, remaining:dead.slice(i+1) };
+        this.state.pending = { id: `choice-${this.state.sequence}-${i}`, player, kind:'response-energy', options:snapshot.outputs, sourceName:this.registry.cards[snapshot.card.definitionId].name, remaining:dead.slice(i+1) };
         return;
       }
     }
-    this.emit('death.window',`${p.name} may cast death-window spells, then close the window.`,{player:defender});
+    this.emit('response.opened',`${p.name} may cast response spells, then close the window.`,{player});
+  }
+  /** Opens the next waiting window. False when nobody is waiting. */
+  openWindow(): boolean {
+    const next = this.state.responseQueue?.shift();
+    if (!next) { this.state.responseStep = null; return false; }
+    this.state.responseStep = next.player;
+    this.responseOutputs(next.player,next.dead);
+    return true;
+  }
+  /** The window's owner is done: their response energy expires, then the next player's window opens, or play resumes. */
+  closeWindow() {
+    const player = this.state.responseStep!;
+    this.state.players[player].responseEnergy = {}; this.state.responseStep = null;
+    this.emit('response.closed','Response energy expires.',{player});
+    if (this.openWindow() || this.state.outcome) return;
+    if (this.state.combat?.stage === 'response') { this.state.phase = 'end'; this.state.combat = null; this.emit('phase.started','End phase. Ready your surviving field cards and pass the turn.'); }
+  }
+  /** Deaths from one action are gathered, then each owner gets one window: the active player first. Deaths inside a window add to its pool. */
+  settleDeaths() {
+    const dead = this.fresh; this.fresh = [];
+    if (!dead.length || this.state.outcome) return;
+    const queue = this.state.responseQueue ??= [], window = this.state.responseStep, inside: DeadSnapshot[] = [];
+    for (const entry of dead) {
+      const owner = entry.card.controller;
+      if (owner === window) { inside.push(entry); continue; }
+      const waiting = queue.find(item => item.player === owner);
+      if (waiting) waiting.dead.push(entry); else queue.push({ player: owner, dead: [entry] });
+    }
+    if (!window) queue.sort((x,y) => Number(y.player === this.state.active) - Number(x.player === this.state.active));
+    if (inside.length) this.responseOutputs(window!,inside);
+    if (!window) this.openWindow();
   }
   combat() {
     const combat = this.state.combat!, assignments = combat.blocks;
@@ -379,7 +418,8 @@ class Transaction {
     this.inCombat = false;
     this.checkOutcome();
     if (this.state.outcome) return;
-    if (combat.dead.length) { combat.stage = 'death'; this.deathOutputs(combat.dead); }
+    // Fallen creatures open their owners' response steps as soon as this action ends.
+    if (this.fresh.length) combat.stage = 'response';
     else { this.state.phase = 'end'; this.state.combat = null; this.emit('phase.started','End phase. Ready your surviving field cards and pass the turn.'); }
   }
 }
@@ -402,14 +442,14 @@ export function legalActions(state: GameState, registry: Registry): LegalActions
   const actor = decisionPlayer(state), legal: LegalActions = {actor,playable:[],energy:[],activations:[],attackers:[],lanes:{},canEnd:false};
   if (state.outcome || state.pending) return legal;
   const p = state.players[actor];
-  if (state.phase === 'play' || state.phase === 'attack' && state.combat?.stage === 'death') {
-    const death = state.phase === 'attack';
+  if (state.phase === 'play' || inResponseStep(state)) {
+    const inResponse = inResponseStep(state);
     for (const id of p.hand) {
       const card = state.cards[id], def = registry.cards[card.definitionId];
-      if (death && (def.type !== 'spell' || !def.timing!.includes('death'))) continue;
-      if (!death && def.type === 'spell' && !def.timing!.includes('play')) continue;
+      if (inResponse && (def.type !== 'spell' || !def.timing!.includes('response'))) continue;
+      if (!inResponse && def.type === 'spell' && !def.timing!.includes('play')) continue;
       const payload = playPayload(state,card,registry);
-      if (!autoPayment(death ? p.deathEnergy : p.energy,payload.cost!)) continue;
+      if (!autoPayment(inResponse ? p.responseEnergy : p.energy,payload.cost!)) continue;
       const slots = p.board.map((id,i) => id === null ? i : -1).filter(i => i >= 0);
       const consumes = payload.consume ? p.board.filter((id): id is string => !!id && definition(state,id,registry).type === 'creature') : [];
       if (def.type !== 'spell' && ((!slots.length && !consumes.length) || (payload.consume && !consumes.length))) continue;
@@ -418,7 +458,7 @@ export function legalActions(state: GameState, registry: Registry): LegalActions
       if (def.type === 'spell' && def.cast?.some(b => registry.abilities[b.id].target) && !targeting.targets.length) continue;
       legal.playable.push({cardId:id,slots,targets:targeting.targets,requiresTarget:targeting.required,consumes});
     }
-    if (!death) for (const id of p.board) {
+    if (!inResponse) for (const id of p.board) {
       if (!id || state.cards[id].exhausted) continue;
       const def = definition(state,id,registry);
       if (def.type === 'creature' && def.stats!.energyOutputs.length) legal.energy.push({cardId:id,options:def.stats!.energyOutputs});
@@ -447,10 +487,15 @@ export function apply(state: GameState, envelope: CommandEnvelope, registry: Reg
     requireRule(state.contentVersion === registry.version,'Content version differs from the pinned match.');
     requireRule(envelope.expectedRevision === state.revision,'Stale command. Refresh the match before acting.');
     requireRule(!state.outcome,'This match has ended.');
-    requireRule(envelope.actor === decisionPlayer(state),'It is not your decision.');
-    requireRule(!state.pending || envelope.command.type === (state.pending.kind === 'mulligan' ? 'mulligan' : 'choose'),'Resolve the pending choice first.');
+    const conceding = envelope.command.type === 'concede';
+    requireRule(conceding || envelope.actor === decisionPlayer(state),'It is not your decision.');
+    requireRule(conceding || !state.pending || envelope.command.type === (state.pending.kind === 'mulligan' ? 'mulligan' : 'choose'),'Resolve the pending choice first.');
     const next = structuredClone(state), tx = new Transaction(next,registry), p = next.players[envelope.actor], command = envelope.command;
-    if (command.type === 'mulligan') {
+    if (command.type === 'concede') {
+      requireRule(envelope.actor === 'p1' || envelope.actor === 'p2','Only a player can concede.');
+      next.responseStep = null; next.responseQueue = []; next.combat = null;
+      tx.finish(other(envelope.actor),'concede',`${p.name} concedes. ${next.players[other(envelope.actor)].name} wins.`);
+    } else if (command.type === 'mulligan') {
       const choice = next.pending;
       requireRule(choice?.kind === 'mulligan' && choice.player === envelope.actor,'No opening-hand choice is pending.');
       const ids = command.cardIds, max = (choice as { max: number }).max;
@@ -478,9 +523,9 @@ export function apply(state: GameState, envelope: CommandEnvelope, registry: Reg
         }
         next.pending = null; next.phase = 'play'; tx.emit('phase.started','Play phase begins.');
       } else {
-        requireRule(typeof command.option === 'number' && Number.isInteger(command.option) && choice!.options[command.option],'Choose a legal death-energy output.');
-        addEnergy(p.deathEnergy,(choice!.options as Pool[])[command.option as number]);
-        const remaining = (choice as { remaining: DeadSnapshot[] }).remaining; next.pending = null; tx.deathOutputs(remaining);
+        requireRule(typeof command.option === 'number' && Number.isInteger(command.option) && choice!.options[command.option],'Choose a legal response-energy output.');
+        addEnergy(p.responseEnergy,(choice!.options as Pool[])[command.option as number]);
+        const remaining = (choice as { remaining: DeadSnapshot[] }).remaining; next.pending = null; tx.responseOutputs(choice!.player,remaining);
       }
     } else if (command.type === 'play') {
       const legal = legalActions(next,registry).playable.find(a => a.cardId === command.cardId);
@@ -497,7 +542,7 @@ export function apply(state: GameState, envelope: CommandEnvelope, registry: Reg
         requireRule(slot === consumedSlot || legal!.slots.includes(slot),'That slot is occupied.');
       } else requireRule(!command.consume,'This card does not have Consume.');
       if (def.type !== 'spell') requireRule(Number.isInteger(slot) && slot >= 0 && slot < battlefieldPositions.length && (legal!.slots.includes(slot) || (payload.consume && next.cards[command.consume!].slot === slot)),'Choose a free battlefield position.');
-      const pool = next.phase === 'play' ? p.energy : p.deathEnergy;
+      const pool = inResponseStep(next) ? p.responseEnergy : p.energy;
       const payment = command.payment ?? autoPayment(pool,payload.cost!)!;
       requireRule(validPayment(pool,payload.cost!,payment,registry.energyTypes),'The payment does not satisfy this cost.');
       for (const color of Object.keys(payment)) if (payment[color]) pool[color] = (pool[color] ?? 0) - payment[color]!;
@@ -556,6 +601,9 @@ export function apply(state: GameState, envelope: CommandEnvelope, registry: Reg
     } else if (command.type === 'confirm-combat') {
       requireRule(next.phase === 'attack' && next.combat?.stage === 'review','Confirm combat only after attackers are declared.');
       tx.combat();
+    } else if (command.type === 'end' && next.responseStep) {
+      requireRule(legalActions(next,registry).canEnd,'This window cannot be closed yet.');
+      tx.closeWindow();
     } else if (command.type === 'end') {
       requireRule(legalActions(next,registry).canEnd,'This phase cannot be ended yet.');
       tx.emit('phase.ended',`${next.phase} phase ends.`);
@@ -565,13 +613,13 @@ export function apply(state: GameState, envelope: CommandEnvelope, registry: Reg
         tx.emit('phase.started','Choose a batch of attackers, or skip combat.');
       } else if (!next.outcome && next.phase === 'attack') {
         if (next.combat!.stage === 'declare') { next.phase = 'end'; next.combat = null; }
-        else { p.deathEnergy = {}; next.phase = 'end'; next.combat = null; tx.emit('death.closed','Death energy expires.'); }
+        else { p.responseEnergy = {}; next.phase = 'end'; next.combat = null; tx.emit('response.closed','Response energy expires.'); }
       } else if (!next.outcome && next.phase === 'end') {
         tx.emit('turn.ended',`${p.name} ends their turn.`,{player:envelope.actor}); tx.drain();
         if (!next.outcome) {
           // Damage clears globally; only the ending controller's field cards ready.
           for (const card of Object.values(next.cards)) if (card.zone === 'board') { card.damage = 0; if (card.controller === next.active) card.exhausted = false; }
-          for (const id of ['p1','p2'] as PlayerId[]) { next.players[id].energy = {}; next.players[id].deathEnergy = {}; }
+          for (const id of ['p1','p2'] as PlayerId[]) { next.players[id].energy = {}; next.players[id].responseEnergy = {}; }
           next.active = other(next.active); next.turn++; next.phase = 'draw';
           tx.emit('turn.started',`${next.players[next.active].name} begins turn ${next.turn}.`,{player:next.active}); tx.drain();
           tx.checkOutcome();
@@ -585,7 +633,7 @@ export function apply(state: GameState, envelope: CommandEnvelope, registry: Reg
         }
       }
     }
-    tx.drain(); tx.checkOutcome(); next.revision++; assertInvariants(next);
+    tx.drain(); tx.checkOutcome(); tx.settleDeaths(); next.revision++; assertInvariants(next);
     return { state:next,events:next.events.slice(state.events.length) };
   } catch (error) { return {state,events:[],error:error instanceof Error ? error.message : 'Invalid command.'}; }
 }
@@ -600,7 +648,7 @@ export function assertInvariants(state: GameState) {
         requireRule(zone === 'board' ? state.cards[cid].controller === id && p.board[state.cards[cid].slot!] === cid : state.cards[cid].owner === id,'Incorrect owner or slot.');
       }
     }
-    for (const pool of [p.energy,p.deathEnergy]) for (const value of Object.values(pool)) requireRule(Number.isInteger(value) && value >= 0,'Negative or fractional energy.');
+    for (const pool of [p.energy,p.responseEnergy]) for (const value of Object.values(pool)) requireRule(Number.isInteger(value) && value >= 0,'Negative or fractional energy.');
   }
   if (state.pending?.kind === 'draw') for (const id of state.pending.options) { requireRule(!located.has(id) && state.cards[id].zone === 'choice','Invalid draw choice.'); located.add(id); }
   requireRule(located.size === Object.keys(state.cards).length,'A card is missing from its zone.');
@@ -616,7 +664,7 @@ export function projectForPlayer(state: GameState, viewer: PlayerId | null, regi
     return [id,{...p,deckCount:deck.length,handCount:hand.length}];
   })) as PlayerView['players'];
   const legal = legalActions(state,registry);
-  return { rulesVersion:state.rulesVersion,contentVersion:state.contentVersion,revision:state.revision,turn:state.turn,active:state.active,phase:state.phase,players,cards,hand,pending,combat:state.combat ? structuredClone(state.combat) : null,outcome:state.outcome,outcomeReason:state.outcomeReason,
+  return { rulesVersion:state.rulesVersion,contentVersion:state.contentVersion,revision:state.revision,turn:state.turn,active:state.active,phase:state.phase,players,cards,hand,pending,combat:state.combat ? structuredClone(state.combat) : null,outcome:state.outcome,outcomeReason:state.outcomeReason,responseStep:state.responseStep??null,
     events:state.events.filter(e => e.visibility === 'public' || e.visibility === viewer).map(e => structuredClone(e)),
     legal: viewer === legal.actor ? legal : {actor:legal.actor,playable:[],energy:[],activations:[],attackers:[],lanes:{},canEnd:false} };
 }

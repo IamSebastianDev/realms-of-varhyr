@@ -974,3 +974,11 @@ input,select,select option{background:#324b39;color:#f0edde;border-color:#bec99d
 /* A game, not a document: nothing selects, except where you type. */
 *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 input,textarea,[contenteditable="true"]{-webkit-user-select:text;user-select:text}
+
+/* Concede */
+.outline-button.danger{border-color:#ff9f8a66;color:#ff9f8a}
+.outline-button.danger:hover{background:#ff9f8a1f}
+.concede-confirm{display:flex;flex-direction:column;gap:10px;border-top:1px solid #ff9f8a55;padding-top:12px}
+.concede-confirm p{margin:0}
+.concede-confirm div{display:flex;gap:10px}
+.concede-confirm .outline-button{flex:1}

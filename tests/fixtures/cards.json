@@ -316,7 +316,7 @@
     "abilities": [],
     "timing": [
       "play",
-      "death"
+      "response"
     ],
     "cast": [
       {
@@ -513,7 +513,7 @@
     "abilities": [],
     "timing": [
       "play",
-      "death"
+      "response"
     ],
     "cast": [
       {

@@ -51,7 +51,7 @@ export function buildCardJsonSchema(factions:readonly FactionDefinition[],sets:r
   (cost.properties!.factions as JsonSchema).description='Faction-specific costs. neutral, generic and primal are not valid cost keys.';
   const stats=properties.stats as JsonSchema;
   stats.additionalProperties=false;
-  (stats.properties!.energyOutputs as JsonSchema).description='Alternative printed production pools: choose one when channeling or receiving death energy. One pool with several keys produces all of them. [] means no printed production; Primal is an ability.';
+  (stats.properties!.energyOutputs as JsonSchema).description='Alternative printed production pools: choose one when channeling or receiving response energy. One pool with several keys produces all of them. [] means no printed production; Primal is an ability.';
 
   const ids=Object.keys(abilities).sort(),definitions:Record<string,JsonSchema>={};
   for(const id of ids){

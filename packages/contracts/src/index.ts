@@ -21,25 +21,29 @@ export type CardDefinition = {
   factions: Faction[]; subtypes: string[]; legendary: boolean; rarity: 'common' | 'rare' | 'legendary';
   cost: Cost; lore?: string; translations?: Partial<Record<ContentLanguage, CardTranslation>>; art: string; animation?: string; abilities: AbilityBinding[];
   stats?: { attack: number; defense: number; energyOutputs: Pool[] };
-  timing?: ('play' | 'death')[]; cast?: AbilityBinding[];
+  timing?: ('play' | 'response')[]; cast?: AbilityBinding[];
 };
 export type CardInstance = { id: string; definitionId: string; owner: PlayerId; controller: PlayerId; zone: 'deck' | 'hand' | 'board' | 'discard' | 'choice'; slot: number | null; exhausted: boolean; damage: number };
-export type Player = { id: PlayerId; name: string; /** Portrait id; optional presentation only. */ avatar?: string; life: number; deck: string[]; hand: string[]; board: (string | null)[]; discard: string[]; energy: Pool; deathEnergy: Pool };
+export type Player = { id: PlayerId; name: string; /** Portrait id; optional presentation only. */ avatar?: string; life: number; deck: string[]; hand: string[]; board: (string | null)[]; discard: string[]; energy: Pool; responseEnergy: Pool };
 export type Phase = 'draw' | 'play' | 'attack' | 'end';
 export type DeadSnapshot = { card: CardInstance; outputs: Pool[] };
 export type PendingChoice =
   | { id: string; player: PlayerId; kind: 'draw'; options: string[] }
   /** Opening hand: the player may return up to `max` cards and draw the same number of new ones. */
   | { id: string; player: PlayerId; kind: 'mulligan'; options: string[]; max: number }
-  | { id: string; player: PlayerId; kind: 'death-energy'; options: Pool[]; sourceName: string; remaining: DeadSnapshot[] };
+  | { id: string; player: PlayerId; kind: 'response-energy'; options: Pool[]; sourceName: string; remaining: DeadSnapshot[] };
 /** `lanes` maps each declared attacker to the enemy position it attacks; `blocks` is derived from it automatically. */
-export type Combat = { stage: 'declare' | 'review' | 'death'; attackers: string[]; lanes: Record<string, number>; blocks: { attacker: string; blocker: string }[]; dead: DeadSnapshot[] };
+export type Combat = { stage: 'declare' | 'review' | 'response'; attackers: string[]; lanes: Record<string, number>; blocks: { attacker: string; blocker: string }[]; dead: DeadSnapshot[] };
 export type GameEvent = { seq: number; type: string; message: string; abilityId?: string; effects?: { abilityId: string; cardId: string; target?: string }[]; player?: PlayerId; cardId?: string; target?: string; amount?: number; visibility: 'public' | PlayerId; snapshot?: CardInstance };
 export type GameState = {
   rulesVersion: string; contentVersion: string; seed: number; rng: number; revision: number; sequence: number;
   turn: number; active: PlayerId; phase: Phase; players: Record<PlayerId, Player>; cards: Record<string, CardInstance>;
   combat: Combat | null; pending: PendingChoice | null; outcome: PlayerId | 'draw' | null;
-  outcomeReason: 'life' | 'empty-library' | null; events: GameEvent[];
+  outcomeReason: 'life' | 'empty-library' | 'concede' | null; events: GameEvent[];
+  /** Set while a player may answer fresh deaths with response spells outside combat: the player whose creature died. */
+  responseStep?: PlayerId | null;
+  /** Players still waiting for their response step, in turn order, with the creatures that died for them. */
+  responseQueue?: { player: PlayerId; dead: DeadSnapshot[] }[];
 };
 export type Command =
   | { type: 'play'; cardId: string; slot?: number; target?: string; consume?: string; payment?: Pool }
@@ -52,7 +56,9 @@ export type Command =
   | { type: 'mulligan'; cardIds: string[] }
   /** `other` says where the unchosen drawn card goes: the discard pile (default) or under the library. */
   | { type: 'choose'; choiceId: string; option: string | number; other?: 'discard' | 'bottom' }
-  | { type: 'end' };
+  | { type: 'end' }
+  /** Gives the match to the opponent. Allowed at any time, also when it is not your decision. */
+  | { type: 'concede' };
 export type CommandEnvelope = { actor: PlayerId; expectedRevision: number; command: Command; clientActionId?: string };
 export type InternalOrder =
   | { type: 'damage'; target: string; amount: number; source?: string }
@@ -101,5 +107,5 @@ export type PlayerView = {
   rulesVersion: string; contentVersion: string; revision: number; turn: number; active: PlayerId; phase: Phase;
   players: Record<PlayerId, Omit<Player, 'deck' | 'hand'> & { deckCount: number; handCount: number }>;
   cards: Record<string, CardInstance>; hand: string[]; pending: PendingChoice | null; combat: Combat | null;
-  outcome: GameState['outcome']; outcomeReason: GameState['outcomeReason']; events: GameEvent[]; legal: LegalActions;
+  outcome: GameState['outcome']; outcomeReason: GameState['outcomeReason']; responseStep?: PlayerId | null; events: GameEvent[]; legal: LegalActions;
 };

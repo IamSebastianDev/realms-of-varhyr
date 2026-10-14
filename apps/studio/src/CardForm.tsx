@@ -88,8 +88,8 @@ export function CardForm({ draft, patch, onArt, hasArt, folderLocked }: { draft:
 
     {field && <Bindings title="Abilities" draft={draft} slot="field" list={draft.abilities} onChange={abilities => patch({ abilities })}/>}
     {!field && <>
-      <fieldset><legend>When it can be played</legend><div className="chips">{(['play', 'death'] as const).map(time => <button type="button" key={time} aria-pressed={draft.timing.includes(time)}
-        onClick={() => patch({ timing: draft.timing.includes(time) ? draft.timing.filter(x => x !== time) : [...draft.timing, time] })}>{time === 'play' ? 'On play' : 'On death'}</button>)}</div></fieldset>
+      <fieldset><legend>When it can be played</legend><div className="chips">{(['play', 'response'] as const).map(time => <button type="button" key={time} aria-pressed={draft.timing.includes(time)}
+        onClick={() => patch({ timing: draft.timing.includes(time) ? draft.timing.filter(x => x !== time) : [...draft.timing, time] })}>{time === 'play' ? 'On play' : 'In response'}</button>)}</div></fieldset>
       <Bindings title="Spell effects" draft={draft} slot="cast" list={draft.cast} onChange={cast => patch({ cast })}/>
     </>}
 

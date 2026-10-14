@@ -51,6 +51,7 @@ export function MatchSummary({ state, viewer, registry, reduced, symbol, reward,
   const winnerName = outcome && outcome !== 'draw' ? state.players[outcome].name : '';
   const verdict = drew ? msg("Draw") : won ? msg("Victory") : msg("Defeat");
   const sub = drew ? msg("Both sides fell in the same resolution.")
+    : state.outcomeReason === 'concede' ? msg("{v0} concedes. {v1} wins.", {v0: state.players[other(outcome as PlayerId)].name, v1: winnerName})
     : state.outcomeReason === 'empty-library' ? msg("{v0} exhausted their library. {v1} wins.", {v0: state.players[other(outcome as PlayerId)].name, v1: winnerName})
     : msg("{v0} claims the battlefield.", {v0: winnerName});
   const me = stats[viewer], them = stats[foe];

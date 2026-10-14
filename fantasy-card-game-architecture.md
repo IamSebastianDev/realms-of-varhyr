@@ -2,6 +2,7 @@
 
 **Status:** Implementation blueprint / design draft 0.2 (prototype defaults accepted)  
 **Updated:** 2026-10-11  
+**Terminology note (2026-10-14, rules 0.18):** what this draft calls death energy, the death window and `deathEnergy` is now *response energy*, the *response step* and `responseEnergy`; any creature death on any turn opens one, attacker first. See `docs/prototype.md`.
 **Primary implementation:** TypeScript, browser client, authoritative server when multiplayer is introduced  
 **Source of rules:** User's October 2026 ruleset, adapted through the design discussion.
 

@@ -2,10 +2,17 @@ import { ResetControls } from './ResetControls';
 import { useState } from 'react';
 import { useAudio } from './AudioExperience';
 import { Eye, GraduationCap } from 'lucide-react';
+import { RULES_VERSION } from '../../../packages/core/src';
 import { registry } from '../../../packages/content/src';
 import { ReplayMatchSession, type ExternalMatchSession } from './match/MatchSession';
 import { updatePreferences, usePreferences, type Language, type Motion } from '../../../packages/ui/src/preferences';
 import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
+
+/** Small print at the very bottom of both settings views. */
+export function VersionLine() {
+  useLanguage();
+  return <p className="settings-version">{msg('Rules version')} {RULES_VERSION} · {msg('Content version')} {registry.version}</p>;
+}
 
 /** Shared by the home screen and the in-match settings overlay, so an online game stays connected. */
 export function PreferenceControls() {
@@ -18,6 +25,9 @@ export function PreferenceControls() {
     </section>
     <section className="settings-group" aria-label={msg('Animations')}><div><h2>{msg('Animations')}</h2><p>{msg('Reduced motion uses still artwork and skips combat effects.')}</p></div>
       <select aria-label={msg('Animations')} value={preferences.motion} onChange={event => updatePreferences({ motion: event.target.value as Motion })}><option value="system">{msg('Follow system')}</option><option value="full">{msg('Full animations')}</option><option value="reduced">{msg('Reduced motion')}</option></select>
+    </section>
+    <section className="settings-group" aria-label={msg('Skip empty response steps')}><div><h2>{msg('Skip empty response steps')}</h2><p>{msg('Automatically pass your response step when you have no spell to cast. Turn off to see every window.')}</p></div>
+      <div className="settings-audio-controls"><button className={`toggle ${preferences.skipEmptyWindows ? 'on' : ''}`} role="switch" aria-checked={preferences.skipEmptyWindows} aria-label={msg('Skip empty response steps')} onClick={() => updatePreferences({ skipEmptyWindows: !preferences.skipEmptyWindows })}><span/></button></div>
     </section>
     <section className="settings-group" aria-label={msg('Background music')}><div><h2>{msg('Background music')}</h2><p>{msg('The soundtrack follows you through menus and matches.')}</p></div>
       <div className="settings-audio-controls"><button className={`toggle ${preferences.music ? 'on' : ''}`} role="switch" aria-checked={preferences.music} aria-label={msg('Background music')} onClick={() => updatePreferences({ music: !preferences.music })}><span/></button>
@@ -51,5 +61,6 @@ export function SettingsPage({ learn, watch }: { learn: () => void; watch: (sess
       </label>
     </section>
     <ResetControls/>
+    <VersionLine/>
   </main>;
 }

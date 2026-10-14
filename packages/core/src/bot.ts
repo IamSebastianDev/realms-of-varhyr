@@ -1,6 +1,6 @@
 import type { Command, GameState, PlayerId, Pool, Registry } from '../../contracts/src';
 import { energyProductionOptions } from './production';
-import { apply, autoPayment, blockerFor, combatDamage, decisionPlayer, effectiveStats, legalActions, other, previewDamage } from './index';
+import { apply, autoPayment, blockerFor, combatDamage, decisionPlayer, effectiveStats, inResponseStep, legalActions, other, previewDamage } from './index';
 
 type EnergyPlan = { pool: Pool; commands: Command[]; penalty: number };
 const add = (a: Pool, b: Pool): Pool => {
@@ -31,8 +31,8 @@ function tryCommand(state: GameState, command: Command, registry: Registry): Gam
 // At most five producers: enumerate output combinations, never permutations. This
 // uses only public board information and our own hand, not the opponent's hand.
 function energyPlans(state: GameState, registry: Registry): EnergyPlan[] {
-  const actor = decisionPlayer(state), death = state.phase !== 'play';
-  let plans: EnergyPlan[] = [{pool:death ? state.players[actor].deathEnergy : state.players[actor].energy,commands:[],penalty:0}];
+  const actor = decisionPlayer(state), inResponse = inResponseStep(state);
+  let plans: EnergyPlan[] = [{pool:inResponse ? state.players[actor].responseEnergy : state.players[actor].energy,commands:[],penalty:0}];
   const legal=legalActions(state,registry),producers=new Map<string,{command:Command;output:Pool}[]>();
   for(const source of legal.energy)producers.set(source.cardId,source.options.map((output,option)=>({output,command:{type:'energy',cardId:source.cardId,option}})));
   for(const action of legal.activations)if(action.energyOptions){
@@ -98,7 +98,7 @@ function planPlay(state: GameState, registry: Registry): Command {
     if (def.cast?.some(a => a.id === 'channel')) {
       // Conversion is worth a card only if it enables a useful follow-up now.
       // Do not score spare energy as value: it expires at the phase boundary.
-      if (state.phase !== 'play') continue;
+      if (state.phase !== 'play' || inResponseStep(state)) continue;
       for (const plan of plans) {
         if (!autoPayment(plan.pool,def.cost)) continue;
         const ready = fund(plan); if (!ready) continue;
@@ -117,7 +117,7 @@ function planPlay(state: GameState, registry: Registry): Command {
     if (def.cast?.some(a => a.id === 'return')) {
       // Bounce only when the same turn can complete a material upgrade. Returning
       // and replaying the same creature would otherwise form an endless loop.
-      if (state.phase !== 'play' || p.board.includes(null)) continue;
+      if (state.phase !== 'play' || inResponseStep(state) || p.board.includes(null)) continue;
       for (const upgrade of candidates) {
         const nextDef = registry.cards[state.cards[upgrade].definitionId];
         if (nextDef.type === 'spell' || nextDef.abilities.some(a => a.id === 'consume')) continue;
@@ -137,7 +137,7 @@ function planPlay(state: GameState, registry: Registry): Command {
       continue;
     }
     if (def.type !== 'spell' && !p.board.includes(null) && !def.abilities.some(a => a.id === 'consume')) continue;
-    if (def.type === 'spell' && !def.timing?.includes(state.phase === 'play' ? 'play' : 'death')) continue;
+    if (def.type === 'spell' && !def.timing?.includes(inResponseStep(state) ? 'response' : 'play')) continue;
     const plan = plans.find(plan => autoPayment(plan.pool,def.cost));
     if (!plan) continue; // No speculative partial payments for unreachable costs.
     // Keep the last slot available when an existing hand upgrade can be paid
@@ -205,10 +205,10 @@ export function botCommand(state: GameState, registry: Registry): Command {
   if (state.pending) {
     const choice = state.pending;
     if (choice.kind === 'mulligan') return {type:'mulligan',cardIds:chooseMulligan(state,registry,choice.options,choice.max)};
-    if (choice.kind === 'death-energy') {
+    if (choice.kind === 'response-energy') {
       const option = choice.options.findIndex(output => p.hand.some(id => {
         const def = registry.cards[state.cards[id].definitionId];
-        return def.type === 'spell' && def.timing?.includes('death') && autoPayment(add(p.deathEnergy,output),def.cost);
+        return def.type === 'spell' && def.timing?.includes('response') && autoPayment(add(p.responseEnergy,output),def.cost);
       }));
       return {type:'choose',choiceId:choice.id,option:Math.max(0,option)};
     }
@@ -226,7 +226,7 @@ export function botCommand(state: GameState, registry: Registry): Command {
     const ranked = [...choice.options].sort((a,b) => score(b)-score(a));
     return {type:'choose',choiceId:choice.id,option:ranked[0],other:ranked[1] && score(ranked[1]) >= 5 ? 'bottom' : 'discard'};
   }
-  if (state.phase === 'play' || state.combat?.stage === 'death') return planPlay(state,registry);
+  if (state.phase === 'play' || inResponseStep(state)) return planPlay(state,registry);
   if (state.combat?.stage === 'declare') return chooseAttacks(state,registry);
   if (state.combat?.stage === 'review') return {type:'confirm-combat'};
   return {type:'end'};
