@@ -175,3 +175,11 @@ code{background:#d9c58c1a;padding:1px 5px;border-radius:3px}
 .studio-list .draft.on{background:#d9c58c1f}
 .studio-draft{margin:0;font-size:13.5px;color:var(--soft);border-left:2px solid var(--gold);padding-left:12px}
 .studio-draft .quiet{padding:0 2px;color:var(--gold);text-decoration:underline;text-underline-offset:3px;font-size:inherit}
+
+/* Delete */
+button.danger{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 45%,transparent)}
+button.danger:hover:not(:disabled){background:color-mix(in srgb,var(--bad) 14%,transparent)}
+button.danger.solid{background:var(--bad);color:#190b0b;border-color:var(--bad)}
+.studio-actions.studio-delete{flex-direction:column;gap:10px;font-size:13.5px;color:var(--soft);background:var(--panel);border-top:2px solid var(--bad);padding:12px 0 6px}
+.studio-delete p{margin:0}
+.studio-delete div{display:flex;gap:10px}

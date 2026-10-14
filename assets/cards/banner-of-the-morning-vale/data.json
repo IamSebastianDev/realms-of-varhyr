@@ -1,0 +1,35 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "banner-of-the-morning-vale",
+  "revision": 1,
+  "name": "Banner of the Morning Vale",
+  "deckLimitKey": "banner-of-the-morning-vale",
+  "type": "holding",
+  "factions": [
+    "crownlands"
+  ],
+  "subtypes": [
+    "banner"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "crownlands": 1
+    }
+  },
+  "stats": {
+    "attack": 0,
+    "defense": 3
+  },
+  "abilities": [
+    {
+      "id": "war-banner",
+      "params": {
+        "amount": 2
+      }
+    }
+  ],
+  "set": "foundations"
+}

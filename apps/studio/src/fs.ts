@@ -108,6 +108,24 @@ export async function writeCard(repo: Repo, folder: string, files: { data: strin
   if (files.png) await write(target, 'data.png', files.png);
 }
 
+/** Removes a card's whole folder: data, German text and art. */
+export async function deleteCard(repo: Repo, folder: string) {
+  const parent = await dir(repo, 'assets/cards');
+  await parent.removeEntry(folder, { recursive: true });
+}
+/** Names of the starter decks that list this card. The importer refuses a starter that points at a missing card. */
+export async function starterUsers(repo: Repo, id: string): Promise<string[]> {
+  const used: string[] = [];
+  try {
+    for await (const entry of (await dir(repo, 'assets/factions')).values()) {
+      if (entry.kind !== 'file' || !entry.name.endsWith('.json')) continue;
+      const faction = JSON.parse(await (await (entry as FileSystemFileHandle).getFile()).text());
+      if (faction.starter?.cards && Object.hasOwn(faction.starter.cards, id)) used.push(faction.starter.name ?? faction.id);
+    }
+  } catch { /* No factions folder, so no starters to protect. */ }
+  return used;
+}
+
 /** Any image becomes the PNG the importer requires. */
 export async function toPng(file: Blob): Promise<Blob> {
   if (file.type === 'image/png') return file;

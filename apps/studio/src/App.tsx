@@ -84,6 +84,19 @@ export function App() {
     if (stored) go(editKey(stored.folder), () => ({ draft: draftFromFiles(stored.folder, stored.data, stored.de), art: stored.art ?? null, artChanged: false, dirty: false }));
     else setCurrentKey(null);
   };
+  /** Deleting a saved card asks first, and is refused while a starter deck still lists it. */
+  const [deleting, setDeleting] = useState<{ folder: string; startersUsing: string[] } | null>(null);
+  useEffect(() => setDeleting(null), [currentKey]);
+  const askDelete = () => guard(async () => { if (repo && draft) setDeleting({ folder: draft.folder, startersUsing: await fs.starterUsers(repo, draft.id) }); });
+  const remove = () => guard(async () => {
+    if (!repo || !draft || !currentKey || draft.isNew || deleting?.startersUsing.length) return;
+    const name = draft.name;
+    await fs.deleteCard(repo, draft.folder);
+    await load(repo);
+    setEntries(current => { const rest = { ...current }; delete rest[currentKey]; return rest; });
+    setCurrentKey(null); setDeleting(null);
+    setStatus(`Deleted ${name}.`);
+  });
   const drafts = Object.entries(entries).filter(([, value]) => value.dirty);
   const newDrafts = drafts.filter(([key]) => key.startsWith('new:'));
   const hasDraft = (folder: string) => !!entries[editKey(folder)]?.dirty;
@@ -167,13 +180,20 @@ export function App() {
         <aside className="studio-side">
           <Preview draft={draft} art={art}/>
           <ul className="studio-issues">{result.errors.map(message => <li key={message} className="error">{message}</li>)}{result.warnings.map(message => <li key={message}>{message}</li>)}</ul>
-          <div className="studio-actions"><button className="primary" disabled={!!result.errors.length} onClick={save}>Save card</button>
-            {!draft.isNew && <button onClick={duplicate}>Duplicate</button>}</div>
+          {deleting
+            ? <div className="studio-actions studio-delete" role="alertdialog" aria-label="Delete card">
+              {deleting.startersUsing.length
+                ? <p>{draft.name} is still in {deleting.startersUsing.join(', ')}. Take it out of the starter deck first, then delete it.</p>
+                : <p>Delete {draft.name}? This removes its folder, art and German text from <code>assets/cards</code>. Git still has the old version.</p>}
+              <div>{!deleting.startersUsing.length && <button className="danger solid" onClick={remove}>Delete card</button>}<button onClick={() => setDeleting(null)}>{deleting.startersUsing.length ? 'Close' : 'Keep it'}</button></div></div>
+            : <div className="studio-actions"><button className="primary" disabled={!!result.errors.length} onClick={save}>Save card</button>
+              {!draft.isNew && <button onClick={duplicate}>Duplicate</button>}
+              {!draft.isNew && <button className="danger" onClick={askDelete}>Delete</button>}</div>}
           {entry?.dirty && <p className="studio-draft">Unsaved changes are kept while you look at other cards. <button className="quiet" onClick={discard}>{draft.isNew ? 'Discard this card' : 'Discard changes'}</button></p>}
           {status && <p role="status" className="studio-status">{status}</p>}
           {problem && <p role="alert" className="studio-problem">{problem}</p>}
         </aside></>
-      : <main className="studio-empty"><p>Pick a card to edit, or start a new one.</p></main>}
+      : <main className="studio-empty"><p>Pick a card to edit, or start a new one.</p>{status && <p role="status" className="studio-status">{status}</p>}</main>}
     </div>
   </div>;
 }

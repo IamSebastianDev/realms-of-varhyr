@@ -1,9 +1,18 @@
-import { useId } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { factionInfo, setDefinitions } from '../../../packages/content/src';
 import { abilityLabel, allowedAbilities, energyTypes, newBinding, paramFields, slugify, type Binding, type Draft } from './model';
 
 type Patch = (change: Partial<Draft>) => void;
 const label = (id: string) => factionInfo[id]?.name ?? id;
+
+const parseList = (text: string) => text.split(',').map(part => part.trim()).filter(Boolean);
+/** Keeps what is being typed, so a comma or space at the end is not swallowed before the next word. */
+function Subtypes({ value, onChange }: { value: string[]; onChange: (next: string[]) => void }) {
+  const [text, setText] = useState(value.join(', '));
+  // Another card was opened (or the list changed from outside): show its subtypes instead.
+  useEffect(() => { if (parseList(text).join('|') !== value.join('|')) setText(value.join(', ')); }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
+  return <input value={text} onChange={event => { setText(event.target.value); onChange(parseList(event.target.value)); }} onBlur={() => setText(value.join(', '))}/>;
+}
 
 /** Steppers hold buttons, so their field is a plain group: a label around buttons would click the first one. */
 function Field({ title, hint, children, group = false }: { title: string; hint?: string; children: React.ReactNode; group?: boolean }) {
@@ -55,7 +64,7 @@ export function CardForm({ draft, patch, onArt, hasArt, folderLocked }: { draft:
       <Field title="Rarity"><select value={draft.rarity} onChange={event => patch({ rarity: event.target.value as Draft['rarity'] })}>
         <option value="common">Common</option><option value="rare">Rare</option><option value="legendary">Legendary</option></select></Field></div>
       <label className="check"><input type="checkbox" checked={draft.legendary} onChange={event => patch({ legendary: event.target.checked })}/> Legendary (one copy per deck)</label>
-      <Field title="Subtypes" hint="Separate with commas."><input value={draft.subtypes.join(', ')} onChange={event => patch({ subtypes: event.target.value.split(',').map(s => s.trim()).filter(Boolean) })}/></Field>
+      <Field title="Subtypes" hint="Separate with commas."><Subtypes value={draft.subtypes} onChange={subtypes => patch({ subtypes })}/></Field>
     </fieldset>
 
     <fieldset><legend>Factions and cost</legend>

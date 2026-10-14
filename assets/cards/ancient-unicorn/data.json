@@ -12,15 +12,13 @@
     "unicorn"
   ],
   "legendary": true,
-  "rarity": "rare",
+  "rarity": "legendary",
   "cost": {
-    "generic": 1,
-    "factions": {}
+    "generic": 1
   },
   "stats": {
     "attack": 1,
-    "defense": 2,
-    "energyOutputs": []
+    "defense": 2
   },
   "abilities": [
     {

@@ -64,7 +64,7 @@
       "unicorn"
     ],
     "legendary": true,
-    "rarity": "rare",
+    "rarity": "legendary",
     "cost": {
       "generic": 1,
       "factions": {}
@@ -87,6 +87,52 @@
       "attack": 1,
       "defense": 2,
       "energyOutputs": []
+    }
+  },
+  {
+    "id": "arianna-healing-princess",
+    "set": "foundations",
+    "revision": 1,
+    "name": "Arianna, Healing Princess",
+    "deckLimitKey": "arianna-healing-princess",
+    "type": "creature",
+    "factions": [
+      "crownlands"
+    ],
+    "subtypes": [
+      "human",
+      "noble"
+    ],
+    "legendary": true,
+    "rarity": "legendary",
+    "cost": {
+      "generic": 0,
+      "factions": {
+        "crownlands": 2
+      }
+    },
+    "translations": {
+      "de": {
+        "name": "Arinna, Heilender Prinzessin"
+      }
+    },
+    "art": "/cards/arianna-healing-princess/data.png?v=9c4d72c3d1504ac6",
+    "abilities": [
+      {
+        "id": "rally",
+        "params": {
+          "amount": 2
+        }
+      }
+    ],
+    "stats": {
+      "attack": 1,
+      "defense": 4,
+      "energyOutputs": [
+        {
+          "crownlands": 2
+        }
+      ]
     }
   },
   {
@@ -132,6 +178,47 @@
           "crownlands": 2
         }
       ]
+    }
+  },
+  {
+    "id": "banner-of-the-morning-vale",
+    "set": "foundations",
+    "revision": 1,
+    "name": "Banner of the Morning Vale",
+    "deckLimitKey": "banner-of-the-morning-vale",
+    "type": "holding",
+    "factions": [
+      "crownlands"
+    ],
+    "subtypes": [
+      "banner"
+    ],
+    "legendary": false,
+    "rarity": "rare",
+    "cost": {
+      "generic": 1,
+      "factions": {
+        "crownlands": 1
+      }
+    },
+    "translations": {
+      "de": {
+        "name": "Banner des Morgentals"
+      }
+    },
+    "art": "/cards/banner-of-the-morning-vale/data.png?v=ba08924275740cc2",
+    "abilities": [
+      {
+        "id": "war-banner",
+        "params": {
+          "amount": 2
+        }
+      }
+    ],
+    "stats": {
+      "attack": 0,
+      "defense": 3,
+      "energyOutputs": []
     }
   },
   {
@@ -1136,7 +1223,7 @@
       "human"
     ],
     "legendary": true,
-    "rarity": "rare",
+    "rarity": "legendary",
     "cost": {
       "generic": 0,
       "factions": {}
@@ -1718,22 +1805,21 @@
     },
     "translations": {
       "de": {
-        "name": "Schrein für die Flussgötter"
+        "name": "Schrein der Flussgötter"
       }
     },
     "art": "/cards/shrine-to-the-river-gods/data.png?v=aea61d56f2194ea1",
     "abilities": [
       {
-        "id": "channel",
+        "id": "rally",
         "params": {
-          "amount": 2,
-          "energy": "bright-marches"
+          "amount": 2
         }
       }
     ],
     "stats": {
-      "attack": 1,
-      "defense": 2,
+      "attack": 0,
+      "defense": 3,
       "energyOutputs": []
     }
   },
@@ -1876,7 +1962,7 @@
       "fortification"
     ],
     "legendary": true,
-    "rarity": "rare",
+    "rarity": "legendary",
     "cost": {
       "generic": 2,
       "factions": {
@@ -1950,6 +2036,42 @@
         }
       }
     ]
+  },
+  {
+    "id": "westhill-smith",
+    "set": "foundations",
+    "revision": 1,
+    "name": "Westhill Smith",
+    "deckLimitKey": "westhill-smith",
+    "type": "creature",
+    "factions": [
+      "bright-marches"
+    ],
+    "subtypes": [
+      "human"
+    ],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 0,
+      "factions": {}
+    },
+    "translations": {
+      "de": {
+        "name": "Westhügel Schmied"
+      }
+    },
+    "art": "/cards/westhill-smith/data.png?v=276d867587dc545f",
+    "abilities": [],
+    "stats": {
+      "attack": 1,
+      "defense": 1,
+      "energyOutputs": [
+        {
+          "bright-marches": 1
+        }
+      ]
+    }
   },
   {
     "id": "wooden-fort",

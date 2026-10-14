@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "arianna-healing-princess",
+  "revision": 1,
+  "name": "Arianna, Healing Princess",
+  "deckLimitKey": "arianna-healing-princess",
+  "type": "creature",
+  "factions": [
+    "crownlands"
+  ],
+  "subtypes": [
+    "human",
+    "noble"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "crownlands": 2
+    }
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 4,
+    "energyOutputs": [
+      {
+        "crownlands": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "rally",
+      "params": {
+        "amount": 2
+      }
+    }
+  ],
+  "set": "foundations"
+}

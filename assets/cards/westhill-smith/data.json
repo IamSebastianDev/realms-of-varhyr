@@ -1,0 +1,30 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "westhill-smith",
+  "revision": 1,
+  "name": "Westhill Smith",
+  "deckLimitKey": "westhill-smith",
+  "type": "creature",
+  "factions": [
+    "bright-marches"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 1,
+    "energyOutputs": [
+      {
+        "bright-marches": 1
+      }
+    ]
+  },
+  "abilities": [],
+  "set": "foundations"
+}

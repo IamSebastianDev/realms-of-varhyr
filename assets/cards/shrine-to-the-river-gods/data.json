@@ -20,15 +20,14 @@
     }
   },
   "stats": {
-    "attack": 1,
-    "defense": 2
+    "attack": 0,
+    "defense": 3
   },
   "abilities": [
     {
-      "id": "channel",
+      "id": "rally",
       "params": {
-        "amount": 2,
-        "energy": "bright-marches"
+        "amount": 2
       }
     }
   ],
