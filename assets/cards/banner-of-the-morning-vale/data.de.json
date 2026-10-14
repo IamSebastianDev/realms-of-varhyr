@@ -1,4 +1,5 @@
 {
   "$schema": "../../schemas/card-translation.schema.json",
-  "name": "Banner des Morgentals"
+  "name": "Banner des Morgentals",
+  "lore": "Im Morgental hat das Banner den Boden nie berührt. Niemand hat gefragt, was geschähe, wenn doch."
 }

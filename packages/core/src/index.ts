@@ -2,7 +2,7 @@ import * as v from 'valibot';
 import type { AbilityBinding, BattlefieldState, BeforePayload, CardDefinition, CardInstance, Combat, Command, CommandEnvelope, Cost, DeadSnapshot, EnergyType, GameEvent, GameState, HookContext, InternalOrder, LegalActions, Player, PlayerId, PlayerView, Pool, Registry } from '../../contracts/src';
 import { battlefieldPositions, deckRules, positionName } from '../../contracts/src';
 import { describeAbility } from '../../extensions/src/describeAbility';
-export const RULES_VERSION = 'varhir-rules-0.18';
+export const RULES_VERSION = 'varhir-rules-0.19';
 const nonnegative = v.pipe(v.number(), v.integer(), v.minValue(0));
 const paymentSchema = v.record(v.pipe(v.string(), v.regex(/^[a-z][a-z0-9_-]*$/)), nonnegative);
 const commandSchema = v.variant('type', [
@@ -46,7 +46,7 @@ export function definition(state: GameState | Pick<PlayerView, 'cards'>, id: str
 export function effectiveStats(state: Pick<GameState, 'cards' | 'players'> | Pick<PlayerView, 'cards' | 'players'>, id: string, registry: Registry) {
   const card = state.cards[id], printed = registry.cards[card.definitionId].stats;
   if (!printed) return { attack: 0, defense: 0 };
-  let attack = printed.attack, defense = printed.defense;
+  let attack = printed.attack + (card.attackBonus ?? 0), defense = printed.defense + (card.defenseBonus ?? 0);
   // Give continuous effects the same public battlefield context in the engine and player-view renderer.
   // Private hands/libraries and other match fields must not influence a static modifier.
   const battlefield: BattlefieldState = {
@@ -255,7 +255,7 @@ class Transaction {
     this.emit('card.played',`${this.state.players[player].name} plays ${def.name} in ${positionName(slot)}.`,{player,cardId:card.id});
     this.emit(def.type === 'holding' ? 'holding.entered' : 'creature.entered',`${def.name} enters ${card.exhausted ? 'exhausted' : 'ready'}.`,{cardId:card.id});
   }
-  discard(id: string) { const card = this.state.cards[id]; this.detach(card); card.zone = 'discard'; card.damage = 0; card.exhausted = false; this.state.players[card.owner].discard.push(id); }
+  discard(id: string) { const card = this.state.cards[id]; this.detach(card); card.zone = 'discard'; card.damage = 0; delete card.attackBonus; delete card.defenseBonus; card.exhausted = false; this.state.players[card.owner].discard.push(id); }
   destroy(id: string, combat = false) {
     const card = this.state.cards[id]; if (!card || card.zone !== 'board') return;
     const snapshot = { ...card };
@@ -295,7 +295,14 @@ class Transaction {
       requireRule(--this.budget > 0,'RESOLUTION_LIMIT: extension chain exceeded 256 operations.');
       const {order,effect} = this.queue.shift()!;
       if (order.type === 'damage') this.dealDamage(order);
-      else if (order.type === 'heal') {
+      else if (order.type === 'boost') {
+        const card = this.state.cards[order.target];
+        requireRule(!!card && card.zone === 'board' && this.registry.cards[card.definitionId].type === 'creature','Only a creature on the field can be strengthened.');
+        for (const amount of [order.attack ?? 0, order.defense ?? 0]) requireRule(Number.isSafeInteger(amount) && amount >= 0 && amount <= 100,'Invalid stat bonus.');
+        if (order.attack) card.attackBonus = (card.attackBonus ?? 0) + order.attack;
+        if (order.defense) card.defenseBonus = (card.defenseBonus ?? 0) + order.defense;
+        this.emit('creature.boosted',`${this.registry.cards[card.definitionId].name} gets ${[order.attack ? `+${order.attack} Attack` : '', order.defense ? `+${order.defense} Defense` : ''].filter(Boolean).join(' and ')} until end of turn.`,{cardId:card.id,amount:(order.attack ?? 0)+(order.defense ?? 0)});
+      } else if (order.type === 'heal') {
         requireRule(Number.isInteger(order.amount) && order.amount >= 0,'Invalid heal amount.');
         this.state.players[order.target].life += order.amount;
         this.emit('life.restored',`${this.state.players[order.target].name} restores ${order.amount} life.`,{target:order.target,amount:order.amount});
@@ -321,7 +328,7 @@ class Transaction {
       else if (order.type === 'return') {
         const card = this.state.cards[order.target];
         if (card?.zone === 'board') {
-          this.detach(card); card.zone = 'hand'; card.damage = 0; card.exhausted = false; card.controller = card.owner;
+          this.detach(card); card.zone = 'hand'; card.damage = 0; delete card.attackBonus; delete card.defenseBonus; card.exhausted = false; card.controller = card.owner;
           this.state.players[card.owner].hand.push(card.id);
           this.emit('card.returned',`${this.registry.cards[card.definitionId].name} returns to hand.`,{cardId:card.id});
         }
@@ -618,7 +625,7 @@ export function apply(state: GameState, envelope: CommandEnvelope, registry: Reg
         tx.emit('turn.ended',`${p.name} ends their turn.`,{player:envelope.actor}); tx.drain();
         if (!next.outcome) {
           // Damage clears globally; only the ending controller's field cards ready.
-          for (const card of Object.values(next.cards)) if (card.zone === 'board') { card.damage = 0; if (card.controller === next.active) card.exhausted = false; }
+          for (const card of Object.values(next.cards)) if (card.zone === 'board') { card.damage = 0; delete card.attackBonus; delete card.defenseBonus; if (card.controller === next.active) card.exhausted = false; }
           for (const id of ['p1','p2'] as PlayerId[]) { next.players[id].energy = {}; next.players[id].responseEnergy = {}; }
           next.active = other(next.active); next.turn++; next.phase = 'draw';
           tx.emit('turn.started',`${next.players[next.active].name} begins turn ${next.turn}.`,{player:next.active}); tx.drain();

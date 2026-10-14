@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "banner-of-the-morning-vale",
-  "revision": 1,
+  "revision": 2,
   "name": "Banner of the Morning Vale",
   "deckLimitKey": "banner-of-the-morning-vale",
   "type": "holding",
@@ -14,11 +14,12 @@
   "legendary": false,
   "rarity": "rare",
   "cost": {
-    "generic": 1,
+    "generic": 2,
     "factions": {
       "crownlands": 1
     }
   },
+  "lore": "In the Morning Vale, the banner has never touched the ground. No one has asked what would happen if it did.",
   "stats": {
     "attack": 0,
     "defense": 3

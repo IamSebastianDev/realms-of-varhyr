@@ -20,10 +20,12 @@
   "abilities": [
     {
       "id": "adjacent-banner",
-      "params": {"amount": 1}
+      "params": {
+        "amount": 1
+      }
     }
   ],
-  "lore": "When the herald calls, the mark rises.",
+  "lore": "When the herald calls, the Mark rises.",
   "stats": {
     "attack": 2,
     "defense": 1,

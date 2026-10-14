@@ -1,4 +1,5 @@
 {
   "$schema": "../../schemas/card-translation.schema.json",
-  "name": "Regiment der ersten Morgenröte"
+  "name": "Regiment der ersten Morgenröte",
+  "lore": "Sie behaupten, die Ersten gewesen zu sein, die die Morgenröte sahen. Das Imperium hat ihnen nie widersprochen."
 }

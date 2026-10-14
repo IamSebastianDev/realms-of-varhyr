@@ -1,5 +1,5 @@
 {
   "$schema": "../../schemas/card-translation.schema.json",
   "name": "Herold der Mark",
-  "lore": "Wen den Herold zu den Bannern ruft, der folgt."
+  "lore": "Wenn der Herold ruft, erhebt sich die Mark."
 }

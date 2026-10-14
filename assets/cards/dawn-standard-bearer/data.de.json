@@ -1,4 +1,5 @@
 {
   "$schema": "../../schemas/card-translation.schema.json",
-  "name": "Bannerträger der Morgenröte"
+  "name": "Bannerträger der Morgenröte",
+  "lore": "Er trägt das Banner. Das Banner trägt das Regiment."
 }

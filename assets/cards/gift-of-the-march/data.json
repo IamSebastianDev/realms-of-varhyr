@@ -18,7 +18,6 @@
     "factions": {}
   },
   "abilities": [],
-  "lore": "The marches feed the people.",
   "timing": [
     "play",
     "response"
@@ -26,8 +25,12 @@
   "cast": [
     {
       "id": "channel",
-      "params": {"amount": 2, "energy": "bright-marches"}
+      "params": {
+        "amount": 2,
+        "energy": "bright-marches"
+      }
     }
   ],
+  "lore": "The Marches feed the people.",
   "set": "foundations"
 }

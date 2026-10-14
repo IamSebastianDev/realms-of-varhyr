@@ -17,6 +17,7 @@
     "generic": 0,
     "factions": {}
   },
+  "lore": "Even the woods are plentiful.",
   "stats": {
     "attack": 0,
     "defense": 2,
@@ -27,6 +28,5 @@
     ]
   },
   "abilities": [],
-  "lore": "Even the woods are plentiful",
   "set": "foundations"
 }

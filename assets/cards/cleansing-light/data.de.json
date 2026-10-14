@@ -1,4 +1,5 @@
 {
   "$schema": "../../schemas/card-translation.schema.json",
-  "name": "Läuterndes Licht"
+  "name": "Läuterndes Licht",
+  "lore": "Gnade und Urteil in einem einzigen Lichtblitz."
 }

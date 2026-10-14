@@ -9,7 +9,7 @@
     "crownlands"
   ],
   "subtypes": [
-    "creature"
+    "human"
   ],
   "legendary": false,
   "rarity": "rare",
@@ -19,6 +19,7 @@
       "crownlands": 1
     }
   },
+  "lore": "He carries the standard. The standard carries the regiment.",
   "stats": {
     "attack": 1,
     "defense": 3,

@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Moment des Ruhms",
+  "lore": "Lieder bewahren nur die letzten Sekunden. Lass sie zählen."
+}

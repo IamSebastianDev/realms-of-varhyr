@@ -1,0 +1,34 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "young-squire",
+  "revision": 1,
+  "name": "Young Squire",
+  "deckLimitKey": "young-squire",
+  "type": "creature",
+  "factions": [
+    "crownlands"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "crownlands": 1
+    }
+  },
+  "lore": "He carries the shield now. One day he will be trusted with the sword. That day is not today.",
+  "stats": {
+    "attack": 1,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "crownlands": 2
+      }
+    ]
+  },
+  "abilities": [],
+  "set": "foundations"
+}

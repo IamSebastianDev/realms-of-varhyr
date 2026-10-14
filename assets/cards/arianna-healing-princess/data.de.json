@@ -1,4 +1,5 @@
 {
   "$schema": "../../schemas/card-translation.schema.json",
-  "name": "Arinna, Heilender Prinzessin"
+  "name": "Arianna, die heilende Prinzessin",
+  "lore": "Die Regentin heilt, was der Hof nicht als zerbrochen anerkennen will."
 }

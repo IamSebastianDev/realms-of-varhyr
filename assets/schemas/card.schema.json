@@ -720,6 +720,34 @@
       ],
       "additionalProperties": false
     },
+    "ability-rage": {
+      "type": "object",
+      "title": "Rage {amount}",
+      "description": "Target friendly creature gets +{amount} Attack until end of turn.",
+      "properties": {
+        "id": {
+          "const": "rage"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
     "ability-raid": {
       "type": "object",
       "title": "Raid",
@@ -909,6 +937,34 @@
       ],
       "additionalProperties": false
     },
+    "ability-steadfast": {
+      "type": "object",
+      "title": "Steadfast {amount}",
+      "description": "Target friendly creature gets +{amount} Defense until end of turn.",
+      "properties": {
+        "id": {
+          "const": "steadfast"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
     "ability-trade": {
       "type": "object",
       "title": "Trade",
@@ -1002,6 +1058,7 @@
             "longshot",
             "marches-rally",
             "primal",
+            "rage",
             "raid",
             "rally",
             "rime",
@@ -1010,6 +1067,7 @@
             "shield-wall",
             "shoulder-to-shoulder",
             "soul-harvest",
+            "steadfast",
             "trade",
             "war-banner",
             "wayfarer"
@@ -1076,6 +1134,9 @@
           "$ref": "#/definitions/ability-primal"
         },
         {
+          "$ref": "#/definitions/ability-rage"
+        },
+        {
           "$ref": "#/definitions/ability-raid"
         },
         {
@@ -1098,6 +1159,9 @@
         },
         {
           "$ref": "#/definitions/ability-soul-harvest"
+        },
+        {
+          "$ref": "#/definitions/ability-steadfast"
         },
         {
           "$ref": "#/definitions/ability-trade"
@@ -1129,6 +1193,7 @@
             "flank-evasion",
             "guard",
             "heal",
+            "rage",
             "raid",
             "rime",
             "sanctuary",
@@ -1136,6 +1201,7 @@
             "shield-wall",
             "shoulder-to-shoulder",
             "soul-harvest",
+            "steadfast",
             "trade",
             "war-banner"
           ]
@@ -1189,6 +1255,9 @@
           "$ref": "#/definitions/ability-heal"
         },
         {
+          "$ref": "#/definitions/ability-rage"
+        },
+        {
           "$ref": "#/definitions/ability-raid"
         },
         {
@@ -1210,6 +1279,9 @@
           "$ref": "#/definitions/ability-soul-harvest"
         },
         {
+          "$ref": "#/definitions/ability-steadfast"
+        },
+        {
           "$ref": "#/definitions/ability-trade"
         },
         {
@@ -1227,7 +1299,9 @@
             "channel",
             "damage",
             "draw",
-            "heal"
+            "heal",
+            "rage",
+            "steadfast"
           ]
         },
         "params": {
@@ -1253,6 +1327,12 @@
         },
         {
           "$ref": "#/definitions/ability-heal"
+        },
+        {
+          "$ref": "#/definitions/ability-rage"
+        },
+        {
+          "$ref": "#/definitions/ability-steadfast"
         }
       ]
     },
@@ -1278,6 +1358,7 @@
             "invocation",
             "longshot",
             "marches-rally",
+            "rage",
             "raid",
             "rally",
             "rime",
@@ -1286,6 +1367,7 @@
             "shield-wall",
             "shoulder-to-shoulder",
             "soul-harvest",
+            "steadfast",
             "trade",
             "war-banner",
             "wayfarer"
@@ -1349,6 +1431,9 @@
           "$ref": "#/definitions/ability-marches-rally"
         },
         {
+          "$ref": "#/definitions/ability-rage"
+        },
+        {
           "$ref": "#/definitions/ability-raid"
         },
         {
@@ -1371,6 +1456,9 @@
         },
         {
           "$ref": "#/definitions/ability-soul-harvest"
+        },
+        {
+          "$ref": "#/definitions/ability-steadfast"
         },
         {
           "$ref": "#/definitions/ability-trade"

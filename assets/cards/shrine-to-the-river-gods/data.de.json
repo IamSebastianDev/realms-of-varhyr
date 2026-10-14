@@ -1,4 +1,5 @@
 {
   "$schema": "../../schemas/card-translation.schema.json",
-  "name": "Schrein der Flussgötter"
+  "name": "Schrein der Flussgötter",
+  "lore": "Die Flüsse verlangen wenig, und die Flusslande geben es gern."
 }

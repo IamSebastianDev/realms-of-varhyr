@@ -1,4 +1,5 @@
 {
   "$schema": "../../schemas/card-translation.schema.json",
-  "name": "Westhügel Schmied"
+  "name": "Schmied von Westhill",
+  "lore": "Was Westhill an Erz fehlt, gleicht es mit Hämmern aus."
 }

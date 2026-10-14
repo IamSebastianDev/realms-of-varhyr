@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Schließt die Reihen",
+  "lore": "Der Befehl ändert sich nie. Wer ihn befolgt, ebenso wenig."
+}

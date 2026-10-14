@@ -17,6 +17,7 @@
     "generic": 0,
     "factions": {}
   },
+  "lore": "Where the woods meet the river, ships are built.",
   "stats": {
     "attack": 1,
     "defense": 2,
@@ -27,6 +28,5 @@
     ]
   },
   "abilities": [],
-  "lore": "Where the woods meet the river, the ships will be built.",
   "set": "foundations"
 }

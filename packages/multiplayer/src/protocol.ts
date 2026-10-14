@@ -15,7 +15,7 @@ const number = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(Number.
 const zoneCount = v.pipe(number, v.maxValue(10000));
 const seat = v.picklist(['p1', 'p2']);
 const pool = v.record(text, number);
-const entity = v.object({ id:text,definitionId:text,owner:seat,controller:seat,zone:v.picklist(['deck','hand','board','discard','choice']),slot:v.nullable(number),exhausted:v.boolean(),damage:number });
+const entity = v.object({ id:text,definitionId:text,owner:seat,controller:seat,zone:v.picklist(['deck','hand','board','discard','choice']),slot:v.nullable(number),exhausted:v.boolean(),damage:number,attackBonus:v.optional(number),defenseBonus:v.optional(number) });
 const dead = v.object({card:entity,outputs:v.array(pool)});
 const pending = v.variant('kind',[
   v.object({id:text,player:seat,kind:v.literal('draw'),options:v.array(text)}),

@@ -130,6 +130,22 @@ const activeExtensions: AbilityExtension[] = [
         },
     }),
 
+    extension("rage", amountSchema, {
+        translations: { de: { name: "Wut {amount}", description: "Eine eigene Kreatur erhält bis zum Ende des Zuges +{amount} Angriff." } },
+        name: "Rage {amount}",
+        description: "Target friendly creature gets +{amount} Attack until end of turn.",
+        target: "friendly-creature",
+        cast: (ctx, p) => { if (ctx.target) ctx.issue({ type: "boost", target: ctx.target, attack: amount(p), source: ctx.source.id }); },
+    }),
+
+    extension("steadfast", amountSchema, {
+        translations: { de: { name: "Standhaft {amount}", description: "Eine eigene Kreatur erhält bis zum Ende des Zuges +{amount} Verteidigung." } },
+        name: "Steadfast {amount}",
+        description: "Target friendly creature gets +{amount} Defense until end of turn.",
+        target: "friendly-creature",
+        cast: (ctx, p) => { if (ctx.target) ctx.issue({ type: "boost", target: ctx.target, defense: amount(p), source: ctx.source.id }); },
+    }),
+
     extension("barrage", amountSchema, {
         translations: { de: { name: "Sperrfeuer {amount}", description: "Füge jeder gegnerischen Kreatur {amount} Schaden zu. Besitzungen und Spieler sind nicht betroffen." } },
         name: "Barrage {amount}",

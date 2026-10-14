@@ -21,6 +21,7 @@
       "crownlands": 1
     }
   },
+  "lore": "Cast out by the Crown, they now look for a new leader.",
   "stats": {
     "attack": 3,
     "defense": 3,
@@ -38,6 +39,5 @@
       }
     }
   ],
-  "lore": "No longer wanted by the Crown, they look now for a new Leader.",
   "set": "foundations"
 }

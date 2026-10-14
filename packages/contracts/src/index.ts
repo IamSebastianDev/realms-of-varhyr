@@ -23,7 +23,7 @@ export type CardDefinition = {
   stats?: { attack: number; defense: number; energyOutputs: Pool[] };
   timing?: ('play' | 'response')[]; cast?: AbilityBinding[];
 };
-export type CardInstance = { id: string; definitionId: string; owner: PlayerId; controller: PlayerId; zone: 'deck' | 'hand' | 'board' | 'discard' | 'choice'; slot: number | null; exhausted: boolean; damage: number };
+export type CardInstance = { id: string; definitionId: string; owner: PlayerId; controller: PlayerId; zone: 'deck' | 'hand' | 'board' | 'discard' | 'choice'; slot: number | null; exhausted: boolean; damage: number; /** Until-end-of-turn bonuses from spells such as Rage and Steadfast. */ attackBonus?: number; defenseBonus?: number };
 export type Player = { id: PlayerId; name: string; /** Portrait id; optional presentation only. */ avatar?: string; life: number; deck: string[]; hand: string[]; board: (string | null)[]; discard: string[]; energy: Pool; responseEnergy: Pool };
 export type Phase = 'draw' | 'play' | 'attack' | 'end';
 export type DeadSnapshot = { card: CardInstance; outputs: Pool[] };
@@ -63,6 +63,8 @@ export type CommandEnvelope = { actor: PlayerId; expectedRevision: number; comma
 export type InternalOrder =
   | { type: 'damage'; target: string; amount: number; source?: string }
   | { type: 'heal'; target: PlayerId; amount: number }
+  /** Temporary stat bonus on a field creature; cleared when the turn ends. */
+  | { type: 'boost'; target: string; attack?: number; defense?: number; source?: string }
   | { type: 'draw'; player: PlayerId; amount: number }
   | { type: 'gain-energy'; player: PlayerId; output: Pool; source?: string }
   | { type: 'return'; target: string }

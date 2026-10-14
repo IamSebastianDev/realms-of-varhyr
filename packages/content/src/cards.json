@@ -111,9 +111,11 @@
         "crownlands": 2
       }
     },
+    "lore": "The regent heals what the court refuses to admit is broken.",
     "translations": {
       "de": {
-        "name": "Arinna, Heilender Prinzessin"
+        "name": "Arianna, die heilende Prinzessin",
+        "lore": "Die Regentin heilt, was der Hof nicht als zerbrochen anerkennen will."
       }
     },
     "art": "/cards/arianna-healing-princess/data.png?v=9c4d72c3d1504ac6",
@@ -156,9 +158,11 @@
         "crownlands": 1
       }
     },
+    "lore": "Ban Vale’s riders arrive before the news of their coming.",
     "translations": {
       "de": {
-        "name": "Kavallerie von Ban Vale"
+        "name": "Kavallerie von Ban Vale",
+        "lore": "Die Reiter von Ban Vale treffen ein, noch bevor die Nachricht von ihnen eintrifft."
       }
     },
     "art": "/cards/ban-vale-cavalry/data.png?v=4cf069d1371c9c7f",
@@ -183,7 +187,7 @@
   {
     "id": "banner-of-the-morning-vale",
     "set": "foundations",
-    "revision": 1,
+    "revision": 2,
     "name": "Banner of the Morning Vale",
     "deckLimitKey": "banner-of-the-morning-vale",
     "type": "holding",
@@ -196,14 +200,16 @@
     "legendary": false,
     "rarity": "rare",
     "cost": {
-      "generic": 1,
+      "generic": 2,
       "factions": {
         "crownlands": 1
       }
     },
+    "lore": "In the Morning Vale, the banner has never touched the ground. No one has asked what would happen if it did.",
     "translations": {
       "de": {
-        "name": "Banner des Morgentals"
+        "name": "Banner des Morgentals",
+        "lore": "Im Morgental hat das Banner den Boden nie berührt. Niemand hat gefragt, was geschähe, wenn doch."
       }
     },
     "art": "/cards/banner-of-the-morning-vale/data.png?v=ba08924275740cc2",
@@ -240,9 +246,11 @@
         "crownlands": 1
       }
     },
+    "lore": "Sung before the battle, remembered as sung after.",
     "translations": {
       "de": {
-        "name": "Schlachtfeldhymne"
+        "name": "Schlachtfeldhymne",
+        "lore": "Vor der Schlacht gesungen, erinnert man sich, es danach gesungen zu haben."
       }
     },
     "art": "/cards/battlefield-hymn/data.png?v=008273eb5dc86946",
@@ -259,6 +267,47 @@
         }
       }
     ]
+  },
+  {
+    "id": "borderpost",
+    "set": "foundations",
+    "revision": 1,
+    "name": "Borderpost",
+    "deckLimitKey": "borderpost",
+    "type": "holding",
+    "factions": [
+      "crownlands"
+    ],
+    "subtypes": [
+      "fortification"
+    ],
+    "legendary": false,
+    "rarity": "rare",
+    "cost": {
+      "generic": 1,
+      "factions": {
+        "crownlands": 1
+      }
+    },
+    "lore": "Beyond this post, the empire’s peace is a matter of opinion.",
+    "translations": {
+      "de": {
+        "name": "Grenzposten",
+        "lore": "Jenseits dieses Postens ist der Friede des Imperiums Ansichtssache."
+      }
+    },
+    "art": "/cards/borderpost/data.png?v=7e5dba69fc5f293d",
+    "abilities": [
+      {
+        "id": "guard",
+        "params": {}
+      }
+    ],
+    "stats": {
+      "attack": 1,
+      "defense": 4,
+      "energyOutputs": []
+    }
   },
   {
     "id": "borrowed-wisdom",
@@ -418,9 +467,11 @@
         "crownlands": 1
       }
     },
+    "lore": "Mercy and judgment in a single flash of light.",
     "translations": {
       "de": {
-        "name": "Läuterndes Licht"
+        "name": "Läuterndes Licht",
+        "lore": "Gnade und Urteil in einem einzigen Lichtblitz."
       }
     },
     "art": "/cards/cleansing-light/data.png?v=ce6dcaf373c1a775",
@@ -440,6 +491,46 @@
         "id": "heal",
         "params": {
           "amount": 1
+        }
+      }
+    ]
+  },
+  {
+    "id": "close-ranks",
+    "set": "foundations",
+    "revision": 2,
+    "name": "Close Ranks",
+    "deckLimitKey": "close-ranks",
+    "type": "spell",
+    "factions": [
+      "crownlands"
+    ],
+    "subtypes": [],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 1,
+      "factions": {
+        "crownlands": 1
+      }
+    },
+    "lore": "The order never changes. Neither do those who obey it.",
+    "translations": {
+      "de": {
+        "name": "Schließt die Reihen",
+        "lore": "Der Befehl ändert sich nie. Wer ihn befolgt, ebenso wenig."
+      }
+    },
+    "art": "/cards/close-ranks/data.png?v=764a6a4f16d93b32",
+    "abilities": [],
+    "timing": [
+      "play"
+    ],
+    "cast": [
+      {
+        "id": "steadfast",
+        "params": {
+          "amount": 2
         }
       }
     ]
@@ -504,7 +595,7 @@
       "crownlands"
     ],
     "subtypes": [
-      "creature"
+      "human"
     ],
     "legendary": false,
     "rarity": "common",
@@ -594,7 +685,7 @@
       "crownlands"
     ],
     "subtypes": [
-      "creature"
+      "human"
     ],
     "legendary": false,
     "rarity": "rare",
@@ -604,9 +695,11 @@
         "crownlands": 1
       }
     },
+    "lore": "He carries the standard. The standard carries the regiment.",
     "translations": {
       "de": {
-        "name": "Bannerträger der Morgenröte"
+        "name": "Bannerträger der Morgenröte",
+        "lore": "Er trägt das Banner. Das Banner trägt das Regiment."
       }
     },
     "art": "/cards/dawn-standard-bearer/data.png?v=4afb068adb49b6b5",
@@ -704,11 +797,11 @@
         "crownlands": 1
       }
     },
-    "lore": "No longer wanted by the Crown, they look now for a new Leader.",
+    "lore": "Cast out by the Crown, they now look for a new leader.",
     "translations": {
       "de": {
         "name": "Verbannte Kompanie",
-        "lore": "Die Krone will sie nicht mehr. Nun suchen sie einen neuen Anführer."
+        "lore": "Von der Krone verstoßen, suchen sie nun einen neuen Anführer."
       }
     },
     "art": "/cards/exiled-company/data.png?v=8afd24a141a9a0bd",
@@ -751,9 +844,11 @@
         "crownlands": 1
       }
     },
+    "lore": "They hold that they were the first to see the dawn. The empire has never contradicted them.",
     "translations": {
       "de": {
-        "name": "Regiment der ersten Morgenröte"
+        "name": "Regiment der ersten Morgenröte",
+        "lore": "Sie behaupten, die Ersten gewesen zu sein, die die Morgenröte sahen. Das Imperium hat ihnen nie widersprochen."
       }
     },
     "art": "/cards/first-dawn-regiment/data.png?v=a26a8cb1c1cc7e06",
@@ -794,7 +889,7 @@
       "generic": 1,
       "factions": {}
     },
-    "lore": "The marches feed the people.",
+    "lore": "The Marches feed the people.",
     "translations": {
       "de": {
         "name": "Geschenk der Mark",
@@ -880,7 +975,7 @@
     "translations": {
       "de": {
         "name": "Herdwache",
-        "lore": "Wo der Herd brennt, bricht der Marsch nicht."
+        "lore": "Wo der Herd brennt, bricht die Mark nicht."
       }
     },
     "art": "/cards/hearth-guard/data.png?v=4cfddd548b66cc40",
@@ -974,11 +1069,11 @@
       "generic": 0,
       "factions": {}
     },
-    "lore": "When the herald calls, the mark rises.",
+    "lore": "When the herald calls, the Mark rises.",
     "translations": {
       "de": {
         "name": "Herold der Mark",
-        "lore": "Wen den Herold zu den Bannern ruft, der folgt."
+        "lore": "Wenn der Herold ruft, erhebt sich die Mark."
       }
     },
     "art": "/cards/herald-of-the-mark/data.png?v=016da170a1475d3a",
@@ -1106,7 +1201,7 @@
       "generic": 0,
       "factions": {}
     },
-    "lore": "Even the woods are plentiful",
+    "lore": "Even the woods are plentiful.",
     "translations": {
       "de": {
         "name": "Holzfäller von Longvale",
@@ -1228,7 +1323,7 @@
       "generic": 0,
       "factions": {}
     },
-    "lore": "The merchants of Tris Vale are known for their gold and silver works",
+    "lore": "The merchants of Tris Vale are known for their gold and silverwork.",
     "translations": {
       "de": {
         "name": "Händler von Tris Vale",
@@ -1246,6 +1341,46 @@
         }
       ]
     }
+  },
+  {
+    "id": "moment-of-glory",
+    "set": "foundations",
+    "revision": 1,
+    "name": "Moment of Glory",
+    "deckLimitKey": "moment-of-glory",
+    "type": "spell",
+    "factions": [
+      "bright-marches"
+    ],
+    "subtypes": [],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 0,
+      "factions": {
+        "bright-marches": 1
+      }
+    },
+    "lore": "Songs keep only the last few seconds. Make them count.",
+    "translations": {
+      "de": {
+        "name": "Moment des Ruhms",
+        "lore": "Lieder bewahren nur die letzten Sekunden. Lass sie zählen."
+      }
+    },
+    "art": "/cards/moment-of-glory/data.png?v=e197422db576433e",
+    "abilities": [],
+    "timing": [
+      "play"
+    ],
+    "cast": [
+      {
+        "id": "rage",
+        "params": {
+          "amount": 2
+        }
+      }
+    ]
   },
   {
     "id": "morie-grandmistress",
@@ -1585,14 +1720,16 @@
       "bright-marches",
       "crownlands"
     ],
-    "subtypes": [],
+    "subtypes": [
+      "human"
+    ],
     "legendary": false,
     "rarity": "rare",
     "cost": {
       "generic": 0,
       "factions": {}
     },
-    "lore": "Those who see the beauty of the Riverlands never forgets it.",
+    "lore": "Those who see the beauty of the Riverlands never forget it.",
     "translations": {
       "de": {
         "name": "Gesandter der Flusslande",
@@ -1640,11 +1777,11 @@
       "generic": 0,
       "factions": {}
     },
-    "lore": "Where the woods meet the river, the ships will be built.",
+    "lore": "Where the woods meet the river, ships are built.",
     "translations": {
       "de": {
         "name": "Schiffsbauer der Flusslande",
-        "lore": "Wo der Fluss und der Wald sich treffen, ist wo wir unsere Schiffe bauen."
+        "lore": "Wo Wald und Fluss sich treffen, werden Schiffe gebaut."
       }
     },
     "art": "/cards/riverland-shipwrights/data.png?v=abfe9399b7417fcf",
@@ -1670,7 +1807,7 @@
       "crownlands"
     ],
     "subtypes": [
-      "creature"
+      "human"
     ],
     "legendary": false,
     "rarity": "common",
@@ -1680,9 +1817,11 @@
         "crownlands": 2
       }
     },
+    "lore": "Rune-etched shields, sworn to a throne that rarely sees them.",
     "translations": {
       "de": {
-        "name": "Runenwache"
+        "name": "Runenwache",
+        "lore": "Runenverzierte Schilde, geschworen auf einen Thron, der sie kaum zu Gesicht bekommt."
       }
     },
     "art": "/cards/runeguard/data.png?v=179d0291566de33a",
@@ -1766,8 +1905,8 @@
     "lore": "It takes courage to face the sea.",
     "translations": {
       "de": {
-        "name": "Seacliffe Fischer",
-        "lore": "Es braucht mut sich der See zu stellen."
+        "name": "Fischer von Seacliffe",
+        "lore": "Es braucht Mut, sich der See zu stellen."
       }
     },
     "art": "/cards/seacliffe-fisherman/data.png?v=0e4e87aae0c5f3d5",
@@ -1803,9 +1942,11 @@
         "bright-marches": 2
       }
     },
+    "lore": "The rivers ask for little, and the Riverlands give it gladly.",
     "translations": {
       "de": {
-        "name": "Schrein der Flussgötter"
+        "name": "Schrein der Flussgötter",
+        "lore": "Die Flüsse verlangen wenig, und die Flusslande geben es gern."
       }
     },
     "art": "/cards/shrine-to-the-river-gods/data.png?v=aea61d56f2194ea1",
@@ -2056,9 +2197,11 @@
       "generic": 0,
       "factions": {}
     },
+    "lore": "What Westhill lacks in ore it makes up for in hammers.",
     "translations": {
       "de": {
-        "name": "Westhügel Schmied"
+        "name": "Schmied von Westhill",
+        "lore": "Was Westhill an Erz fehlt, gleicht es mit Hämmern aus."
       }
     },
     "art": "/cards/westhill-smith/data.png?v=276d867587dc545f",
@@ -2114,6 +2257,46 @@
       "attack": 2,
       "defense": 5,
       "energyOutputs": []
+    }
+  },
+  {
+    "id": "young-squire",
+    "set": "foundations",
+    "revision": 1,
+    "name": "Young Squire",
+    "deckLimitKey": "young-squire",
+    "type": "creature",
+    "factions": [
+      "crownlands"
+    ],
+    "subtypes": [
+      "human"
+    ],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 0,
+      "factions": {
+        "crownlands": 1
+      }
+    },
+    "lore": "He carries the shield now. One day he will be trusted with the sword. That day is not today.",
+    "translations": {
+      "de": {
+        "name": "Junger Knappe",
+        "lore": "Noch trägt er den Schild. Eines Tages wird man ihm das Schwert anvertrauen. Dieser Tag ist nicht heute."
+      }
+    },
+    "art": "/cards/young-squire/data.png?v=598445ffc3629f75",
+    "abilities": [],
+    "stats": {
+      "attack": 1,
+      "defense": 2,
+      "energyOutputs": [
+        {
+          "crownlands": 2
+        }
+      ]
     }
   }
 ]

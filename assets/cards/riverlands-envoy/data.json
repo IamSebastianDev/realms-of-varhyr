@@ -9,12 +9,15 @@
     "bright-marches",
     "crownlands"
   ],
-  "subtypes": [],
+  "subtypes": [
+    "human"
+  ],
   "legendary": false,
   "rarity": "rare",
   "cost": {
     "generic": 0
   },
+  "lore": "Those who see the beauty of the Riverlands never forget it.",
   "stats": {
     "attack": 1,
     "defense": 2,
@@ -35,6 +38,5 @@
       }
     }
   ],
-  "lore": "Those who see the beauty of the Riverlands never forgets it.",
   "set": "foundations"
 }

@@ -358,4 +358,19 @@ describe('single blockers and simultaneous retaliation',()=>{
   const attacker=fixture(s,'forest-sprite','p1','board'),blocker=fixture(s,'wayfarer','p2','board');s=resolve(s,attacker,blocker,r);expect(s.cards[attacker].zone).toBe('discard');expect(s.cards[blocker].zone).toBe('hand');expect(s.players.p2.life).toBe(10);
   const hits=s.events.filter(e=>e.type==='damage.dealt');expect(hits).toHaveLength(2);expect(Math.max(...hits.map(e=>e.seq))).toBeLessThan(s.events.find(e=>e.type==='card.returned')!.seq);
  });
+
+ it('Rage and Steadfast strengthen one friendly creature until the end of the turn',()=>{
+  const cards=structuredClone(raw),light=cards.find(c=>c.id==='cleansing-light')!;light.cost={generic:1,factions:{}};
+  const withCast=(id:string)=>{const c=structuredClone(cards);c.find(x=>x.id==='cleansing-light')!.cast=[{id,params:{amount:3}}];return compileContent(c,abilities);};
+  for (const [id,key] of [['rage','attack'],['steadfast','defense']] as const) {
+    const r=withCast(id);let s=setup(r);
+    const mine=fixture(s,'forest-sprite','p1','board',0),theirs=fixture(s,'clan-scout','p2','board',0),spell=fixture(s,'cleansing-light','p1','hand');
+    const before=effectiveStats(s,mine,r)[key];s.players.p1.energy={neutral:1};
+    expect(()=>step(s,{type:'play',cardId:spell,target:theirs},'p1',r)).toThrow();
+    s=step(s,{type:'play',cardId:spell,target:mine},'p1',r);
+    expect(effectiveStats(s,mine,r)[key]).toBe(before+3);
+    for(let i=0;i<8&&s.active==='p1'&&!s.outcome;i++)s=step(s,{type:'end'},decisionPlayer(s),r);
+    expect(s.active).toBe('p2');expect(effectiveStats(s,mine,r)[key]).toBe(before);
+  }
+ });
 });

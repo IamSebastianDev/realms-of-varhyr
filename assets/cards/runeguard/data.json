@@ -9,7 +9,7 @@
     "crownlands"
   ],
   "subtypes": [
-    "creature"
+    "human"
   ],
   "legendary": false,
   "rarity": "common",
@@ -19,6 +19,7 @@
       "crownlands": 2
     }
   },
+  "lore": "Rune-etched shields, sworn to a throne that rarely sees them.",
   "stats": {
     "attack": 2,
     "defense": 4,

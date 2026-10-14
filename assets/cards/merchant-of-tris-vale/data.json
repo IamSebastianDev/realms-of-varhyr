@@ -17,6 +17,7 @@
     "generic": 0,
     "factions": {}
   },
+  "lore": "The merchants of Tris Vale are known for their gold and silverwork.",
   "stats": {
     "attack": 1,
     "defense": 1,
@@ -27,6 +28,5 @@
     ]
   },
   "abilities": [],
-  "lore": "The merchants of Tris Vale are known for their gold and silver works",
   "set": "foundations"
 }

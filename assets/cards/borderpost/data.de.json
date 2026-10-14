@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Grenzposten",
+  "lore": "Jenseits dieses Postens ist der Friede des Imperiums Ansichtssache."
+}

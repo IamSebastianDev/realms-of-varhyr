@@ -1,4 +1,5 @@
 {
   "$schema": "../../schemas/card-translation.schema.json",
-  "name": "Runenwache"
+  "name": "Runenwache",
+  "lore": "Runenverzierte Schilde, geschworen auf einen Thron, der sie kaum zu Gesicht bekommt."
 }

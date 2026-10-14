@@ -1,4 +1,5 @@
 {
   "$schema": "../../schemas/card-translation.schema.json",
-  "name": "Kavallerie von Ban Vale"
+  "name": "Kavallerie von Ban Vale",
+  "lore": "Die Reiter von Ban Vale treffen ein, noch bevor die Nachricht von ihnen eintrifft."
 }

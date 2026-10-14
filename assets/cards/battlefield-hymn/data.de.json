@@ -1,4 +1,5 @@
 {
   "$schema": "../../schemas/card-translation.schema.json",
-  "name": "Schlachtfeldhymne"
+  "name": "Schlachtfeldhymne",
+  "lore": "Vor der Schlacht gesungen, erinnert man sich, es danach gesungen zu haben."
 }
