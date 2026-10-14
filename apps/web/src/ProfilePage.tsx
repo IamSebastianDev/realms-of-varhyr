@@ -1,4 +1,4 @@
-import { t as msg, useLanguage } from './i18n';
+import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 import { useState, type CSSProperties } from 'react';
 import { Check } from 'lucide-react';
 import { Avatar } from './Avatar';

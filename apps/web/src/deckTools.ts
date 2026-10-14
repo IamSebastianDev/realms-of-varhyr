@@ -4,7 +4,7 @@ import { setInfo } from '../../../packages/content/src/sets';
 import { factions } from '../../../packages/content/src/factions';
 import { describeAbility } from '../../../packages/extensions/src/describeAbility';
 import { copyCount, copyLimit, deckCardAvailability, type CustomDeck } from './decks';
-import { subtypeLabel } from './i18n';
+import { subtypeLabel } from '../../../packages/ui/src/i18n';
 import type { OwnedCopies } from './collection';
 export { copyLimit } from './decks';
 

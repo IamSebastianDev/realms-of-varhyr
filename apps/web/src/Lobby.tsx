@@ -1,6 +1,6 @@
 import { Checkbox } from './Checkbox';
 import { FactionSelect } from './FactionSelect';
-import { subtypeLabel, t as msg, useLanguage } from './i18n';
+import { subtypeLabel, t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 import { ArrowLeft, ArrowRight, BarChart3, BookOpen, Crown, GraduationCap, Gift, Layers, Plus, Search, Settings, Swords, User, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { factionInfo, registry, setDefinitions, setInfo } from '../../../packages/content/src';
@@ -8,8 +8,8 @@ import { boosterPacks, type BoosterPack } from '../../../packages/content/src/bo
 import type { CardDefinition } from '../../../packages/contracts/src';
 import { validateDeck } from '../../../packages/core/src';
 import { BoosterOpening, packColor, packLines, packSymbol, type OpenBooster } from './BoosterOpening';
-import { ArtCard, cardAbilityDescriptions } from './CardPresentation';
-import { CardDetail } from './CardDetail';
+import { ArtCard, cardAbilityDescriptions } from '../../../packages/ui/src/CardPresentation';
+import { CardDetail } from '../../../packages/ui/src/CardDetail';
 import { OwnershipPips } from './OwnershipPips';
 import { addDeckCard, deckCardAvailability, draftKey, parseDeck, removeDeckCard, starterOptions, type CustomDeck } from './decks';
 import { buyCollectionBooster, buyCollectionCard, collectionRules, gainDebugCrowns, missingDeckCopies, openCollectionBooster, ownedCopyCount, packCount, totalPacks } from './collection';

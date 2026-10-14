@@ -1,4 +1,4 @@
-import { t as msg,useLanguage } from './i18n';
+import { t as msg,useLanguage } from '../../../packages/ui/src/i18n';
 import { useEffect, type CSSProperties } from 'react';
 import type { PlayerId } from '../../../packages/contracts/src';
 import type { SlotLayout } from '../../../packages/renderer/src/Board';

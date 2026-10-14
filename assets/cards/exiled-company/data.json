@@ -1,0 +1,43 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "exiled-company",
+  "revision": 1,
+  "name": "Exiled Company",
+  "deckLimitKey": "exiled-company",
+  "type": "creature",
+  "factions": [
+    "bright-marches",
+    "crownlands"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "bright-marches": 1,
+      "crownlands": 1
+    }
+  },
+  "stats": {
+    "attack": 3,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "neutral": 3
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "shield-wall",
+      "params": {
+        "amount": 2
+      }
+    }
+  ],
+  "lore": "No longer wanted by the Crown, they look now for a new Leader.",
+  "set": "foundations"
+}

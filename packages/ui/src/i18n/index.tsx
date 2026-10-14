@@ -1,9 +1,9 @@
 import { createContext, useContext, useEffect, type ReactNode } from 'react';
 import { getPreferences, usePreferences, type Language } from '../preferences';
 import german from './de.json';
-import { factionInfo, registry, setDefinitions } from '../../../../packages/content/src';
-import type { CardDefinition, AbilityBinding, AbilityExtension } from '../../../../packages/contracts/src';
-import { describeAbility } from '../../../../packages/extensions/src/describeAbility';
+import { factionInfo, registry, setDefinitions } from '../../../content/src';
+import type { CardDefinition, AbilityBinding, AbilityExtension } from '../../../contracts/src';
+import { describeAbility } from '../../../extensions/src/describeAbility';
 import { eventMessages } from './messages';
 const languageContext = createContext<Language>('en');
 export const useLanguage = () => useContext(languageContext);

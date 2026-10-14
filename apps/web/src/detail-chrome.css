@@ -1,0 +1,20 @@
+/* One card detail layout, shared by the collection inspector and the match preview. */
+
+/* Chrome: floating match preview (hover and pinned) */
+.pinned-preview {padding-top:34px}
+.pinned-preview .card-detail-body .inspect-action {width:100%}
+/* Chrome: collection inspector modal */
+.collection-card-detail {display:block;width:min(900px,calc(100vw - 36px));padding:32px}
+.collection-card-detail .card-detail {grid-template-columns:clamp(230px,30vw,320px) minmax(0,1fr);gap:32px;align-items:start}
+.collection-card-detail .card-detail .card-detail-art {width:100%;max-width:100%;height:auto;aspect-ratio:512/720;align-self:start}
+@media(max-width:700px){
+  .collection-card-detail {padding:24px}
+  .collection-card-detail .card-detail {gap:24px}
+}
+@media(max-width:620px){
+  .collection-card-detail .card-detail {grid-template-columns:1fr;justify-items:center}
+  .collection-card-detail .card-detail .card-detail-art {width:min(280px,100%)}
+}
+
+/* Anchor positioning: the preview sits next to the card that opened it.
+   Without support it falls back to the JS-computed --px/--py position. */

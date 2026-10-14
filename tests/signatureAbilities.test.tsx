@@ -5,7 +5,7 @@ import { apply, assertInvariants, createMatch, effectiveStats, legalActions, pro
 import type { BattlefieldState, Command, GameState, PlayerId } from '../packages/contracts/src';
 import { botCommand } from '../packages/core/src/bot';
 import { NETWORK_VERSION, parseClientMessage, parseHostMessage } from '../packages/multiplayer/src/protocol';
-import { CardFacts } from '../apps/web/src/CardPresentation';
+import { CardFacts } from '../packages/ui/src/CardPresentation';
 
 const deck = starterDefinitions.find(d => d.id === 'crown')!.cards;
 function setup() { return createMatch(registry, [deck, deck], 731); }

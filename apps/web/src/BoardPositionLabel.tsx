@@ -1,4 +1,4 @@
-import { t as msg,useLanguage } from './i18n';
+import { t as msg,useLanguage } from '../../../packages/ui/src/i18n';
 import { positionName } from '../../../packages/contracts/src';
 
 export function BoardPositionLabel({slot}:{slot:number}) {

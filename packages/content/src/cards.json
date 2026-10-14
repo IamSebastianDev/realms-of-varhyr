@@ -595,6 +595,54 @@
     }
   },
   {
+    "id": "exiled-company",
+    "set": "foundations",
+    "revision": 1,
+    "name": "Exiled Company",
+    "deckLimitKey": "exiled-company",
+    "type": "creature",
+    "factions": [
+      "bright-marches",
+      "crownlands"
+    ],
+    "subtypes": [
+      "human"
+    ],
+    "legendary": false,
+    "rarity": "rare",
+    "cost": {
+      "generic": 1,
+      "factions": {
+        "bright-marches": 1,
+        "crownlands": 1
+      }
+    },
+    "lore": "No longer wanted by the Crown, they look now for a new Leader.",
+    "translations": {
+      "de": {
+        "name": "Verbannte Kompanie"
+      }
+    },
+    "art": "/cards/exiled-company/data.png?v=8afd24a141a9a0bd",
+    "abilities": [
+      {
+        "id": "shield-wall",
+        "params": {
+          "amount": 2
+        }
+      }
+    ],
+    "stats": {
+      "attack": 3,
+      "defense": 3,
+      "energyOutputs": [
+        {
+          "neutral": 3
+        }
+      ]
+    }
+  },
+  {
     "id": "first-dawn-regiment",
     "set": "foundations",
     "revision": 1,
@@ -1396,6 +1444,52 @@
         }
       }
     ]
+  },
+  {
+    "id": "riverlands-envoy",
+    "set": "foundations",
+    "revision": 1,
+    "name": "Riverlands Envoy",
+    "deckLimitKey": "riverlands-envoy",
+    "type": "creature",
+    "factions": [
+      "bright-marches",
+      "crownlands"
+    ],
+    "subtypes": [],
+    "legendary": false,
+    "rarity": "rare",
+    "cost": {
+      "generic": 0,
+      "factions": {}
+    },
+    "lore": "Those who see the beauty of the Riverlands never forgets it.",
+    "translations": {
+      "de": {
+        "name": "Gesandter der Flusslande"
+      }
+    },
+    "art": "/cards/riverlands-envoy/data.png?v=c79d065b1dd3f069",
+    "abilities": [
+      {
+        "id": "armor",
+        "params": {
+          "amount": 1
+        }
+      }
+    ],
+    "stats": {
+      "attack": 1,
+      "defense": 2,
+      "energyOutputs": [
+        {
+          "bright-marches": 1
+        },
+        {
+          "crownlands": 1
+        }
+      ]
+    }
   },
   {
     "id": "riverlands-shipwrights",

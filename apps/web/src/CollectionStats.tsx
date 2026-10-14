@@ -1,6 +1,6 @@
 import { FactionIcon } from '../../../packages/renderer/src/FactionIcon';
 import { useEffect, useMemo, useState, type ReactNode, type CSSProperties } from 'react';
-import { localizedCard, t as msg, useLanguage } from './i18n';
+import { localizedCard, t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 import { factionInfo, registry } from '../../../packages/content/src';
 import type { CardDefinition } from '../../../packages/contracts/src';
 import { totalPacks, type Collection } from './collection';

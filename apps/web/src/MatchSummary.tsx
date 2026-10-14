@@ -1,4 +1,4 @@
-import { t as msg, useLanguage } from './i18n';
+import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 import { useEffect, useState, type ReactNode, type CSSProperties } from 'react';
 import { ArrowRight, Download, Heart, Layers, Skull, Sparkles, Swords, Zap, Flame, Gift } from 'lucide-react';
 import type { GameState, PlayerId, Registry } from '../../../packages/contracts/src';

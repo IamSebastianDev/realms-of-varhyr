@@ -1,5 +1,5 @@
-import { t as msg, useLanguage } from './i18n';
-import { usePreferences } from './preferences';
+import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
+import { usePreferences } from '../../../packages/ui/src/preferences';
 import { useEffect, useState } from 'react';
 import { defaultDeckId } from '../../../packages/content/src';
 import { Lobby, type Screen } from './Lobby';

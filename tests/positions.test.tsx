@@ -7,7 +7,7 @@ import { apply, assertInvariants, canBlock, createMatch, decisionPlayer, effecti
 import { botCommand } from '../packages/core/src/bot';
 import { creatureActions } from '../apps/web/src/creatureActions';
 import { nextPlayStage, resolveDrop } from '../apps/web/src/cardInteraction';
-import { CardFacts } from '../apps/web/src/CardPresentation';
+import { CardFacts } from '../packages/ui/src/CardPresentation';
 import { BoardPositionLabel } from '../apps/web/src/BoardPositionLabel';
 
 const base=live.cards['crown-recruit'];

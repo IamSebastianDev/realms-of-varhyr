@@ -1,9 +1,9 @@
-import { t as msg, useLanguage } from './i18n';
+import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 import { Layers, Trash2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { CardDefinition } from '../../../packages/contracts/src';
-import { ArtCard } from './CardPresentation';
+import { ArtCard } from '../../../packages/ui/src/CardPresentation';
 import { PeekBackdrop } from './Peek';
 
 export type DrawDestination = 'discard' | 'bottom';

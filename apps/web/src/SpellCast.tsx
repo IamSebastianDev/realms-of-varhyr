@@ -1,7 +1,7 @@
-import { t as msg, useLanguage } from './i18n';
+import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 import type { CSSProperties } from 'react';
 import type { CardDefinition } from '../../../packages/contracts/src';
-import { ArtCard } from './CardPresentation';
+import { ArtCard } from '../../../packages/ui/src/CardPresentation';
 
 export type SpellTone = 'damage' | 'heal' | 'arcane';
 export type SpellFx = {

@@ -1,12 +1,12 @@
 import { FactionIcon } from '../../../packages/renderer/src/FactionIcon';
-import { t as msg, useLanguage } from './i18n';
+import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { ArrowRight, Crown, X } from 'lucide-react';
 import { factionInfo, registry, setInfo } from '../../../packages/content/src';
 import type { BoosterPack } from '../../../packages/content/src/boosters';
 import type { CardDefinition } from '../../../packages/contracts/src';
 import type { BoosterCardReward } from './boosterRewards';
-import { ArtCard } from './CardPresentation';
+import { ArtCard } from '../../../packages/ui/src/CardPresentation';
 import { CrownAmount } from './Crowns';
 
 export type OpenBooster = { id: string; cards: (BoosterCardReward & { crowns?: number })[]; saved: boolean; pack: BoosterPack };

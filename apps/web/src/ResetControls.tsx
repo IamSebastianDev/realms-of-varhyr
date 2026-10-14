@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { Trash2 } from 'lucide-react';
 import { BuilderDialog } from './BuilderDialog';
 import { resetStoredGameData } from './resetStorage';
-import { t as msg, useLanguage } from './i18n';
+import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 export function ResetControls() {
   useLanguage();
   const [confirming, setConfirming] = useState(false), [error, setError] = useState('');

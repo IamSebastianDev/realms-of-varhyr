@@ -167,7 +167,7 @@ assets/cards/crown-scout/
 
 `name` is required. `lore` is optional, but provide it whenever the English card has lore; `lore: ""` deliberately hides lore in German. Nothing else is allowed in the file. A `translations` key inside `data.json` is rejected with a pointer to `data.de.json`. A card without `data.de.json` falls back to its English text. `de` is the only supported language for now; any other `data.<language>.json` is rejected.
 
-Type, subtypes, rarity and rules wording are not translated per card. They are static terms, translated once in `apps/web/src/i18n/de.json` (for example `"Human": "Mensch"`), so a new subtype such as `elf` only needs one dictionary entry, written with a capital letter. The importer merges each `data.de.json` into the generated catalogue, the card browser and deck builder search both languages, and the Settings language choice changes card faces, inspectors, tutorial references and public log text.
+Type, subtypes, rarity and rules wording are not translated per card. They are static terms, translated once in `packages/ui/src/i18n/de.json` (for example `"Human": "Mensch"`), so a new subtype such as `elf` only needs one dictionary entry, written with a capital letter. The importer merges each `data.de.json` into the generated catalogue, the card browser and deck builder search both languages, and the Settings language choice changes card faces, inspectors, tutorial references and public log text.
 
 Ability names and descriptions belong to the extension, with the same optional `translations` map:
 
@@ -309,7 +309,7 @@ The nine player heroes are authored in `packages/content/src/avatars.json`, in d
 | Dwell | The Lonely Wanderer | Ilyria |
 | Hekata | Brut | The Dark Priest of Run |
 
-Each entry records its original filename in `assets/avatars/` and its optimized portrait URL in `public/avatars/`. Change the name, title, lore, accent, or portrait there; German profile text lives in `apps/web/src/i18n/de.json`. `defaultAvatarId` in `packages/content/src/avatars.ts` explicitly selects the Wanderer, independently of the grid order. Retired or unknown saved avatar IDs fall back to that hero without changing the player's name.
+Each entry records its original filename in `assets/avatars/` and its optimized portrait URL in `public/avatars/`. Change the name, title, lore, accent, or portrait there; German profile text lives in `packages/ui/src/i18n/de.json`. `defaultAvatarId` in `packages/content/src/avatars.ts` explicitly selects the Wanderer, independently of the grid order. Retired or unknown saved avatar IDs fall back to that hero without changing the player's name.
 
 
 ## Foundations leaders

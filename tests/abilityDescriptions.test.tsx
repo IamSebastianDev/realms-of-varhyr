@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { CardFacts } from '../apps/web/src/CardPresentation';
+import { CardFacts } from '../packages/ui/src/CardPresentation';
 import { compileContent, registry } from '../packages/content/src';
 import { abilities } from '../packages/extensions/src';
 import { describeAbility } from '../packages/extensions/src/describeAbility';

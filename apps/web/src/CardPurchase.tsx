@@ -3,7 +3,7 @@ import { Check } from 'lucide-react';
 import type { CardDefinition } from '../../../packages/contracts/src';
 import { cardPrice, ownedCopyCount, ownershipLimit, type Collection } from './collection';
 import { CrownAmount } from './Crowns';
-import { t as msg, useLanguage } from './i18n';
+import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 import { OwnershipPips } from './OwnershipPips';
 
 /** Ownership and a "Buy a copy" action for the card inspector. `buy` spends crowns and grants one copy. */

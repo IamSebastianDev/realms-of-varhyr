@@ -22,7 +22,10 @@
     "precheck:engine": "npm run import:cards",
     "preaudit:bot": "npm run import:cards",
     "preaudit:balance": "npm run import:cards",
-    "schema:cards": "node --import tsx scripts/generate-card-schema.ts"
+    "schema:cards": "node --import tsx scripts/generate-card-schema.ts",
+    "dev:studio": "vite apps/studio --host 127.0.0.1",
+    "build:studio": "vite build apps/studio",
+    "predev:studio": "npm run import:cards"
   },
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.3.0",

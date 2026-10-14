@@ -1,4 +1,4 @@
-import { t as msg, useLanguage } from './i18n';
+import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 import type { CSSProperties } from 'react';
 import type { PlayerView, Registry } from '../../../packages/contracts/src';
 import { effectiveStats } from '../../../packages/core/src';

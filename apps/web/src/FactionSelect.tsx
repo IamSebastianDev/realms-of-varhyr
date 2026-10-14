@@ -1,7 +1,7 @@
 import type { SelectHTMLAttributes } from 'react';
 import { factionInfo } from '../../../packages/content/src';
 import { FactionIcon } from '../../../packages/renderer/src/FactionIcon';
-import { t as msg, useLanguage } from './i18n';
+import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 
 /** Native keyboard/mobile selection, with a matching emblem on the selected faction. */
 export function FactionSelect({value='all',...props}:Omit<SelectHTMLAttributes<HTMLSelectElement>,'children'>){

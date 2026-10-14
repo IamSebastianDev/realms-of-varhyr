@@ -1,14 +1,14 @@
-import { t as msg, useLanguage } from './i18n';
+import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { ArrowLeft, ArrowRight, Crown } from 'lucide-react';
 import { avatarDefinitions, factionInfo, registry } from '../../../packages/content/src';
 import { Avatar } from './Avatar';
-import { ArtCard } from './CardPresentation';
+import { ArtCard } from '../../../packages/ui/src/CardPresentation';
 import { createCollection } from './collection';
 import { updateCollection } from './collectionStore';
 import { markAccount, starterOffers, type StarterOffer } from './onboardingState';
 import { maxNameLength, updateProfile } from './profile';
-import { usePreferences } from './preferences';
+import { usePreferences } from '../../../packages/ui/src/preferences';
 
 type Step = 'starter' | 'name' | 'reveal';
 const colorOf = (offer: StarterOffer) => ({ '--ob-color': factionInfo[offer.faction]?.color ?? '#d7b66b' }) as CSSProperties;

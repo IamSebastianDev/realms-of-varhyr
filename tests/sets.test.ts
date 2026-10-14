@@ -4,7 +4,7 @@ import { parseSetDefinition, validateSetDefinitions } from '../packages/content/
 import { boosterPacks, drawBooster, packCards } from '../packages/content/src/boosters';
 import { builderCards, initialBuilderFilters } from '../apps/web/src/deckTools';
 import { createCollection, openCollectionBooster, parseCollection } from '../apps/web/src/collection';
-import { translate } from '../apps/web/src/i18n';
+import { translate } from '../packages/ui/src/i18n';
 
 const cards=Object.values(registry.cards),foundations=setInfo.foundations;
 describe('logical card sets',()=>{

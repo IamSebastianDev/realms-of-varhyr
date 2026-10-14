@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, useState, type CSSProperties, type RefObject }
 import { X } from 'lucide-react';
 import { factionInfo } from '../../../packages/content/src';
 import { FactionIcon, GenericEnergyIcon } from '../../../packages/renderer/src/FactionIcon';
-import { t as msg, useLanguage } from './i18n';
+import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 import type { CreatureAction } from './creatureActions';
 import './energy-choice-arc.css';
 

@@ -2,8 +2,8 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import { ArrowRight, Volume2 } from 'lucide-react';
 import soundtrack from '../../../assets/audio/ambience.mp3?url';
 import { AudioController } from './audioController';
-import { getPreferences, subscribePreferences, usePreferences } from './preferences';
-import { t as msg, useLanguage } from './i18n';
+import { getPreferences, subscribePreferences, usePreferences } from '../../../packages/ui/src/preferences';
+import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 const audioContext = createContext({ playEffect: (_type: string) => {}, retry: () => {}, blocked: false });
 export const useAudio = () => useContext(audioContext);
 export function AudioExperience({ children }: { children: ReactNode }) {

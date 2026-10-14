@@ -42,7 +42,7 @@ export function buildCardJsonSchema(factions:readonly FactionDefinition[],sets:r
   properties.set={type:'string',enum:sets.map(set=>set.id).sort(),description:'Release ID from assets/sets/.',default:'foundations'};
   properties.lore={type:'string',description:'Optional flavor text. Rules text comes from the registered ability descriptions.'};
   properties.factions={...properties.factions as JsonSchema,uniqueItems:true,description:'Use named factions, ["neutral"], or [] for a neutral card. Neutral cannot be combined with a named faction.'};
-  properties.subtypes={type:'array',items:{type:'string',pattern:'\\S'},description:'Freeform subtypes, e.g. human, elf, leader or unicorn. They are not a closed enum; German labels live in the shared dictionary (apps/web/src/i18n/de.json), not per card.'};
+  properties.subtypes={type:'array',items:{type:'string',pattern:'\\S'},description:'Freeform subtypes, e.g. human, elf, leader or unicorn. They are not a closed enum; German labels live in the shared dictionary (packages/ui/src/i18n/de.json), not per card.'};
   (properties.rarity as JsonSchema).description='Booster rarity; independent of the legendary copy-limit flag.';
   (properties.legendary as JsonSchema).description='One copy per deck and collection, regardless of rarity.';
   const cost=properties.cost as JsonSchema;

@@ -5,7 +5,7 @@ import { apply, assertInvariants, createMatch, decisionPlayer, legalActions, pro
 import { botCommand } from '../packages/core/src/bot';
 import type { Command, CommandEnvelope, GameState, PlayerId } from '../packages/contracts/src';
 import { creatureActions } from '../apps/web/src/creatureActions';
-import { CardFace, CardFacts } from '../apps/web/src/CardPresentation';
+import { CardFace, CardFacts } from '../packages/ui/src/CardPresentation';
 import { builderCards, initialBuilderFilters, summarizeDeck } from '../apps/web/src/deckTools';
 
 const unicorn=registry.cards['ancient-unicorn'];

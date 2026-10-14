@@ -1,8 +1,8 @@
 import { t as msg, useLanguage, localizedCard } from './i18n';
 import type { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { factionInfo, setInfo } from '../../../packages/content/src';
-import type { CardDefinition } from '../../../packages/contracts/src';
+import { factionInfo, setInfo } from '../../content/src';
+import type { CardDefinition } from '../../contracts/src';
 import { ArtCard, cardClassification, CardFacts, CardLore, Cost } from './CardPresentation';
 
 /**
@@ -43,7 +43,7 @@ export function CardDetail({ card, stats, animated = false, reduced = false, sta
 
 /**
  * The detail panel shown while hovering a card anywhere in the app. It sits next to the card through CSS anchor
- * positioning (see card-detail.css) and falls back to a computed position where that is unsupported.
+ * positioning (see card.css) and falls back to a computed position where that is unsupported.
  */
 export function CardHoverDetail({ card, rect, reduced = false }: { card: CardDefinition; rect: DOMRect; reduced?: boolean }) {
   useLanguage();

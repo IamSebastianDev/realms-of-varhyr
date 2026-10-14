@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { resolveDrop } from '../apps/web/src/cardInteraction';
-import { ArtCard, CardFacts } from '../apps/web/src/CardPresentation';
+import { ArtCard, CardFacts } from '../packages/ui/src/CardPresentation';
 import { creatureActions } from '../apps/web/src/creatureActions';
 import { compileContent, registry as live } from '../packages/content/src';
 import type { AbilityExtension, Command, CommandEnvelope, GameState, PlayerId } from '../packages/contracts/src';

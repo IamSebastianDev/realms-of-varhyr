@@ -1,6 +1,6 @@
 import type { CardDefinition } from '../../../packages/contracts/src';
 import { ownedCopyCount, ownershipLimit, type OwnedCopies } from './collection';
-import { t as msg, useLanguage } from './i18n';
+import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 
 /** Filled gems are owned copies; empty rings show the remaining collection capacity.
  * In the deck builder, `inDeck` rings the gems for the copies currently in the deck. */

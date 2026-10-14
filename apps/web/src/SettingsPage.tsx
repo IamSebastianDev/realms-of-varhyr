@@ -4,8 +4,8 @@ import { useAudio } from './AudioExperience';
 import { Eye, GraduationCap } from 'lucide-react';
 import { registry } from '../../../packages/content/src';
 import { ReplayMatchSession, type ExternalMatchSession } from './match/MatchSession';
-import { updatePreferences, usePreferences, type Language, type Motion } from './preferences';
-import { t as msg, useLanguage } from './i18n';
+import { updatePreferences, usePreferences, type Language, type Motion } from '../../../packages/ui/src/preferences';
+import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 
 /** Shared by the home screen and the in-match settings overlay, so an online game stays connected. */
 export function PreferenceControls() {

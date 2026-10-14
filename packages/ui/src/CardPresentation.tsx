@@ -2,13 +2,13 @@ import { t as msg, useLanguage, localizedCard, localizedAbility } from './i18n';
 import { useEffect, useRef, useState, type ButtonHTMLAttributes } from 'react';
 import { CardHoverDetail } from './CardDetail';
 import { useSingleLineName } from './useSingleLineName';
-import { FactionIcon, GenericEnergyIcon } from '../../../packages/renderer/src/FactionIcon';
-import './faction-icons.css';
-import { CardArtwork } from '../../../packages/renderer/src/CardArtwork';
-import { HolographicFoil } from '../../../packages/renderer/src/HolographicFoil';
+import { FactionIcon, GenericEnergyIcon } from '../../renderer/src/FactionIcon';
+import './card.css';
+import { CardArtwork } from '../../renderer/src/CardArtwork';
+import { HolographicFoil } from '../../renderer/src/HolographicFoil';
 import { Shield, Swords } from 'lucide-react';
-import type { CardDefinition, EnergyType, Pool } from '../../../packages/contracts/src';
-import { factionInfo, registry } from '../../../packages/content/src';
+import type { CardDefinition, EnergyType, Pool } from '../../contracts/src';
+import { factionInfo, registry } from '../../content/src';
 import { usePreferences } from './preferences';
 export function cardAbilityDescriptions(card: CardDefinition) {
   return [...card.abilities, ...(card.cast ?? [])].map(binding =>

@@ -1,13 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { registry, compileContent } from '../packages/content/src';
-import { translate, localizedCard, localizedAbility, subtypeLabel } from '../apps/web/src/i18n';
-import { updatePreferences } from '../apps/web/src/preferences';
-import { CardDetail } from '../apps/web/src/CardDetail';
-import { CardFacts, CardFace, CardLore } from '../apps/web/src/CardPresentation';
+import { translate, localizedCard, localizedAbility, subtypeLabel } from '../packages/ui/src/i18n';
+import { updatePreferences } from '../packages/ui/src/preferences';
+import { CardDetail } from '../packages/ui/src/CardDetail';
+import { CardFacts, CardFace, CardLore } from '../packages/ui/src/CardPresentation';
 import { builderCards, initialBuilderFilters } from '../apps/web/src/deckTools';
-import german from '../apps/web/src/i18n/de.json';
-import { readFileSync } from 'node:fs';
+import german from '../packages/ui/src/i18n/de.json';
+import { existsSync, readFileSync } from 'node:fs';
 import ts from 'typescript';
 afterEach(()=>{updatePreferences({language:'en'});vi.unstubAllGlobals();});
 describe('English and German presentation',()=>{
@@ -78,7 +78,7 @@ describe('English and German presentation',()=>{
   it('keeps a German catalogue entry for each literal UI translation key',()=>{
     const files=['ResetControls.tsx','AudioExperience.tsx','App.tsx','Lobby.tsx','SettingsPage.tsx','GameSetup.tsx','DeckBuilder.tsx','CardPresentation.tsx','CardDetail.tsx','DrawChoice.tsx','MatchSummary.tsx','BoosterOpening.tsx','ProfilePage.tsx','CollectionStats.tsx','CardPurchase.tsx','Onboarding.tsx','multiplayer/MultiplayerLobby.tsx'];
     const missing=new Set<string>();
-    for(const file of files){const tree=ts.createSourceFile(file,readFileSync(`apps/web/src/${file}`,'utf8'),ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
+    for(const file of files){const tree=ts.createSourceFile(file,readFileSync(['apps/web/src','packages/ui/src'].map(dir=>`${dir}/${file}`).find(path=>existsSync(path))!,'utf8'),ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
       function scan(node:ts.Node){if(ts.isCallExpression(node)&&['t','msg'].includes(node.expression.getText(tree))&&node.arguments[0]&&ts.isStringLiteral(node.arguments[0])){
         const key=node.arguments[0].text;if(!Object.hasOwn(german,key))missing.add(key);
       }ts.forEachChild(node,scan);}scan(tree);

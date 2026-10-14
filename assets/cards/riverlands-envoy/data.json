@@ -1,0 +1,40 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "riverlands-envoy",
+  "revision": 1,
+  "name": "Riverlands Envoy",
+  "deckLimitKey": "riverlands-envoy",
+  "type": "creature",
+  "factions": [
+    "bright-marches",
+    "crownlands"
+  ],
+  "subtypes": [],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 0
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "bright-marches": 1
+      },
+      {
+        "crownlands": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "armor",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "lore": "Those who see the beauty of the Riverlands never forgets it.",
+  "set": "foundations"
+}

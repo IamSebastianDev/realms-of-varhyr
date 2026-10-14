@@ -1,13 +1,13 @@
 import { Checkbox } from './Checkbox';
 import { FactionSelect } from './FactionSelect';
-import { t as msg, useLanguage, formatNumber } from './i18n';
+import { t as msg, useLanguage, formatNumber } from '../../../packages/ui/src/i18n';
 import { ChartNoAxesColumn, Check, Copy, Download, Filter, Layers, Minus, MoreHorizontal, Plus, RotateCcw, Search, Trash2, Upload, X } from 'lucide-react';
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { CardDefinition } from '../../../packages/contracts/src';
 import { deckRules } from '../../../packages/contracts/src';
 import { factionInfo, registry, setDefinitions } from '../../../packages/content/src';
 import { validateDeck } from '../../../packages/core/src';
-import { ArtCard, CardHoverButton } from './CardPresentation';
+import { ArtCard, CardHoverButton } from '../../../packages/ui/src/CardPresentation';
 import { BuilderDialog } from './BuilderDialog';
 import { OwnershipPips } from './OwnershipPips';
 import { deckCardAvailability, starterOptions, type CustomDeck } from './decks';

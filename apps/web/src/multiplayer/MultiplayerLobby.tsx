@@ -1,4 +1,4 @@
-import { t as msg, useLanguage } from '../i18n';
+import { t as msg, useLanguage } from '../../../../packages/ui/src/i18n';
 import { updateProfile } from '../profile';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Check, Copy, Link, Radio, Users } from 'lucide-react';

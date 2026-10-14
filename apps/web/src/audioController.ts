@@ -1,4 +1,4 @@
-import type { Preferences } from './preferences';
+import type { Preferences } from '../../../packages/ui/src/preferences';
 type AudioSettings = Pick<Preferences, 'music' | 'sound' | 'musicVolume' | 'soundVolume'>;
 /** One soundtrack and one effect context for the lifetime of the application. No game state lives here. */
 export class AudioController {

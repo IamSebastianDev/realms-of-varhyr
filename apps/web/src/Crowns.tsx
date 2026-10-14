@@ -1,4 +1,4 @@
-import { t as msg, useLanguage, formatNumber } from './i18n';
+import { t as msg, useLanguage, formatNumber } from '../../../packages/ui/src/i18n';
 import { useId } from 'react';
 
 /** A minted gold coin stamped with a crown; scales from a currency glyph to the store's treasure display. */

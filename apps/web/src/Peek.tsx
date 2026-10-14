@@ -1,4 +1,4 @@
-import { t as msg, useLanguage } from './i18n';
+import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Eye } from 'lucide-react';
 

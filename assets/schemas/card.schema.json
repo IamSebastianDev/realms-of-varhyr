@@ -61,7 +61,7 @@
         "type": "string",
         "pattern": "\\S"
       },
-      "description": "Freeform subtypes, e.g. human, elf, leader or unicorn. They are not a closed enum; German labels live in the shared dictionary (apps/web/src/i18n/de.json), not per card."
+      "description": "Freeform subtypes, e.g. human, elf, leader or unicorn. They are not a closed enum; German labels live in the shared dictionary (packages/ui/src/i18n/de.json), not per card."
     },
     "legendary": {
       "type": "boolean",

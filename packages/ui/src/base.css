@@ -1,0 +1,9 @@
+/* Tokens and resets every Varhyr surface shares. */
+:root{font-family:'Manrope',sans-serif;color:#d9dfd8;background:#091417;font-synthesis:none;font-weight:400;--gold:#c6ae7c;--gold-bright:#e4ca91;--muted:#788e8b;--line:#a8b9a01a;--serif:'Cormorant Garamond',Georgia,serif}
+*{box-sizing:border-box}
+body{margin:0}
+button,input,select{font:inherit}
+button{cursor:pointer;border:0;background:none;color:inherit}
+button:disabled{cursor:default;opacity:.4}
+button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid #e1c590;outline-offset:4px}
+button{transition:color .18s,background .18s,transform .2s,opacity .2s}

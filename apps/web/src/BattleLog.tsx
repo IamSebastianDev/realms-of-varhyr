@@ -1,4 +1,4 @@
-import { t as msg, useLanguage } from './i18n';
+import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 import { useEffect, useRef } from 'react';
 import { ScrollText, X } from 'lucide-react';
 import type { CardInstance, GameEvent, PlayerId } from '../../../packages/contracts/src';
