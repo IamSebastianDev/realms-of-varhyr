@@ -1,6 +1,6 @@
 # Adding test cards
 
-The current catalogue has 58 cards across eight factions plus Neutral, all in **RoV: Foundations** (`assets/sets/foundations.json`). Definitions live in `assets/factions/`, and cards live in `assets/cards/`. Banners of the Crown (Crownlands) and Hearth and Stone (Bright Marches) are complete 30-card starters; the Black Host has a small card set, and the other factions have their leader so far. The original Winter POC cards and starter are retired. The 30-card minimum and normal/legendary copy limits apply to every deck.
+The catalogue covers eight factions plus Neutral, all in **RoV: Foundations** (`assets/sets/foundations.json`). Definitions live in `assets/factions/`, and cards live in `assets/cards/`. Banners of the Crown (Crownlands) and Hearth and Stone (Bright Marches) are complete 30-card starters; the Black Host has a small card set, and the other factions have their leader so far. The original Winter POC cards and starter are retired. The 30-card minimum and normal/legendary copy limits apply to every deck.
 
 ## Sets and expansions
 
