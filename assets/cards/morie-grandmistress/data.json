@@ -2,7 +2,7 @@
   "$schema": "../../schemas/card.schema.json",
   "id": "morie-grandmistress",
   "set": "foundations",
-  "revision": 4,
+  "revision": 5,
   "name": "Morie, Grandmistress of Winter",
   "deckLimitKey": "morie-grandmistress",
   "type": "creature",
@@ -37,7 +37,7 @@
       "params": {}
     },
     {
-      "id": "invocation",
+      "id": "charge",
       "params": {
         "amount": 1
       }

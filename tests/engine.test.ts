@@ -153,7 +153,7 @@ describe('simultaneous combat and response energy',()=>{
   });
  });
  describe('guard',()=>{
-  const guardRegistry=compileContent([...raw,{...registry.cards['wayfarer'],id:'guard-test',deckLimitKey:'guard-test',abilities:[{id:'guard',params:{}}]},{...registry.cards['wild-guardian'],id:'evader-test',deckLimitKey:'evader-test',abilities:[{id:'flank-evasion',params:{}}]}]);
+  const guardRegistry=compileContent([...raw,{...registry.cards['wayfarer'],id:'guard-test',deckLimitKey:'guard-test',abilities:[{id:'guard',params:{}}]}]);
   const guardSetup=(slot:number)=>{const s=setup(guardRegistry);s.phase='attack';s.combat={stage:'declare',attackers:[],lanes:{},blocks:[],dead:[]};const guard=fixture(s,'wayfarer','p2','board',slot);s.cards[guard].definitionId='guard-test';return {s,guard};};
   const attack=(s:GameState,lanes:Record<string,number>)=>step(s,{type:'attack',attackers:Object.keys(lanes),lanes},'p1',guardRegistry).combat!.blocks;
   it('intercepts attacks aimed at an adjacent lane, empty or not, but not farther lanes',()=>{
@@ -170,10 +170,6 @@ describe('simultaneous combat and response energy',()=>{
   it('blocks in its own lane before it intercepts, leaving the neighbouring lane card to block',()=>{
    const {s,guard}=guardSetup(2);const scout=fixture(s,'clan-scout','p2','board',1),a=fixture(s,'wild-guardian','p1','board',1),b=fixture(s,'crown-recruit','p1','board',2);
    expect(attack(s,{[a]:1,[b]:2})).toEqual([{attacker:a,blocker:scout},{attacker:b,blocker:guard}]);
-  });
-  it('cannot intercept Flank Evasion attackers from a flank',()=>{
-   const {s}=guardSetup(4);const raider=fixture(s,'wild-guardian','p1','board',2);s.cards[raider].definitionId='evader-test';
-   expect(attack(s,{[raider]:3})).toEqual([]);
   });
  });
  it('unblocked attacks damage the player, with victory after resolution',()=>{let s=attackState();const a=fixture(s,'wild-guardian','p1','board'),b=fixture(s,'grove-keeper','p1','board',1);s.players.p2.life=4;s=step(s,{type:'attack',attackers:[b,a]});expect(s.combat?.attackers).toEqual([a,b]);s=step(s,{type:'confirm-combat'});expect(s.players.p2.life).toBe(-1);expect(s.outcome).toBe('p1');});
@@ -372,5 +368,13 @@ describe('single blockers and simultaneous retaliation',()=>{
     for(let i=0;i<8&&s.active==='p1'&&!s.outcome;i++)s=step(s,{type:'end'},decisionPlayer(s),r);
     expect(s.active).toBe('p2');expect(effectiveStats(s,mine,r)[key]).toBe(before);
   }
+ });
+ it('Charge hits the creature directly opposite where the card is played',()=>{
+  const cards=structuredClone(raw);const base=cards.find(c=>c.id==='forest-sprite')!;
+  cards.push({...structuredClone(base),id:'charger-test',deckLimitKey:'charger-test',cost:{generic:0,factions:{}},abilities:[{id:'charge',params:{amount:9}}]});
+  const r=compileContent(cards,abilities);let s=setup(r);
+  const opposite=fixture(s,'clan-scout','p2','board',3),other=fixture(s,'clan-scout','p2','board',0),charger=fixture(s,'forest-sprite','p1','hand');s.cards[charger].definitionId='charger-test';
+  s=step(s,{type:'play',cardId:charger,slot:3},'p1',r);
+  expect(s.cards[opposite].zone).toBe('discard');expect(s.cards[other].zone).toBe('board');
  });
 });

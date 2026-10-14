@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "ancient-unicorn",
-  "revision": 1,
+  "revision": 2,
   "name": "Ancient Unicorn",
   "deckLimitKey": "ancient-unicorn",
   "type": "creature",
@@ -23,7 +23,9 @@
   "abilities": [
     {
       "id": "primal",
-      "params": {}
+      "params": {
+        "amount": 1
+      }
     }
   ],
   "lore": "A rare sight, but an unforgettable one.",

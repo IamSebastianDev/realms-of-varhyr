@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "dawn-banner",
-  "revision": 5,
+  "revision": 6,
   "name": "Dawn Standard-bearer",
   "deckLimitKey": "dawn-banner",
   "type": "creature",
@@ -31,7 +31,7 @@
   },
   "abilities": [
     {
-      "id": "war-banner",
+      "id": "banner",
       "params": {
         "amount": 1
       }

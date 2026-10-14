@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "marcher-axeman",
-  "revision": 2,
+  "revision": 3,
   "name": "Marcher Axeman",
   "deckLimitKey": "marcher-axeman",
   "type": "creature",
@@ -19,12 +19,7 @@
       "bright-marches": 1
     }
   },
-  "abilities": [
-    {
-      "id": "shoulder-to-shoulder",
-      "params": {}
-    }
-  ],
+  "abilities": [],
   "lore": "Tool and weapon alike, what's not to love?",
   "stats": {
     "attack": 2,

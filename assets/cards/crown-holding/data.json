@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "crown-holding",
-  "revision": 1,
+  "revision": 2,
   "name": "Crown Holding",
   "deckLimitKey": "crown-holding",
   "type": "holding",
@@ -25,13 +25,13 @@
   },
   "abilities": [
     {
-      "id": "war-banner",
+      "id": "banner",
       "params": {
         "amount": 1
       }
     },
     {
-      "id": "rally",
+      "id": "rest",
       "params": {
         "amount": 1
       }

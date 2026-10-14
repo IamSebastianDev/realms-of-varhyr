@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "odric-the-berserker",
-  "revision": 2,
+  "revision": 3,
   "name": "Odric the Berserker",
   "deckLimitKey": "odric-the-berserker",
   "type": "creature",
@@ -29,8 +29,7 @@
     {
       "id": "charge",
       "params": {
-        "amount": 2,
-        "position": "Center"
+        "amount": 2
       }
     }
   ],

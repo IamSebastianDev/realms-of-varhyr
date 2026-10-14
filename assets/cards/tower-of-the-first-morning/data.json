@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "tower-of-the-first-morning",
-  "revision": 1,
+  "revision": 2,
   "name": "Tower of the First Morning",
   "deckLimitKey": "tower-of-the-first-morning",
   "type": "holding",
@@ -31,7 +31,7 @@
       }
     },
     {
-      "id": "rally",
+      "id": "rest",
       "params": {
         "amount": 1
       }

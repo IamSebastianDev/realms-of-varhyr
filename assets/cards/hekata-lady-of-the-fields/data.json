@@ -2,7 +2,7 @@
   "$schema": "../../schemas/card.schema.json",
   "id": "hekata-lady-of-the-fields",
   "set": "foundations",
-  "revision": 4,
+  "revision": 5,
   "name": "Hekata, Lady of the Fields",
   "deckLimitKey": "hekata-lady-of-the-fields",
   "type": "creature",
@@ -37,7 +37,7 @@
       "params": {}
     },
     {
-      "id": "invocation",
+      "id": "charge",
       "params": {
         "amount": 2
       }

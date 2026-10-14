@@ -55,7 +55,7 @@
   {
     "id": "ancient-unicorn",
     "set": "foundations",
-    "revision": 1,
+    "revision": 2,
     "name": "Ancient Unicorn",
     "deckLimitKey": "ancient-unicorn",
     "type": "creature",
@@ -80,7 +80,9 @@
     "abilities": [
       {
         "id": "primal",
-        "params": {}
+        "params": {
+          "amount": 1
+        }
       }
     ],
     "stats": {
@@ -92,7 +94,7 @@
   {
     "id": "arianna-healing-princess",
     "set": "foundations",
-    "revision": 1,
+    "revision": 2,
     "name": "Arianna, Healing Princess",
     "deckLimitKey": "arianna-healing-princess",
     "type": "creature",
@@ -121,7 +123,7 @@
     "art": "/cards/arianna-healing-princess/data.png?v=9c4d72c3d1504ac6",
     "abilities": [
       {
-        "id": "rally",
+        "id": "rest",
         "params": {
           "amount": 2
         }
@@ -140,7 +142,7 @@
   {
     "id": "ban-vale-cavalry",
     "set": "foundations",
-    "revision": 2,
+    "revision": 3,
     "name": "Ban Vale Cavalry",
     "deckLimitKey": "ban-vale-cavalry",
     "type": "creature",
@@ -168,7 +170,7 @@
     "art": "/cards/ban-vale-cavalry/data.png?v=4cf069d1371c9c7f",
     "abilities": [
       {
-        "id": "adjacent-banner",
+        "id": "banner",
         "params": {
           "amount": 2
         }
@@ -187,7 +189,7 @@
   {
     "id": "banner-of-the-morning-vale",
     "set": "foundations",
-    "revision": 2,
+    "revision": 3,
     "name": "Banner of the Morning Vale",
     "deckLimitKey": "banner-of-the-morning-vale",
     "type": "holding",
@@ -215,7 +217,7 @@
     "art": "/cards/banner-of-the-morning-vale/data.png?v=ba08924275740cc2",
     "abilities": [
       {
-        "id": "war-banner",
+        "id": "banner",
         "params": {
           "amount": 2
         }
@@ -401,7 +403,7 @@
   {
     "id": "brut-chief-of-the-harpies",
     "set": "foundations",
-    "revision": 4,
+    "revision": 5,
     "name": "Brut, Chief of the Harpies",
     "deckLimitKey": "brut-chief-of-the-harpies",
     "type": "creature",
@@ -431,10 +433,6 @@
     "abilities": [
       {
         "id": "raid",
-        "params": {}
-      },
-      {
-        "id": "flank-evasion",
         "params": {}
       }
     ],
@@ -538,7 +536,7 @@
   {
     "id": "crown-holding",
     "set": "foundations",
-    "revision": 1,
+    "revision": 2,
     "name": "Crown Holding",
     "deckLimitKey": "crown-holding",
     "type": "holding",
@@ -566,13 +564,13 @@
     "art": "/cards/crown-holding/data.png?v=f22651501ced9356",
     "abilities": [
       {
-        "id": "war-banner",
+        "id": "banner",
         "params": {
           "amount": 1
         }
       },
       {
-        "id": "rally",
+        "id": "rest",
         "params": {
           "amount": 1
         }
@@ -625,7 +623,7 @@
   {
     "id": "dark-priest-of-run",
     "set": "foundations",
-    "revision": 5,
+    "revision": 6,
     "name": "The Dark Priest of Run",
     "deckLimitKey": "dark-priest-of-run",
     "type": "creature",
@@ -658,7 +656,7 @@
         "params": {}
       },
       {
-        "id": "rime",
+        "id": "weaken",
         "params": {
           "amount": 1
         }
@@ -677,7 +675,7 @@
   {
     "id": "dawn-banner",
     "set": "foundations",
-    "revision": 5,
+    "revision": 6,
     "name": "Dawn Standard-bearer",
     "deckLimitKey": "dawn-banner",
     "type": "creature",
@@ -705,7 +703,7 @@
     "art": "/cards/dawn-standard-bearer/data.png?v=4afb068adb49b6b5",
     "abilities": [
       {
-        "id": "war-banner",
+        "id": "banner",
         "params": {
           "amount": 1
         }
@@ -953,7 +951,7 @@
   {
     "id": "hearth-guard",
     "set": "foundations",
-    "revision": 1,
+    "revision": 2,
     "name": "Hearth Guard",
     "deckLimitKey": "hearth-guard",
     "type": "creature",
@@ -981,7 +979,7 @@
     "art": "/cards/hearth-guard/data.png?v=4cfddd548b66cc40",
     "abilities": [
       {
-        "id": "war-banner",
+        "id": "banner",
         "params": {
           "amount": 2
         }
@@ -1000,7 +998,7 @@
   {
     "id": "hekata-lady-of-the-fields",
     "set": "foundations",
-    "revision": 4,
+    "revision": 5,
     "name": "Hekata, Lady of the Fields",
     "deckLimitKey": "hekata-lady-of-the-fields",
     "type": "creature",
@@ -1034,7 +1032,7 @@
         "params": {}
       },
       {
-        "id": "invocation",
+        "id": "charge",
         "params": {
           "amount": 2
         }
@@ -1053,7 +1051,7 @@
   {
     "id": "herald-of-the-mark",
     "set": "foundations",
-    "revision": 1,
+    "revision": 2,
     "name": "Herald of the Mark",
     "deckLimitKey": "herald-of-the-mark",
     "type": "creature",
@@ -1079,7 +1077,7 @@
     "art": "/cards/herald-of-the-mark/data.png?v=016da170a1475d3a",
     "abilities": [
       {
-        "id": "adjacent-banner",
+        "id": "banner",
         "params": {
           "amount": 1
         }
@@ -1223,7 +1221,7 @@
   {
     "id": "marcher-axeman",
     "set": "foundations",
-    "revision": 2,
+    "revision": 3,
     "name": "Marcher Axeman",
     "deckLimitKey": "marcher-axeman",
     "type": "creature",
@@ -1249,12 +1247,7 @@
       }
     },
     "art": "/cards/marcher-axeman/data.png?v=66abd11c7263983f",
-    "abilities": [
-      {
-        "id": "shoulder-to-shoulder",
-        "params": {}
-      }
-    ],
+    "abilities": [],
     "stats": {
       "attack": 2,
       "defense": 1,
@@ -1385,7 +1378,7 @@
   {
     "id": "morie-grandmistress",
     "set": "foundations",
-    "revision": 4,
+    "revision": 5,
     "name": "Morie, Grandmistress of Winter",
     "deckLimitKey": "morie-grandmistress",
     "type": "creature",
@@ -1419,7 +1412,7 @@
         "params": {}
       },
       {
-        "id": "invocation",
+        "id": "charge",
         "params": {
           "amount": 1
         }
@@ -1541,7 +1534,7 @@
   {
     "id": "odric-the-berserker",
     "set": "foundations",
-    "revision": 2,
+    "revision": 3,
     "name": "Odric the Berserker",
     "deckLimitKey": "odric-the-berserker",
     "type": "creature",
@@ -1577,8 +1570,7 @@
       {
         "id": "charge",
         "params": {
-          "amount": 2,
-          "position": "Center"
+          "amount": 2
         }
       }
     ],
@@ -1924,7 +1916,7 @@
   {
     "id": "shrine-to-the-river-gods",
     "set": "foundations",
-    "revision": 1,
+    "revision": 2,
     "name": "Shrine to the River Gods",
     "deckLimitKey": "shrine-to-the-river-gods",
     "type": "holding",
@@ -1952,7 +1944,7 @@
     "art": "/cards/shrine-to-the-river-gods/data.png?v=aea61d56f2194ea1",
     "abilities": [
       {
-        "id": "rally",
+        "id": "rest",
         "params": {
           "amount": 2
         }
@@ -2092,7 +2084,7 @@
   {
     "id": "tower-of-the-first-morning",
     "set": "foundations",
-    "revision": 1,
+    "revision": 2,
     "name": "Tower of the First Morning",
     "deckLimitKey": "tower-of-the-first-morning",
     "type": "holding",
@@ -2126,7 +2118,7 @@
         }
       },
       {
-        "id": "rally",
+        "id": "rest",
         "params": {
           "amount": 1
         }

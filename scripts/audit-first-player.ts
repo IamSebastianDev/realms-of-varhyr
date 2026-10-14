@@ -25,7 +25,7 @@ function variantRegistry():Registry {
     for(const card of cards)if(card.type==='creature'&&card.cost.generic===0&&Object.values(card.cost.factions).every(n=>n===0))card.stats!.defense++;
   } else if(variant==='less-banner-attack') {
     for(const card of cards)card.abilities=card.abilities.flatMap(binding=>{
-      if(binding.id!=='war-banner')return [binding];
+      if(binding.id!=='banner')return [binding];
       const amount=Number(binding.params.amount)-1;
       return amount>0?[{...binding,params:{...binding.params,amount}}]:[];
     });

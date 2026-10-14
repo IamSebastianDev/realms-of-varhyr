@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "herald-of-the-mark",
-  "revision": 1,
+  "revision": 2,
   "name": "Herald of the Mark",
   "deckLimitKey": "herald-of-the-mark",
   "type": "creature",
@@ -19,7 +19,7 @@
   },
   "abilities": [
     {
-      "id": "adjacent-banner",
+      "id": "banner",
       "params": {
         "amount": 1
       }

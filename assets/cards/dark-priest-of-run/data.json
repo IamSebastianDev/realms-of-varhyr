@@ -2,7 +2,7 @@
   "$schema": "../../schemas/card.schema.json",
   "id": "dark-priest-of-run",
   "set": "foundations",
-  "revision": 5,
+  "revision": 6,
   "name": "The Dark Priest of Run",
   "deckLimitKey": "dark-priest-of-run",
   "type": "creature",
@@ -36,7 +36,7 @@
       "params": {}
     },
     {
-      "id": "rime",
+      "id": "weaken",
       "params": {
         "amount": 1
       }

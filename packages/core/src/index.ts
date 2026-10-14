@@ -2,7 +2,7 @@ import * as v from 'valibot';
 import type { AbilityBinding, BattlefieldState, BeforePayload, CardDefinition, CardInstance, Combat, Command, CommandEnvelope, Cost, DeadSnapshot, EnergyType, GameEvent, GameState, HookContext, InternalOrder, LegalActions, Player, PlayerId, PlayerView, Pool, Registry } from '../../contracts/src';
 import { battlefieldPositions, deckRules, positionName } from '../../contracts/src';
 import { describeAbility } from '../../extensions/src/describeAbility';
-export const RULES_VERSION = 'varhir-rules-0.19';
+export const RULES_VERSION = 'varhir-rules-0.20';
 const nonnegative = v.pipe(v.number(), v.integer(), v.minValue(0));
 const paymentSchema = v.record(v.pipe(v.string(), v.regex(/^[a-z][a-z0-9_-]*$/)), nonnegative);
 const commandSchema = v.variant('type', [

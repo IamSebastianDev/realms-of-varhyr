@@ -44,14 +44,14 @@ describe('card authoring JSON Schema',()=>{
     expect(validate({...card(),stats:{attack:0,defense:0,energyOutputs:[]}})).toBe(false);
     expect(validate({...card(),stats:{attack:0,defense:1,energyOutputs:[]}})).toBe(true);
   });
-  it('uses the registered ability parameter schemas, including position enums and faction-exclusive keywords',()=>{
+  it('uses the registered ability parameter schemas, including faction-exclusive keywords',()=>{
     const withAbility=(id:string,params:Record<string,unknown>)=>({...card(),abilities:[{id,params}]});
-    expect(validate(withAbility('charge',{amount:4,position:'Center'}))).toBe(true);
-    for(const params of [{amount:4},{amount:0,position:'Center'},{amount:4,position:'Middle'}])expect(validate(withAbility('charge',params))).toBe(false);
+    expect(validate(withAbility('charge',{amount:4}))).toBe(true);
+    for(const params of [{},{amount:0},{amount:4,position:'Center'}])expect(validate(withAbility('charge',params))).toBe(false);
     expect(validate(withAbility('armor',{amount:2}))).toBe(true);
     for(const params of [{},{amount:1.5},{ammount:2}])expect(validate(withAbility('armor',params))).toBe(false);
     expect(validate(withAbility('missing-ability',{}))).toBe(false);
-    expect(validate(withAbility('primal',{amount:1}))).toBe(false);
+    expect(validate(withAbility('primal',{}))).toBe(false);
     expect(validate(withAbility('accord',{}))).toBe(false);
     expect(validate({...withAbility('accord',{}),factions:['crownlands','winter-league']})).toBe(true);
     expect(validate({...withAbility('wayfarer',{}),factions:['neutral']})).toBe(true);
@@ -60,13 +60,13 @@ describe('card authoring JSON Schema',()=>{
   it('checks type-specific fields and spell operations without coupling rarity to legendary status',()=>{
     expect(validate(card('ancient-unicorn'))).toBe(true);
     expect(validate({...card('crown-holding'),stats:{attack:1,defense:4,energyOutputs:[{crownlands:1}]}})).toBe(false);
-    expect(validate({...card('crown-holding'),abilities:[{id:'primal',params:{}}]})).toBe(false);
+    expect(validate({...card('crown-holding'),abilities:[{id:'primal',params:{amount:1}}]})).toBe(false);
     expect(validate({...card(),timing:['play']})).toBe(false);
     const spell=card('cleansing-light');expect(validate(spell)).toBe(true);
     expect(validate({...spell,stats:{attack:0,defense:1}})).toBe(false);
     expect(validate({...spell,cast:[]})).toBe(false);
     expect(validate({...spell,cast:[{id:'armor',params:{amount:1}}]})).toBe(false);
-    expect(validate({...spell,abilities:[{id:'primal',params:{}}]})).toBe(false);
+    expect(validate({...spell,abilities:[{id:'primal',params:{amount:1}}]})).toBe(false);
     expect(validate({...spell,timing:['combat']})).toBe(false);
   });
   it('validates optional lore, flags unknown fields and rejects translations in data.json, leaving the gameplay hash unchanged',()=>{

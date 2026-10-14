@@ -277,7 +277,7 @@
     "art": "/cards/dawn-standard-bearer/data.png?v=4afb068adb49b6b5",
     "abilities": [
       {
-        "id": "war-banner",
+        "id": "banner",
         "params": {
           "amount": 1
         }

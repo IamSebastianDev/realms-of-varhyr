@@ -275,13 +275,13 @@
       ],
       "additionalProperties": false
     },
-    "ability-adjacent-banner": {
+    "ability-armor": {
       "type": "object",
-      "title": "Formation {amount}",
-      "description": "Adjacent friendly creatures and holdings get +{amount} Attack while this card is on the battlefield. Empty slots do not close the gap.",
+      "title": "Armor {amount}",
+      "description": "Reduce each incoming damage hit by {amount}, down to zero.",
       "properties": {
         "id": {
-          "const": "adjacent-banner"
+          "const": "armor"
         },
         "params": {
           "type": "object",
@@ -303,13 +303,13 @@
       ],
       "additionalProperties": false
     },
-    "ability-armor": {
+    "ability-banner": {
       "type": "object",
-      "title": "Armor {amount}",
-      "description": "Reduce each incoming damage hit by {amount}, down to zero.",
+      "title": "Banner {amount}",
+      "description": "Adjacent friendly creatures and holdings get +{amount} Attack while this card is on the battlefield. Empty slots do not close the gap.",
       "properties": {
         "id": {
-          "const": "armor"
+          "const": "banner"
         },
         "params": {
           "type": "object",
@@ -405,8 +405,8 @@
     },
     "ability-charge": {
       "type": "object",
-      "title": "Charge {amount} · {position}",
-      "description": "When played, deal {amount} damage to the enemy creature in {position}. If that position is empty or holds a holding, deal no damage.",
+      "title": "Charge {amount}",
+      "description": "When played, deal {amount} damage to the enemy creature directly opposite. If that position is empty or holds a holding, deal no damage.",
       "properties": {
         "id": {
           "const": "charge"
@@ -417,21 +417,10 @@
             "amount": {
               "type": "integer",
               "minimum": 1
-            },
-            "position": {
-              "enum": [
-                "Left Flank",
-                "Left Wing",
-                "Center",
-                "Right Wing",
-                "Right Flank"
-              ],
-              "type": "string"
             }
           },
           "required": [
-            "amount",
-            "position"
+            "amount"
           ],
           "additionalProperties": false
         }
@@ -552,27 +541,6 @@
       ],
       "additionalProperties": false
     },
-    "ability-flank-evasion": {
-      "type": "object",
-      "title": "Flank Evasion",
-      "description": "This creature cannot be blocked by cards in Left Flank or Right Flank. Cards in either wing or Center can still block it.",
-      "properties": {
-        "id": {
-          "const": "flank-evasion"
-        },
-        "params": {
-          "type": "object",
-          "properties": {},
-          "required": [],
-          "additionalProperties": false
-        }
-      },
-      "required": [
-        "id",
-        "params"
-      ],
-      "additionalProperties": false
-    },
     "ability-guard": {
       "type": "object",
       "title": "Guard",
@@ -601,34 +569,6 @@
       "properties": {
         "id": {
           "const": "heal"
-        },
-        "params": {
-          "type": "object",
-          "properties": {
-            "amount": {
-              "type": "integer",
-              "minimum": 1
-            }
-          },
-          "required": [
-            "amount"
-          ],
-          "additionalProperties": false
-        }
-      },
-      "required": [
-        "id",
-        "params"
-      ],
-      "additionalProperties": false
-    },
-    "ability-invocation": {
-      "type": "object",
-      "title": "Invocation {amount}",
-      "description": "Exhaust during your play phase to deal {amount} damage to the enemy creature directly opposite. Requires a creature in that position; cannot target holdings or players.",
-      "properties": {
-        "id": {
-          "const": "invocation"
         },
         "params": {
           "type": "object",
@@ -701,16 +641,23 @@
     },
     "ability-primal": {
       "type": "object",
-      "title": "Primal",
-      "description": "Exhaust during your play phase: choose a faction and gain 1 energy of that faction.",
+      "title": "Primal {amount}",
+      "description": "Exhaust during your play phase: choose a faction and gain {amount} energy of that faction.",
       "properties": {
         "id": {
           "const": "primal"
         },
         "params": {
           "type": "object",
-          "properties": {},
-          "required": [],
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "amount"
+          ],
           "additionalProperties": false
         }
       },
@@ -769,41 +716,13 @@
       ],
       "additionalProperties": false
     },
-    "ability-rally": {
+    "ability-rest": {
       "type": "object",
-      "title": "Restore {amount}",
+      "title": "Rest {amount}",
       "description": "Exhaust during your play phase to restore {amount} life to yourself.",
       "properties": {
         "id": {
-          "const": "rally"
-        },
-        "params": {
-          "type": "object",
-          "properties": {
-            "amount": {
-              "type": "integer",
-              "minimum": 1
-            }
-          },
-          "required": [
-            "amount"
-          ],
-          "additionalProperties": false
-        }
-      },
-      "required": [
-        "id",
-        "params"
-      ],
-      "additionalProperties": false
-    },
-    "ability-rime": {
-      "type": "object",
-      "title": "Rime {amount}",
-      "description": "The enemy creature or holding directly opposite has -{amount} Attack, down to zero, while this card remains on the battlefield. Active even while exhausted.",
-      "properties": {
-        "id": {
-          "const": "rime"
+          "const": "rest"
         },
         "params": {
           "type": "object",
@@ -895,27 +814,6 @@
       ],
       "additionalProperties": false
     },
-    "ability-shoulder-to-shoulder": {
-      "type": "object",
-      "title": "Shoulder to Shoulder",
-      "description": "This card has +1 Attack while a friendly creature or holding stands in both the slot to its left and the slot to its right. It never applies on a flank.",
-      "properties": {
-        "id": {
-          "const": "shoulder-to-shoulder"
-        },
-        "params": {
-          "type": "object",
-          "properties": {},
-          "required": [],
-          "additionalProperties": false
-        }
-      },
-      "required": [
-        "id",
-        "params"
-      ],
-      "additionalProperties": false
-    },
     "ability-soul-harvest": {
       "type": "object",
       "title": "Soul Harvest",
@@ -986,34 +884,6 @@
       ],
       "additionalProperties": false
     },
-    "ability-war-banner": {
-      "type": "object",
-      "title": "War Banner {amount}",
-      "description": "Your other creatures have +{amount} Attack while this card is on the battlefield.",
-      "properties": {
-        "id": {
-          "const": "war-banner"
-        },
-        "params": {
-          "type": "object",
-          "properties": {
-            "amount": {
-              "type": "integer",
-              "minimum": 1
-            }
-          },
-          "required": [
-            "amount"
-          ],
-          "additionalProperties": false
-        }
-      },
-      "required": [
-        "id",
-        "params"
-      ],
-      "additionalProperties": false
-    },
     "ability-wayfarer": {
       "type": "object",
       "title": "Wayfarer",
@@ -1035,6 +905,34 @@
       ],
       "additionalProperties": false
     },
+    "ability-weaken": {
+      "type": "object",
+      "title": "Weaken {amount}",
+      "description": "The enemy creature or holding directly opposite has -{amount} Attack, down to zero, while this card remains on the battlefield. Active even while exhausted.",
+      "properties": {
+        "id": {
+          "const": "weaken"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
     "ability": {
       "type": "object",
       "properties": {
@@ -1042,8 +940,8 @@
           "type": "string",
           "enum": [
             "accord",
-            "adjacent-banner",
             "armor",
+            "banner",
             "barrage",
             "channel",
             "charge",
@@ -1051,26 +949,22 @@
             "draw",
             "drillmaster",
             "fealty",
-            "flank-evasion",
             "guard",
             "heal",
-            "invocation",
             "longshot",
             "marches-rally",
             "primal",
             "rage",
             "raid",
-            "rally",
-            "rime",
+            "rest",
             "sanctuary",
             "scorch",
             "shield-wall",
-            "shoulder-to-shoulder",
             "soul-harvest",
             "steadfast",
             "trade",
-            "war-banner",
-            "wayfarer"
+            "wayfarer",
+            "weaken"
           ]
         },
         "params": {
@@ -1086,10 +980,10 @@
           "$ref": "#/definitions/ability-accord"
         },
         {
-          "$ref": "#/definitions/ability-adjacent-banner"
+          "$ref": "#/definitions/ability-armor"
         },
         {
-          "$ref": "#/definitions/ability-armor"
+          "$ref": "#/definitions/ability-banner"
         },
         {
           "$ref": "#/definitions/ability-barrage"
@@ -1113,16 +1007,10 @@
           "$ref": "#/definitions/ability-fealty"
         },
         {
-          "$ref": "#/definitions/ability-flank-evasion"
-        },
-        {
           "$ref": "#/definitions/ability-guard"
         },
         {
           "$ref": "#/definitions/ability-heal"
-        },
-        {
-          "$ref": "#/definitions/ability-invocation"
         },
         {
           "$ref": "#/definitions/ability-longshot"
@@ -1140,10 +1028,7 @@
           "$ref": "#/definitions/ability-raid"
         },
         {
-          "$ref": "#/definitions/ability-rally"
-        },
-        {
-          "$ref": "#/definitions/ability-rime"
+          "$ref": "#/definitions/ability-rest"
         },
         {
           "$ref": "#/definitions/ability-sanctuary"
@@ -1155,9 +1040,6 @@
           "$ref": "#/definitions/ability-shield-wall"
         },
         {
-          "$ref": "#/definitions/ability-shoulder-to-shoulder"
-        },
-        {
           "$ref": "#/definitions/ability-soul-harvest"
         },
         {
@@ -1167,10 +1049,10 @@
           "$ref": "#/definitions/ability-trade"
         },
         {
-          "$ref": "#/definitions/ability-war-banner"
+          "$ref": "#/definitions/ability-wayfarer"
         },
         {
-          "$ref": "#/definitions/ability-wayfarer"
+          "$ref": "#/definitions/ability-weaken"
         }
       ]
     },
@@ -1181,8 +1063,8 @@
           "type": "string",
           "enum": [
             "accord",
-            "adjacent-banner",
             "armor",
+            "banner",
             "barrage",
             "channel",
             "charge",
@@ -1190,20 +1072,17 @@
             "draw",
             "drillmaster",
             "fealty",
-            "flank-evasion",
             "guard",
             "heal",
             "rage",
             "raid",
-            "rime",
             "sanctuary",
             "scorch",
             "shield-wall",
-            "shoulder-to-shoulder",
             "soul-harvest",
             "steadfast",
             "trade",
-            "war-banner"
+            "weaken"
           ]
         },
         "params": {
@@ -1219,10 +1098,10 @@
           "$ref": "#/definitions/ability-accord"
         },
         {
-          "$ref": "#/definitions/ability-adjacent-banner"
+          "$ref": "#/definitions/ability-armor"
         },
         {
-          "$ref": "#/definitions/ability-armor"
+          "$ref": "#/definitions/ability-banner"
         },
         {
           "$ref": "#/definitions/ability-barrage"
@@ -1246,9 +1125,6 @@
           "$ref": "#/definitions/ability-fealty"
         },
         {
-          "$ref": "#/definitions/ability-flank-evasion"
-        },
-        {
           "$ref": "#/definitions/ability-guard"
         },
         {
@@ -1261,9 +1137,6 @@
           "$ref": "#/definitions/ability-raid"
         },
         {
-          "$ref": "#/definitions/ability-rime"
-        },
-        {
           "$ref": "#/definitions/ability-sanctuary"
         },
         {
@@ -1271,9 +1144,6 @@
         },
         {
           "$ref": "#/definitions/ability-shield-wall"
-        },
-        {
-          "$ref": "#/definitions/ability-shoulder-to-shoulder"
         },
         {
           "$ref": "#/definitions/ability-soul-harvest"
@@ -1285,7 +1155,7 @@
           "$ref": "#/definitions/ability-trade"
         },
         {
-          "$ref": "#/definitions/ability-war-banner"
+          "$ref": "#/definitions/ability-weaken"
         }
       ]
     },
@@ -1343,8 +1213,8 @@
           "type": "string",
           "enum": [
             "accord",
-            "adjacent-banner",
             "armor",
+            "banner",
             "barrage",
             "channel",
             "charge",
@@ -1352,25 +1222,21 @@
             "draw",
             "drillmaster",
             "fealty",
-            "flank-evasion",
             "guard",
             "heal",
-            "invocation",
             "longshot",
             "marches-rally",
             "rage",
             "raid",
-            "rally",
-            "rime",
+            "rest",
             "sanctuary",
             "scorch",
             "shield-wall",
-            "shoulder-to-shoulder",
             "soul-harvest",
             "steadfast",
             "trade",
-            "war-banner",
-            "wayfarer"
+            "wayfarer",
+            "weaken"
           ]
         },
         "params": {
@@ -1386,10 +1252,10 @@
           "$ref": "#/definitions/ability-accord"
         },
         {
-          "$ref": "#/definitions/ability-adjacent-banner"
+          "$ref": "#/definitions/ability-armor"
         },
         {
-          "$ref": "#/definitions/ability-armor"
+          "$ref": "#/definitions/ability-banner"
         },
         {
           "$ref": "#/definitions/ability-barrage"
@@ -1413,16 +1279,10 @@
           "$ref": "#/definitions/ability-fealty"
         },
         {
-          "$ref": "#/definitions/ability-flank-evasion"
-        },
-        {
           "$ref": "#/definitions/ability-guard"
         },
         {
           "$ref": "#/definitions/ability-heal"
-        },
-        {
-          "$ref": "#/definitions/ability-invocation"
         },
         {
           "$ref": "#/definitions/ability-longshot"
@@ -1437,10 +1297,7 @@
           "$ref": "#/definitions/ability-raid"
         },
         {
-          "$ref": "#/definitions/ability-rally"
-        },
-        {
-          "$ref": "#/definitions/ability-rime"
+          "$ref": "#/definitions/ability-rest"
         },
         {
           "$ref": "#/definitions/ability-sanctuary"
@@ -1452,9 +1309,6 @@
           "$ref": "#/definitions/ability-shield-wall"
         },
         {
-          "$ref": "#/definitions/ability-shoulder-to-shoulder"
-        },
-        {
           "$ref": "#/definitions/ability-soul-harvest"
         },
         {
@@ -1464,10 +1318,10 @@
           "$ref": "#/definitions/ability-trade"
         },
         {
-          "$ref": "#/definitions/ability-war-banner"
+          "$ref": "#/definitions/ability-wayfarer"
         },
         {
-          "$ref": "#/definitions/ability-wayfarer"
+          "$ref": "#/definitions/ability-weaken"
         }
       ]
     }

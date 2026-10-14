@@ -2,6 +2,7 @@ import cards from './matches/mercenaries-turn-9/cards.json';
 import { abilities } from '../../packages/extensions/src';
 import * as v from 'valibot';
 import { defineAbility } from '../../packages/extensions/src/definition';
+import { legacyAbilities } from './legacyAbilities';
 import { compileContent } from '../../packages/content/src/compiler';
 /** Recorded games pin their card pool, faction IDs and registered ability list.
  * Newly enabled extensions must not rewrite a historical recording's content hash. */
@@ -13,6 +14,6 @@ const legacyChannelNeutral = defineAbility('channel-neutral', v.object({ amount:
   translations: { de: { name: 'Kanalisieren: {amount} Neutral', description: 'Erhalte {amount} neutrale Energie im Energievorrat deiner aktuellen Zauberphase. Sie bezahlt allgemeine Kosten, aber keine Fraktionskosten, und verfällt mit diesem Vorrat.' } },
   cast: (ctx, p) => ctx.issue({ type: 'gain-energy', player: ctx.source.controller, output: { neutral: p.amount as number }, source: ctx.source.id }),
 });
-const pinned: typeof abilities = { ...abilities, 'channel-neutral': legacyChannelNeutral };
+const pinned: typeof abilities = { ...abilities, ...Object.fromEntries(legacyAbilities.map(a => [a.id, a])), 'channel-neutral': legacyChannelNeutral };
 export const recordedAbilities = Object.fromEntries(abilityIds.map(id => [id, id === 'rally' ? { ...pinned[id], name: 'Rally {amount}' } : pinned[id]]));
 export const recordedRegistry = compileContent(cards, recordedAbilities, undefined, ['crownlands']);

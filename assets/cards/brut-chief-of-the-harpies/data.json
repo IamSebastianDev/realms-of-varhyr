@@ -2,7 +2,7 @@
   "$schema": "../../schemas/card.schema.json",
   "id": "brut-chief-of-the-harpies",
   "set": "foundations",
-  "revision": 4,
+  "revision": 5,
   "name": "Brut, Chief of the Harpies",
   "deckLimitKey": "brut-chief-of-the-harpies",
   "type": "creature",
@@ -33,10 +33,6 @@
   "abilities": [
     {
       "id": "raid",
-      "params": {}
-    },
-    {
-      "id": "flank-evasion",
       "params": {}
     }
   ],

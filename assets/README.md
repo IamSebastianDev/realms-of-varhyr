@@ -91,7 +91,7 @@ A complete creature definition:
 
 `cost.generic` accepts any energy; `cost.factions` requires the named energy and can be omitted when there are no faction costs. Entries in `energyOutputs` are alternatives: `[{"crownlands":1},{"another-faction":1}]` means choose either. One entry with two keys produces both. Neutral cards can use `factions: ["neutral"]` or `factions: []`; both import as factionless cards. Do not combine Neutral with named factions. To produce two generic energy (energy without a faction), use `energyOutputs: [{"neutral":2}]`. The output key `neutral` is the existing data ID for generic energy; it can only pay generic costs. All faction energy can also pay generic costs. In a cost, `generic` describes how much of any energy is required. Neutral appears in the collection and deck builder's faction filter.
 
-Ancient Unicorn has no printed energy output (`energyOutputs: []`). Its **Primal** ability (`{"id":"primal","params":{}}`, **Urkraft** in German) exhausts it during the play phase to produce one energy of a chosen faction. It generates no death energy. Other creatures may also omit printed production. Primal is an activated ability, not a separate energy type.
+Ancient Unicorn has no printed energy output (`energyOutputs: []`). Its **Primal** ability (`{"id":"primal","params":{"amount":1}}`, **Urkraft** in German) exhausts it during the play phase to produce one energy of a chosen faction. It generates no death energy. Other creatures may also omit printed production. Primal is an activated ability, not a separate energy type.
 
 For a spell, omit `stats` and use `type: "spell"`, `timing: ["play"]` and a nonempty `cast` list. Example from Cleansing Light:
 
@@ -114,20 +114,20 @@ Crown Holding is a complete example in `assets/cards/crown-holding/`: its artwor
 "type": "holding",
 "stats": { "attack": 1, "defense": 4 },
 "abilities": [
-  { "id": "war-banner", "params": { "amount": 1 } },
-  { "id": "rally", "params": { "amount": 1 } }
+  { "id": "banner", "params": { "amount": 1 } },
+  { "id": "rest", "params": { "amount": 1 } }
 ]
 ```
 
-Continuous modifiers use an extension's `static(source, target, params, registry)` hook. They apply while the source is on the field, even exhausted. War Banner boosts other friendly **creatures**, not holdings.
+Continuous modifiers use an extension's `static(source, target, params, registry)` hook. They apply while the source is on the field, even exhausted. Banner boosts its neighbouring friendly creatures and holdings.
 
-Activated effects use `activate(ctx, params)` instead of `cast`. Optional `canActivate(source, state, params, registry)` adds a public eligibility restriction, enforced by legal actions and the command validator. Invocation uses this to require an opposing creature in the same position. Activation is available only on a ready field card during its controller's play phase, and exhausts the source before resolving. This initial model has no additional energy cost and no combat or post-combat activation window. Creatures can also have activated abilities; the action popover lets the player choose between channeling and activating. Different activated bindings can coexist; activating any one exhausts the card.
+Activated effects use `activate(ctx, params)` instead of `cast`. Optional `canActivate(source, state, params, registry)` adds a public eligibility restriction, enforced by legal actions and the command validator. Activation is available only on a ready field card during its controller's play phase, and exhausts the source before resolving. This initial model has no additional energy cost and no combat or post-combat activation window. Creatures can also have activated abilities; the action popover lets the player choose between channeling and activating. Different activated bindings can coexist; activating any one exhausts the card.
 
 Primal uses `target: "energy-type"` and `activationEnergy(params, registry)` to declare its one-faction output choices. The UI offers those choices as a semicircle of faction symbols above the card and sends the selected faction as the activation's `target`; the engine validates it before exhausting the source. The handler issues `gain-energy` with that faction. Declared activated production also counts in the deck builder and bot funding plans, but it is never included in death energy.
 
 ```ts
-extension("rally", amountSchema, {
-  name: "Restore {amount}",
+extension("rest", amountSchema, {
+  name: "Rest {amount}",
   description: "Exhaust during your play phase to restore {amount} life to yourself.",
   activate: (ctx, p) => ctx.issue({
     type: "heal", target: ctx.source.controller, amount: amount(p),
@@ -135,7 +135,7 @@ extension("rally", amountSchema, {
 })
 ```
 
-Rally (`marches-rally`) is exclusive to the Marches. The older healing binding keeps its internal ID `rally`, but displays **Restore**, so it cannot be confused with the new deployment action.
+Rally (`marches-rally`) is exclusive to the Marches. The healing keyword is called `rest` (**Rast** in German), so it cannot be confused with the Marches deployment action.
 
 An extension's `target` can be `enemy-any` (enemy player or any enemy field card), `friendly-field`, `enemy-field`, `friendly-creature`, or `enemy-creature`. Targeted activations select their own target at activation, not deployment. They are unavailable when no valid target exists. Creature-only effects and Consume exclude holdings. Holding entry, blocking and death events are `holding.enter.before`, `holding.entered`, `holding.blocked`, and `holding.destroyed`; creature events retain the `creature` prefix. Activation emits `ability.activated`. For hand-to-field activations, use `target: "friendly-hand-field"` with `placement: true`: legal actions provide private hand targets and free `slots`, and an `activate` command includes both `target` and `slot`. The handler issues a `deploy` order; deployment reuses normal entry events without energy payment. The client selects a hand card first, then a free position. No valid field card or free position means no activation is offered.
 
@@ -220,25 +220,40 @@ Unknown keys, malformed colors and duplicate pack IDs fail the import with the f
 
 ## Abilities
 
-In `packages/extensions/src/index.ts`, the active IDs are:
+Abilities live in three lists under `packages/extensions/src/`:
+
+- `index.ts` holds the **evergreen** keywords (`evergreenAbilities`). They are scalable vocabulary on the card itself and any faction can use them.
+- `spellAbilities.ts` holds the **spell** abilities (`spellAbilities`). They resolve when a spell is cast and are not tied to a faction.
+- `signatureAbilities.ts` holds the **faction** keywords (`signatureAbilities`). Each is exclusive to one faction (or a neutral card that names it).
+
+Evergreen:
 
 | ID | Params | Behavior |
 | --- | --- | --- |
 | `armor` | `{ "amount": 1 }` | Reduce each incoming hit |
-| `war-banner` | `{ "amount": 1 }` | Other friendly creatures gain Attack |
-| `adjacent-banner` | `{ "amount": 1 }` | Formation: immediately neighboring friendly creatures and holdings gain Attack |
-| `flank-evasion` | `{}` | A card in either flank cannot block it, so attacking a flank lane hits the player |
+| `banner` | `{ "amount": 1 }` | Immediately neighboring friendly creatures and holdings gain Attack |
+| `drillmaster` | `{ "amount": 1, "subtype": "archer" }` | Immediately neighboring friendly creatures of that subtype gain Attack |
+| `shield-wall` | `{ "amount": 1 }` | Immediately neighboring friendly creatures and holdings gain Defense |
 | `guard` | `{}` | Attacks aimed at a lane adjacent to this card are blocked by it instead, even if that lane is empty. A Guard in a targeted lane blocks there first; each Guard stops one attacker per combat |
-| `charge` | `{ "amount": 4, "position": "Center" }` | On play, damage the enemy creature in that position |
-| `damage` | `{ "amount": 2 }` | Target an enemy field card or player (spell operation) |
-| `heal` | `{ "amount": 1 }` | Heal the caster (spell operation) |
-| `draw` | `{ "amount": 2 }` | Draw cards from the caster's library (spell operation) |
-| `rime` | `{ "amount": 1 }` | Opposing field card in the same slot loses Attack while the source remains |
-| `invocation` | `{ "amount": 1 }` | Exhaust in the play phase to damage the opposing creature in the same slot; requires a creature there |
-| `primal` | `{}` | Exhaust during the play phase to produce 1 energy of a chosen faction; no printed production is implied |
-| `channel` | `{ "amount": 2, "energy": "bright-marches" }` | Spell adds that much energy of the chosen faction (or `"neutral"`) to the current casting pool after its cost is paid. Faction energy also pays generic costs; neutral energy cannot pay faction costs |
-| `soul-harvest` | `{}` | Black Host only. Soul Harvest: while on the field, draw one card when another friendly creature is destroyed; excludes holdings and the source itself |
-| `rally` | `{ "amount": 1 }` | Restore: exhaust during your play phase to restore life (activated ability) |
+| `charge` | `{ "amount": 4 }` | On play, damage the enemy creature directly opposite |
+| `rest` | `{ "amount": 1 }` | Exhaust during your play phase to restore life to yourself |
+| `weaken` | `{ "amount": 1 }` | The opposing field card in the same slot loses Attack while the source remains |
+| `longshot` | `{ "amount": 1 }` | Exhaust in the play phase to damage any enemy creature |
+| `primal` | `{ "amount": 1 }` | Exhaust during the play phase to produce that much energy of one chosen faction; no printed production is implied |
+
+Spell:
+
+| ID | Params | Behavior |
+| --- | --- | --- |
+| `damage` | `{ "amount": 2 }` | Target an enemy field card or player |
+| `barrage` | `{ "amount": 1 }` | Damage every enemy creature |
+| `heal` | `{ "amount": 1 }` | Heal the caster |
+| `draw` | `{ "amount": 2 }` | Draw cards from the caster's library |
+| `rage` | `{ "amount": 1 }` | A friendly creature gains Attack until end of turn |
+| `steadfast` | `{ "amount": 1 }` | A friendly creature gains Defense until end of turn |
+| `channel` | `{ "amount": 2, "energy": "bright-marches" }` | Adds that much energy of the chosen faction (or `"neutral"`) to the current casting pool after the cost is paid. Faction energy also pays generic costs; neutral energy cannot pay faction costs |
+
+Faction keywords such as `soul-harvest` (Black Host: draw a card when another friendly creature is destroyed) are described with their faction.
 
 Ready, Consume, Battlecry, Deathbound, Collector, Return, Blood Price and Reckoning are kept as commented reference implementations in that file. Uncomment an entry and any indicated helper/import before using its ID. Unknown or disabled abilities fail import; they are never silently ignored. A genuinely new mechanic needs a validated engine handler and a meaningful test. Increment the handler's `version` when its behavior changes.
 
@@ -262,17 +277,15 @@ Bind any of these abilities in a card's `abilities` array:
 
 ```json
 [
-  { "id": "adjacent-banner", "params": { "amount": 1 } },
-  { "id": "flank-evasion", "params": {} },
-  { "id": "charge", "params": { "amount": 4, "position": "Center" } }
+  { "id": "banner", "params": { "amount": 1 } },
+  { "id": "guard", "params": {} },
+  { "id": "charge", "params": { "amount": 4 } }
 ]
 ```
 
-These are independent examples; you can use any one or combine them. `adjacent-banner` affects only slots one step away on the same friendly row, never the source itself. Empty slots do not close the gap and the two flanks are not neighbors. Effects stack and remain active while the source is exhausted.
+These are independent examples; you can use any one or combine them. `banner` affects only slots one step away on the same friendly row, never the source itself. Empty slots do not close the gap and the two flanks are not neighbors. Effects stack and remain active while the source is exhausted.
 
-`flank-evasion` checks the **defender's** position: a card in slot 0 or 4 cannot block that attacker, so attacking Left Flank or Right Flank with it goes through to the player. Blocking is automatic: an attacker targets its own lane or an adjacent one, and the card in the targeted lane blocks if `canBlock` allows it. Each attacker has at most one blocker, each defender blocks at most one attacker (no two attackers may target the same lane), and `legalActions().lanes` publishes each attacker's reachable lanes. The UI and bot use the same rule.
-
-`charge` fires automatically once when this card is played, before combat. `position` must match one of the five names exactly. It targets the opposing creature in that position, regardless of the charger's own deployment position. It uses normal damage and Armor. If the position is empty or contains a holding, nothing happens; it does not redirect to another card or the player, and does not prevent deployment. Charge grants no additional readiness or ability to attack on entry.
+`charge` fires automatically once when this card is played, before combat. It targets the creature directly opposite the slot the card was played into. It uses normal damage and Armor. If the position is empty or contains a holding, nothing happens; it does not redirect to another card or the player, and does not prevent deployment. Charge grants no additional readiness or ability to attack on entry.
 
 For new extensions, import `battlefieldPositions`, `positionSlot`, `positionName`, or `areAdjacent` from `packages/contracts/src`. Static modifiers already receive both field cards, including their slots. Hooks receive `ctx.registry` alongside `ctx.state`, so they can inspect a positional occupant's definition. `canBlock(source, attacker, blocker, params, registry)` is a pure restriction on either participant: return false to forbid the pair. Restrictions are combined; they cannot make an otherwise invalid block legal. Keep effects in the existing queued `ctx.issue(...)` flow.
 
@@ -319,14 +332,14 @@ Leaders are normal legendary creatures with the `leader` subtype, not a separate
 | Faction | Leader / card ID | Role |
 | --- | --- | --- |
 | Crownlands | Alderic / `aldric-runewarden` | Fealty strengthens every friendly creature, including its source |
-| League of Winter | Morie / `morie-grandmistress` | Accord fuels the first spell each turn; Invocation provides positional magic |
+| League of Winter | Morie / `morie-grandmistress` | Accord fuels the first spell each turn; Charge hits the lane opposite |
 | Bright Marches | Bosci / `bosci-lord-of-seacliffe` | Rally deploys reinforcements from hand for free; Guard holds the frontier |
 | Mountain Clans | Dwell / `dwell-mountain-merchant` | Trade adds neutral energy to Clan production |
 | Neutral | The Lonely Wanderer / `the-lonely-wanderer` | Wayfarer returns a friendly creature to hand |
 | Conclave | Ilyria / `ilyria-queen-of-the-elves` | Sanctuary and Guard protect forest approaches |
-| Ember Fields | Hekata / `hekata-lady-of-the-fields` | Scorch burns the deployment lane; Invocation sustains pressure |
-| Horde | Brut / `brut-chief-of-the-harpies` | Raid rewards neighboring creatures; Flank Evasion pressures edges |
-| Black Host | Dark Priest of Run / `dark-priest-of-run` | Rime and Soul Harvest turn casualties into cards |
+| Ember Fields | Hekata / `hekata-lady-of-the-fields` | Scorch burns the deployment lane; Charge strikes the opposite creature |
+| Horde | Brut / `brut-chief-of-the-harpies` | Raid rewards neighboring creatures |
+| Black Host | Dark Priest of Run / `dark-priest-of-run` | Weaken and Soul Harvest turn casualties into cards |
 
 Alderic's original `aldric-runewarden` ID and deck-limit key are retained for existing collections and the Crown starter. Winter's retired mechanics remain test-only fixtures; do not restore them under `assets/cards/` unless you intend them to rejoin the live catalogue. The three existing neutral Winter-era support cards remain neutral cards.
 

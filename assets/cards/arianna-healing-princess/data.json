@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "arianna-healing-princess",
-  "revision": 1,
+  "revision": 2,
   "name": "Arianna, Healing Princess",
   "deckLimitKey": "arianna-healing-princess",
   "type": "creature",
@@ -32,7 +32,7 @@
   },
   "abilities": [
     {
-      "id": "rally",
+      "id": "rest",
       "params": {
         "amount": 2
       }

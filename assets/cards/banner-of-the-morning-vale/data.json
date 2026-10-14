@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "banner-of-the-morning-vale",
-  "revision": 2,
+  "revision": 3,
   "name": "Banner of the Morning Vale",
   "deckLimitKey": "banner-of-the-morning-vale",
   "type": "holding",
@@ -26,7 +26,7 @@
   },
   "abilities": [
     {
-      "id": "war-banner",
+      "id": "banner",
       "params": {
         "amount": 2
       }

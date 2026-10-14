@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "shrine-to-the-river-gods",
-  "revision": 1,
+  "revision": 2,
   "name": "Shrine to the River Gods",
   "deckLimitKey": "shrine-to-the-river-gods",
   "type": "holding",
@@ -26,7 +26,7 @@
   },
   "abilities": [
     {
-      "id": "rally",
+      "id": "rest",
       "params": {
         "amount": 2
       }

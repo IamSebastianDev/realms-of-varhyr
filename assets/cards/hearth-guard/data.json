@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "hearth-guard",
-  "revision": 1,
+  "revision": 2,
   "name": "Hearth Guard",
   "deckLimitKey": "hearth-guard",
   "type": "creature",
@@ -21,7 +21,7 @@
   },
   "abilities": [
     {
-      "id": "war-banner",
+      "id": "banner",
       "params": {
         "amount": 2
       }

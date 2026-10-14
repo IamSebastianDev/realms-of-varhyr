@@ -11,7 +11,7 @@ function factionAbility(id: string, faction: string, impl: Omit<AbilityExtension
 
 /** Faction-exclusive mechanics, reusable on leaders and other cards of the same affiliation.
  * Each keyword is a fixed rule with empty params; its strength is part of the rule.
- * Ordinary abilities such as Formation, Rime and Armor remain shared, scalable vocabulary. */
+ * Ordinary abilities such as Banner, Weaken and Armor remain shared, scalable vocabulary. */
 export const signatureAbilities: AbilityExtension[] = [
   factionAbility('fealty', 'crownlands', {
     name: 'Fealty',
