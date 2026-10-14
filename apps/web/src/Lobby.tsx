@@ -35,7 +35,7 @@ type Props={
   decks:CustomDeck[]; options:{id:string;name:string;cards:string[]}[]; saveDeck:(deck:CustomDeck)=>string|null; deleteDeck:(id:string)=>string|null;
   mode:Mode; setMode:(mode:Mode)=>void; selected:string; setSelected:(id:string)=>void;
   opponentId:string; setOpponentId:(id:string)=>void;
-  seed:string; setSeed:(seed:string)=>void; start:(skirmish:boolean)=>void;
+  start:(skirmish:boolean)=>void;
   startSession:(session:MatchSession)=>void;
   /** Starts the guided first match. */
   learn:()=>void;
@@ -187,7 +187,7 @@ export function Lobby(props:Props){
     {offer&&<div className="modal-backdrop" onClick={()=>settleOffer('skipped')}><section className="choice-dialog tutorial-offer" role="dialog" aria-modal="true" aria-label={msg("Learn to play")} onClick={e=>e.stopPropagation()}><h2>{msg("New to Varhyr?")}</h2><div className="tutorial-offer-actions"><button className="gold-button" autoFocus onClick={()=>{settleOffer('started');props.learn();}}><GraduationCap size={17}/>{msg("Start the tutorial")}</button><button className="outline-button" onClick={()=>settleOffer('skipped')}>{msg("I’ll figure it out")}</button></div></section></div>}
     {setup&&<GameSetup mode={setup} setMode={setSetupMode} close={()=>{setSetup(null);if(screen==='multiplayer')navigate('menu');}}
       options={props.options} selected={props.selected} setSelected={props.setSelected} ownedCopies={ownedCopies}
-      opponentId={props.opponentId} setOpponentId={props.setOpponentId} seed={props.seed} setSeed={props.setSeed}
+      opponentId={props.opponentId} setOpponentId={props.setOpponentId}
       start={props.start} startSession={props.startSession}/>}
     {booster&&<BoosterOpening key={booster.id} pack={booster} reduced={props.reduced} suspended={!!inspected}
       close={()=>setBooster(null)} openAnother={()=>openBooster(booster.pack)} canOpenAnother={packCount(collection,booster.pack.id)>0} inspect={inspect}

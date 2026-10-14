@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Erwecke die Untoten",
+  "lore": "Das Heer begräbt seine Toten nie. Es leiht sie nur der Erde."
+}

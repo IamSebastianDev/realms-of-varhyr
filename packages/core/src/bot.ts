@@ -53,7 +53,7 @@ function playOptions(state: GameState, id: string, registry: Registry): Command[
   const card = legalActions(state,registry).playable.find(c => c.cardId === id);
   if (!card) return [];
   const commands: Command[] = [];
-  const field=registry.cards[state.cards[id].definitionId].type!=='spell';
+  const def=registry.cards[state.cards[id].definitionId],field=def.type!=='spell'||!!def.cast?.some(b=>registry.abilities[b.id].placement);
   for (const consume of card.consumes.length ? card.consumes : [undefined]) {
     const slots=field?[...new Set([...card.slots,...(consume?[state.cards[consume].slot!]:[])])]:[undefined];
     // Prefer central space on equal scores, but evaluate every legal deployment.

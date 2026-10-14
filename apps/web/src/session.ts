@@ -6,6 +6,8 @@ import type { CustomDeck } from './decks';
 import type { StarterDeck } from '../../../packages/content/src/starters';
 
 export type DeckName = string;
+/** Every match gets its own shuffle; the seed is recorded in the match, not chosen by the player. */
+export const randomSeed = () => crypto.getRandomValues(new Uint32Array(1))[0] || 1;
 export type MatchContent = { registry: Registry; starters: StarterDeck[] };
 export const matchContent: MatchContent = { registry, starters: starterDefinitions };
 

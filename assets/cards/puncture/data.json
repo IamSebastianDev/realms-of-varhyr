@@ -19,7 +19,8 @@
   },
   "abilities": [],
   "timing": [
-    "play"
+    "play",
+    "response"
   ],
   "cast": [
     {

@@ -840,8 +840,11 @@
   "Unused response energy fades. Close the response step to finish the combat.": "Ungenutzte Reaktionsenergie verfällt. Schließe den Reaktionsschritt, um den Kampf zu beenden.",
   "Match menu": "Spielmenü",
   "Fullscreen": "Vollbild",
+  "Exhausted": "Erschöpft",
+  "Safari leaves fullscreen when the keyboard opens. Adding the page to your home screen keeps it.": "Safari beendet den Vollbildmodus, sobald die Tastatur erscheint. Zum Home-Bildschirm hinzugefügt bleibt er erhalten.",
   "Hide the browser bars to give the board the whole screen.": "Blendet die Browserleisten aus, damit das Spielfeld den ganzen Bildschirm bekommt.",
   "Exit fullscreen": "Vollbild beenden",
   "For fullscreen, add this page to your home screen: Share, then Add to Home Screen.": "Für Vollbild: Seite zum Home-Bildschirm hinzufügen (Teilen, dann „Zum Home-Bildschirm“).",
-  "Show battle log": "Kampflog einblenden"
+  "Show battle log": "Kampflog einblenden",
+  "Choose a creature to raise": "Wähle eine Kreatur zum Erwecken"
 }

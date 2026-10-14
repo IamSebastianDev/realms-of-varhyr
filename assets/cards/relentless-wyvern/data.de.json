@@ -1,4 +1,5 @@
 {
   "$schema": "../../schemas/card-translation.schema.json",
-  "name": "Unermüdlicher Lindwurm"
+  "name": "Unerbittlicher Lindwurm",
+  "lore": "Es jagte nicht dich. Es hört nur nie auf."
 }

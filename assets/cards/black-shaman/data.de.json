@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Schwarzer Schamane",
+  "lore": "Dem Heer geht der Brennstoff nie aus. Der Schamane verbraucht nur schon heute die Toten von morgen."
+}

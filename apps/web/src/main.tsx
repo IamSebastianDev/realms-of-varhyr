@@ -20,5 +20,6 @@ import './profile.css';
 import './collection-stats.css';
 import './form-controls.css';
 import './onboarding.css';
+import './touch.css';
 import './select-picker';
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><ApplicationPreferences><AudioExperience><App/></AudioExperience></ApplicationPreferences></React.StrictMode>);

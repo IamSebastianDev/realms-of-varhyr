@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "mercenary-outriders",
-  "revision": 1,
+  "revision": 2,
   "name": "Mercenary Outriders",
   "deckLimitKey": "mercenary-outriders",
   "type": "creature",
@@ -13,6 +13,7 @@
   ],
   "legendary": false,
   "rarity": "rare",
+  "lore": "They ride for whoever paid last. Last week that was somebody else.",
   "cost": {
     "generic": 1
   },

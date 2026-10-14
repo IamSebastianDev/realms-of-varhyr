@@ -1,0 +1,34 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "undead-warrior",
+  "revision": 2,
+  "name": "Undead Warrior",
+  "deckLimitKey": "undead-warrior",
+  "type": "creature",
+  "factions": [
+    "black-host"
+  ],
+  "subtypes": [
+    "skeleton"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "lore": "He still knows the drill. Everything else is gone.",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "black-host": 1
+    }
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "black-host": 1
+      }
+    ]
+  },
+  "abilities": [],
+  "set": "foundations"
+}

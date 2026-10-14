@@ -1,0 +1,34 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "raise-undead",
+  "revision": 2,
+  "name": "Raise Undead",
+  "deckLimitKey": "raise-undead",
+  "type": "spell",
+  "factions": [
+    "black-host"
+  ],
+  "subtypes": [],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "black-host": 2
+    }
+  },
+  "abilities": [],
+  "timing": [
+    "play"
+  ],
+  "cast": [
+    {
+      "id": "raise",
+      "params": {
+        "subtype": "undead"
+      }
+    }
+  ],
+  "set": "foundations",
+  "lore": "The Host never buries its dead. It only lends them to the earth."
+}

@@ -4,6 +4,7 @@ import { ResetControls } from './ResetControls';
 import { PreferenceControls, VersionLine } from './SettingsPage';
 import { CardDetail } from '../../../packages/ui/src/CardDetail';
 import { DrawChoice } from './DrawChoice';
+import { PilePicker } from './PilePicker';
 import { usePhaseAdvance } from './usePhaseAdvance';
 import { PhaseTransitionProgress } from './PhaseTransitionProgress';
 import { PeekBackdrop } from './Peek';
@@ -38,7 +39,7 @@ import { Coach } from './Coach';
 import { opponentCommand, opponentMoves, opponentNote, playerCommands, scriptFinished, startTutorial, stepAfter, tutorialKey, tutorialSteps } from './tutorial';
 import { Lobby, type Screen } from './Lobby';
 import { decksKey, parseDecks, starterOptions, type CustomDeck } from './decks';
-import { startMatch, type DeckName, type MatchSetup } from './session';
+import { randomSeed, startMatch, type DeckName, type MatchSetup } from './session';
 import { claimVictory, collectionRules, missingDeckCopies } from './collection';
 import { updateCollection, useCollection } from './collectionStore';
 import { MatchSummary } from './MatchSummary';
@@ -98,15 +99,15 @@ function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSessi
   const [screen,setScreen]=useState<Screen>('match');
   const [savedDecks,setSavedDecks]=useState<CustomDeck[]>(()=>{try{return parseDecks(localStorage.getItem(decksKey));}catch{return [];}});
   const deckOptions=[...starterOptions,...savedDecks,...(customDeck&&!savedDecks.some(d=>d.id===customDeck.id)?[customDeck]:[])];
-  const setupPrefs=useMemo<{mode?:Mode;deckId?:string;opponentId?:string;seed?:string}>(()=>{try{const p=JSON.parse(localStorage.getItem('varhir-setup-v1')??'{}');return {mode:p.mode==='practice'||p.mode==='hotseat'?p.mode:undefined,deckId:typeof p.deckId==='string'?p.deckId:undefined,opponentId:typeof p.opponentId==='string'?p.opponentId:undefined,seed:typeof p.seed==='string'?p.seed:undefined};}catch{return {};}},[]);
+  const setupPrefs=useMemo<{mode?:Mode;deckId?:string;opponentId?:string}>(()=>{try{const p=JSON.parse(localStorage.getItem('varhir-setup-v1')??'{}');return {mode:p.mode==='practice'||p.mode==='hotseat'?p.mode:undefined,deckId:typeof p.deckId==='string'?p.deckId:undefined,opponentId:typeof p.opponentId==='string'?p.opponentId:undefined};}catch{return {};}},[]);
   const [setupMode,setSetupMode]=useState<Mode>(setupPrefs.mode??mode),[setupDeck,setSetupDeck]=useState<string>(deckOptions.some(d=>d.id===setupPrefs.deckId)?setupPrefs.deckId!:customDeck?.id??deck);
   const [setupOpponent,setSetupOpponent]=useState<string>(()=>setupPrefs.opponentId&&(setupPrefs.opponentId==='auto'||deckOptions.some(d=>d.id===setupPrefs.opponentId))?setupPrefs.opponentId:opponentDeck?.id??'auto');
   const [viewer,setViewer]=useState<PlayerId>(sessionSnapshot.seat??decisionPlayer(state)),[covered,setCovered]=useState(false);
   const [selected,setSelected]=useState<string|null>(null),[hovered,setHovered]=useState<string|null>(null),[draft,setDraft]=useState<Draft|null>(null),[stage,setStage]=useState<'none'|'consume'|'position'|'target'>('none');
   const [attackers,setAttackers]=useState<string[]>([]),[lanes,setLanes]=useState<Record<string,number>>({});
-  const [mulliganPick,setMulliganPick]=useState<string[]>([]),[drawOther,setDrawOther]=useState<'discard'|'bottom'>('discard'),[logOpen,setLogOpen]=useState(()=>(window.innerWidth>=951&&window.innerWidth>window.innerHeight)||(window.innerWidth<=950&&window.innerHeight>=800&&window.innerHeight>window.innerWidth)),[panel,setPanel]=useState<'rules'|'menu'|'settings'|'journal'|'debug'|'discard'|null>(null),[error,setError]=useState(''),[seed,setSeed]=useState(setupPrefs.seed??String(initial.seed));
+  const [mulliganPick,setMulliganPick]=useState<string[]>([]),[drawOther,setDrawOther]=useState<'discard'|'bottom'>('discard'),[logOpen,setLogOpen]=useState(()=>(window.innerWidth>=951&&window.innerWidth>window.innerHeight)||(window.innerWidth<=950&&window.innerHeight>=800&&window.innerHeight>window.innerWidth)),[panel,setPanel]=useState<'rules'|'menu'|'settings'|'journal'|'debug'|'discard'|null>(null),[error,setError]=useState('');
   const [confirmConcede,setConfirmConcede]=useState(false);
-  useEffect(()=>{if(!local)return;try{localStorage.setItem('varhir-setup-v1',JSON.stringify({mode:setupMode,deckId:setupDeck,opponentId:setupOpponent,seed}));}catch{/* Optional setup preferences. */}},[setupMode,setupDeck,setupOpponent,seed,local]);
+  useEffect(()=>{if(!local)return;try{localStorage.setItem('varhir-setup-v1',JSON.stringify({mode:setupMode,deckId:setupDeck,opponentId:setupOpponent}));}catch{/* Optional setup preferences. */}},[setupMode,setupDeck,setupOpponent,local]);
   const boardRef=useRef<HTMLDivElement>(null),enemyAvatarRef=useRef<HTMLButtonElement>(null);
   const poolRef=useRef<HTMLDivElement>(null),enemyPoolRef=useRef<HTMLDivElement>(null),previewRef=useRef<HTMLElement>(null);
   const actionPopoverRef=useRef<HTMLDivElement>(null);
@@ -213,7 +214,7 @@ function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSessi
     try{localStorage.setItem(decksKey,JSON.stringify(decks));}catch{return msg("Could not save. This browser’s storage is full or unavailable.");}
     setSavedDecks(decks);if(setupDeck===id)setSetupDeck(defaultDeckId);return null;
   }
-  function reset(isSkirmish:boolean,nextMode:Mode=mode,nextDeck:string=customDeck?.id??deck,nextSeed:number=Number(seed)||731,override?:CustomDeck,nextOpponent:string=setupOpponent) {
+  function reset(isSkirmish:boolean,nextMode:Mode=mode,nextDeck:string=customDeck?.id??deck,nextSeed:number=randomSeed(),override?:CustomDeck,nextOpponent:string=setupOpponent) {
     if(!local)return;
     const custom=override??savedDecks.find(d=>d.id===nextDeck)??(customDeck?.id===nextDeck?customDeck:undefined);
     const starter:DeckName=starterOptions.some(d=>d.id===nextDeck)?nextDeck:defaultDeckId;
@@ -234,6 +235,7 @@ function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSessi
   }
   /** Saves what this seat saw, never more: the same file whether the match was local or online. */
   function exportReplay(){if(match.kind==='replay')return;try{const file=match.exportReplay(mode==='hotseat'?viewer:'p1',rewardId??String(initial.seed)),url=URL.createObjectURL(new Blob([JSON.stringify(file)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=`varhyr-replay-${file.matchId.slice(0,8)}.json`;a.click();URL.revokeObjectURL(url);}catch(cause){setError(cause instanceof Error?cause.message:msg("Could not save the replay."));}}
+  const placesCard=(cardId:string)=>!!registry.cards[view.cards[cardId].definitionId].cast?.some(b=>registry.abilities[b.id].placement);
   function beginPlay(nextDraft:Draft) {
     setActionCard(null);
     if(nextDraft.activation!==undefined){
@@ -242,7 +244,7 @@ function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSessi
     }
     const legal=view.legal.playable.find(a=>a.cardId===nextDraft.cardId);if(!legal){setError(msg("Generate the required energy first, and check your free slots."));return;}
     setDraft(nextDraft);
-    const nextStage=nextPlayStage(registry.cards[view.cards[nextDraft.cardId].definitionId],legal,nextDraft);
+    const nextStage=nextPlayStage(registry.cards[view.cards[nextDraft.cardId].definitionId],legal,nextDraft,placesCard(nextDraft.cardId));
     if(nextStage!=='none'){setStage(nextStage);return;}
     send({type:'play',...nextDraft});
   }
@@ -264,6 +266,7 @@ function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSessi
       if(selectedActivation?.slots){setPreviewRequest(null);setPreview(null);setDraft({...draft,target});setStage('position');setSelected(target);return;}
       send({type:'activate',cardId:draft.cardId,ability:draft.activation,target});
     }
+    else if(placesCard(draft.cardId)&&draft.slot===undefined){setPreviewRequest(null);setPreview(null);setDraft({...draft,target});setStage('position');}
     else send({type:'play',...draft,target});
   }
   function selectBoard(id:string) {
@@ -388,7 +391,7 @@ function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSessi
   useEffect(()=>{if(!skippable)return;const t=setTimeout(()=>send({type:'end'}),450);return()=>clearTimeout(t);},[skippable,windowKey]);
   const phaseAdvance=usePhaseAdvance({enabled:advanceEnabled,phaseKey:advancePhaseKey},mainAction);
   const transitioning=phaseAdvance.transitionStartedAt!==null;
-  if(screen!=='match')return <><Lobby reduced={reduced} screen={screen} navigate={navigate} canResume={!state.outcome} resumeLabel={msg("Turn {v0} · {v1}", {v0: state.turn, v1: state.players.p1.name})} decks={savedDecks} options={deckOptions} saveDeck={saveDeck} deleteDeck={deleteDeck} mode={setupMode} setMode={setSetupMode} selected={setupDeck} setSelected={setSetupDeck} opponentId={setupOpponent} setOpponentId={setSetupOpponent} seed={seed} setSeed={setSeed} start={isSkirmish=>reset(isSkirmish,setupMode,setupDeck)} startSession={onAttach} learn={startTutorialMatch}/>{error&&<div className="toast" role="alert">{msg(error)}</div>}</>;
+  if(screen!=='match')return <><Lobby reduced={reduced} screen={screen} navigate={navigate} canResume={!state.outcome} resumeLabel={msg("Turn {v0} · {v1}", {v0: state.turn, v1: state.players.p1.name})} decks={savedDecks} options={deckOptions} saveDeck={saveDeck} deleteDeck={deleteDeck} mode={setupMode} setMode={setSetupMode} selected={setupDeck} setSelected={setSetupDeck} opponentId={setupOpponent} setOpponentId={setSetupOpponent} start={isSkirmish=>reset(isSkirmish,setupMode,setupDeck)} startSession={onAttach} learn={startTutorialMatch}/>{error&&<div className="toast" role="alert">{msg(error)}</div>}</>;
   return <div className={`app ${drag?'is-dragging':''} ${reduced?'reduce-motion':''} ${tutorial?'tutorial-on':''} ${transitioning?'phase-transitioning':''}`} style={{'--arena-image':`url("${arena.art}")`} as CSSProperties}>
     <div className="world-bg"/><div className="world-vignette"/>
     <header className="topbar"><button className="brand" aria-label={msg("Realms of Varhyr home")} onClick={()=>navigate('menu')}><span className="brand-mark">V<span/></span><span><small>REALMS OF</small><strong>VARHYR</strong></span></button><div className="match-status" aria-label={msg("Turn {v0}, {v1} initiative", {v0: view.turn, v1: view.active===viewer?'your':'opponent’s'})}><span>{msg("Turn")}{' '}{view.turn}</span><i/><strong>{online&&actor!==viewer?msg("Opponent’s turn"):thinking?msg("Opponent’s turn"):view.combat?.stage==='review'?msg("Review combat"):responseStep?msg("Response energy"):view.phase==='play'?msg("Play & channel"):view.phase==='attack'?msg("Select attackers"):view.phase==='draw'?msg("Choose a card"):msg("End turn")}</strong></div><div className="match-corner"><button onClick={()=>setPanel('menu')} aria-label={msg("Match menu")}><Menu size={18}/></button></div></header>
@@ -417,7 +420,7 @@ function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSessi
             const canActivate=!!id&&view.legal.activations.some(a=>a.cardId===id);
             const over=(!!dropPlay||dropLane!==null)&&dropZone?.player===slot.player&&dropZone.slot===slot.slot;
             return <div key={`${slot.player}-${slot.slot}`} data-battlefield-slot={`${slot.player}-${slot.slot}`} className={`board-card-label ${def?.legendary?'is-legendary':''} ${attackIndex>=0?'is-attacker':''} ${block?'is-blocker':''} ${canUndo?'is-channelled':''} ${card?.exhausted?'is-exhausted':''} ${legal||laneLegal||positionChoice?'drop-legal':''} ${over?'drop-over':''}`} style={{left:slot.x,top:slot.y,width:slot.width,height:slot.height}}>
-              {def&&card&&stats&&<><div className={`art-card card-face-overlay ${def.legendary?'legendary-card':''} ${def.type==='holding'?'holding-card':''}`}><CardFace card={def} stats={{attack:stats.attack,defense:Math.max(0,stats.defense-card.damage)}} showCost={false}/></div>{attackIndex>=0?<span className="combat-role attacker-role" title={msg("Attacker {v0}", {v0: attackIndex+1})}><Swords/>{msg("Attack")}{' '}{attackIndex+1}</span>:block?<span className="combat-role blocker-role" title={msg("Blocks attacker {v0}", {v0: blockIndex+1})}><Shield/>{msg("Blocks")}{' '}{blockIndex+1}</span>:canUndo?<span className="board-status undo-status" title={msg("Exhausted · click to undo channeling")}><RotateCcw/></span>:canChannel?<span className="board-status ready-status" title={canActivate?msg("Ready · click to choose an action"):msg("Ready · click to channel energy")}><Check/></span>:canActivate?<span className="board-status ready-status" title={msg("Ready · click to activate")}><Sparkles/></span>:card.exhausted&&<span className="board-status exhausted-status" title={msg("Exhausted · can still block")}><Moon/></span>}</>}
+              {def&&card&&stats&&<><div className={`art-card card-face-overlay ${def.legendary?'legendary-card':''} ${def.type==='holding'?'holding-card':''}`}><CardFace card={def} stats={{attack:stats.attack,defense:Math.max(0,stats.defense-card.damage)}} showCost={false}/></div>{attackIndex>=0?<span className="combat-role attacker-role" title={msg("Attacker {v0}", {v0: attackIndex+1})}><Swords/>{msg("Attack")}{' '}{attackIndex+1}</span>:block?<span className="combat-role blocker-role" title={msg("Blocks attacker {v0}", {v0: blockIndex+1})}><Shield/>{msg("Blocks")}{' '}{blockIndex+1}</span>:canUndo?<span className="board-status undo-status" title={msg("Exhausted · click to undo channeling")}><RotateCcw/></span>:canChannel?<span className="board-status ready-status" title={canActivate?msg("Ready · click to choose an action"):msg("Ready · click to channel energy")}><Check/></span>:canActivate?<span className="board-status ready-status" title={msg("Ready · click to activate")}><Sparkles/></span>:card.exhausted&&<span className="board-status exhausted-status" title={msg("Exhausted · can still block")}><Moon/><span>{msg("Exhausted")}</span></span>}</>}
               {laneLegal&&<span className="drop-label">{id?msg("Attack"):msg("Open lane")}</span>}
               {legal&&<span className="drop-label">{legal.consume?msg("Consume"):dragDef?.type==='spell'?legal.target?msg("Target"):msg("Cast"):msg("Deploy")}</span>}
             </div>;
@@ -456,6 +459,7 @@ function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSessi
       {watching?<button onClick={()=>leave()}>{msg("Close replay")}<X size={13}/></button>:<button onClick={()=>setHistoryIndex(null)}>{msg("Return to live match")}<Play size={13}/></button>}</div>}
     {covered&&<div className="modal-backdrop privacy"><div className="privacy-card"><span className="brand-mark">V</span><h2>{playerName(state.players[actor].name)}</h2>{state.combat?.stage==='review'?<p>{msg("Review the lanes and blockers, then confirm combat.")}</p>:state.combat?.stage==='response'?<p>{msg("Spend your fallen creatures’ energy.")}</p>:null}<button className="gold-button" onClick={()=>{setViewer(actor);setCovered(false);setSelected(null);setHovered(null);}}>{msg("Reveal my hand")}<Eye size={16}/></button></div></div>}
     {!watching&&view.pending?.kind==='mulligan'&&!covered&&!thinking&&<PeekBackdrop back={msg("Back to your hand")}><div className="choice-dialog mulligan-dialog"><h2>{msg("Replace up to")}{' '}{view.pending.max} {msg("cards")}</h2><div className="choice-options mulligan-options">{view.pending.options.map(id=>{const picked=mulliganPick.includes(id),full=!picked&&mulliganPick.length>=(view.pending as {max:number}).max;return <div key={id} className={`mulligan-card ${picked?'picked':''} ${full?'locked':''}`}><ArtCard detail={false} reduced={reduced} card={registry.cards[view.cards[id].definitionId]} interaction={{id:`mull-${id}`,onPointerEnter:e=>{if(e.pointerType!=='touch')requestPreview(id,e.currentTarget.getBoundingClientRect());},onPointerLeave:clearHoverPreview,onFocus:e=>requestPreview(id,e.currentTarget.getBoundingClientRect()),onBlur:clearHoverPreview,onContextMenu:e=>{e.preventDefault();pinPreview(id,e.currentTarget.getBoundingClientRect());}}} onClick={()=>setMulliganPick(list=>picked?list.filter(x=>x!==id):full?list:[...list,id])}/><span className="mulligan-mark">{picked?msg("Replace"):msg("Keep")}</span></div>;})}</div><button className="gold-button mulligan-confirm" disabled={!!online&&!live} onClick={()=>{const cardIds=mulliganPick;setMulliganPick([]);send({type:'mulligan',cardIds});}}>{mulliganPick.length?msg("Replace {v0} {v1}", {v0: mulliganPick.length, v1: mulliganPick.length===1?'card':'cards'}):msg("Keep this hand")}<ArrowRight size={14}/></button></div></PeekBackdrop>}
+    {live&&stage==='target'&&!covered&&targets.length>0&&view.cards[targets[0]]?.zone==='discard'&&<PilePicker reduced={reduced} title={msg("Choose a creature to raise")} cards={targets.map(id=>({id,card:registry.cards[view.cards[id].definitionId]}))} choose={sendTarget} cancel={()=>{setDraft(null);setStage('none');setSelected(null);}}/>}
     {!watching&&view.pending?.kind==='draw'&&!covered&&!thinking&&<DrawChoice reduced={reduced} cards={(view.pending.options as string[]).map(id=>({id,card:registry.cards[view.cards[id].definitionId]}))} discardCount={you.discard.length} discardTop={discardTop(you.discard)} libraryCount={you.deckCount} choose={(keep,other)=>send({type:'choose',choiceId:view.pending!.id,option:keep,other})}/>}
     {view.pending&&view.pending.kind==='response-energy'&&!covered&&!thinking&&<PeekBackdrop back={msg("Back to the choice")}><div className="choice-dialog"><h2>{msg(view.pending.sourceName)}{msg(": choose its energy")}</h2><div className="choice-options">{view.pending.options.map((pool,i)=><button className="energy-choice" key={i} onClick={()=>send({type:'choose',choiceId:view.pending!.id,option:i})}><Energy pool={pool}/><span>{msg("Choose this output")}<ArrowRight size={14}/></span></button>)}</div></div></PeekBackdrop>}
     {state.outcome&&!clash&&!covered&&(historyIndex===null||watching&&historyIndex>=historyLength)&&<MatchSummary state={state} viewer={viewer} registry={registry} reduced={reduced} symbol={factionSymbol(viewer)} reward={!watching&&(hotseat?state.outcome==='p1':state.outcome===viewer)&&rewardId&&collection.rewardedMatches.includes(rewardId)?{crowns:collectionRules.victoryCrowns,boosters:collectionRules.victoryBoosters,saved:collectionSaved}:null} onMenu={()=>navigate('menu')} onAgain={local?()=>reset(false):undefined} onExport={watching?undefined:exportReplay} reviewLabel={watching?msg("Watch again"):undefined} onReview={watching?()=>{setHistoryIndex(0);}:()=>{setHistoryIndex(historyLength);setPanel('debug');}}/>}

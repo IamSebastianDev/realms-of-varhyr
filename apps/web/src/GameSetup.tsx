@@ -15,7 +15,6 @@ type Props = {
   options: { id: string; name: string; cards: string[] }[];
   selected: string; setSelected: (id: string) => void;
   ownedCopies: Record<string, number>; opponentId: string; setOpponentId: (id: string) => void;
-  seed: string; setSeed: (seed: string) => void;
   start: (skirmish: boolean) => void; startSession: (session: MatchSession) => void;
 };
 
@@ -51,7 +50,6 @@ export function GameSetup(props: Props) {
           {!playable && <p className="deck-warning" role="status">{missing.length ? msg("You need {v0} more owned copies. Open boosters or edit this deck.", {v0: missing.reduce((sum, card) => sum + card.missing, 0)}) : chosen && chosen.cards.length < deckRules.minimumCards ? msg("Add at least {v0} cards to play.", {v0: deckRules.minimumCards}) : issues[0]}</p>}
           <details className="setup-advanced"><summary>{msg("Advanced")}<ChevronDown size={14}/></summary><div>
             <label>{friend ? msg("Second player’s deck") : msg("Opponent deck")}<select value={props.opponentId} onChange={event => props.setOpponentId(event.target.value)}><option value="auto">{msg("Automatic")}</option>{props.options.map(deck => <option key={deck.id} value={deck.id} disabled={!!validateDeck(deck.cards, registry).length}>{msg(deck.name)}</option>)}</select></label>
-            <label>{msg("Match seed")}<input type="number" value={props.seed} onChange={event => props.setSeed(event.target.value)}/></label>
             <button className="setup-skirmish" disabled={!playable} onClick={() => props.start(true)}>{msg("Jump into a skirmish")}<ArrowRight size={14}/></button>
           </div></details>
           <button className="gold-button start-play setup-start" disabled={!playable} onClick={() => props.start(false)}><BurnEmbers/><span>{msg("Start game")}</span><Swords size={23}/></button>

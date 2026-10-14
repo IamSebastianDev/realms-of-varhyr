@@ -66,9 +66,11 @@ export type InternalOrder =
   /** Temporary stat bonus on a field creature; cleared when the turn ends. */
   | { type: 'boost'; target: string; attack?: number; defense?: number; source?: string }
   | { type: 'draw'; player: PlayerId; amount: number }
+  /** Puts cards from the top of a library into its owner's discard pile. Never empties the library on its own. */
+  | { type: 'mill'; player: PlayerId; amount: number }
   | { type: 'gain-energy'; player: PlayerId; output: Pool; source?: string }
   | { type: 'return'; target: string }
-  | { type: 'deploy'; target: string; player: PlayerId; slot: number }
+  | { type: 'deploy'; target: string; player: PlayerId; slot: number; /** Enters ready instead of exhausted (still subject to entry hooks). */ ready?: boolean }
   | { type: 'destroy'; target: string; combat?: boolean };
 export type BeforePayload = { exhausted?: boolean; consume?: boolean; amount?: number; cost?: Cost; output?: Pool };
 export type HookContext = {
@@ -99,9 +101,9 @@ export type AbilityExtension = {
   cast?: (ctx: HookContext, params: Record<string, unknown>) => void;
   /** Optional declared energy choices for an activated producer. One faction per pool; the chosen faction is the target. */
   activationEnergy?: (params: Record<string, unknown>, registry: Registry) => Pool[];
-  /** Target a field card in hand and choose a free friendly position before activating. */
+  /** Target a field card (in hand, or in your discard pile) and choose a free friendly position before activating or casting. */
   placement?: boolean;
-  target?: 'energy-type' | 'friendly-hand-field' | 'enemy-any' | 'friendly-creature' | 'enemy-creature' | 'friendly-field' | 'enemy-field';
+  target?: 'energy-type' | 'friendly-hand-field' | 'friendly-discard-creature' | 'enemy-any' | 'friendly-creature' | 'enemy-creature' | 'friendly-field' | 'enemy-field';
 };
 export type Registry = { version: string; energyTypes: EnergyType[]; cards: Record<string, CardDefinition>; abilities: Record<string, AbilityExtension> };
 export type LegalActions = { actor: PlayerId; playable: { cardId: string; slots: number[]; targets: string[]; consumes: string[]; requiresTarget: boolean }[]; energy: { cardId: string; options: Pool[] }[]; activations: { cardId: string; ability: number; targets: string[]; requiresTarget: boolean; slots?: number[]; energyOptions?: Pool[] }[]; attackers: string[]; /** Positions each legal attacker may target: its own lane and adjacent lanes. */ lanes: Record<string, number[]>; canEnd: boolean };

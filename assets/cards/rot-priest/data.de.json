@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Fäulnispriester",
+  "lore": "Wo er predigt, reift die Ernte früh und fault noch am selben Tag."
+}

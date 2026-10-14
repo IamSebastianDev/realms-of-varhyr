@@ -459,6 +459,27 @@
       ],
       "additionalProperties": false
     },
+    "ability-dark-harvest": {
+      "type": "object",
+      "title": "Dark Harvest",
+      "description": "Exhaust during your play phase: put the top card of your library into your discard pile and gain 2 Host energy. Needs at least two cards in your library.",
+      "properties": {
+        "id": {
+          "const": "dark-harvest"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
     "ability-draw": {
       "type": "object",
       "title": "Draw {amount}",
@@ -716,6 +737,34 @@
       ],
       "additionalProperties": false
     },
+    "ability-raise": {
+      "type": "object",
+      "title": "Raise {subtype}",
+      "description": "Choose a {subtype} creature in your discard pile and return it to a free position on your battlefield. It enters ready.",
+      "properties": {
+        "id": {
+          "const": "raise"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "subtype": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "subtype"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
     "ability-rest": {
       "type": "object",
       "title": "Rest {amount}",
@@ -946,6 +995,7 @@
             "channel",
             "charge",
             "damage",
+            "dark-harvest",
             "draw",
             "drillmaster",
             "fealty",
@@ -956,6 +1006,7 @@
             "primal",
             "rage",
             "raid",
+            "raise",
             "rest",
             "sanctuary",
             "scorch",
@@ -998,6 +1049,9 @@
           "$ref": "#/definitions/ability-damage"
         },
         {
+          "$ref": "#/definitions/ability-dark-harvest"
+        },
+        {
           "$ref": "#/definitions/ability-draw"
         },
         {
@@ -1026,6 +1080,9 @@
         },
         {
           "$ref": "#/definitions/ability-raid"
+        },
+        {
+          "$ref": "#/definitions/ability-raise"
         },
         {
           "$ref": "#/definitions/ability-rest"
@@ -1076,6 +1133,7 @@
             "heal",
             "rage",
             "raid",
+            "raise",
             "sanctuary",
             "scorch",
             "shield-wall",
@@ -1137,6 +1195,9 @@
           "$ref": "#/definitions/ability-raid"
         },
         {
+          "$ref": "#/definitions/ability-raise"
+        },
+        {
           "$ref": "#/definitions/ability-sanctuary"
         },
         {
@@ -1171,6 +1232,7 @@
             "draw",
             "heal",
             "rage",
+            "raise",
             "steadfast"
           ]
         },
@@ -1202,6 +1264,9 @@
           "$ref": "#/definitions/ability-rage"
         },
         {
+          "$ref": "#/definitions/ability-raise"
+        },
+        {
           "$ref": "#/definitions/ability-steadfast"
         }
       ]
@@ -1219,6 +1284,7 @@
             "channel",
             "charge",
             "damage",
+            "dark-harvest",
             "draw",
             "drillmaster",
             "fealty",
@@ -1228,6 +1294,7 @@
             "marches-rally",
             "rage",
             "raid",
+            "raise",
             "rest",
             "sanctuary",
             "scorch",
@@ -1270,6 +1337,9 @@
           "$ref": "#/definitions/ability-damage"
         },
         {
+          "$ref": "#/definitions/ability-dark-harvest"
+        },
+        {
           "$ref": "#/definitions/ability-draw"
         },
         {
@@ -1295,6 +1365,9 @@
         },
         {
           "$ref": "#/definitions/ability-raid"
+        },
+        {
+          "$ref": "#/definitions/ability-raise"
         },
         {
           "$ref": "#/definitions/ability-rest"
@@ -1459,6 +1532,59 @@
           "factions": {
             "contains": {
               "const": "winter-league"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "anyOf": [
+          {
+            "properties": {
+              "abilities": {
+                "contains": {
+                  "properties": {
+                    "id": {
+                      "const": "dark-harvest"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "abilities"
+            ]
+          },
+          {
+            "properties": {
+              "cast": {
+                "contains": {
+                  "properties": {
+                    "id": {
+                      "const": "dark-harvest"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "cast"
+            ]
+          }
+        ]
+      },
+      "then": {
+        "properties": {
+          "factions": {
+            "contains": {
+              "const": "black-host"
             }
           }
         }

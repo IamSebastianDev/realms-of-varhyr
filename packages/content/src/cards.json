@@ -1,5 +1,43 @@
 [
   {
+    "id": "acolyte-of-draur",
+    "set": "foundations",
+    "revision": 2,
+    "name": "Acolyte of Draur",
+    "deckLimitKey": "acolyte-of-draur",
+    "type": "creature",
+    "factions": [
+      "black-host"
+    ],
+    "subtypes": [
+      "human"
+    ],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 0,
+      "factions": {}
+    },
+    "lore": "The first lesson at Draur is the shortest: nothing is wasted.",
+    "translations": {
+      "de": {
+        "name": "Akolyth aus Draur",
+        "lore": "Die erste Lektion in Draur ist die kürzeste: Nichts wird verschwendet."
+      }
+    },
+    "art": "/cards/acolyte-of-draur/data.png?v=e98998772061fb90",
+    "abilities": [],
+    "stats": {
+      "attack": 0,
+      "defense": 2,
+      "energyOutputs": [
+        {
+          "black-host": 1
+        }
+      ]
+    }
+  },
+  {
     "id": "aldric-runewarden",
     "set": "foundations",
     "revision": 11,
@@ -269,6 +307,58 @@
         }
       }
     ]
+  },
+  {
+    "id": "black-shaman",
+    "set": "foundations",
+    "revision": 2,
+    "name": "Black Shaman",
+    "deckLimitKey": "black-shaman",
+    "type": "creature",
+    "factions": [
+      "black-host"
+    ],
+    "subtypes": [
+      "human"
+    ],
+    "legendary": false,
+    "rarity": "rare",
+    "cost": {
+      "generic": 0,
+      "factions": {}
+    },
+    "lore": "The Host never runs short of fuel. The Shaman simply spends tomorrow’s dead today.",
+    "translations": {
+      "de": {
+        "name": "Schwarzer Schamane",
+        "lore": "Dem Heer geht der Brennstoff nie aus. Der Schamane verbraucht nur schon heute die Toten von morgen."
+      }
+    },
+    "art": "/cards/black-shaman/data.png?v=b30497330c5075bc",
+    "abilities": [
+      {
+        "id": "dark-harvest",
+        "params": {}
+      },
+      {
+        "id": "rest",
+        "params": {
+          "amount": 1
+        }
+      }
+    ],
+    "stats": {
+      "attack": 0,
+      "defense": 1,
+      "energyOutputs": [
+        {
+          "black-host": 1
+        },
+        {
+          "conclave": 1
+        }
+      ]
+    }
   },
   {
     "id": "borderpost",
@@ -949,6 +1039,53 @@
     }
   },
   {
+    "id": "grave-troll",
+    "set": "foundations",
+    "revision": 2,
+    "name": "Grave Troll",
+    "deckLimitKey": "grave-troll",
+    "type": "creature",
+    "factions": [
+      "black-host"
+    ],
+    "subtypes": [
+      "undead"
+    ],
+    "legendary": false,
+    "rarity": "rare",
+    "cost": {
+      "generic": 3,
+      "factions": {
+        "black-host": 2
+      }
+    },
+    "lore": "The gravediggers dug deep. The troll dug deeper, from the other side.",
+    "translations": {
+      "de": {
+        "name": "Grabtroll",
+        "lore": "Die Totengräber gruben tief. Der Troll grub tiefer, von der anderen Seite."
+      }
+    },
+    "art": "/cards/grave-troll/data.png?v=53d8e4a897616618",
+    "abilities": [
+      {
+        "id": "charge",
+        "params": {
+          "amount": 2
+        }
+      }
+    ],
+    "stats": {
+      "attack": 5,
+      "defense": 3,
+      "energyOutputs": [
+        {
+          "black-host": 2
+        }
+      ]
+    }
+  },
+  {
     "id": "hearth-guard",
     "set": "foundations",
     "revision": 2,
@@ -1261,7 +1398,7 @@
   {
     "id": "mercenary-outriders",
     "set": "foundations",
-    "revision": 1,
+    "revision": 2,
     "name": "Mercenary Outriders",
     "deckLimitKey": "mercenary-outriders",
     "type": "creature",
@@ -1275,9 +1412,11 @@
       "generic": 1,
       "factions": {}
     },
+    "lore": "They ride for whoever paid last. Last week that was somebody else.",
     "translations": {
       "de": {
-        "name": "Berittene Söldnerspäher"
+        "name": "Berittene Söldnerspäher",
+        "lore": "Sie reiten für den, der zuletzt gezahlt hat. Letzte Woche war das noch ein anderer."
       }
     },
     "art": "/cards/mercenary-outriders/data.png?v=e7ef56af7f9dfd02",
@@ -1613,7 +1752,8 @@
     "art": "/cards/puncture/data.png?v=0c719f69aa8edf93",
     "abilities": [],
     "timing": [
-      "play"
+      "play",
+      "response"
     ],
     "cast": [
       {
@@ -1625,9 +1765,49 @@
     ]
   },
   {
+    "id": "raise-undead",
+    "set": "foundations",
+    "revision": 2,
+    "name": "Raise Undead",
+    "deckLimitKey": "raise-undead",
+    "type": "spell",
+    "factions": [
+      "black-host"
+    ],
+    "subtypes": [],
+    "legendary": false,
+    "rarity": "rare",
+    "cost": {
+      "generic": 1,
+      "factions": {
+        "black-host": 2
+      }
+    },
+    "lore": "The Host never buries its dead. It only lends them to the earth.",
+    "translations": {
+      "de": {
+        "name": "Erwecke die Untoten",
+        "lore": "Das Heer begräbt seine Toten nie. Es leiht sie nur der Erde."
+      }
+    },
+    "art": "/cards/raise-undead/data.png?v=85d56e889eaf249f",
+    "abilities": [],
+    "timing": [
+      "play"
+    ],
+    "cast": [
+      {
+        "id": "raise",
+        "params": {
+          "subtype": "undead"
+        }
+      }
+    ]
+  },
+  {
     "id": "relentless-wyvern",
     "set": "foundations",
-    "revision": 1,
+    "revision": 2,
     "name": "Relentless Wyvern",
     "deckLimitKey": "relentless-wyvern",
     "type": "creature",
@@ -1641,15 +1821,17 @@
       "generic": 3,
       "factions": {}
     },
+    "lore": "It was not hunting you. It simply never stops.",
     "translations": {
       "de": {
-        "name": "Unermüdlicher Lindwurm"
+        "name": "Unerbittlicher Lindwurm",
+        "lore": "Es jagte nicht dich. Es hört nur nie auf."
       }
     },
     "art": "/cards/relentless-wyvern/data.png?v=3bf5984a89f2dbf9",
     "abilities": [
       {
-        "id": "damage",
+        "id": "charge",
         "params": {
           "amount": 3
         }
@@ -1784,6 +1966,44 @@
       "energyOutputs": [
         {
           "bright-marches": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "rot-priest",
+    "set": "foundations",
+    "revision": 2,
+    "name": "Rot Priest",
+    "deckLimitKey": "rot-priest",
+    "type": "creature",
+    "factions": [
+      "black-host"
+    ],
+    "subtypes": [
+      "human"
+    ],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 0,
+      "factions": {}
+    },
+    "lore": "Where he preaches, the harvest ripens early and rots the same day.",
+    "translations": {
+      "de": {
+        "name": "Fäulnispriester",
+        "lore": "Wo er predigt, reift die Ernte früh und fault noch am selben Tag."
+      }
+    },
+    "art": "/cards/rot-priest/data.png?v=d6d6aba9ea5155f9",
+    "abilities": [],
+    "stats": {
+      "attack": 1,
+      "defense": 1,
+      "energyOutputs": [
+        {
+          "black-host": 1
         }
       ]
     }
@@ -2128,6 +2348,46 @@
       "attack": 3,
       "defense": 5,
       "energyOutputs": []
+    }
+  },
+  {
+    "id": "undead-warrior",
+    "set": "foundations",
+    "revision": 2,
+    "name": "Undead Warrior",
+    "deckLimitKey": "undead-warrior",
+    "type": "creature",
+    "factions": [
+      "black-host"
+    ],
+    "subtypes": [
+      "skeleton"
+    ],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 0,
+      "factions": {
+        "black-host": 1
+      }
+    },
+    "lore": "He still knows the drill. Everything else is gone.",
+    "translations": {
+      "de": {
+        "name": "Untoter Krieger",
+        "lore": "Er beherrscht den Drill noch. Alles andere ist vergangen."
+      }
+    },
+    "art": "/cards/undead-warrior/data.png?v=4097c46618c24432",
+    "abilities": [],
+    "stats": {
+      "attack": 1,
+      "defense": 2,
+      "energyOutputs": [
+        {
+          "black-host": 1
+        }
+      ]
     }
   },
   {

@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Grabtroll",
+  "lore": "Die Totengräber gruben tief. Der Troll grub tiefer, von der anderen Seite."
+}

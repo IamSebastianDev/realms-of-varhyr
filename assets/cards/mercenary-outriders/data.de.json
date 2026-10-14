@@ -1,4 +1,5 @@
 {
   "$schema": "../../schemas/card-translation.schema.json",
-  "name": "Berittene Söldnerspäher"
+  "name": "Berittene Söldnerspäher",
+  "lore": "Sie reiten für den, der zuletzt gezahlt hat. Letzte Woche war das noch ein anderer."
 }

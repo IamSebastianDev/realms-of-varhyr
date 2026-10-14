@@ -10,6 +10,9 @@ const installed = () => {
   catch { return false; }
 };
 
+/** iPhone and iPad (iPadOS reports itself as a Mac with a touch screen). Safari there leaves fullscreen when the keyboard opens. */
+const appleTouch = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
 /** Browser fullscreen where the platform allows it (desktop, iPad Safari). iPhone Safari has no such API; there the
  * page can only go chrome-free once it is added to the home screen, which `installed` detects. */
 export function useFullscreen() {
@@ -28,5 +31,5 @@ export function useFullscreen() {
       else { const root = document.documentElement as FullscreenElement; await (root.requestFullscreen?.() ?? root.webkitRequestFullscreen?.()); }
     } catch { /* The browser refused; the button simply stays as it was. */ }
   }, [doc]);
-  return { supported, active, installed: installed(), toggle };
+  return { supported, active, installed: installed(), appleTouch: appleTouch(), toggle };
 }

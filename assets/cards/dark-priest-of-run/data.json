@@ -1,7 +1,6 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "dark-priest-of-run",
-  "set": "foundations",
   "revision": 6,
   "name": "The Dark Priest of Run",
   "deckLimitKey": "dark-priest-of-run",
@@ -42,5 +41,6 @@
       }
     }
   ],
-  "lore": "Beneath the hood, a world without dawn. Behind him, an army that will never see another grave."
+  "lore": "Beneath the hood, a world without dawn. Behind him, an army that will never see another grave.",
+  "set": "foundations"
 }

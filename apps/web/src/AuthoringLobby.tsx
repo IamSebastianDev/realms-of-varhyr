@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { defaultDeckId } from '../../../packages/content/src';
 import { Lobby, type Screen } from './Lobby';
 import { decksKey, parseDecks, starterOptions, type CustomDeck } from './decks';
-import { startMatch, type MatchSetup } from './session';
+import { randomSeed, startMatch, type MatchSetup } from './session';
 import { getProfile } from './profile';
 import { startTutorial } from './tutorial';
 import { missingDeckCopies } from './collection';
@@ -23,7 +23,6 @@ export function AuthoringLobby({ onStart, onSessionStart }: { onStart: (session:
   const [selected, setSelected] = useState(defaultDeckId);
   const [opponentId, setOpponentId] = useState('auto');
   const [mode, setMode] = useState<MatchSetup['mode']>('practice');
-  const [seed, setSeed] = useState('731');
   const [error, setError] = useState('');
   const options = [...starterOptions, ...decks];
   useEffect(() => { setError(''); }, [selected, screen]);
@@ -53,7 +52,7 @@ export function AuthoringLobby({ onStart, onSessionStart }: { onStart: (session:
       const chosen = options.find(option => option.id === selected);
       if (chosen && missingDeckCopies(chosen.cards, collection.counts).length) throw new Error(msg("You do not own enough copies to play this deck."));
       const opponentDeck = options.find(option => option.id === opponentId);
-      const initial = startMatch(Number(seed) || 731, deck, skirmish, customDeck, undefined, opponentDeck, getProfile().name, mode === 'hotseat' ? undefined : getProfile().avatar);
+      const initial = startMatch(randomSeed(), deck, skirmish, customDeck, undefined, opponentDeck, getProfile().name, mode === 'hotseat' ? undefined : getProfile().avatar);
       onStart({ initial, mode, deck, skirmish, customDeck, opponentDeck: opponentDeck && structuredClone(opponentDeck), rewardId: crypto.randomUUID(), rewardEligible: true });
     } catch (cause) { setError(cause instanceof Error ? cause.message : msg("This deck cannot start a match.")); }
   }
@@ -63,7 +62,7 @@ export function AuthoringLobby({ onStart, onSessionStart }: { onStart: (session:
       screen={screen} navigate={next => { if (next !== 'match') setScreen(next); }}
       canResume={false} resumeLabel="" decks={decks} options={options} saveDeck={saveDeck} deleteDeck={deleteDeck}
       mode={mode} setMode={setMode} selected={selected} setSelected={setSelected} opponentId={opponentId} setOpponentId={setOpponentId}
-      seed={seed} setSeed={setSeed} start={start} startSession={onSessionStart} learn={() => onStart(startTutorial())}/>
+      start={start} startSession={onSessionStart} learn={() => onStart(startTutorial())}/>
     {error && <div className="toast" role="alert">{error}</div>}
   </>;
 }

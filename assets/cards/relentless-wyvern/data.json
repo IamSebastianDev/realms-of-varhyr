@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "relentless-wyvern",
-  "revision": 1,
+  "revision": 2,
   "name": "Relentless Wyvern",
   "deckLimitKey": "relentless-wyvern",
   "type": "creature",
@@ -27,11 +27,12 @@
   },
   "abilities": [
     {
-      "id": "damage",
+      "id": "charge",
       "params": {
         "amount": 3
       }
     }
   ],
+  "lore": "It was not hunting you. It simply never stops.",
   "set": "foundations"
 }

@@ -84,6 +84,16 @@ export const signatureAbilities: AbilityExtension[] = [
         ctx.issue({ type: 'draw', player: ctx.source.controller, amount: 1 });
     } },
   }),
+  factionAbility('dark-harvest', 'black-host', {
+    name: 'Dark Harvest',
+    description: 'Exhaust during your play phase: put the top card of your library into your discard pile and gain 2 Host energy. Needs at least two cards in your library.',
+    translations: { de: { name: 'Dunkle Ernte', description: 'Erschöpfe diese Karte während deiner Spielphase: Lege die oberste Karte deiner Bibliothek auf deinen Ablagestapel und erhalte 2 Heerenergie. Benötigt mindestens zwei Karten in deiner Bibliothek.' } },
+    canActivate: (source, state) => state.players[source.controller].deck.length > 1,
+    activate: ctx => {
+      ctx.issue({ type: 'mill', player: ctx.source.controller, amount: 1 });
+      ctx.issue({ type: 'gain-energy', player: ctx.source.controller, output: { 'black-host': 2 }, source: ctx.source.id });
+    },
+  }),
   factionAbility('wayfarer', 'neutral', {
     name: 'Wayfarer',
     description: 'Exhaust during your play phase to return a friendly creature to its owner’s hand, clearing its damage. You may choose this card itself. Costs are not refunded; replaying it pays its normal cost and it enters exhausted.',

@@ -6,13 +6,14 @@ import { apply, assertInvariants, autoPayment, createMatch, decisionPlayer, effe
 import { botCommand } from '../packages/core/src/bot';
 import raw, { abilities, compileContent, registry, starterDecks } from './fixtures/content';
 import { startMatch } from './fixtures/session';
+import { compileContent as compileContentFor } from '../packages/content/src/compiler';
 const fresh=(seed=42,r=registry)=>createMatch(r,[starterDecks.verdant,starterDecks.hollow],seed);
 function step(s:GameState,command:Command,actor=decisionPlayer(s),r=registry){const result=apply(s,{actor,expectedRevision:s.revision,command},r);expect(result.error).toBeUndefined();return result.state;}
-function fixture(s:GameState,definitionId:string,owner:PlayerId,zone:'board'|'hand',slot=0,exhausted=false){
+function fixture(s:GameState,definitionId:string,owner:PlayerId,zone:'board'|'hand'|'discard',slot=0,exhausted=false){
  const id=Object.keys(s.cards).find(id=>s.cards[id].definitionId===definitionId&&s.cards[id].owner===owner&&s.cards[id].zone==='deck')!;
  if(!id)throw new Error(`No fixture card ${definitionId}`);
  s.players[owner].deck=s.players[owner].deck.filter(cid=>cid!==id);s.cards[id].zone=zone;s.cards[id].slot=zone==='board'?slot:null;s.cards[id].exhausted=exhausted;
- if(zone==='board')s.players[owner].board[slot]=id;else s.players[owner].hand.push(id);
+ if(zone==='board')s.players[owner].board[slot]=id;else if(zone==='discard')s.players[owner].discard.push(id);else s.players[owner].hand.push(id);
  return id;
 }
 function setup(r=registry){const s=fresh(731,r); // Put opening hands back to make fixture selection independent of shuffling.
@@ -150,6 +151,53 @@ describe('simultaneous combat and response energy',()=>{
    expect(projectForPlayer(r,'p2',registry).events.some(e=>e.type==='card.drawn'&&e.player==='p1')).toBe(false);
    expect(projectForPlayer(r,'p1',registry).events.some(e=>e.type==='card.drawn'&&e.player==='p1')).toBe(true);
    const bot=botCommand(r,registry);expect(bot.type).toBe('mulligan');expect(apply(r,{actor:'p2',expectedRevision:r.revision,command:bot},registry).error).toBeUndefined();
+  });
+ });
+ describe('dark harvest',()=>{
+  const harvestRegistry=compileContentFor([...raw,{...registry.cards['wayfarer'],id:'harvest-test',deckLimitKey:'harvest-test',factions:['black-host'],abilities:[{id:'dark-harvest',params:{}}]}],abilities,'harvest-test',['crownlands','elderwood','ironbound','ashen','clans','conclave','abyssal','tidebound','black-host']);
+  const harvestSetup=()=>{const s=setup(harvestRegistry);const id=fixture(s,'wayfarer','p1','board',0);s.cards[id].definitionId='harvest-test';return {s,id};};
+  it('discards the top card of the library and gains two Host energy, exhausting the creature',()=>{
+   const {s,id}=harvestSetup();const top=s.players.p1.deck.at(-1)!,deck=s.players.p1.deck.length;
+   const r=step(s,{type:'activate',cardId:id,ability:0},'p1',harvestRegistry);
+   expect(r.players.p1.deck).toHaveLength(deck-1);expect(r.players.p1.discard.at(-1)).toBe(top);expect(r.cards[top].zone).toBe('discard');
+   expect(r.players.p1.energy['black-host']).toBe(2);expect(r.cards[id].exhausted).toBe(true);assertInvariants(r);
+  });
+  it('is not offered when it would empty the library',()=>{
+   const {s,id}=harvestSetup();s.players.p1.deck=s.players.p1.deck.slice(-1);
+   expect(legalActions(s,harvestRegistry).activations.some(a=>a.cardId===id)).toBe(false);
+   s.players.p1.deck.unshift(s.players.p1.hand.pop()!);
+   expect(legalActions(s,harvestRegistry).activations.some(a=>a.cardId===id)).toBe(true);
+  });
+ });
+ describe('raise',()=>{
+  const raiseRegistry=compileContent([...raw,{...registry.cards['cleansing-light'],id:'raise-test',deckLimitKey:'raise-test',timing:['play','response'],cast:[{id:'raise',params:{subtype:'human'}}]},{...registry.cards['crown-recruit'],id:'raise-human',deckLimitKey:'raise-human',subtypes:['human']},{...registry.cards['crown-recruit'],id:'raise-orc',deckLimitKey:'raise-orc',subtypes:['orc']}]);
+  const dead=(s:GameState,kind:string)=>{const id=fixture(s,'crown-recruit','p1','discard');s.cards[id].definitionId=kind;return id;};
+  const raiseSetup=()=>{const s=setup(raiseRegistry);const spell=fixture(s,'cleansing-light','p1','hand');s.cards[spell].definitionId='raise-test';s.players.p1.energy={crownlands:1,neutral:1};return {s,spell};};
+  it('is not offered without a matching creature in the discard pile',()=>{
+   const {s,spell}=raiseSetup();expect(legalActions(s,raiseRegistry).playable.some(a=>a.cardId===spell)).toBe(false);
+   const wrong=dead(s,'raise-orc');expect(s.cards[wrong].zone).toBe('discard');
+   expect(legalActions(s,raiseRegistry).playable.some(a=>a.cardId===spell)).toBe(false);
+  });
+  it('returns the chosen creature from the discard pile to the chosen free slot, ready',()=>{
+   const {s,spell}=raiseSetup();const a=dead(s,'raise-human'),b=dead(s,'raise-human');dead(s,'raise-orc');
+   const legal=legalActions(s,raiseRegistry).playable.find(x=>x.cardId===spell)!;
+   expect(legal.targets.sort()).toEqual([a,b].sort());expect(legal.requiresTarget).toBe(true);
+   const r=step(s,{type:'play',cardId:spell,target:a,slot:3},'p1',raiseRegistry);
+   expect(r.cards[a].zone).toBe('board');expect(r.cards[a].slot).toBe(3);expect(r.players.p1.board[3]).toBe(a);expect(r.cards[a].exhausted).toBe(false);
+   expect(r.players.p1.discard).toContain(b);expect(r.players.p1.discard).toContain(spell);assertInvariants(r);
+  });
+  it('can be cast in a response step with response energy',()=>{
+   const {s,spell}=raiseSetup();const a=dead(s,'raise-human');s.active='p2';s.responseStep='p1';s.players.p1.energy={};s.players.p1.responseEnergy={crownlands:1,neutral:1};
+   const r=step(s,{type:'play',cardId:spell,target:a,slot:1},'p1',raiseRegistry);
+   expect(r.players.p1.board[1]).toBe(a);expect(r.cards[a].exhausted).toBe(false);assertInvariants(r);
+  });
+  it('needs a free slot and a legal position',()=>{
+   const {s,spell}=raiseSetup();const a=dead(s,'raise-human');const blocker=fixture(s,'grove-keeper','p1','board',2);
+   const fails=(command:Command)=>apply(s,{actor:'p1',expectedRevision:s.revision,command},raiseRegistry).error;
+   expect(fails({type:'play',cardId:spell,target:a})).toBeTruthy();
+   expect(fails({type:'play',cardId:spell,target:a,slot:2})).toBeTruthy();
+   for(let i=0;i<s.players.p1.board.length;i++)if(s.players.p1.board[i]===null){s.players.p1.board[i]=blocker;}
+   expect(legalActions(s,raiseRegistry).playable.some(x=>x.cardId===spell)).toBe(false);
   });
  });
  describe('guard',()=>{

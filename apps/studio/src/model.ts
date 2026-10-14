@@ -98,9 +98,12 @@ export function paramFields(id: string): ParamField[] {
 export const newBinding = (id: string): Binding => ({ id, params: Object.fromEntries(paramFields(id).map(field => [field.key, field.initial])) });
 
 /** Abilities a card of this kind may carry: field abilities, or spell effects. */
+/** Cast-only abilities (Damage, Raise…) do nothing on a field card, so the studio does not offer them there. */
+const isSpellOnly = (a: { cast?: unknown; activate?: unknown; hooks?: unknown; before?: unknown; static?: unknown; canBlock?: unknown; intercepts?: unknown }) => !!a.cast && !a.activate && !a.hooks && !a.before && !a.static && !a.canBlock && !a.intercepts;
 export function allowedAbilities(draft: Draft, slot: 'field' | 'cast'): string[] {
   return Object.values(abilities).filter(ability => {
     if (slot === 'cast') return !!ability.cast;
+    if (isSpellOnly(ability)) return false;
     if (draft.type === 'holding' && ability.activationEnergy) return false;
     if (ability.faction && (ability.faction === 'neutral' ? draft.factions.length !== 0 : !draft.factions.includes(ability.faction))) return false;
     return true;

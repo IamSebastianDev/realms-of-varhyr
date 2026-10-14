@@ -1,0 +1,45 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "black-shaman",
+  "revision": 2,
+  "name": "Black Shaman",
+  "deckLimitKey": "black-shaman",
+  "type": "creature",
+  "factions": [
+    "black-host"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 0
+  },
+  "stats": {
+    "attack": 0,
+    "defense": 1,
+    "energyOutputs": [
+      {
+        "black-host": 1
+      },
+      {
+        "conclave": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "dark-harvest",
+      "params": {}
+    },
+    {
+      "id": "rest",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "lore": "The Host never runs short of fuel. The Shaman simply spends tomorrow’s dead today.",
+  "set": "foundations"
+}

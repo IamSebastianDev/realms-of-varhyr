@@ -1,0 +1,35 @@
+/* Touch sizing for tablets and phones: 44px+ targets, and 16px form text so iOS does not zoom the page on focus.
+   Loaded last so it wins over the per-screen rules; mouse-and-keyboard layouts are untouched. */
+@media (pointer: coarse), (max-width: 700px) {
+  .lobby-header nav button { min-height: 44px; padding-inline: 14px; font-size: 14px; }
+  .lobby-settings { width: 44px; height: 44px; }
+  .collection-wallet-pill { min-height: 44px; padding: 6px 14px; }
+
+  .setup-close { width: 44px; height: 44px; padding: 0; }
+  .setup-modes button { min-height: 48px; font-size: 14px; }
+  .setup-friend-modes { gap: 26px; margin-top: 14px; }
+  .setup-friend-modes button { min-height: 44px; padding: 0 2px; font-size: 14px; }
+  .setup-description { font-size: 14px; }
+  .setup-deck-summary { font-size: 12px; }
+  .setup-scroll label { font-size: 13px; }
+  .setup-scroll select, .setup-scroll input:not([type=checkbox]):not([type=radio]) { min-height: 50px; font-size: 16px; }
+  .setup-advanced summary { min-height: 50px; padding: 0; font-size: 14px; }
+  .setup-skirmish { min-height: 50px; font-size: 14px; }
+  .setup-start.start-play { width: 100%; margin-left: 0; justify-content: center; }
+
+  /* Switches keep their look; the tappable area grows around them. */
+  .toggle { position: relative; }
+  .toggle::after { content: ""; position: absolute; inset: -13px -9px; }
+
+  .match-corner { top: 10px; right: 12px; }
+  .match-corner button { width: 48px; height: 48px; }
+  .match-menu .outline-button, .match-menu .text-button, .match-menu button:not(.toggle) { min-height: 48px; font-size: 15px; }
+  .match-menu-dialog .match-skip { min-height: 52px; font-size: 14px; }
+  .choice-dialog button:not(.toggle) { min-height: 44px; }
+}
+
+/* Four destinations must stay on one row on a phone. */
+@media (max-width: 480px) {
+  .lobby-header nav { gap: 2px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .lobby-header nav button { padding-inline: 10px; font-size: 13px; gap: 6px; white-space: nowrap; flex: none; }
+}

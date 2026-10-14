@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "grave-troll",
+  "revision": 2,
+  "name": "Grave Troll",
+  "deckLimitKey": "grave-troll",
+  "type": "creature",
+  "factions": [
+    "black-host"
+  ],
+  "subtypes": [
+    "undead"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 3,
+    "factions": {
+      "black-host": 2
+    }
+  },
+  "stats": {
+    "attack": 5,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "black-host": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "charge",
+      "params": {
+        "amount": 2
+      }
+    }
+  ],
+  "set": "foundations",
+  "lore": "The gravediggers dug deep. The troll dug deeper, from the other side."
+}

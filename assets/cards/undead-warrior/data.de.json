@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Untoter Krieger",
+  "lore": "Er beherrscht den Drill noch. Alles andere ist vergangen."
+}

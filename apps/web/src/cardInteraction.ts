@@ -1,14 +1,16 @@
 import type { CardDefinition, LegalActions, PlayerId, PlayerView, Registry } from '../../../packages/contracts/src';
 
-export type PlayDraft = { cardId: string; slot?: number; consume?: string };
+export type PlayDraft = { cardId: string; slot?: number; consume?: string; target?: string };
 export type DropZone = { player: PlayerId; slot?: number };
 export type DropPlay = PlayDraft & { target?: string };
 
 /** A field card's permanent position is chosen before its deployment target. */
-export function nextPlayStage(card: CardDefinition, legal: LegalActions['playable'][number], draft: PlayDraft): 'consume' | 'position' | 'target' | 'none' {
+export function nextPlayStage(card: CardDefinition, legal: LegalActions['playable'][number], draft: PlayDraft, placement = false): 'consume' | 'position' | 'target' | 'none' {
   if(legal.consumes.length&&!draft.consume)return 'consume';
   if(card.type!=='spell'&&draft.slot===undefined)return 'position';
-  return legal.requiresTarget?'target':'none';
+  if(legal.requiresTarget&&!draft.target)return 'target';
+  // A spell that places a card (Raise) picks its card from the pile first, then the position.
+  return placement&&draft.slot===undefined?'position':'none';
 }
 
 // UI gestures use the engine's projected legal actions; they never invent legality.
@@ -18,6 +20,11 @@ export function resolveDrop(view: PlayerView, viewer: PlayerId, registry: Regist
   const definition = registry.cards[card.definitionId];
   const occupant = zone.slot === undefined ? zone.player : view.players[zone.player].board[zone.slot];
   if (definition.type === 'spell') {
+    if (definition.cast?.some(b => registry.abilities[b.id].placement)) {
+      if (zone.player !== viewer) return null;
+      if (zone.slot === undefined) return { cardId };
+      return !occupant && legal.slots.includes(zone.slot) ? { cardId, slot: zone.slot } : null;
+    }
     if (legal.requiresTarget) return occupant && legal.targets.includes(occupant) ? { cardId, target: occupant } : null;
     return zone.player === viewer ? { cardId } : null;
   }

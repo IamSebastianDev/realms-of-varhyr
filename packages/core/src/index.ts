@@ -244,14 +244,14 @@ class Transaction {
     else if (card.zone === 'deck') p.deck = p.deck.filter(id => id !== card.id);
     card.slot = null;
   }
-  deploy(card: CardInstance, player: PlayerId, slot: number) {
-    requireRule(card.zone === 'hand' && card.owner === player && card.controller === player, 'Deploy a field card from your own hand.');
+  deploy(card: CardInstance, player: PlayerId, slot: number, ready = false) {
+    requireRule((card.zone === 'hand' || card.zone === 'discard') && card.owner === player && card.controller === player, 'Deploy a field card from your own hand or discard pile.');
     const def = definition(this.state,card.id,this.registry);
     requireRule(def.type !== 'spell', 'Only creatures and holdings can be deployed.');
     requireRule(Number.isInteger(slot) && slot >= 0 && slot < battlefieldPositions.length && this.state.players[player].board[slot] === null, 'Choose a free battlefield position.');
     this.detach(card);
     card.zone = 'board'; card.slot = slot; this.state.players[player].board[slot] = card.id;
-    card.exhausted = this.before(def.type === 'holding' ? 'holding.enter.before' : 'creature.enter.before',card,{exhausted:true}).exhausted ?? true;
+    card.exhausted = this.before(def.type === 'holding' ? 'holding.enter.before' : 'creature.enter.before',card,{exhausted:!ready}).exhausted ?? !ready;
     this.emit('card.played',`${this.state.players[player].name} plays ${def.name} in ${positionName(slot)}.`,{player,cardId:card.id});
     this.emit(def.type === 'holding' ? 'holding.entered' : 'creature.entered',`${def.name} enters ${card.exhausted ? 'exhausted' : 'ready'}.`,{cardId:card.id});
   }
@@ -309,6 +309,15 @@ class Transaction {
       } else if (order.type === 'draw') {
         requireRule(Number.isInteger(order.amount) && order.amount >= 0 && order.amount <= 100,'Invalid draw amount.');
         this.draw(order.player,order.amount);
+      } else if (order.type === 'mill') {
+        requireRule(Number.isInteger(order.amount) && order.amount >= 0 && order.amount <= 100,'Invalid mill amount.');
+        const p = this.state.players[order.player];
+        // The last card stays: only drawing it can empty a library.
+        for (let i = 0; i < order.amount && p.deck.length > 1; i++) {
+          const id = p.deck[p.deck.length - 1];
+          this.discard(id);
+          this.emit('card.discarded',`${this.registry.cards[this.state.cards[id].definitionId].name} is put into the discard pile from the library.`,{player:order.player,cardId:id});
+        }
       } else if (order.type === 'gain-energy') {
         requireRule(order.player === 'p1' || order.player === 'p2','Invalid energy recipient.');
         requireRule(this.state.phase === 'play' || inResponseStep(this.state),'Energy spells require a casting phase.');
@@ -318,12 +327,12 @@ class Transaction {
         const source = order.source ? this.state.cards[order.source] : undefined;
         this.emit('energy.generated',`${source ? this.registry.cards[source.definitionId].name : player.name} generates energy.`,{player:order.player,cardId:source?.id,amount:Object.values(order.output).reduce((sum,value)=>sum+value,0)});
       } else if (order.type === 'deploy') {
-        requireRule(this.state.phase === 'play' && this.state.active === order.player && !this.state.pending, 'Deploy during your play phase.');
+        requireRule(!this.state.pending && ((this.state.phase === 'play' && this.state.active === order.player) || (inResponseStep(this.state) && decisionPlayer(this.state) === order.player)), 'Deploy while you can cast spells.');
         const card = this.state.cards[order.target];
-        requireRule(card, 'Select a card in your hand.');
+        requireRule(card, 'Select a card to deploy.');
         // The activation's hand target is not an on-entry damage target.
         const previousTarget = this.target; this.target = undefined;
-        this.deploy(card,order.player,order.slot); this.target = previousTarget;
+        this.deploy(card,order.player,order.slot,order.ready); this.target = previousTarget;
       } else if (order.type === 'destroy') this.destroy(order.target,order.combat);
       else if (order.type === 'return') {
         const card = this.state.cards[order.target];
@@ -434,8 +443,8 @@ function targetOptions(state: GameState, actor: PlayerId, bindings: AbilityBindi
   let targets: string[] | null = null;
   for (const b of bindings) {
     const kind = registry.abilities[b.id].target; if (!kind) continue;
-    const side = kind === 'friendly-creature' || kind === 'friendly-field' || kind === 'friendly-hand-field' ? actor : other(actor);
-    const options = kind === 'energy-type' ? registry.energyTypes.filter(color=>color!=='neutral') : kind === 'friendly-hand-field' ? state.players[actor].hand.filter(id => definition(state,id,registry).type !== 'spell') : state.players[side].board.filter((id): id is string => !!id &&
+    const side = kind === 'friendly-creature' || kind === 'friendly-discard-creature' || kind === 'friendly-field' || kind === 'friendly-hand-field' ? actor : other(actor);
+    const options = kind === 'friendly-discard-creature' ? state.players[actor].discard.filter(id => { const def = definition(state,id,registry); return def.type === 'creature' && (typeof b.params?.subtype !== 'string' || def.subtypes.includes(b.params.subtype)); }) : kind === 'energy-type' ? registry.energyTypes.filter(color=>color!=='neutral') : kind === 'friendly-hand-field' ? state.players[actor].hand.filter(id => definition(state,id,registry).type !== 'spell') : state.players[side].board.filter((id): id is string => !!id &&
       (!(kind === 'friendly-creature' || kind === 'enemy-creature') || definition(state,id,registry).type === 'creature'));
     if (kind === 'enemy-any') options.push(other(actor));
     targets = targets === null ? options : targets.filter(id => options.includes(id));
@@ -463,6 +472,7 @@ export function legalActions(state: GameState, registry: Registry): LegalActions
       const targeting = targetOptions(state,actor,[...def.abilities.filter(b=>!registry.abilities[b.id].activate),...def.cast ?? []],registry);
       // Required spell targets cannot disappear into an illegal target-free cast.
       if (def.type === 'spell' && def.cast?.some(b => registry.abilities[b.id].target) && !targeting.targets.length) continue;
+      if (def.type === 'spell' && def.cast?.some(b => registry.abilities[b.id].placement) && !slots.length) continue;
       legal.playable.push({cardId:id,slots,targets:targeting.targets,requiresTarget:targeting.required,consumes});
     }
     if (!inResponse) for (const id of p.board) {
@@ -548,12 +558,15 @@ export function apply(state: GameState, envelope: CommandEnvelope, registry: Reg
         slot = command.slot ?? consumedSlot;
         requireRule(slot === consumedSlot || legal!.slots.includes(slot),'That slot is occupied.');
       } else requireRule(!command.consume,'This card does not have Consume.');
+      const placed = def.type === 'spell' && !!def.cast?.some(b => registry.abilities[b.id].placement);
+      if (placed) requireRule(command.slot !== undefined && legal!.slots.includes(command.slot),'Choose a free battlefield position.');
+      else if (def.type === 'spell') requireRule(command.slot === undefined,'This spell does not use a battlefield position.');
       if (def.type !== 'spell') requireRule(Number.isInteger(slot) && slot >= 0 && slot < battlefieldPositions.length && (legal!.slots.includes(slot) || (payload.consume && next.cards[command.consume!].slot === slot)),'Choose a free battlefield position.');
       const pool = inResponseStep(next) ? p.responseEnergy : p.energy;
       const payment = command.payment ?? autoPayment(pool,payload.cost!)!;
       requireRule(validPayment(pool,payload.cost!,payment,registry.energyTypes),'The payment does not satisfy this cost.');
       for (const color of Object.keys(payment)) if (payment[color]) pool[color] = (pool[color] ?? 0) - payment[color]!;
-      tx.target = command.target;
+      tx.target = command.target; tx.slot = placed ? command.slot : undefined;
       if (payload.consume) tx.destroy(command.consume!);
       if (def.type !== 'spell') {
         tx.deploy(card,envelope.actor,slot);

@@ -4,6 +4,7 @@ import { amount, amountSchema, positive } from "./schemas";
 import type { AbilityExtension } from "../../contracts/src";
 /** `energy` is a faction ID or "neutral"; the content compiler checks it against the registered energy types. */
 const channelSchema = v.strictObject({ amount: positive, energy: v.pipe(v.string(), v.minLength(1)) });
+const raiseSchema = v.strictObject({ subtype: v.pipe(v.string(), v.minLength(1)) });
 
 /** Abilities that resolve when a spell is cast. They belong to no faction, so any faction's spells can use them. */
 export const spellAbilities: AbilityExtension[] = [
@@ -64,5 +65,16 @@ export const spellAbilities: AbilityExtension[] = [
         description: "Gain {amount} {energy} energy in your current casting-phase pool. It pays that faction’s costs (neutral energy pays only generic costs) and expires with that pool.",
         translations: { de: { name: "Kanalisieren: {amount} {energy}", description: "Erhalte {amount} Energie ({energy}) im Energievorrat deiner aktuellen Zauberphase. Sie bezahlt die Kosten dieser Fraktion (neutrale Energie nur allgemeine Kosten) und verfällt mit diesem Vorrat." } },
         cast: (ctx, p) => ctx.issue({ type: "gain-energy", player: ctx.source.controller, output: { [p.energy as string]: amount(p) }, source: ctx.source.id }),
+    }),
+
+    extension("raise", raiseSchema, {
+        translations: { de: { name: "Erwecken: {subtype}", description: "Wähle eine Kreatur der Art {subtype} aus deinem Ablagestapel und bringe sie auf eine freie Position deines Schlachtfelds. Sie kommt bereit ins Spiel." } },
+        name: "Raise {subtype}",
+        description: "Choose a {subtype} creature in your discard pile and return it to a free position on your battlefield. It enters ready.",
+        target: "friendly-discard-creature",
+        placement: true,
+        cast: (ctx, p) => {
+            if (ctx.target && ctx.slot !== undefined) ctx.issue({ type: "deploy", target: ctx.target, player: ctx.source.controller, slot: ctx.slot, ready: true });
+        },
     }),
 ];
