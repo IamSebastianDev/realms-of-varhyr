@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Untoter Anführer",
+  "lore": "Er zählt den Schritt noch immer. Die Kompanie ist nie aus dem Takt gefallen."
+}

@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "skeletal-company",
+  "revision": 2,
+  "name": "Skeletal Company",
+  "deckLimitKey": "skeletal-company",
+  "type": "creature",
+  "factions": [
+    "black-host"
+  ],
+  "subtypes": [
+    "undead"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "black-host": 1
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "black-host": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "guard",
+      "params": {}
+    }
+  ],
+  "set": "foundations",
+  "lore": "They were ordered to hold the line. Nobody has told them they may stop."
+}

@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "death",
-  "revision": 1,
+  "revision": 2,
   "name": "Death",
   "deckLimitKey": "death",
   "type": "spell",
@@ -27,5 +27,6 @@
       "params": {}
     }
   ],
-  "set": "foundations"
+  "set": "foundations",
+  "lore": "He is never in a hurry, and never late."
 }

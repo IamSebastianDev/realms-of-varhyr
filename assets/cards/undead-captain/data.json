@@ -1,0 +1,42 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "undead-captain",
+  "revision": 2,
+  "name": "Undead Captain",
+  "deckLimitKey": "undead-captain",
+  "type": "creature",
+  "factions": [
+    "black-host"
+  ],
+  "subtypes": [
+    "undead"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "black-host": 2
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "black-host": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "drillmaster",
+      "params": {
+        "amount": 1,
+        "subtype": "undead"
+      }
+    }
+  ],
+  "set": "foundations",
+  "lore": "He still counts the step. The company has never fallen out of it."
+}

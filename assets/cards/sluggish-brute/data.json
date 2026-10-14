@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "sluggish-brute",
+  "revision": 2,
+  "name": "Sluggish Brute",
+  "deckLimitKey": "sluggish-brute",
+  "type": "creature",
+  "factions": [
+    "black-host"
+  ],
+  "subtypes": [
+    "undead"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "black-host": 2
+    }
+  },
+  "stats": {
+    "attack": 3,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "black-host": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "charge",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "set": "foundations",
+  "lore": "Dead for a century and still in no hurry. The blow lands anyway."
+}

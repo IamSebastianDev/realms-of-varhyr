@@ -1,4 +1,5 @@
 {
   "$schema": "../../schemas/card-translation.schema.json",
-  "name": "Tod"
+  "name": "Tod",
+  "lore": "Er eilt nie und kommt doch nie zu spät."
 }

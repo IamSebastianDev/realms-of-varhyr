@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Skelettkompanie",
+  "lore": "Man befahl ihnen, die Linie zu halten. Dass sie aufhören dürfen, hat ihnen niemand gesagt."
+}
