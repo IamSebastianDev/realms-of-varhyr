@@ -224,13 +224,13 @@ html,body,#root{overscroll-behavior:none}
 .battle-log{display:none}}
 .portrait .life-counter{grid-template-columns:1fr;grid-template-rows:1fr}
 @media(min-width:951px) and (min-aspect-ratio:1/1){.player-banner .portrait .avatar{width:54px;height:54px;min-width:54px;flex:none}
-.battle-log{top:352px;bottom:312px}}
+.battle-log{top:322px;bottom:312px}}
 /* ═════ Sidebar v2: nav on top, turn between the players, round combat button on the mat ═════ */
-@media(min-width:951px) and (min-aspect-ratio:1/1){.app{--own-h:218px;--opp-top:104px}
+@media(min-width:951px) and (min-aspect-ratio:1/1){.app{--own-h:218px;--opp-top:74px}
 .app .topbar{display:contents}
 .topbar .game-navigation{position:absolute;z-index:3;left:16px;top:12px;width:calc(var(--side) - 32px);display:flex;gap:4px 14px;margin:0;justify-content:flex-start;flex-wrap:nowrap}
 .topbar .game-navigation button{font-size:11px;padding:4px 0;white-space:nowrap}
-.topbar .brand{position:absolute;z-index:3;left:16px;top:46px}
+.topbar .brand{position:absolute;z-index:3;left:16px;top:16px}
 .topbar .match-status{position:absolute;z-index:3;left:12px;width:calc(var(--side) - 24px);top:calc(var(--opp-top) + var(--own-h) + 12px);height:44px;justify-content:center;margin:0;padding:0 12px}
 .app .player-banner.opponent{top:var(--opp-top)}
 .app .player-banner.own{bottom:14px}
@@ -257,7 +257,7 @@ html,body,#root{overscroll-behavior:none}
 .floating-action .primary-action{width:96px;height:96px;min-width:0;min-height:0;padding:8px;border-radius:50%;flex-direction:column;justify-content:center;align-items:center;gap:5px;text-align:center;font-size:11px;line-height:1.2;box-shadow:0 8px 24px #000a,0 0 0 4px #0b1814,0 0 0 5px #cfae6a99}
 .floating-action .primary-action svg{width:18px;height:18px}
 .hand-zone .hand-caption{display:none}}
-@media(min-width:951px) and (min-aspect-ratio:1/1) and (max-height:760px){.app{--own-h:200px;--opp-top:96px}
+@media(min-width:951px) and (min-aspect-ratio:1/1) and (max-height:760px){.app{--own-h:200px;--opp-top:66px}
 .app .player-banner{padding:8px 10px;row-gap:6px}
 .app .player-banner .piles{padding-top:6px}
 .battle-log{display:none}}
@@ -378,3 +378,12 @@ html,body,#root{overscroll-behavior:none}
 @keyframes phase-status-enter {from{opacity:.35;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
 
 .hand-card.rally-target{filter:none;outline:2px solid #f1cd76;box-shadow:0 0 18px #f1cd7650;cursor:pointer}
+/* ═════ Floating match corner (menu + settings) ═════ */
+.match-corner{position:fixed;z-index:30;top:12px;right:14px;display:flex;gap:8px}
+.match-corner button{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:#10140fcc;color:#e8e0cb;cursor:pointer;backdrop-filter:blur(4px)}
+.match-corner button:hover,.match-corner button:focus-visible{border-color:#c9b27a;color:#fff}
+.match-menu{display:flex;flex-direction:column;gap:14px}
+.match-menu .text-button{display:flex;gap:8px;align-items:center;justify-content:flex-start}
+.match-skip{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.panel-backdrop:has(.menu-overlay){justify-content:center;align-items:center}
+.side-panel.menu-overlay{margin:auto;width:min(380px,calc(100vw - 32px));height:auto;max-height:calc(100vh - 32px);border:1px solid var(--line);border-radius:14px;overflow:auto;padding-bottom:22px}

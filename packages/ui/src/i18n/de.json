@@ -837,5 +837,7 @@
   "a response step (after one of your energy creatures dies)": "einem Reaktionsschritt (wenn eine deiner Energie-Kreaturen stirbt)",
   "Rules version": "Regelversion",
   "Content version": "Inhaltsversion",
-  "Unused response energy fades. Close the response step to finish the combat.": "Ungenutzte Reaktionsenergie verfällt. Schließe den Reaktionsschritt, um den Kampf zu beenden."
+  "Unused response energy fades. Close the response step to finish the combat.": "Ungenutzte Reaktionsenergie verfällt. Schließe den Reaktionsschritt, um den Kampf zu beenden.",
+  "Match menu": "Spielmenü",
+  "Show battle log": "Kampflog einblenden"
 }
