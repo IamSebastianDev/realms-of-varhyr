@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "crawling-corpse",
+  "revision": 2,
+  "name": "Crawling Corpse",
+  "deckLimitKey": "crawling-corpse",
+  "type": "creature",
+  "factions": [
+    "black-host"
+  ],
+  "subtypes": [
+    "undead"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "black-host": 1
+    }
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 0,
+    "energyOutputs": [
+      {
+        "black-host": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "weaken",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "set": "foundations",
+  "lore": "It lost its legs two wars ago. It never considered that a reason to stop."
+}

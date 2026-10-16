@@ -75,6 +75,7 @@
   },
   {
     "id": "dark-priest-of-run",
+    "faction": "black-host",
     "name": "The Dark Priest of Run",
     "title": "Master of the Black Host",
     "lore": "Always hooded, the Dark Priest of Run gathers vast undead hordes. He seeks to plunge the world into darkness and make Varhyr an everlasting crypt.",

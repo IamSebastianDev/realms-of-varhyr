@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Grendel, Herold der Marken",
+  "lore": "Grendel trägt den Ruf der Marken von Turm zu Turm. Niemand hat ihn je zweimal rufen hören."
+}

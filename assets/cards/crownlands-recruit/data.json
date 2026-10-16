@@ -1,9 +1,9 @@
 {
   "$schema": "../../schemas/card.schema.json",
-  "id": "crown-recruit",
+  "id": "crownlands-recruit",
   "revision": 4,
   "name": "Crownlands Recruit",
-  "deckLimitKey": "crown-recruit",
+  "deckLimitKey": "crownlands-recruit",
   "type": "creature",
   "factions": [
     "crownlands"

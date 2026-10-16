@@ -3,5 +3,27 @@
   "name": "The Black Host",
   "short": "Host",
   "color": "#a58abd",
-  "signatureAbility": "soul-harvest"
+  "starter": {
+    "id": "plague-from-the-west",
+    "name": "Plague from the West",
+    "cards": {
+      "acolyte-of-draur": 3,
+      "rot-priest": 3,
+      "undead-servant": 3,
+      "crawling-corpse": 2,
+      "undead-warrior": 2,
+      "death": 1,
+      "gravecaller": 3,
+      "skeletal-company": 2,
+      "raise-undead": 1,
+      "servant-of-the-lich": 1,
+      "sluggish-brute": 2,
+      "undead-captain": 1,
+      "ossuary-warden": 1,
+      "dark-priest-of-run": 1,
+      "altar-of-binding": 1,
+      "grave-troll": 1,
+      "revenge": 2
+    }
+  }
 }

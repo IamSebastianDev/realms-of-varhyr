@@ -140,6 +140,10 @@ code{background:#d9c58c1a;padding:1px 5px;border-radius:3px}
 .curve .n{text-align:center;font-size:13px;color:var(--soft);height:20px}
 .curve .x{position:absolute;left:0;right:0;bottom:-24px;text-align:center;font-size:13px;color:var(--faint)}
 .t-creature{background:#c9a35e}.t-spell{background:#6fa8c9}.t-holding{background:#8f9a7a}
+.t-common{background:#8f9a7a}.t-rare{background:#6fa8c9}.t-legendary{background:#c9a35e}
+.set-table.narrow{width:auto;min-width:420px}
+.set-table .cell{all:unset;cursor:pointer;display:block;width:100%;text-align:right}.set-table .cell:hover{color:#fff0c9}
+.seg{display:inline-flex;gap:0;margin:0 0 14px}.seg button{border-radius:0}.seg button:first-child{border-radius:6px 0 0 6px}.seg button:last-child{border-radius:0 6px 6px 0;margin-left:-1px}.seg .on{background:var(--raise);color:#fff0c9}
 .legend{display:flex;gap:18px;margin:34px 0 0;color:var(--soft);font-size:13px}
 .legend .sw{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:7px}
 .todo{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
@@ -183,3 +187,18 @@ button.danger.solid{background:var(--bad);color:#190b0b;border-color:var(--bad)}
 .studio-actions.studio-delete{flex-direction:column;gap:10px;font-size:13.5px;color:var(--soft);background:var(--panel);border-top:2px solid var(--bad);padding:12px 0 6px}
 .studio-delete p{margin:0}
 .studio-delete div{display:flex;gap:10px}
+
+.set-head .back{display:block;margin:0 0 6px}
+.set-head h2 .dots{margin-right:10px}
+
+.studio-decks{display:grid;gap:18px;align-content:start}
+.deck-meta{display:flex;flex-wrap:wrap;gap:14px;align-items:end}
+.deck-meta label{display:grid;gap:4px;color:var(--soft);font-size:13px}
+.deck-meta label.check{display:flex;align-items:center;gap:8px;padding-bottom:8px}
+.deck-curve{max-width:520px;margin-bottom:26px}
+.deck-columns{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:28px;align-items:start}
+.deck-row{display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid var(--rule)}
+.deck-row .name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.deck-row small{color:var(--faint);white-space:nowrap}
+.deck-row strong{min-width:1.4em;text-align:center}
+.deck-row button{min-width:30px;padding:3px 8px}

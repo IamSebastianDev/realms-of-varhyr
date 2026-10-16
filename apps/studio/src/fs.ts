@@ -126,6 +126,22 @@ export async function starterUsers(repo: Repo, id: string): Promise<string[]> {
   return used;
 }
 
+/** The faction files, which also hold each faction's starter deck. */
+export type StoredFaction = { file: string; data: Record<string, any> };
+export async function readFactions(repo: Repo): Promise<StoredFaction[]> {
+  const out: StoredFaction[] = [];
+  try {
+    for await (const entry of (await dir(repo, 'assets/factions')).values()) {
+      if (entry.kind !== 'file' || !entry.name.endsWith('.json')) continue;
+      try { out.push({ file: entry.name, data: JSON.parse(await (await (entry as FileSystemFileHandle).getFile()).text()) }); } catch { /* The importer reports files that do not parse. */ }
+    }
+  } catch { /* No factions folder. */ }
+  return out.sort((a, b) => a.file < b.file ? -1 : 1);
+}
+export async function writeFaction(repo: Repo, file: string, data: Record<string, any>) {
+  await write(await dir(repo, 'assets/factions', true), file, JSON.stringify(data, null, 2) + '\n');
+}
+
 /** Any image becomes the PNG the importer requires. */
 export async function toPng(file: Blob): Promise<Blob> {
   if (file.type === 'image/png') return file;

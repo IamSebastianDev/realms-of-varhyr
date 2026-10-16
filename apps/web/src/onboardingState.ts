@@ -15,13 +15,14 @@ export function hasAccount(): boolean {
 export function markAccount() { try { localStorage.setItem(accountKey, '1'); } catch { /* Best effort. */ } }
 
 const rarityOrder = { common: 0, rare: 1, legendary: 2 } as const;
-export type StarterOffer = { id: string; name: string; faction: string; avatar: string; cards: { id: string; copies: number }[]; total: number };
+export type StarterOffer = { id: string; name: string; faction: string; avatar: string; leader: string; cards: { id: string; copies: number }[]; total: number };
 /** Each starter with its faction hero and its distinct cards ordered commons first so the best card is revealed last. */
 export function starterOffers(): StarterOffer[] {
   return starterDefinitions.flatMap(deck => {
     const faction = factionDefinitions.find(f => f.starter?.id === deck.id);
     const avatar = avatarDefinitions.find(a => a.faction === faction?.id);
     if (!faction || !avatar) return [];
+    const leader = Object.values(registry.cards).find(card => card.factions.includes(faction.id) && card.subtypes.includes('leader'))?.name ?? avatar.name;
     const counts = new Map<string, number>();
     for (const id of deck.cards) counts.set(id, (counts.get(id) ?? 0) + 1);
     const cards = [...counts].filter(([id]) => registry.cards[id])
@@ -29,6 +30,6 @@ export function starterOffers(): StarterOffer[] {
       .sort((a, b) => rarityOrder[registry.cards[a.id].rarity] - rarityOrder[registry.cards[b.id].rarity]
         || registry.cards[a.id].cost.generic + Object.values(registry.cards[a.id].cost.factions).reduce((s, n) => s + n, 0)
          - registry.cards[b.id].cost.generic - Object.values(registry.cards[b.id].cost.factions).reduce((s, n) => s + n, 0));
-    return [{ id: deck.id, name: deck.name, faction: faction.id, avatar: avatar.id, cards, total: deck.cards.length }];
+    return [{ id: deck.id, name: deck.name, faction: faction.id, avatar: avatar.id, leader, cards, total: deck.cards.length }];
   });
 }

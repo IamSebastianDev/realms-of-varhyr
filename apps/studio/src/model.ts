@@ -49,7 +49,7 @@ export function serialize(draft: Draft): { data: Json; de: Json | null } {
   if (Object.keys(paid).length) data.cost.factions = paid;
   const outputs = draft.type === 'creature' ? draft.outputs.map(positive).filter(pool => Object.keys(pool).length) : [];
   if (field) data.stats = { attack: draft.attack, defense: draft.defense, ...(outputs.length ? { energyOutputs: outputs } : {}) };
-  data.abilities = field ? draft.abilities : [];
+  data.abilities = draft.abilities; // On a spell these are play costs such as Consume.
   if (!field) { data.timing = draft.timing; data.cast = draft.cast; }
   if (draft.lore.trim()) data.lore = draft.lore.trim();
   data.set = draft.set;
@@ -101,12 +101,13 @@ export const newBinding = (id: string): Binding => ({ id, params: Object.fromEnt
 /** Abilities a card of this kind may carry: field abilities, or spell effects. */
 /** Cast-only abilities (Damage, Raise…) do nothing on a field card, so the studio does not offer them there. */
 const isSpellOnly = (a: { cast?: unknown; activate?: unknown; hooks?: unknown; before?: unknown; static?: unknown; canBlock?: unknown; intercepts?: unknown }) => !!a.cast && !a.activate && !a.hooks && !a.before && !a.static && !a.canBlock && !a.intercepts;
-export function allowedAbilities(draft: Draft, slot: 'field' | 'cast'): string[] {
+export function allowedAbilities(draft: Draft, slot: 'field' | 'cast' | 'cost'): string[] {
   return Object.values(abilities).filter(ability => {
     if (slot === 'cast') return !!ability.cast;
+    // Spells can only carry abilities that change how they are played.
+    if (slot === 'cost') return !!ability.before?.['card.play.before'];
     if (isSpellOnly(ability)) return false;
     if (draft.type === 'holding' && ability.activationEnergy) return false;
-    if (ability.faction && (ability.faction === 'neutral' ? draft.factions.length !== 0 : !draft.factions.includes(ability.faction))) return false;
     return true;
   }).map(ability => ability.id).sort();
 }
@@ -138,6 +139,26 @@ export function factionMatches(data: Record<string, any>, wanted: string): boole
 }
 /** A German name is missing, or the card has English lore without a German version. */
 export const germanIncomplete = (card: Stored) => !card.de?.name || (!!card.data.lore && !card.de?.lore);
+/** List order: single factions in game order, then neutral, then hybrids; within that by total cost, then name. */
+export function compareCards(a: Stored, b: Stored, factionOrder: string[]): number {
+  const rank = (data: Record<string, any>) => {
+    const members = named(data);
+    return [members.length === 0 ? 1 : members.length === 1 ? 0 : 2, ...[...members].map(id => factionOrder.indexOf(id)).sort((x, y) => x - y)];
+  };
+  const left = rank(a.data), right = rank(b.data);
+  for (let i = 0; i < Math.max(left.length, right.length); i++) if ((left[i] ?? -1) !== (right[i] ?? -1)) return (left[i] ?? -1) - (right[i] ?? -1);
+  return costOf(a.data) - costOf(b.data) || a.data.name.localeCompare(b.data.name);
+}
+/** The numbers worth seeing in a list: cost, Attack/Defense and the best single energy output. */
+export function glance(data: Record<string, any>): string {
+  const parts = [`Cost ${costOf(data)}`];
+  if (data.type !== 'spell' && data.stats) {
+    parts.push(`${data.stats.attack ?? 0}/${data.stats.defense ?? 0}`);
+    const output = Math.max(0, ...((data.stats.energyOutputs ?? []) as Record<string, number>[]).map(pool => Object.values(pool).reduce((sum, n) => sum + n, 0)));
+    if (output) parts.push(`⚡${output}`);
+  }
+  return parts.join(' · ');
+}
 export function matches(card: Stored, filters: Filters): boolean {
   const { data } = card, query = filters.query.toLowerCase().trim();
   return (!query || data.name.toLowerCase().includes(query) || card.de?.name?.toLowerCase().includes(query) || data.id.includes(query))
@@ -166,13 +187,19 @@ export type SetStats = {
   factions: FactionRow[];
   /** Cards at each total cost; the last bucket is "N or more". */
   curve: Record<string, number>[];
+  /** The same cost buckets, split by rarity. */
+  curveRarity: Record<Rarity, number>[];
+  /** Cards of each type by rarity. */
+  typeRarity: Record<string, Record<Rarity, number>>;
+  /** Average cost, Attack, Defense and best single energy output of the creatures (all 0 without creatures). */
+  creatures: { count: number; cost: number; attack: number; defense: number; output: number };
   missingArt: string[]; missingGerman: string[];
   /** How many hybrid cards include each faction (also counted in the hybrid rows). */
   hybridIn: Record<string, number>;
   hybrids: number;
 };
 export function setStats(cards: Stored[], factionOrder: string[], curveMax = 7): SetStats {
-  const stats: SetStats = { total: cards.length, legendary: 0, curveMax, type: {}, rarity: {}, factions: [], curve: Array.from({ length: curveMax + 1 }, () => ({})), missingArt: [], missingGerman: [], hybridIn: {}, hybrids: 0 };
+  const stats: SetStats = { total: cards.length, legendary: 0, curveMax, type: {}, rarity: {}, factions: [], curve: Array.from({ length: curveMax + 1 }, () => ({})), curveRarity: Array.from({ length: curveMax + 1 }, () => ({ legendary: 0, rare: 0, common: 0 })), typeRarity: { creature: { legendary: 0, rare: 0, common: 0 }, spell: { legendary: 0, rare: 0, common: 0 }, holding: { legendary: 0, rare: 0, common: 0 } }, creatures: { count: 0, cost: 0, attack: 0, defense: 0, output: 0 }, missingArt: [], missingGerman: [], hybridIn: {}, hybrids: 0 };
   const blank = (id: string): FactionRow => ({ id, members: id === 'neutral' ? [] : id.split('+'), creature: 0, spell: 0, holding: 0, total: 0, rarity: { legendary: 0, rare: 0, common: 0 }, free: { legendary: 0, rare: 0, common: 0 }, legendaryCreatures: 0 });
   const rows = new Map<string, FactionRow>();
   for (const id of [...factionOrder, 'neutral']) rows.set(id, blank(id));
@@ -187,9 +214,18 @@ export function setStats(cards: Stored[], factionOrder: string[], curveMax = 7):
     if (data.type === 'creature') { if (costOf(data) === 0) row.free[data.rarity as Rarity] += 1; if (data.rarity === 'legendary') row.legendaryCreatures += 1; }
     const bucket = stats.curve[Math.min(curveMax, costOf(data))];
     bucket[data.type] = (bucket[data.type] ?? 0) + 1;
+    stats.curveRarity[Math.min(curveMax, costOf(data))][data.rarity as Rarity] += 1;
+    (stats.typeRarity[data.type] ??= { legendary: 0, rare: 0, common: 0 })[data.rarity as Rarity] += 1;
+    if (data.type === 'creature') {
+      const outputs = (data.stats?.energyOutputs ?? []) as Record<string, number>[];
+      stats.creatures.count += 1; stats.creatures.cost += costOf(data);
+      stats.creatures.attack += data.stats?.attack ?? 0; stats.creatures.defense += data.stats?.defense ?? 0;
+      stats.creatures.output += Math.max(0, ...outputs.map(pool => Object.values(pool).reduce((sum, n) => sum + n, 0)));
+    }
     if (!art) stats.missingArt.push(data.name);
     if (germanIncomplete({ data, de } as Stored)) stats.missingGerman.push(data.name);
   }
+  if (stats.creatures.count) for (const key of ['cost', 'attack', 'defense', 'output'] as const) stats.creatures[key] /= stats.creatures.count;
   // Single factions in game order, then neutral, then hybrid pairs in game order.
   const all = [...rows.values()], rank = (row: FactionRow) => row.members.map(id => factionOrder.indexOf(id)).join(',');
   stats.factions = [...all.filter(row => row.members.length === 1), ...all.filter(row => row.id === 'neutral' && row.total), ...all.filter(row => row.members.length > 1).sort((a, b) => rank(a).localeCompare(rank(b)))];

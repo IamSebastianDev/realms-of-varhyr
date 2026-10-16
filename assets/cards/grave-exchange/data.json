@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "grave-exchange",
+  "revision": 2,
+  "name": "Grave Exchange",
+  "deckLimitKey": "grave-exchange",
+  "type": "spell",
+  "factions": [
+    "black-host"
+  ],
+  "subtypes": [],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "black-host": 1
+    }
+  },
+  "abilities": [
+    {
+      "id": "consume",
+      "params": {
+        "amount": 4
+      }
+    }
+  ],
+  "timing": [
+    "play"
+  ],
+  "cast": [
+    {
+      "id": "raise",
+      "params": {
+        "subtype": "undead"
+      }
+    }
+  ],
+  "set": "foundations",
+  "lore": "The grave accepts only fair trades. It decides what is fair."
+}

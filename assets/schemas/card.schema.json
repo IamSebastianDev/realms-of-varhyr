@@ -464,6 +464,34 @@
       ],
       "additionalProperties": false
     },
+    "ability-consume": {
+      "type": "object",
+      "title": "Consume {amount}",
+      "description": "Additional cost: sacrifice one of your creatures that costs at least {amount}.",
+      "properties": {
+        "id": {
+          "const": "consume"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
     "ability-damage": {
       "type": "object",
       "title": "Damage {amount}",
@@ -1070,6 +1098,7 @@
             "bind",
             "channel",
             "charge",
+            "consume",
             "damage",
             "dark-harvest",
             "destroy",
@@ -1125,6 +1154,9 @@
         },
         {
           "$ref": "#/definitions/ability-charge"
+        },
+        {
+          "$ref": "#/definitions/ability-consume"
         },
         {
           "$ref": "#/definitions/ability-damage"
@@ -1213,6 +1245,7 @@
             "bind",
             "channel",
             "charge",
+            "consume",
             "damage",
             "destroy",
             "draw",
@@ -1262,6 +1295,9 @@
         },
         {
           "$ref": "#/definitions/ability-charge"
+        },
+        {
+          "$ref": "#/definitions/ability-consume"
         },
         {
           "$ref": "#/definitions/ability-damage"
@@ -1391,6 +1427,7 @@
             "bind",
             "channel",
             "charge",
+            "consume",
             "damage",
             "dark-harvest",
             "destroy",
@@ -1445,6 +1482,9 @@
         },
         {
           "$ref": "#/definitions/ability-charge"
+        },
+        {
+          "$ref": "#/definitions/ability-consume"
         },
         {
           "$ref": "#/definitions/ability-damage"
@@ -1599,539 +1639,6 @@
         "properties": {
           "factions": {
             "maxItems": 1
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "anyOf": [
-          {
-            "properties": {
-              "abilities": {
-                "contains": {
-                  "properties": {
-                    "id": {
-                      "const": "accord"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ]
-                }
-              }
-            },
-            "required": [
-              "abilities"
-            ]
-          },
-          {
-            "properties": {
-              "cast": {
-                "contains": {
-                  "properties": {
-                    "id": {
-                      "const": "accord"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ]
-                }
-              }
-            },
-            "required": [
-              "cast"
-            ]
-          }
-        ]
-      },
-      "then": {
-        "properties": {
-          "factions": {
-            "contains": {
-              "const": "winter-league"
-            }
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "anyOf": [
-          {
-            "properties": {
-              "abilities": {
-                "contains": {
-                  "properties": {
-                    "id": {
-                      "const": "dark-harvest"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ]
-                }
-              }
-            },
-            "required": [
-              "abilities"
-            ]
-          },
-          {
-            "properties": {
-              "cast": {
-                "contains": {
-                  "properties": {
-                    "id": {
-                      "const": "dark-harvest"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ]
-                }
-              }
-            },
-            "required": [
-              "cast"
-            ]
-          }
-        ]
-      },
-      "then": {
-        "properties": {
-          "factions": {
-            "contains": {
-              "const": "black-host"
-            }
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "anyOf": [
-          {
-            "properties": {
-              "abilities": {
-                "contains": {
-                  "properties": {
-                    "id": {
-                      "const": "fealty"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ]
-                }
-              }
-            },
-            "required": [
-              "abilities"
-            ]
-          },
-          {
-            "properties": {
-              "cast": {
-                "contains": {
-                  "properties": {
-                    "id": {
-                      "const": "fealty"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ]
-                }
-              }
-            },
-            "required": [
-              "cast"
-            ]
-          }
-        ]
-      },
-      "then": {
-        "properties": {
-          "factions": {
-            "contains": {
-              "const": "crownlands"
-            }
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "anyOf": [
-          {
-            "properties": {
-              "abilities": {
-                "contains": {
-                  "properties": {
-                    "id": {
-                      "const": "marches-rally"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ]
-                }
-              }
-            },
-            "required": [
-              "abilities"
-            ]
-          },
-          {
-            "properties": {
-              "cast": {
-                "contains": {
-                  "properties": {
-                    "id": {
-                      "const": "marches-rally"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ]
-                }
-              }
-            },
-            "required": [
-              "cast"
-            ]
-          }
-        ]
-      },
-      "then": {
-        "properties": {
-          "factions": {
-            "contains": {
-              "const": "bright-marches"
-            }
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "anyOf": [
-          {
-            "properties": {
-              "abilities": {
-                "contains": {
-                  "properties": {
-                    "id": {
-                      "const": "raid"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ]
-                }
-              }
-            },
-            "required": [
-              "abilities"
-            ]
-          },
-          {
-            "properties": {
-              "cast": {
-                "contains": {
-                  "properties": {
-                    "id": {
-                      "const": "raid"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ]
-                }
-              }
-            },
-            "required": [
-              "cast"
-            ]
-          }
-        ]
-      },
-      "then": {
-        "properties": {
-          "factions": {
-            "contains": {
-              "const": "horde"
-            }
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "anyOf": [
-          {
-            "properties": {
-              "abilities": {
-                "contains": {
-                  "properties": {
-                    "id": {
-                      "const": "sanctuary"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ]
-                }
-              }
-            },
-            "required": [
-              "abilities"
-            ]
-          },
-          {
-            "properties": {
-              "cast": {
-                "contains": {
-                  "properties": {
-                    "id": {
-                      "const": "sanctuary"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ]
-                }
-              }
-            },
-            "required": [
-              "cast"
-            ]
-          }
-        ]
-      },
-      "then": {
-        "properties": {
-          "factions": {
-            "contains": {
-              "const": "conclave"
-            }
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "anyOf": [
-          {
-            "properties": {
-              "abilities": {
-                "contains": {
-                  "properties": {
-                    "id": {
-                      "const": "scorch"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ]
-                }
-              }
-            },
-            "required": [
-              "abilities"
-            ]
-          },
-          {
-            "properties": {
-              "cast": {
-                "contains": {
-                  "properties": {
-                    "id": {
-                      "const": "scorch"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ]
-                }
-              }
-            },
-            "required": [
-              "cast"
-            ]
-          }
-        ]
-      },
-      "then": {
-        "properties": {
-          "factions": {
-            "contains": {
-              "const": "ember-fields"
-            }
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "anyOf": [
-          {
-            "properties": {
-              "abilities": {
-                "contains": {
-                  "properties": {
-                    "id": {
-                      "const": "soul-harvest"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ]
-                }
-              }
-            },
-            "required": [
-              "abilities"
-            ]
-          },
-          {
-            "properties": {
-              "cast": {
-                "contains": {
-                  "properties": {
-                    "id": {
-                      "const": "soul-harvest"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ]
-                }
-              }
-            },
-            "required": [
-              "cast"
-            ]
-          }
-        ]
-      },
-      "then": {
-        "properties": {
-          "factions": {
-            "contains": {
-              "const": "black-host"
-            }
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "anyOf": [
-          {
-            "properties": {
-              "abilities": {
-                "contains": {
-                  "properties": {
-                    "id": {
-                      "const": "trade"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ]
-                }
-              }
-            },
-            "required": [
-              "abilities"
-            ]
-          },
-          {
-            "properties": {
-              "cast": {
-                "contains": {
-                  "properties": {
-                    "id": {
-                      "const": "trade"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ]
-                }
-              }
-            },
-            "required": [
-              "cast"
-            ]
-          }
-        ]
-      },
-      "then": {
-        "properties": {
-          "factions": {
-            "contains": {
-              "const": "mountain-clans"
-            }
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "anyOf": [
-          {
-            "properties": {
-              "abilities": {
-                "contains": {
-                  "properties": {
-                    "id": {
-                      "const": "wayfarer"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ]
-                }
-              }
-            },
-            "required": [
-              "abilities"
-            ]
-          },
-          {
-            "properties": {
-              "cast": {
-                "contains": {
-                  "properties": {
-                    "id": {
-                      "const": "wayfarer"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ]
-                }
-              }
-            },
-            "required": [
-              "cast"
-            ]
-          }
-        ]
-      },
-      "then": {
-        "properties": {
-          "factions": {
-            "enum": [
-              [],
-              [
-                "neutral"
-              ]
-            ]
           }
         }
       }

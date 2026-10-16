@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Grabtausch",
+  "lore": "Das Grab tauscht nur gerecht. Was gerecht ist, bestimmt es selbst."
+}

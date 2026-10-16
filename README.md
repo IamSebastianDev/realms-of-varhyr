@@ -64,9 +64,8 @@ Factions are `assets/factions/<id>.json` and sets are `assets/sets/<id>.json`. C
 
 **Abilities** are registered once and cards bind them by ID. They live in three files under `packages/extensions/src/`:
 
-- `index.ts`: evergreen keywords any card can use (Armor, Banner, Drillmaster, Shield Wall, Guard, Charge, Rest, Weaken, Longshot, Primal).
+- `index.ts`: field keywords any card can use. Scalable ones (Armor, Banner, Drillmaster, Shield Wall, Bind, Guard, Charge, Rest, Weaken, Longshot, Primal) and fixed-rule ones mostly carried by faction leaders (Fealty, Rally, Soul Harvest, Dark Harvest, Raid, Trade, Scorch, Sanctuary, Accord, Wayfarer).
 - `spellAbilities.ts`: effects that resolve when a spell is cast, listed under `cast`. They are Damage, Barrage, Heal, Draw, Rage, Steadfast, Channel, **Destroy** and **Raise**. Creatures and holdings cannot carry them, and the import rejects a field card that does.
-- `signatureAbilities.ts`: faction keywords: Fealty (Crownlands), Marches Rally (Bright Marches), Soul Harvest and **Dark Harvest** (Black Host), Raid (Horde), Trade (Mountain Clans), Scorch (Ember Fields), Sanctuary (Conclave), Accord (League of Winter) and Wayfarer (Neutral).
 
 Two of the spell effects have parameters worth knowing: `raise` takes a creature `subtype`, lets you choose a matching creature from your discard pile and a free slot, and returns it ready; `destroy` takes none and destroys a target enemy creature.
 

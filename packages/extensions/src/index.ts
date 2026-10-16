@@ -1,12 +1,17 @@
 import { defineAbility as extension } from "./definition";
-import { signatureAbilities } from "./signatureAbilities";
 import { spellAbilities } from "./spellAbilities";
 import { amount, amountSchema } from "./schemas";
 import * as v from "valibot";
-import { areAdjacent, type AbilityExtension } from "../../contracts/src";
+import { areAdjacent, type AbilityExtension, type BattlefieldState, type CardInstance } from "../../contracts/src";
 import { positive } from "./schemas";
 /** `subtype` is a freeform creature subtype such as archer; it is matched against each card's subtypes. */
 const empty = v.object({});
+const enemy = (source: CardInstance) => (source.controller === "p1" ? "p2" : "p1");
+const opposite = (source: CardInstance, state: BattlefieldState) => (source.slot === null ? undefined : state.players[enemy(source)].board[source.slot]);
+/** Fixed-rule keywords without parameters, mostly carried by faction leaders. Resolved effects are announced on the triggering event. */
+function leaderAbility(id: string, impl: Omit<AbilityExtension, "id" | "version" | "validate">, version = 2): AbilityExtension {
+    return extension(id, empty, { ...impl, announce: true }, version);
+}
 const drillSchema = v.strictObject({ amount: positive, subtype: v.pipe(v.string(), v.minLength(1)) });
 
 /** Evergreen keywords: scalable vocabulary on the card itself, usable by any faction. */
@@ -63,6 +68,13 @@ export const evergreenAbilities: AbilityExtension[] = [
                 : {},
     }),
 
+    extension("consume", amountSchema, {
+        translations: { de: { name: "Verschlingen {amount}", description: "Zusätzliche Kosten: Opfere eine eigene Kreatur mit Kosten von mindestens {amount}." } },
+        name: "Consume {amount}",
+        description: "Additional cost: sacrifice one of your creatures that costs at least {amount}.",
+        before: { "card.play.before": (_ctx, p, payload) => ({ ...payload, consume: true, consumeMin: Math.max(payload.consumeMin ?? 0, amount(p)) }) },
+    }),
+
     extension("shield-wall", amountSchema, {
         translations: { de: {"name": "Schildwall {amount}", "description": "Benachbarte eigene Kreaturen und Besitzungen erhalten +{amount} Verteidigung."} },
         name: "Shield Wall {amount}",
@@ -116,6 +128,95 @@ export const evergreenAbilities: AbilityExtension[] = [
         target: "enemy-creature",
         activate: (ctx, p) => { if (ctx.target) ctx.issue({ type: "damage", target: ctx.target, amount: amount(p), source: ctx.source.id }); },
     }),
+  leaderAbility('fealty', {
+    name: 'Fealty',
+    description: 'All friendly creatures, including this one, have +1 Attack and +1 Defense.',
+    translations: { de: { name: 'Lehnstreue', description: 'Alle eigenen Kreaturen, auch diese, erhalten +1 Angriff und +1 Verteidigung.' } },
+    static: (source, target, _params, registry) => source.controller === target.controller && target.zone === 'board' && registry.cards[target.definitionId].type === 'creature' ? { attack: 1, defense: 1 } : {},
+  }, 3),
+  leaderAbility('accord', {
+    name: 'Accord',
+    description: 'After the first spell you cast during your play phase each turn, gain 1 Winter energy.',
+    translations: { de: { name: 'Übereinkunft', description: 'Nach dem ersten Zauber, den du während deiner Spielphase in einem Zug wirkst, erhältst du 1 Winterenergie.' } },
+    hooks: { 'spell.cast': ctx => {
+      if (ctx.state.phase !== 'play' || ctx.state.active !== ctx.source.controller || ctx.event.player !== ctx.source.controller) return;
+      let start = ctx.state.events.length - 1;
+      while (start >= 0 && ctx.state.events[start].type !== 'turn.started') start--;
+      const casts = ctx.state.events.slice(start + 1).filter(event => event.type === 'spell.cast' && event.player === ctx.source.controller);
+      if (casts.length === 1) ctx.issue({ type: 'gain-energy', player: ctx.source.controller, output: { 'winter-league': 1 }, source: ctx.source.id });
+    } },
+  }),
+  leaderAbility('marches-rally', {
+    name: 'Rally',
+    description: 'Exhaust: deploy a creature or holding from your hand to a free position without paying its cost. It enters exhausted.',
+    translations: { de: { name: 'Aufgebot', description: 'Erschöpfe: Setze eine Kreatur oder Besitzung aus deiner Hand ohne Kosten auf einen freien Platz ein. Sie kommt erschöpft ins Spiel.' } },
+    target: 'friendly-hand-field',
+    placement: true,
+    activate: ctx => { if (ctx.target && ctx.slot !== undefined) ctx.issue({ type: 'deploy', target: ctx.target, player: ctx.source.controller, slot: ctx.slot }); },
+  }),
+  leaderAbility('trade', {
+    name: 'Trade',
+    description: 'When this creature channels during your play phase, it also produces 1 neutral energy.',
+    translations: { de: { name: 'Handel', description: 'Wenn diese Kreatur während deiner Spielphase Energie kanalisiert, erzeugt sie zusätzlich 1 neutrale Energie.' } },
+    before: { 'energy.generate.before': (_ctx, _params, payload) => ({ ...payload, output: { ...payload.output, neutral: (payload.output?.neutral ?? 0) + 1 } }) },
+  }),
+  leaderAbility('sanctuary', {
+    name: 'Sanctuary',
+    description: 'Adjacent friendly creatures have +1 Defense (+2 for Elves).',
+    translations: { de: { name: 'Zuflucht', description: 'Benachbarte eigene Kreaturen erhalten +1 Verteidigung (Elfen +2).' } },
+    static: (source, target, _params, registry) => {
+      const card = registry.cards[target.definitionId];
+      return areAdjacent(source, target) && card.type === 'creature' ? { defense: card.subtypes.includes('elf') ? 2 : 1 } : {};
+    },
+  }, 3),
+  leaderAbility('scorch', {
+    name: 'Scorch',
+    description: 'When played, deal 3 damage to the enemy creature or holding opposite.',
+    translations: { de: { name: 'Versengen', description: 'Beim Ausspielen: Füge der gegenüberliegenden gegnerischen Kreatur oder Besitzung 3 Schaden zu.' } },
+    hooks: { 'card.played': ctx => {
+      if (ctx.event.cardId !== ctx.source.id) return;
+      const id = opposite(ctx.source, ctx.state);
+      if (id) ctx.issue({ type: 'damage', target: id, amount: 3, source: ctx.source.id });
+    } },
+  }),
+  leaderAbility('raid', {
+    name: 'Raid',
+    description: 'This card has +1 Attack for each adjacent friendly creature.',
+    translations: { de: { name: 'Überfall', description: 'Diese Karte erhält +1 Angriff für jede benachbarte eigene Kreatur.' } },
+    static: (source, target, _params, registry, state) => {
+      if (source.id !== target.id || !state) return {};
+      const neighbors = state.players[source.controller].board.filter(id => id &&
+        registry.cards[state.cards[id].definitionId].type === 'creature' && areAdjacent(source, state.cards[id])).length;
+      return { attack: neighbors };
+    },
+  }, 3),
+  leaderAbility('soul-harvest', {
+    name: 'Soul Harvest',
+    description: 'Whenever another friendly creature is destroyed, draw a card.',
+    translations: { de: { name: 'Seelenernte', description: 'Wird eine andere eigene Kreatur zerstört, ziehe eine Karte.' } },
+    hooks: { 'creature.destroyed': ctx => {
+      if (ctx.event.cardId !== ctx.source.id && ctx.event.snapshot?.controller === ctx.source.controller)
+        ctx.issue({ type: 'draw', player: ctx.source.controller, amount: 1 });
+    } },
+  }),
+  leaderAbility('dark-harvest', {
+    name: 'Dark Harvest',
+    description: 'Exhaust: put the top card of your library into your discard pile and gain 2 Host energy. Needs two cards in your library.',
+    translations: { de: { name: 'Dunkle Ernte', description: 'Erschöpfe: Lege die oberste Karte deiner Bibliothek auf den Ablagestapel und erhalte 2 Heerenergie. Benötigt zwei Karten in der Bibliothek.' } },
+    canActivate: (source, state) => state.players[source.controller].deck.length > 1,
+    activate: ctx => {
+      ctx.issue({ type: 'mill', player: ctx.source.controller, amount: 1 });
+      ctx.issue({ type: 'gain-energy', player: ctx.source.controller, output: { 'black-host': 2 }, source: ctx.source.id });
+    },
+  }),
+  leaderAbility('wayfarer', {
+    name: 'Wayfarer',
+    description: 'Exhaust: return a friendly creature (including this one) to its owner’s hand, clearing its damage.',
+    translations: { de: { name: 'Weggefährte', description: 'Erschöpfe: Nimm eine eigene Kreatur (auch diese) auf die Hand ihres Besitzers zurück und entferne ihren Schaden.' } },
+    target: 'friendly-creature',
+    activate: ctx => { if (ctx.target) ctx.issue({ type: 'return', target: ctx.target }); },
+  }, 1),
+
 ];
 
 
@@ -127,13 +228,6 @@ export const evergreenAbilities: AbilityExtension[] = [
     //     name: "Ready",
     //     description: "Enters the battlefield ready to channel energy or attack.",
     //     before: { "creature.enter.before": (_ctx, _p, payload) => ({ ...payload, exhausted: false }) },
-    // }),
-
-    // consume
-    // extension("consume", empty, {
-    //     name: "Consume",
-    //     description: "Sacrifice a friendly creature as an additional cost to play this card.",
-    //     before: { "card.play.before": (_ctx, _p, payload) => ({ ...payload, consume: true }) },
     // }),
 
     // battlecry
@@ -160,7 +254,7 @@ export const evergreenAbilities: AbilityExtension[] = [
     //     },
     // }),
 
-    // collector (generic historical example; Black Host now uses faction-exclusive soul-harvest)
+    // collector (historical example; Black Host uses soul-harvest)
     // extension("collector", amountSchema, {
     //     name: "Collector {amount}",
     //     description: "When another friendly creature is destroyed, draw {amount} from your library.",
@@ -202,6 +296,6 @@ export const evergreenAbilities: AbilityExtension[] = [
     //     },
     // }),
 
-export { signatureAbilities, spellAbilities };
-const activeExtensions: AbilityExtension[] = [...signatureAbilities, ...evergreenAbilities, ...spellAbilities];
+export { spellAbilities };
+const activeExtensions: AbilityExtension[] = [...evergreenAbilities, ...spellAbilities];
 export const abilities = Object.fromEntries(activeExtensions.map((a) => [a.id, a]));

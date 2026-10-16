@@ -1,4 +1,5 @@
 {
   "$schema": "../../schemas/card-translation.schema.json",
-  "name": "Altar der Bindung"
+  "name": "Altar der Bindung",
+  "lore": "Die Namen sind in den Stein geschnitten, damit die Toten wissen, wohin sie gehören."
 }

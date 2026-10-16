@@ -1,0 +1,38 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "grendel-herald-of-the-marches",
+  "revision": 3,
+  "name": "Grendel, Herald of the Marches",
+  "deckLimitKey": "grendel-herald-of-the-marches",
+  "type": "creature",
+  "factions": [
+    "bright-marches"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 0
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "bright-marches": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "banner",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "lore": "Grendel carries the Marches' summons from tower to tower. No one has ever heard him call twice.",
+  "set": "foundations"
+}

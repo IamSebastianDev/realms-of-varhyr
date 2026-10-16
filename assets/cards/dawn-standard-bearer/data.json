@@ -1,9 +1,9 @@
 {
   "$schema": "../../schemas/card.schema.json",
-  "id": "dawn-banner",
+  "id": "dawn-standard-bearer",
   "revision": 6,
   "name": "Dawn Standard-bearer",
-  "deckLimitKey": "dawn-banner",
+  "deckLimitKey": "dawn-standard-bearer",
   "type": "creature",
   "factions": [
     "crownlands"

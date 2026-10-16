@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "envoy-of-the-black-host",
+  "revision": 3,
+  "name": "Envoy of the Black Host",
+  "deckLimitKey": "envoy-of-the-black-host",
+  "type": "creature",
+  "factions": [
+    "black-host"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 0
+  },
+  "stats": {
+    "attack": 0,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "black-host": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "bind",
+      "params": {
+        "amount": 1,
+        "subtype": "undead"
+      }
+    }
+  ],
+  "set": "foundations",
+  "lore": "He carries the Host’s terms to every court. The dead behind him are in no hurry."
+}

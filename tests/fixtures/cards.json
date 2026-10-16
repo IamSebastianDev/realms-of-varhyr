@@ -470,7 +470,9 @@
     "abilities": [
       {
         "id": "consume",
-        "params": {}
+        "params": {
+          "amount": 1
+        }
       },
       {
         "id": "battlecry",

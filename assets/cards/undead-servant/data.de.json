@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Untoter Diener",
+  "lore": "Der Tod hat ihn nicht aus dem Dienst entlassen. Er hat nur den Lohn gestrichen."
+}

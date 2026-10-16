@@ -5,9 +5,10 @@ import { updatePreferences, usePreferences } from '../../../packages/ui/src';
 import { CardForm } from './CardForm';
 import { Preview } from './Preview';
 import * as fs from './fs';
+import { DeckBuilder } from './DeckBuilder';
 import { SetOverview } from './SetOverview';
 import { FactionDots } from './SetOverview';
-import { draftFromFiles, groupOf, named, matches, newDraft, noFilters, serialize, toJson, validate, type Draft, type Filters } from './model';
+import { compareCards, draftFromFiles, glance, groupOf, named, matches, newDraft, noFilters, serialize, toJson, validate, type Draft, type Filters, type Stored } from './model';
 
 type Entry = { draft: Draft; art: Blob | null; artChanged: boolean; dirty: boolean };
 const editKey = (folder: string) => `edit:${folder}`;
@@ -35,8 +36,10 @@ export function App() {
   const [status, setStatus] = useState('');
   const [problem, setProblem] = useState('');
   const [filters, setFilters] = useState<Filters>(noFilters);
-  const [view, setView] = useState<'cards' | 'sets'>('cards');
+  const [view, setView] = useState<'cards' | 'sets' | 'decks'>('cards');
   const [activeSet, setActiveSet] = useState('');
+  /** The faction chosen on the set statistics page; it also narrows the card list on the left. */
+  const [statFaction, setStatFaction] = useState<string | null>(null);
 
   const load = useCallback(async (target: fs.Repo) => { setCards(await fs.readCards(target)); setRepo(target); }, []);
   useEffect(() => { void (async () => {
@@ -51,13 +54,17 @@ export function App() {
   const trySandbox = () => guard(async () => { setSandbox(true); await load(await fs.sandboxRepo()); });
 
   const ids = useMemo(() => new Set(cards.map(card => card.data.id as string)), [cards]);
-  const order = useMemo(() => [...cards].sort((a, b) => a.data.name.localeCompare(b.data.name)), [cards]);
   const factionIds = useMemo(() => Object.keys(factionInfo).filter(id => id !== 'neutral'), []);
+  // Faction (game order, then neutral, then hybrids), then cheapest first, then by name.
+  const order = useMemo(() => [...cards].sort((a, b) => compareCards(a, b, factionIds)), [cards, factionIds]);
   const pairs = useMemo(() => [...new Set(cards.map(card => groupOf(card.data, factionIds)).filter(group => group.includes('+')))].sort(), [cards, factionIds]);
-  const visible = order.filter(card => matches(card, filters));
-  const filtered = JSON.stringify({ ...filters, query: '' }) !== JSON.stringify({ ...noFilters, query: '' });
+  const inFactionPage = view === 'sets' && statFaction;
+  // The statistics page counts a faction's own cards (hybrids have their own rows), so the list shows exactly those.
+  const listFilters = inFactionPage ? { ...noFilters, query: filters.query, set: activeSet || filters.set || setDefinitions[0]?.id || '', faction: statFaction! } : filters;
+  const visible = order.filter(card => inFactionPage ? matches(card, { ...listFilters, faction: '' }) && groupOf(card.data, factionIds) === statFaction : matches(card, listFilters));
+  const filtered = JSON.stringify({ ...listFilters, query: '' }) !== JSON.stringify({ ...noFilters, query: '' });
   const setFilter = (change: Partial<Filters>) => setFilters(current => ({ ...current, ...change }));
-  const openCards = (change: Partial<Filters>) => { setFilters({ ...noFilters, ...change }); setView('cards'); };
+  const openCards = (change: Partial<Filters>) => { setFilters({ ...noFilters, ...change }); setStatFaction(null); setView('cards'); };
 
   /** Switch to a card. Untouched entries are dropped (they can be rebuilt from disk); unsaved drafts stay. */
   const go = (key: string, make?: () => Entry) => {
@@ -148,7 +155,8 @@ export function App() {
       <h1>Varhyr Card Studio{sandbox && <small>practice folder</small>}</h1>
       <div className="views" role="tablist" aria-label="View">
         <button role="tab" aria-selected={view === 'cards'} className={view === 'cards' ? 'on' : ''} onClick={() => setView('cards')}>Cards</button>
-        <button role="tab" aria-selected={view === 'sets'} className={view === 'sets' ? 'on' : ''} onClick={() => setView('sets')}>Sets</button></div>
+        <button role="tab" aria-selected={view === 'sets'} className={view === 'sets' ? 'on' : ''} onClick={() => setView('sets')}>Sets</button>
+        <button role="tab" aria-selected={view === 'decks'} className={view === 'decks' ? 'on' : ''} onClick={() => setView('decks')}>Decks</button></div>
       {view === 'cards' && <input placeholder="Search cards…" aria-label="Search cards" value={filters.query} onChange={event => setFilter({ query: event.target.value })}/>}
       <button onClick={() => updatePreferences({ language: language === 'en' ? 'de' : 'en' })}>{language === 'en' ? 'English' : 'Deutsch'}</button>
       <button onClick={() => { void fs.forgetRepo(); setRepo(null); setCurrentKey(null); setSandbox(false); }}>Change folder</button>
@@ -157,24 +165,24 @@ export function App() {
       <nav className="studio-list" aria-label="Cards">
         <button className="primary" onClick={() => create()}>New card</button>
         <div className="filters" role="group" aria-label="Filters">
-          <select aria-label="Faction" value={filters.faction} onChange={event => setFilter({ faction: event.target.value })}><option value="">All factions</option>
+          <select aria-label="Faction" value={view === 'sets' ? statFaction ?? '' : filters.faction} onChange={event => view === 'sets' ? (event.target.value === 'hybrid' ? openCards({ set: activeSet || filters.set, faction: 'hybrid' }) : setStatFaction(event.target.value || null)) : setFilter({ faction: event.target.value })}><option value="">All factions</option>
             {[...factionIds, 'neutral'].map(id => <option key={id} value={id}>{(factionInfo[id]?.name ?? id).replace(/^The /, '')}</option>)}
             {pairs.length > 0 && <optgroup label="Hybrid"><option value="hybrid">Any hybrid</option>{pairs.map(pair => <option key={pair} value={pair}>{pair.split('+').map(id => (factionInfo[id]?.name ?? id).replace(/^The /, '')).join(' + ')}</option>)}</optgroup>}</select>
-          <select aria-label="Set" value={filters.set} onChange={event => setFilter({ set: event.target.value })}><option value="">All sets</option>
+          <select aria-label="Set" value={view === 'sets' ? activeSet : filters.set} onChange={event => event.target.value ? (setActiveSet(event.target.value), setStatFaction(null), setFilter({ set: '' }), setView('sets')) : (setFilter({ set: '' }), setView('cards'))}><option value="">All sets</option>
             {setDefinitions.map(set => <option key={set.id} value={set.id}>{set.name}</option>)}</select>
           <select aria-label="Type" value={filters.type} onChange={event => setFilter({ type: event.target.value })}><option value="">All types</option><option value="creature">Creatures</option><option value="spell">Spells</option><option value="holding">Holdings</option></select>
           <select aria-label="Rarity" value={filters.rarity} onChange={event => setFilter({ rarity: event.target.value })}><option value="">All rarities</option><option value="common">Common</option><option value="rare">Rare</option><option value="legendary">Legendary</option></select>
           <select aria-label="Show" value={filters.show} onChange={event => setFilter({ show: event.target.value as Filters['show'] })}><option value="">Any state</option><option value="no-art">Missing art</option><option value="no-german">Missing German text</option></select>
-          {filtered && <button className="quiet" onClick={() => setFilters({ ...noFilters, query: filters.query })}>Clear</button>}
+          {filtered && <button className="quiet" onClick={() => { setFilters({ ...noFilters, query: filters.query }); setStatFaction(null); }}>Clear</button>}
         </div>
         <p className="count" aria-live="polite">{visible.length === cards.length ? `${cards.length} cards` : `${visible.length} of ${cards.length} cards`}</p>
         {newDrafts.length > 0 && <div className="draft-list" role="group" aria-label="Unsaved new cards"><p className="count">Unsaved new cards</p>
           {newDrafts.map(([key, value]) => <button key={key} className={`draft ${key === currentKey ? 'on' : ''}`} onClick={() => go(key)}><span className="name">{value.draft.name || 'Untitled card'}</span><small>draft</small></button>)}</div>}
         {visible.map(card => <button key={card.folder} className={draft && !draft.isNew && draft.folder === card.folder ? 'on' : ''} onClick={() => edit(card)}>
-          <Thumb art={card.art}/><span className="name">{card.data.name}</span><FactionDots members={named(card.data)}/><small>{hasDraft(card.folder) ? 'unsaved changes' : card.art ? card.data.type : 'no art'}</small></button>)}
+          <Thumb art={card.art}/><span className="name">{card.data.name}</span><FactionDots members={named(card.data)}/><small title="Cost, Attack/Defense and energy per turn">{[glance(card.data), hasDraft(card.folder) ? 'unsaved changes' : card.art ? '' : 'no art'].filter(Boolean).join(' · ')}</small></button>)}
         {!visible.length && <p className="studio-hint">{cards.length ? 'No card matches these filters.' : 'This folder has no cards yet.'}</p>}
       </nav>
-      {view === 'sets' ? <SetOverview cards={cards} set={activeSet || filters.set} onSet={setActiveSet} onOpen={openCards} onCreate={create}/> : draft ? <>
+      {view === 'decks' ? <DeckBuilder repo={repo} cards={cards}/> : view === 'sets' ? <SetOverview cards={cards} set={activeSet || filters.set} faction={statFaction} onSet={setActiveSet} onFaction={setStatFaction} onOpen={openCards} onCreate={create}/> : draft ? <>
         <main className="studio-edit"><CardForm draft={draft} patch={patch} hasArt={!!art} folderLocked={false}
           onArt={file => change(value => ({ ...value, art: file, artChanged: true, dirty: true }))}/></main>
         <aside className="studio-side">

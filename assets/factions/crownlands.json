@@ -11,16 +11,20 @@
       "goldfield-farmer": 3,
       "longvale-cutters": 3,
       "merchant-of-tris-vale": 1,
-      "crown-recruit": 3,
-      "dawn-banner": 3,
-      "ban-vale-cavalry": 3,
-      "cleansing-light": 3,
-      "battlefield-hymn": 3,
-      "runeguard": 3,
-      "crown-holding": 3,
-      "tower-of-the-first-morning": 1,
-      "aldric-runewarden": 1
+      "crownlands-recruit": 3,
+      "dawn-standard-bearer": 2,
+      "ban-vale-cavalry": 1,
+      "cleansing-light": 2,
+      "battlefield-hymn": 2,
+      "runeguard": 1,
+      "crown-holding": 2,
+      "alderic-warmaster-of-the-empire": 1,
+      "first-dawn-regiment": 2,
+      "young-squire": 1,
+      "borderpost": 2,
+      "mercenary-outriders": 2,
+      "close-ranks": 1,
+      "banner-of-the-morning-vale": 1
     }
-  },
-  "signatureAbility": "fealty"
+  }
 }

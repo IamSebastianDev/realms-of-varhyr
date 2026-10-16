@@ -9,10 +9,11 @@
     "black-host"
   ],
   "subtypes": [
+    "human",
     "necromancer"
   ],
-  "legendary": false,
-  "rarity": "rare",
+  "legendary": true,
+  "rarity": "legendary",
   "cost": {
     "generic": 2,
     "factions": {
@@ -21,10 +22,10 @@
   },
   "stats": {
     "attack": 1,
-    "defense": 3,
+    "defense": 4,
     "energyOutputs": [
       {
-        "black-host": 2
+        "black-host": 3
       }
     ]
   },

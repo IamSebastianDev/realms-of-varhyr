@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Gesandter des Schwarzen Heeres",
+  "lore": "Er trägt die Bedingungen des Heeres an jeden Hof. Die Toten hinter ihm haben es nicht eilig."
+}

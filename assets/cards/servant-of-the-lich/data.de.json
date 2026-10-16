@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Diener des Lichs",
+  "lore": "Er schwor, bis zum Tod zu dienen. Wann das ist, hat der Lich ihm noch nicht gesagt."
+}

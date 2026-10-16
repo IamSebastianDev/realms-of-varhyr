@@ -72,7 +72,8 @@ export type InternalOrder =
   | { type: 'return'; target: string }
   | { type: 'deploy'; target: string; player: PlayerId; slot: number; /** Enters ready instead of exhausted (still subject to entry hooks). */ ready?: boolean }
   | { type: 'destroy'; target: string; combat?: boolean };
-export type BeforePayload = { exhausted?: boolean; consume?: boolean; amount?: number; cost?: Cost; output?: Pool };
+/** `consume`: the card needs a friendly creature sacrificed to play it; `consumeMin`: that creature's total cost must be at least this. */
+export type BeforePayload = { exhausted?: boolean; consume?: boolean; consumeMin?: number; amount?: number; cost?: Cost; output?: Pool };
 export type HookContext = {
   state: Readonly<GameState>; registry: Registry; source: CardInstance; event: GameEvent; target?: string; slot?: number;
   issue: (order: InternalOrder) => void;
@@ -81,8 +82,8 @@ export type HookContext = {
 export type BattlefieldState = Readonly<{ cards: Readonly<Record<string, CardInstance>>; players: Readonly<Record<PlayerId, { board: readonly (string | null)[] }>> }>;
 export type AbilityExtension = {
   id: string; version: number; validate: (params: unknown) => void;
-  /** Optional faction-exclusive keyword. Dual-faction cards must include this affiliation; 'neutral' requires no named factions. */
-  faction?: Faction;
+  /** Record this ability's resolved effects on the triggering event, so players can see what happened. */
+  announce?: boolean;
   /** Player-facing templates; {param} placeholders come from the card binding. */
   name: string; description: string; translations?: Partial<Record<ContentLanguage, AbilityTranslation>>;
   hooks?: Record<string, (ctx: HookContext, params: Record<string, unknown>) => void>;

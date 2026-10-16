@@ -1,10 +1,10 @@
 {
   "$schema": "../../schemas/card.schema.json",
-  "id": "aldric-runewarden",
+  "id": "alderic-warmaster-of-the-empire",
   "set": "foundations",
   "revision": 11,
   "name": "Alderic, Warmaster of the Empire",
-  "deckLimitKey": "aldric-runewarden",
+  "deckLimitKey": "alderic-warmaster-of-the-empire",
   "type": "creature",
   "factions": [
     "crownlands"

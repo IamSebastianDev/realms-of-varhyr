@@ -1,17 +1,17 @@
 {
   "$schema": "../../schemas/card.schema.json",
-  "id": "morie-grandmistress",
+  "id": "dwell-merchant-of-the-mountains",
   "set": "foundations",
-  "revision": 5,
-  "name": "Morie, Grandmistress of Winter",
-  "deckLimitKey": "morie-grandmistress",
+  "revision": 3,
+  "name": "Dwell, Merchant of the Mountains",
+  "deckLimitKey": "dwell-merchant-of-the-mountains",
   "type": "creature",
   "factions": [
-    "winter-league"
+    "mountain-clans"
   ],
   "subtypes": [
-    "human",
-    "mage",
+    "dwarf",
+    "merchant",
     "leader"
   ],
   "legendary": true,
@@ -19,7 +19,7 @@
   "cost": {
     "generic": 2,
     "factions": {
-      "winter-league": 2
+      "mountain-clans": 1
     }
   },
   "stats": {
@@ -27,21 +27,21 @@
     "defense": 6,
     "energyOutputs": [
       {
-        "winter-league": 3
+        "mountain-clans": 2
       }
     ]
   },
   "abilities": [
     {
-      "id": "accord",
+      "id": "trade",
       "params": {}
     },
     {
-      "id": "charge",
+      "id": "armor",
       "params": {
         "amount": 1
       }
     }
   ],
-  "lore": "The League needs an empire strong enough to hold the frontier, and weak enough to leave its cities free."
+  "lore": "The biggest dwarf in the mountains knows the weight of imperial gold. He measures promises rather more carefully."
 }

@@ -271,7 +271,7 @@ function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSessi
   }
   function selectBoard(id:string) {
     if(!live||suppressClick())return;
-    if(stage==='consume'&&draft&&targets.includes(id)){beginPlay({...draft,consume:id,slot:view.cards[id].slot!});return;}
+    if(stage==='consume'&&draft&&targets.includes(id)){beginPlay({...draft,consume:id,...(registry.cards[view.cards[draft.cardId].definitionId].type==='spell'?{}:{slot:view.cards[id].slot!})});return;}
     if(stage==='target'&&draft&&targets.includes(id)){sendTarget(id);return;}
     if(stage!=='none')return;
     const actions=creatureActions(view,id,undoable,attackers,draftLanes);

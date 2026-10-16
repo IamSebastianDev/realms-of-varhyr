@@ -41,10 +41,10 @@ export const tutorialSteps: TutorialStep[] = [
   { id: 'welcome', title: 'Welcome to Varhyr', next: 'Show me how',
     text: 'You win by taking your opponent from ten life to zero. You lose if you draw your last card. This match is scripted, so every card you need is already on its way. Follow the glowing hints.' },
   { id: 'mulligan', title: 'Your opening hand',
-    text: 'Tower of the First Morning and Aldric both cost four energy, and you begin with none. Select both, then press Replace 2 cards.',
-    focus: state => [...['tower-of-the-first-morning', 'aldric-runewarden'].map(definition => find(state, you, definition)).filter(Boolean).map(id => `#mull-${id}`), '.mulligan-confirm'],
+    text: 'Tower of the First Morning and Alderic both cost four energy, and you begin with none. Select both, then press Replace 2 cards.',
+    focus: state => [...['tower-of-the-first-morning', 'alderic-warmaster-of-the-empire'].map(definition => find(state, you, definition)).filter(Boolean).map(id => `#mull-${id}`), '.mulligan-confirm'],
     accept: (command, state) => command.type === 'mulligan' && command.cardIds.length === 2
-      && command.cardIds.every(id => ['tower-of-the-first-morning', 'aldric-runewarden'].includes(definitionOf(state, id) ?? '')) },
+      && command.cardIds.every(id => ['tower-of-the-first-morning', 'alderic-warmaster-of-the-empire'].includes(definitionOf(state, id) ?? '')) },
   { id: 'energy', title: 'Creatures are your energy', next: 'Got it',
     text: 'There are no land cards. Every creature makes energy, but only by exhausting itself once it is ready. So every game starts with creatures that cost nothing.' },
   { id: 'play-farmer', title: 'Deploy your first creature',
@@ -52,7 +52,7 @@ export const tutorialSteps: TutorialStep[] = [
     focus: state => [...hand('goldfield-farmer')(state), slot(you, 2)], accept: playsAt('goldfield-farmer', 2) },
   { id: 'play-recruit', title: 'Fill the Left Wing',
     text: 'Drag Crownlands Recruit onto the slot left of the center. Cards can’t move once placed, and an attacker can only target its own lane or a neighbor, so placement matters.',
-    focus: state => [...hand('crown-recruit')(state), slot(you, 1)], accept: playsAt('crown-recruit', 1) },
+    focus: state => [...hand('crownlands-recruit')(state), slot(you, 1)], accept: playsAt('crownlands-recruit', 1) },
   { id: 'play-merchant', title: 'Now the Merchant',
     text: 'Merchant of Tris Vale goes to the Right Wing. It will produce two energy when it readies, and it will matter again soon.',
     focus: state => [...hand('merchant-of-tris-vale')(state), slot(you, 3)], accept: playsAt('merchant-of-tris-vale', 3) },
@@ -80,7 +80,7 @@ export const tutorialSteps: TutorialStep[] = [
   { id: 'attack', title: 'Choose a lane',
     text: 'Drag the Recruit onto the empty enemy lane at the far left, then press the button. An attacker may hit its own lane or one beside it.',
     focus: () => [slot(you, 1), slot(rival, 0), button],
-    accept: (command, state) => command.type === 'attack' && command.attackers.length === 1 && definitionOf(state, command.attackers[0]) === 'crown-recruit' && command.lanes?.[command.attackers[0]] === 0 },
+    accept: (command, state) => command.type === 'attack' && command.attackers.length === 1 && definitionOf(state, command.attackers[0]) === 'crownlands-recruit' && command.lanes?.[command.attackers[0]] === 0 },
   { id: 'confirm', title: 'Nothing blocks it',
     text: 'The arrow points at an empty lane, so the attack goes straight to the opponent. If a card stood there, it would block automatically. Confirm combat.',
     focus: () => [button], accept: is('confirm-combat') },
@@ -88,7 +88,7 @@ export const tutorialSteps: TutorialStep[] = [
   { id: 'response', title: 'The last gift',
     text: 'Your Merchant blocked and fell. Its two energy stays in your response pool until this window closes, and any creature that falls gives its owner a window like this one. Drag Cleansing Light onto the wounded Recruit: it deals two damage and heals you for one.',
     focus: state => [...hand('cleansing-light')(state), slot(rival, 3), '.response-pool'],
-    accept: (command, state) => command.type === 'play' && definitionOf(state, command.cardId) === 'cleansing-light' && definitionOf(state, command.target) === 'crown-recruit' && state.cards[command.target!]?.owner === rival },
+    accept: (command, state) => command.type === 'play' && definitionOf(state, command.cardId) === 'cleansing-light' && definitionOf(state, command.target) === 'crownlands-recruit' && state.cards[command.target!]?.owner === rival },
   { id: 'close-response', title: 'Close the window', text: 'Unused response energy fades. Close the response step to finish the combat.', focus: () => [button], accept: is('end') },
   { id: 'finish', title: 'You know the basics', next: 'Play on',
     text: 'Creatures make the energy, energy plays the cards, and anything that falls in defense can still pay for a last spell. Play on against the opponent, or head back and build a deck.' },
@@ -125,13 +125,13 @@ const script: ((state: GameState) => Command)[] = [
   draw,
   state => ({ type: 'play', cardId: mine(state, 'longvale-cutters'), slot: 1 }),
   state => ({ type: 'play', cardId: mine(state, 'goldfield-farmer'), slot: 2 }),
-  state => ({ type: 'play', cardId: mine(state, 'crown-recruit'), slot: 3 }),
+  state => ({ type: 'play', cardId: mine(state, 'crownlands-recruit'), slot: 3 }),
   () => ({ type: 'end' }),
   () => ({ type: 'attack', attackers: [] }),
   () => ({ type: 'end' }),
   draw,
   () => ({ type: 'end' }),
-  state => { const recruit = mine(state, 'crown-recruit', 'board'); return { type: 'attack', attackers: [recruit], lanes: { [recruit]: 3 } }; },
+  state => { const recruit = mine(state, 'crownlands-recruit', 'board'); return { type: 'attack', attackers: [recruit], lanes: { [recruit]: 3 } }; },
   () => ({ type: 'confirm-combat' }),
   () => ({ type: 'end' }),
   () => ({ type: 'end' }),
@@ -140,17 +140,21 @@ export const opponentMoves = (commands: readonly CommandEnvelope[]) => commands.
 export const opponentCommand = (state: GameState, made: number): Command | null => script[made]?.(state) ?? null;
 export const scriptFinished = (made: number) => made >= script.length;
 
+/** The script depends on exact draws, so the tutorial has its own deck and does not change when the Crownlands starter is edited. */
+const tutorialDeck = Object.entries({
+  'goldfield-farmer': 3, 'longvale-cutters': 3, 'merchant-of-tris-vale': 1, 'crownlands-recruit': 3, 'dawn-standard-bearer': 3, 'ban-vale-cavalry': 3,
+  'cleansing-light': 3, 'battlefield-hymn': 3, 'runeguard': 3, 'crown-holding': 3, 'tower-of-the-first-morning': 1, 'alderic-warmaster-of-the-empire': 1,
+}).flatMap(([id, copies]) => Array<string>(copies).fill(id));
+
 export function startTutorial(): MatchSetup {
   const starter = starterDefinitions.find(deck => deck.id === defaultDeckId) ?? starterDefinitions[0];
-  const initial = createMatch(registry, [starter.cards, starter.cards], tutorialSeed, {
-    mulligan: true,
-    stack: [
+  const stack: [string[], string[]] = [
       // Opening hand, then the two cards the mulligan brings in.
-      ['goldfield-farmer', 'crown-recruit', 'merchant-of-tris-vale', 'tower-of-the-first-morning', 'aldric-runewarden', 'runeguard', 'dawn-banner'],
+      ['goldfield-farmer', 'crownlands-recruit', 'merchant-of-tris-vale', 'tower-of-the-first-morning', 'alderic-warmaster-of-the-empire', 'runeguard', 'dawn-standard-bearer'],
       // Opening hand, then the opponent's two draws (cards it cannot afford) and the next turn's pair.
-      ['goldfield-farmer', 'longvale-cutters', 'crown-recruit', 'runeguard', 'crown-holding', 'tower-of-the-first-morning', 'aldric-runewarden', 'ban-vale-cavalry', 'battlefield-hymn'],
-    ],
-  });
+      ['goldfield-farmer', 'longvale-cutters', 'crownlands-recruit', 'runeguard', 'crown-holding', 'tower-of-the-first-morning', 'alderic-warmaster-of-the-empire', 'ban-vale-cavalry', 'battlefield-hymn'],
+  ];
+  const initial = createMatch(registry, [tutorialDeck, tutorialDeck], tutorialSeed, { mulligan: true, stack });
   initial.players.p1.name = 'You';
   initial.players.p2.name = 'Sparring partner';
   return { initial, mode: 'practice', deck: starter.id, skirmish: false, rewardEligible: false, tutorial: true };

@@ -8,18 +8,22 @@
     "name": "Hearth and Stone",
     "cards": {
       "bosci-lord-of-seacliffe": 1,
-      "hearth-guard": 3,
-      "herald-of-the-marches": 3,
+      "hearth-guard": 1,
+      "grendel-herald-of-the-marches": 1,
       "marcher-axeman": 3,
-      "oakholme-archery-captain": 3,
+      "oakholme-archery-captain": 1,
       "oakholme-bowmen": 3,
-      "odric-the-berserker": 1,
-      "puncture": 3,
+      "puncture": 2,
       "riverlands-shipwrights": 3,
       "seacliffe-fisherman": 3,
       "strike-the-hammer": 2,
-      "volley": 2
+      "volley": 1,
+      "westhill-smith": 3,
+      "gift-of-the-march": 1,
+      "wooden-fort": 1,
+      "shrine-to-the-river-gods": 1,
+      "moment-of-glory": 1,
+      "mercenary-outriders": 2
     }
-  },
-  "signatureAbility": "marches-rally"
+  }
 }

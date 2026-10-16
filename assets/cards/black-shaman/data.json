@@ -1,18 +1,19 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "black-shaman",
-  "revision": 2,
+  "revision": 3,
   "name": "Black Shaman",
   "deckLimitKey": "black-shaman",
   "type": "creature",
   "factions": [
-    "black-host"
+    "black-host",
+    "conclave"
   ],
   "subtypes": [
     "human"
   ],
-  "legendary": true,
-  "rarity": "legendary",
+  "legendary": false,
+  "rarity": "rare",
   "cost": {
     "generic": 0
   },
@@ -40,6 +41,6 @@
       }
     }
   ],
-  "lore": "The Host never runs short of fuel. The Shaman simply spends tomorrow’s dead today.",
+  "lore": "The druids of the Conclave call him a traitor. The Host calls him useful. He answers only to the roots, and the roots are always hungry.",
   "set": "foundations"
 }

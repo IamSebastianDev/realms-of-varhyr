@@ -1,0 +1,31 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "undead-servant",
+  "revision": 2,
+  "name": "Undead Servant",
+  "deckLimitKey": "undead-servant",
+  "type": "creature",
+  "factions": [
+    "black-host"
+  ],
+  "subtypes": [
+    "undead"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "black-host": 1
+      }
+    ]
+  },
+  "abilities": [],
+  "set": "foundations",
+  "lore": "Death did not release him from service. It only stopped the pay."
+}

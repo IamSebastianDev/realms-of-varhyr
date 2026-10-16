@@ -81,11 +81,6 @@ async function readCardTranslations(directory:string):Promise<Record<string,{nam
 /** Filesystem authoring stays outside the browser/server-neutral content compiler. Cards live in assets/cards, factions in assets/factions, sets in assets/sets. */
 export async function readCardAssets(assetsDirectory:string):Promise<AssetCatalogue>{
   const factions=await readFactionAssets(assetsDirectory),factionIds=factions.map(faction=>faction.id).filter(id=>id!=='neutral');
-  for(const faction of factions) if(faction.signatureAbility) {
-    const path=join(assetsDirectory,'factions',faction.id+'.json'),ability=abilities[faction.signatureAbility];
-    if(!ability) throw new Error(`${path}: unknown signature ability '${faction.signatureAbility}'.`);
-    if(ability.faction!==faction.id) throw new Error(`${path}: ability '${faction.signatureAbility}' must belong exclusively to '${faction.id}'.`);
-  }
   const sets=await readSetAssets(assetsDirectory,factions),setIds=new Set(sets.map(set=>set.id));
   const cardsDirectory=join(assetsDirectory,'cards');
   const cards:CardDefinition[]=[],media:Media[]=[],owners=new Map<string,string>();

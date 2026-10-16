@@ -135,7 +135,7 @@ extension("rest", amountSchema, {
 })
 ```
 
-Rally (`marches-rally`) is exclusive to the Marches. The healing keyword is called `rest` (**Rast** in German), so it cannot be confused with the Marches deployment action.
+Rally (`marches-rally`) is the Marches leader keyword, usable on any card. The healing keyword is called `rest` (**Rast** in German), so it cannot be confused with the Marches deployment action.
 
 An extension's `target` can be `enemy-any` (enemy player or any enemy field card), `friendly-field`, `enemy-field`, `friendly-creature`, or `enemy-creature`, or `friendly-discard-creature` (a creature in your own discard pile, filtered by the binding's `subtype` param). Targeted activations select their own target at activation, not deployment. They are unavailable when no valid target exists. Creature-only effects and Consume exclude holdings. Holding entry, blocking and death events are `holding.enter.before`, `holding.entered`, `holding.blocked`, and `holding.destroyed`; creature events retain the `creature` prefix. Activation emits `ability.activated`. For hand-to-field activations, use `target: "friendly-hand-field"` with `placement: true`: legal actions provide private hand targets and free `slots`, and an `activate` command includes both `target` and `slot`. The handler issues a `deploy` order; deployment reuses normal entry events without energy payment. The client selects a hand card first, then a free position. No valid field card or free position means no activation is offered.
 
@@ -201,7 +201,7 @@ Each faction is one file, `assets/factions/<faction-id>.json`. The file name mus
     "id": "crown",
     "name": "Banners of the Crown",
     "default": true,
-    "cards": { "goldfield-farmer": 3, "crown-recruit": 3, "aldric-runewarden": 1 }
+    "cards": { "goldfield-farmer": 3, "crownlands-recruit": 3, "alderic-warmaster-of-the-empire": 1 }
   }
 }
 ```
@@ -213,7 +213,6 @@ Each faction is one file, `assets/factions/<faction-id>.json`. The file name mus
 | `short` | Short label on card faces |
 | `color` | `#rrggbb` accent for energy, packs and highlights |
 | `starter` | Optional. A ready-made deck for this faction: its stable `id`, a `name`, and `cards` as card ID → copies (the list shown is shortened). `"default": true` makes it the deck new players start with; only one faction may set it, and without one the first starter (by faction ID) is used |
-| `signatureAbility` | Optional registered ability ID: authoring metadata for this faction’s exclusive keyword; does not automatically grant it to cards or add a UI label |
 | `pack` | Optional. Adds a store booster that draws only this faction's cards. `pack.id` must be unique (and not `bounty`) and must stay stable once players own packs |
 
 Unknown keys, malformed colors and duplicate pack IDs fail the import with the file's path. A missing `neutral.json` fails too. Cards that name a faction without a file also fail. `npm run import:cards` (or `npm run dev`) validates every faction and generates `packages/content/src/factions.json`; do not edit that file by hand. The UI, deck builder filters, energy symbols, booster packs and card validation all read this one list. To remove a faction, delete its file (which also removes its pack and starter deck) and every card that references it.
@@ -222,9 +221,8 @@ Unknown keys, malformed colors and duplicate pack IDs fail the import with the f
 
 Abilities live in three lists under `packages/extensions/src/`:
 
-- `index.ts` holds the **evergreen** keywords (`evergreenAbilities`). They are scalable vocabulary on the card itself and any faction can use them.
+- `index.ts` holds the **evergreen** keywords (`evergreenAbilities`): scalable ones such as Banner and Armor, and parameterless fixed-rule keywords such as Fealty and Soul Harvest that mostly appear on faction leaders. Any card of any faction can use any of them.
 - `spellAbilities.ts` holds the **spell** abilities (`spellAbilities`). They resolve when a spell is cast and are not tied to a faction.
-- `signatureAbilities.ts` holds the **faction** keywords (`signatureAbilities`). Each is exclusive to one faction (or a neutral card that names it).
 
 Evergreen:
 
@@ -234,6 +232,7 @@ Evergreen:
 | `banner` | `{ "amount": 1 }` | Immediately neighboring friendly creatures and holdings gain Attack |
 | `drillmaster` | `{ "amount": 1, "subtype": "archer" }` | Immediately neighboring friendly creatures of that subtype gain Attack |
 | `bind` | `{ "amount": 1, "subtype": "undead" }` | All your other creatures of that subtype gain Defense, wherever they stand. A creature with 0 Defense is destroyed at the next state check, so bound creatures can be printed with Defense 0 |
+| `consume` | `{ "amount": 1 }` | Additional cost of playing the card (creature, holding or spell): sacrifice one of your creatures whose total cost is at least that much. A creature enters the sacrificed creature's position |
 | `shield-wall` | `{ "amount": 1 }` | Immediately neighboring friendly creatures and holdings gain Defense |
 | `guard` | `{}` | Attacks aimed at a lane adjacent to this card are blocked by it instead, even if that lane is empty. A Guard in a targeted lane blocks there first; each Guard stops one attacker per combat |
 | `charge` | `{ "amount": 4 }` | On play, damage the enemy creature directly opposite |
@@ -336,24 +335,24 @@ Leaders are normal legendary creatures with the `leader` subtype, not a separate
 
 | Faction | Leader / card ID | Role |
 | --- | --- | --- |
-| Crownlands | Alderic / `aldric-runewarden` | Fealty strengthens every friendly creature, including its source |
-| League of Winter | Morie / `morie-grandmistress` | Accord fuels the first spell each turn; Charge hits the lane opposite |
+| Crownlands | Alderic / `alderic-warmaster-of-the-empire` | Fealty strengthens every friendly creature, including its source |
+| League of Winter | Morie / `morie-grandmistress-of-winter` | Accord fuels the first spell each turn; Charge hits the lane opposite |
 | Bright Marches | Bosci / `bosci-lord-of-seacliffe` | Rally deploys reinforcements from hand for free; Guard holds the frontier |
-| Mountain Clans | Dwell / `dwell-mountain-merchant` | Trade adds neutral energy to Clan production |
+| Mountain Clans | Dwell / `dwell-merchant-of-the-mountains` | Trade adds neutral energy to Clan production |
 | Neutral | The Lonely Wanderer / `the-lonely-wanderer` | Wayfarer returns a friendly creature to hand |
 | Conclave | Ilyria / `ilyria-queen-of-the-elves` | Sanctuary and Guard protect forest approaches |
 | Ember Fields | Hekata / `hekata-lady-of-the-fields` | Scorch burns the deployment lane; Charge strikes the opposite creature |
 | Horde | Brut / `brut-chief-of-the-harpies` | Raid rewards neighboring creatures |
 | Black Host | Dark Priest of Run / `dark-priest-of-run` | Weaken and Soul Harvest turn casualties into cards; Dark Harvest (Black Shaman) trades library cards for Host energy |
 
-Alderic's original `aldric-runewarden` ID and deck-limit key are retained for existing collections and the Crown starter. Winter's retired mechanics remain test-only fixtures; do not restore them under `assets/cards/` unless you intend them to rejoin the live catalogue. The three existing neutral Winter-era support cards remain neutral cards.
+Alderic's original `alderic-warmaster-of-the-empire` ID and deck-limit key are retained for existing collections and the Crown starter. Winter's retired mechanics remain test-only fixtures; do not restore them under `assets/cards/` unless you intend them to rejoin the live catalogue. The three existing neutral Winter-era support cards remain neutral cards.
 
 
 ## Faction signatures
 
-Each faction has a distinct, faction-exclusive keyword representing its identity. All nine are unnumbered, fixed rules and require `"params": {}`. Numeric strengths belong in their descriptions and handlers, not in individual card bindings; passing an `amount` fails validation. Leaders use it, and other cards belonging to that faction can use it too. Ordinary rules boxes show its name and description without a signature badge or special border.
+Faction leaders carry fixed-rule keywords such as Fealty and Accord. They are unnumbered and require `"params": {}`; passing an `amount` fails validation. They are ordinary abilities, not tied to a faction, so any card can use them. Rules boxes show their name and description without a badge or special border.
 
-`signatureAbility` in the faction file is authoring metadata only. Its ID must refer to an ability whose `faction` matches that file; generic or other-faction abilities fail import. Cards still need an explicit binding in `abilities`. The pure content compiler enforces affiliation: a Crown/Winter card may use Fealty and Accord, while a Crown-only card cannot use Accord. Neutral's Wayfarer requires a factionless card. Generic abilities such as Armor, Formation and Rime remain available across factions.
+A card binds a keyword with an explicit entry in `abilities`. Abilities are not restricted by faction; the studio and the importer offer and accept every ability on every card it can sensibly be on.
 
 | Faction | Ability ID | Example params | Effect |
 | --- | --- | --- | --- |
@@ -369,7 +368,7 @@ Each faction has a distinct, faction-exclusive keyword representing its identity
 
 Visual effects are automatic on new cards using these keywords. Fealty, Sanctuary and Raid read the actual static modifiers; triggered and activated abilities supply public event attribution, never private draw identities. Their presentation lives in `apps/web/src/factionEffects.ts`, `FactionAbilityEffects.tsx` and `faction-effects.css`, and follows the shared match presentation for local play, online matches and replays. Reduced motion keeps stationary buff cues.
 
-The nine exclusive keyword handlers live in `packages/extensions/src/signatureAbilities.ts`, with strict empty-parameter schemas. A card binds a keyword as `{ "id": "fealty", "params": {} }`, which displays **Fealty** in English and **Lehnstreue** in German. Their `faction` is enforced during content compilation and included in compatibility hashing. Shared abilities stay in `index.ts`; the old generic Collector example remains commented there as documentation. Raid uses the optional public battlefield context passed to `static(source, target, params, registry, state)`. Inspect printed stats for comparisons, not `effectiveStats`, to avoid recursive modifier evaluation. The context contains only board/card information shared by engine state and player views.
+The parameterless keyword handlers live in `packages/extensions/src/index.ts`, with strict empty-parameter schemas. A card binds a keyword as `{ "id": "fealty", "params": {} }`, which displays **Fealty** in English and **Lehnstreue** in German. Shared abilities stay in `index.ts`; the old generic Collector example remains commented there as documentation. Raid uses the optional public battlefield context passed to `static(source, target, params, registry, state)`. Inspect printed stats for comparisons, not `effectiveStats`, to avoid recursive modifier evaluation. The context contains only board/card information shared by engine state and player views.
 
 Eight card paintings were created with the built-in image generator and saved to their normal `assets/cards/<leader>/data.png` paths. The complete prompts, style references, original portrait references and destinations are recorded in `assets/hero-art-prompts.json`. Ban Vale Cavalry and Borrowed Wisdom were style references and remain unchanged. Alderic’s `data.png` and `data.webm` were restored from the original assets.
 

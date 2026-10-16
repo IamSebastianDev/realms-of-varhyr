@@ -54,7 +54,7 @@ describe('colored payments and additional costs',()=>{
  it('reserves specific colors and uses neutral for generic',()=>{expect(autoPayment({crownlands:1,neutral:1},{generic:1,factions:{crownlands:1}})).toEqual({crownlands:1,neutral:1});expect(autoPayment({neutral:5},{generic:0,factions:{ashen:1}})).toBeNull();expect(autoPayment({elderwood:2},{generic:2,factions:{}})).toEqual({elderwood:2});});
  it('supports an explicit generic allocation and rejects overspending',()=>{let s=setup();const id=fixture(s,'wild-guardian','p1','hand');s.players.p1.energy={elderwood:1,crownlands:1,neutral:1};const bad=apply(s,{actor:'p1',expectedRevision:s.revision,command:{type:'play',cardId:id,payment:{elderwood:1,neutral:2}}},registry);expect(bad.state).toBe(s);s=step(s,{type:'play',cardId:id,payment:{elderwood:1,crownlands:1}});expect(s.players.p1.energy).toEqual({elderwood:0,crownlands:0,neutral:1});});
  it('dual producers choose one output, never both',()=>{let s=setup();const id=fixture(s,'runeguard','p1','board');s=step(s,{type:'energy',cardId:id,option:1});expect(s.players.p1.energy).toEqual({ironbound:1});});
- it('Consume frees a full slot before entry; no universal sacrifice',()=>{let s=setup();s.active='p2';for(let i=0;i<5;i++)fixture(s,i<3?'ashen-initiate':'wayfarer','p2','board',i);const victim=s.players.p2.board[1]!,id=fixture(s,'hollow-devourer','p2','hand');s.players.p2.energy={ashen:1,neutral:1};s=step(s,{type:'play',cardId:id,consume:victim});expect(s.players.p2.board[1]).toBe(id);expect(s.players.p2.discard).toContain(victim);expect(s.cards[id].exhausted).toBe(true);assertInvariants(s);});
+ it('Consume frees a full slot before entry; no universal sacrifice',()=>{let s=setup();s.active='p2';for(let i=0;i<5;i++)fixture(s,i<3?'abyss-whelp':'wayfarer','p2','board',i);const victim=s.players.p2.board[1]!,id=fixture(s,'hollow-devourer','p2','hand');s.players.p2.energy={ashen:1,neutral:1};s=step(s,{type:'play',cardId:id,consume:victim});expect(s.players.p2.board[1]).toBe(id);expect(s.players.p2.discard).toContain(victim);expect(s.cards[id].exhausted).toBe(true);assertInvariants(s);});
  it('rejects absent/hostile Consume costs without spending energy',()=>{const s=setup();s.active='p2';const id=fixture(s,'hollow-devourer','p2','hand'),enemy=fixture(s,'forest-sprite','p1','board');fixture(s,'ashen-initiate','p2','board');s.players.p2.energy={ashen:1,neutral:1};for(const consume of [undefined,enemy]){const result=apply(s,{actor:'p2',expectedRevision:s.revision,command:{type:'play',cardId:id,consume}},registry);expect(result.error).toBeTruthy();expect(result.state).toBe(s);}});
 });
 describe('simultaneous combat and response energy',()=>{
@@ -316,7 +316,7 @@ describe('reusable extension composition',()=>{
  it('supports live auras and removes their modifiers with the source',()=>{let s=setup();const banner=fixture(s,'dawn-banner','p1','board'),ally=fixture(s,'forest-sprite','p1','board',1);expect(effectiveStats(s,ally,registry).attack).toBe(2);const spell=fixture(s,'homeward','p2','hand');s.active='p2';s.players.p2.energy={neutral:1}; // Return only targets friendly units.
  s.active='p1';s.cards[spell].owner='p1';s.cards[spell].controller='p1';s.players.p2.hand=s.players.p2.hand.filter(id=>id!==spell);s.players.p1.hand.push(spell);s.players.p1.energy={neutral:1};s=step(s,{type:'play',cardId:spell,target:banner});expect(effectiveStats(s,ally,registry).attack).toBe(1);});
  it('armor intercepts damage before marking it',()=>{let s=attackState();s.active='p2';const attacker=fixture(s,'abyss-whelp','p2','board'),blocker=fixture(s,'iron-guard','p1','board');s=step(s,{type:'attack',attackers:[attacker]});s=step(s,{type:'confirm-combat'});expect(s.cards[blocker].damage).toBe(2);expect(s.cards[attacker].damage).toBe(0);});
- it('chains Consume, collector draw and on-play damage once',()=>{let s=setup();s.active='p2';const collector=fixture(s,'grave-collector','p2','board'),victim=fixture(s,'ashen-initiate','p2','board',1),target=fixture(s,'forest-sprite','p1','board'),devourer=fixture(s,'hollow-devourer','p2','hand');s.players.p2.energy={ashen:1,neutral:1};const handBefore=s.players.p2.hand.length;s=step(s,{type:'play',cardId:devourer,consume:victim,target});expect(s.players.p2.hand).toHaveLength(handBefore);expect(s.cards[target].zone).toBe('discard');expect(s.events.filter(e=>e.type==='card.drawn')).toHaveLength(1);expect(s.cards[collector].zone).toBe('board');});
+ it('chains Consume, collector draw and on-play damage once',()=>{let s=setup();s.active='p2';const collector=fixture(s,'grave-collector','p2','board'),victim=fixture(s,'abyss-whelp','p2','board',1),target=fixture(s,'forest-sprite','p1','board'),devourer=fixture(s,'hollow-devourer','p2','hand');s.players.p2.energy={ashen:1,neutral:1};const handBefore=s.players.p2.hand.length;s=step(s,{type:'play',cardId:devourer,consume:victim,target});expect(s.players.p2.hand).toHaveLength(handBefore);expect(s.cards[target].zone).toBe('discard');expect(s.events.filter(e=>e.type==='card.drawn')).toHaveLength(1);expect(s.cards[collector].zone).toBe('board');});
  it('checks simultaneous lethal effects only after the complete spell',()=>{const extra:CardDefinition={...registry.cards['final-bargain'],id:'reckoning-test',deckLimitKey:'reckoning-test',cost:{generic:0,factions:{}},cast:[{id:'reckoning',params:{amount:10}}]};const r=compileContent([...raw,extra]);let s=setup(r);const id=fixture(s,'final-bargain','p2','hand');s.cards[id].definitionId='reckoning-test';s.active='p2';s=step(s,{type:'play',cardId:id},'p2',r);expect(s.outcome).toBe('draw');});
  it('validates extension params and prevents executable/unknown content',()=>{const invalid=structuredClone(raw);invalid[0].abilities=[{id:'deathbound',params:{amount:-1}}] as never;expect(()=>compileContent(invalid)).toThrow();invalid[0].abilities=[{id:'arbitrary-function',params:{}}] as never;expect(()=>compileContent(invalid)).toThrow();expect(()=>compileContent([raw[0],raw[0]])).toThrow('Duplicate');});
  it('adding a dual-faction multi-ability card requires only content',()=>{const c:CardDefinition={...registry.cards['runeguard'],id:'new-champion',deckLimitKey:'new-champion',cost:{generic:0,factions:{}},abilities:[{id:'ready',params:{}},{id:'war-banner',params:{amount:1}}]};const r=compileContent([...raw,c]);let s=setup(r);const id=fixture(s,'crown-recruit','p1','hand');s.cards[id].definitionId=c.id;s=step(s,{type:'play',cardId:id},'p1',r);expect(s.cards[id].exhausted).toBe(false);expect(r.cards[c.id].factions).toHaveLength(2);});
@@ -489,5 +489,40 @@ describe('bind',()=>{
  });
  it('rejects a holding with 0 Defense',()=>{
   expect(()=>compileContent([...raw,{...registry.cards['wayfarer'],id:'bad-holding',deckLimitKey:'bad-holding',type:'holding',abilities:[],stats:{attack:0,defense:0,energyOutputs:[]}}])).toThrow(/at least 1 Defense/);
+ });
+});
+describe('consume',()=>{
+ const consumeRegistry=compileContent([...raw,
+  {...registry.cards['crown-recruit'],id:'eater',deckLimitKey:'eater',abilities:[{id:'consume',params:{amount:2}}]},
+  {...registry.cards['crown-recruit'],id:'big-producer',deckLimitKey:'big-producer',cost:{generic:3,factions:{}}},
+  {...registry.cards['crown-recruit'],id:'small-producer',deckLimitKey:'small-producer',cost:{generic:1,factions:{}}},
+  {...registry.cards['crown-recruit'],id:'idle-body',deckLimitKey:'idle-body',cost:{generic:0,factions:{}}},
+  {...registry.cards['cleansing-light'],id:'eater-spell',deckLimitKey:'eater-spell',abilities:[{id:'consume',params:{amount:1}}],cast:[{id:'heal',params:{amount:1}}]}]);
+ // Any unused p1 card can stand in for a test definition; the starter deck has few copies of each.
+ const spare=(s:GameState,zone:'board'|'hand',slot:number,kind:string)=>{const base=Object.keys(s.cards).find(id=>s.cards[id].owner==='p1'&&s.cards[id].zone==='deck')!;const def=s.cards[base].definitionId;const id=fixture(s,def,'p1',zone,slot);s.cards[id].definitionId=kind;return id;};
+ const put=(s:GameState,kind:string,slot:number)=>spare(s,'board',slot,kind);
+ const inHand=(s:GameState,kind:string)=>spare(s,'hand',0,kind);
+ it('only offers creatures that cost at least the required amount',()=>{
+  const s=setup(consumeRegistry);const eater=inHand(s,'eater');
+  put(s,'small-producer',0);put(s,'idle-body',1);const big=put(s,'big-producer',2);
+  const legal=legalActions(s,consumeRegistry).playable.find(a=>a.cardId===eater)!;expect(legal.consumes).toEqual([big]);
+ });
+ it('is not playable without a creature that costs enough, even with free slots',()=>{
+  const s=setup(consumeRegistry);const eater=inHand(s,'eater');put(s,'small-producer',0);
+  expect(legalActions(s,consumeRegistry).playable.some(a=>a.cardId===eater)).toBe(false);
+ });
+ it('sacrifices the chosen creature and takes its position',()=>{
+  const s=setup(consumeRegistry);const eater=inHand(s,'eater');const small=put(s,'small-producer',1),big=put(s,'big-producer',3);
+  const bad=apply(s,{actor:'p1',expectedRevision:s.revision,command:{type:'play',cardId:eater,consume:small,slot:1}},consumeRegistry);expect(bad.error).toBeDefined();
+  const r=step(s,{type:'play',cardId:eater,consume:big,slot:3},'p1',consumeRegistry);
+  expect(r.cards[big].zone).toBe('discard');expect(r.players.p1.board[3]).toBe(eater);expect(r.cards[small].zone).toBe('board');assertInvariants(r);
+ });
+ it('works as an additional cost of a spell',()=>{
+  const s=setup(consumeRegistry);const spell=inHand(s,'eater-spell');s.players.p1.energy={crownlands:1,neutral:1};
+  expect(legalActions(s,consumeRegistry).playable.some(a=>a.cardId===spell)).toBe(false);
+  const victim=put(s,'small-producer',2);
+  const legal=legalActions(s,consumeRegistry).playable.find(a=>a.cardId===spell)!;expect(legal.consumes).toEqual([victim]);
+  const r=step(s,{type:'play',cardId:spell,consume:victim},'p1',consumeRegistry);
+  expect(r.cards[victim].zone).toBe('discard');expect(r.cards[spell].zone).toBe('discard');assertInvariants(r);
  });
 });

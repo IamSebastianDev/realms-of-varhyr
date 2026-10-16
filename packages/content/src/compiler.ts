@@ -99,9 +99,6 @@ export function compileContent(
       const extension = extensions[binding.id];
       if (!extension) throw new Error(`Unknown ability ${binding.id} on ${card.id}`);
       if (card.type === 'holding' && extension.activationEnergy) throw new Error(`Holding ${card.id} cannot produce energy`);
-      if (extension.faction && (extension.faction === 'neutral' ? card.factions.length !== 0 : !card.factions.includes(extension.faction))) {
-        throw new Error(`Ability ${binding.id} belongs to ${extension.faction}; card ${card.id} needs that affiliation`);
-      }
       extension.validate(binding.params);
       if (typeof binding.params.energy === 'string' && ![...factionIds, 'neutral'].includes(binding.params.energy)) throw new Error(`Unknown energy type ${binding.params.energy} on ${card.id}`);
       describeAbility(binding, extension);
@@ -122,7 +119,6 @@ export function compileContent(
     factions: factionIds,
     extensions: Object.keys(extensions).sort().map(id => [
       id, extensions[id].version, extensions[id].name, extensions[id].description,
-      ...(extensions[id].faction ? [extensions[id].faction] : []),
       ...(extensions[id].placement ? [true] : []),
     ]),
   }));

@@ -26,7 +26,7 @@ function Num({ value, onChange, min = 0, name }: { value: number; onChange: (n: 
     <button type="button" aria-label={`Increase${name ? ' ' + name : ''}`} onClick={() => set(value + 1)}>+</button></span>;
 }
 
-function Bindings({ title, draft, slot, list, onChange }: { title: string; draft: Draft; slot: 'field' | 'cast'; list: Binding[]; onChange: (next: Binding[]) => void }) {
+function Bindings({ title, draft, slot, list, onChange }: { title: string; draft: Draft; slot: 'field' | 'cast' | 'cost'; list: Binding[]; onChange: (next: Binding[]) => void }) {
   const options = allowedAbilities(draft, slot), id = useId();
   const set = (index: number, binding: Binding) => onChange(list.map((entry, i) => i === index ? binding : entry));
   return <fieldset><legend>{title}</legend>
@@ -91,6 +91,7 @@ export function CardForm({ draft, patch, onArt, hasArt, folderLocked }: { draft:
       <fieldset><legend>When it can be played</legend><div className="chips">{(['play', 'response'] as const).map(time => <button type="button" key={time} aria-pressed={draft.timing.includes(time)}
         onClick={() => patch({ timing: draft.timing.includes(time) ? draft.timing.filter(x => x !== time) : [...draft.timing, time] })}>{time === 'play' ? 'On play' : 'In response'}</button>)}</div></fieldset>
       <Bindings title="Spell effects" draft={draft} slot="cast" list={draft.cast} onChange={cast => patch({ cast })}/>
+      <Bindings title="Additional cost" draft={draft} slot="cost" list={draft.abilities} onChange={abilities => patch({ abilities })}/>
     </>}
 
     <fieldset><legend>Text and art</legend>

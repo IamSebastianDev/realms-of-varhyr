@@ -2,6 +2,5 @@
   "id": "conclave",
   "name": "The Conclave",
   "short": "Conclave",
-  "color": "#86b772",
-  "signatureAbility": "sanctuary"
+  "color": "#86b772"
 }

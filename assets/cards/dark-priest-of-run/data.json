@@ -40,7 +40,7 @@
     {
       "id": "weaken",
       "params": {
-        "amount": 1
+        "amount": 2
       }
     }
   ],

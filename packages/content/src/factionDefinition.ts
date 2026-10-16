@@ -10,8 +10,6 @@ export const factionSchema = v.strictObject({
   /** Short label used on card faces. */
   short: text,
   color: v.pipe(v.string(), v.regex(/^#[0-9a-fA-F]{6}$/, 'Use a #rrggbb color.')),
-  /** Registered reusable ability that expresses this faction's identity. */
-  signatureAbility: v.optional(slug),
   /** Optional store booster that draws only this faction's cards. The pack ID is stable once players own packs. */
   pack: v.optional(v.strictObject({ id: slug, name: text, blurb: text })),
   /** Optional starter deck for this faction: card ID -> copies. The deck ID is stable once decks are saved. */

@@ -7,7 +7,7 @@
   ],
   "prompts": [
     {
-      "folder": "morie-grandmistress",
+      "folder": "morie-grandmistress-of-winter",
       "name": "Morie, Grandmistress of Winter",
       "prompt": "Use case: style-transfer. Asset type: spectacular fantasy trading-card illustration for Realms of Varhyr. Transform the supplied hero portrait (Image 3) into a new full-scene painting. Images 1 (Ban Vale Cavalry) and 2 (Borrowed Wisdom) are STYLE REFERENCES ONLY: match their traditional oil-paint illustration, visible confident brush strokes, textured canvas, muted earth pigments, rich atmospheric light, believable medieval materials and strong painterly shapes. Avoid polished digital portrait aesthetics, photorealism, CGI, glossy skin, anime and neon magic. Final composition MUST be vertical 2:3 portrait, ideally 1024x1536, edge-to-edge artwork without any card frame, text, typography, logos or watermark. Hero's recognizable face is in the upper-middle, around 35% of image height, with unobstructed face and enough headroom. Three-quarter or full-body figure has a commanding silhouette, landscape-scale drama and tangible narrative setting. Bottom 20% can carry landscape/robes so game labels don't cover the face. Preserve the hero's core appearance from Image 3 while making the anatomy, clothing and lighting convincingly painterly.\nSubject and scene: A wise silver-haired human grandmistress, poised and politically formidable, wearing layered ivory wool, pale teal ceremonial robes and a fur-lined mantle. She stands on the snowy open loggia of a rich northern city, one hand over a frost-veined diplomatic treaty on a stone table, the other shaping a vast crystalline arc of winter magic that curves over distant spires. Marble, snow, ice-blue sky and restrained warm window light. The spectacle is immense delicate frost formations and winter atmosphere, not a fireball. Her expression is composed and knowing. Preserve the reference's face and silver swept-back hair, make her a mature stateswoman.",
       "referenced_image_paths": [
@@ -15,7 +15,7 @@
         "/Volumes/Repositories/lands-of-varhir/assets/cards/borrowed-wisdom/data.png",
         "/Volumes/Repositories/lands-of-varhir/assets/avatars/coraxdigitalart-realistic-human-heroes (112).png"
       ],
-      "savedArtwork": "assets/cards/morie-grandmistress/data.png"
+      "savedArtwork": "assets/cards/morie-grandmistress-of-winter/data.png"
     },
     {
       "folder": "bosci-lord-of-seacliffe",
@@ -37,7 +37,7 @@
       ]
     },
     {
-      "folder": "dwell-mountain-merchant",
+      "folder": "dwell-merchant-of-the-mountains",
       "name": "Dwell, Merchant of the Mountains",
       "prompt": "Use case: style-transfer. Asset type: spectacular fantasy trading-card illustration for Realms of Varhyr. Transform the supplied hero portrait (Image 3) into a new full-scene painting. Images 1 (Ban Vale Cavalry) and 2 (Borrowed Wisdom) are STYLE REFERENCES ONLY: match their traditional oil-paint illustration, visible confident brush strokes, textured canvas, muted earth pigments, rich atmospheric light, believable medieval materials and strong painterly shapes. Avoid polished digital portrait aesthetics, photorealism, CGI, glossy skin, anime and neon magic. Final composition MUST be vertical 2:3 portrait, ideally 1024x1536, edge-to-edge artwork without any card frame, text, typography, logos or watermark. Hero's recognizable face is in the upper-middle, around 35% of image height, with unobstructed face and enough headroom. Three-quarter or full-body figure has a commanding silhouette, landscape-scale drama and tangible narrative setting. Bottom 20% can carry landscape/robes so game labels don't cover the face. Preserve the hero's core appearance from Image 3 while making the anatomy, clothing and lighting convincingly painterly.\nSubject and scene: Dwell is a genuinely broad, stocky DWARF merchant-prince with a heavy dark-grey beard, swept-back hair and shrewd expression adapted from the portrait. His short, powerfully built body and broad hands must read unmistakably as dwarven, not a tall human. He stands inside a colossal mountain trading hall cut from warm granite, holding a polished uncut blue gemstone up to a shaft of daylight. Massive ore carts, iron scales, gold coins, brass weights, dwarven forge fires and carved vaults establish wealth built through trade. Splendid but practical purple wool, thick leather, engraved metal clasps. Spectacular scale and rich amber highlights on stone and metal, subdued mineral blues.",
       "referenced_image_paths": [
@@ -45,7 +45,7 @@
         "/Volumes/Repositories/lands-of-varhir/assets/cards/borrowed-wisdom/data.png",
         "/Volumes/Repositories/lands-of-varhir/assets/avatars/coraxdigitalart-realistic-human-heroes (433).png"
       ],
-      "savedArtwork": "assets/cards/dwell-mountain-merchant/data.png"
+      "savedArtwork": "assets/cards/dwell-merchant-of-the-mountains/data.png"
     },
     {
       "folder": "the-lonely-wanderer",

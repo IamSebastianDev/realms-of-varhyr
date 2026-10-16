@@ -1,8 +1,8 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "altar-of-binding",
-  "revision": 1,
-  "name": "Altar of binding",
+  "revision": 2,
+  "name": "Altar of Binding",
   "deckLimitKey": "altar-of-binding",
   "type": "holding",
   "factions": [
@@ -10,7 +10,7 @@
   ],
   "subtypes": [],
   "legendary": false,
-  "rarity": "common",
+  "rarity": "rare",
   "cost": {
     "generic": 2,
     "factions": {
@@ -30,5 +30,6 @@
       }
     }
   ],
+  "lore": "The names are cut into the stone so the dead remember where they belong.",
   "set": "foundations"
 }

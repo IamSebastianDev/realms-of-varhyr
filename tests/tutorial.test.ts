@@ -9,9 +9,9 @@ import { actionCount, find, opponentCommand, opponentMoves, opponentNote, player
 const golden = (state: GameState, step: string): Command => {
   const me = (definition: string, zone: 'hand' | 'board' = 'hand') => find(state, 'p1', definition, zone)!;
   switch (step) {
-    case 'mulligan': return { type: 'mulligan', cardIds: [me('tower-of-the-first-morning'), me('aldric-runewarden')] };
+    case 'mulligan': return { type: 'mulligan', cardIds: [me('tower-of-the-first-morning'), me('alderic-warmaster-of-the-empire')] };
     case 'play-farmer': return { type: 'play', cardId: me('goldfield-farmer'), slot: 2 };
-    case 'play-recruit': return { type: 'play', cardId: me('crown-recruit'), slot: 1 };
+    case 'play-recruit': return { type: 'play', cardId: me('crownlands-recruit'), slot: 1 };
     case 'play-merchant': return { type: 'play', cardId: me('merchant-of-tris-vale'), slot: 3 };
     case 'enter-combat': case 'end-turn': case 'enter-combat-2': case 'end-turn-2': case 'close-response': return { type: 'end' };
     case 'skip-combat': return { type: 'attack', attackers: [] };
@@ -19,9 +19,9 @@ const golden = (state: GameState, step: string): Command => {
     case 'channel-farmer': return { type: 'energy', cardId: me('goldfield-farmer', 'board'), option: 0 };
     case 'channel-merchant': return { type: 'energy', cardId: me('merchant-of-tris-vale', 'board'), option: 0 };
     case 'play-runeguard': return { type: 'play', cardId: me('runeguard'), slot: 0 };
-    case 'attack': { const recruit = me('crown-recruit', 'board'); return { type: 'attack', attackers: [recruit], lanes: { [recruit]: 0 } }; }
+    case 'attack': { const recruit = me('crownlands-recruit', 'board'); return { type: 'attack', attackers: [recruit], lanes: { [recruit]: 0 } }; }
     case 'confirm': return { type: 'confirm-combat' };
-    case 'response': return { type: 'play', cardId: me('cleansing-light'), target: find(state, 'p2', 'crown-recruit', 'board')! };
+    case 'response': return { type: 'play', cardId: me('cleansing-light'), target: find(state, 'p2', 'crownlands-recruit', 'board')! };
   }
   throw new Error(`No command for ${step}`);
 };
@@ -85,7 +85,7 @@ describe('tutorial', () => {
     expect(state.players.p2.life).toBe(9);
     expect(state.players.p1.life).toBe(11);
     expect(scriptFinished(opponentMoves(commands))).toBe(true);
-    expect(find(state, 'p2', 'crown-recruit', 'board')).toBeUndefined();
+    expect(find(state, 'p2', 'crownlands-recruit', 'board')).toBeUndefined();
     expect(replay(startTutorial().initial, commands, registry).revision).toBe(state.revision);
   });
   it('derives its position from the commands already played', () => {

@@ -77,10 +77,6 @@ export function buildCardJsonSchema(factions:readonly FactionDefinition[],sets:r
     {if:condition('spell'),then:{required:['cast','timing'],properties:{stats:false,abilities:{items:ref('spell-ability')}}},else:{required:['stats'],properties:{cast:false,timing:false}}},
     {if:condition('holding'),then:{properties:{stats:{properties:{energyOutputs:{maxItems:0}}},abilities:{items:ref('holding-ability')}}}},
     {if:{properties:{factions:{contains:{const:'neutral'}}},required:['factions']},then:{properties:{factions:{maxItems:1}}}},
-    ...ids.flatMap(id=>{
-      const faction=abilities[id].faction;
-      return faction?[{if:{anyOf:[bindingContains('abilities',id),bindingContains('cast',id)]},then:{properties:{factions:faction==='neutral'?{enum:[[],['neutral']]}:{contains:{const:faction}}}}}]:[];
-    }),
   ];
   return schema;
 }

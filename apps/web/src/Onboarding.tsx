@@ -49,7 +49,7 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
             <span className="ob-offer-body">
               <strong>{msg(factionInfo[o.faction]?.name ?? o.faction)}</strong>
               <em>{msg(o.name)}</em>
-              <span className="ob-offer-hero">{msg(h.title)}</span>
+              <span className="ob-offer-hero">{msg(o.leader)}</span>
               <span className="ob-offer-lore">{msg(h.lore)}</span>
               <span className="ob-offer-fan" aria-hidden="true">{showcase(o).map(card => <span key={card.id}><ArtCard card={registry.cards[card.id]} detail={false} reduced className="ob-fan-card"/></span>)}</span>
               <small>{msg("{v0} cards · {v1} different", { v0: o.total, v1: o.cards.length })}</small>

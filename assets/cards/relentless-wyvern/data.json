@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "relentless-wyvern",
-  "revision": 2,
+  "revision": 3,
   "name": "Relentless Wyvern",
   "deckLimitKey": "relentless-wyvern",
   "type": "creature",
@@ -14,7 +14,7 @@
   "legendary": false,
   "rarity": "rare",
   "cost": {
-    "generic": 3
+    "generic": 5
   },
   "stats": {
     "attack": 4,

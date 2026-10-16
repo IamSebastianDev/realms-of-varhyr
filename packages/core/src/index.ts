@@ -194,8 +194,8 @@ class Transaction {
   constructor(public state: GameState, public registry: Registry) {}
   context(source: CardInstance, event: GameEvent, abilityId?: string): HookContext {
     return { state: this.state, registry: this.registry, source, event, target: this.target, slot: this.slot, issue: order => {
-      // Attribute resolved faction effects without exposing private draw identities or parsing log prose.
-      const effect = abilityId && this.registry.abilities[abilityId].faction ? {
+      // Attribute announced ability effects without exposing private draw identities or parsing log prose.
+      const effect = abilityId && this.registry.abilities[abilityId].announce ? {
         event, cardId: source.id, abilityId, target: 'target' in order ? order.target : event.type === 'creature.destroyed' ? event.cardId : undefined,
       } : undefined;
       this.queue.push({order,effect});
@@ -467,8 +467,11 @@ export function legalActions(state: GameState, registry: Registry): LegalActions
       const payload = playPayload(state,card,registry);
       if (!autoPayment(inResponse ? p.responseEnergy : p.energy,payload.cost!)) continue;
       const slots = p.board.map((id,i) => id === null ? i : -1).filter(i => i >= 0);
-      const consumes = payload.consume ? p.board.filter((id): id is string => !!id && definition(state,id,registry).type === 'creature') : [];
-      if (def.type !== 'spell' && ((!slots.length && !consumes.length) || (payload.consume && !consumes.length))) continue;
+      // Consume sacrifices a creature that produces at least the required energy (its best single output).
+      const costOf = (cardId: string) => { const cost = definition(state,cardId,registry).cost; return cost.generic + Object.values(cost.factions ?? {}).reduce((sum,n) => sum + (n ?? 0),0); };
+      const consumes = payload.consume ? p.board.filter((id): id is string => !!id && definition(state,id,registry).type === 'creature' && costOf(id) >= (payload.consumeMin ?? 0)) : [];
+      if (payload.consume && !consumes.length) continue;
+      if (def.type !== 'spell' && !slots.length && !consumes.length) continue;
       const targeting = targetOptions(state,actor,[...def.abilities.filter(b=>!registry.abilities[b.id].activate),...def.cast ?? []],registry);
       // Required spell targets cannot disappear into an illegal target-free cast.
       if (def.type === 'spell' && def.cast?.some(b => registry.abilities[b.id].target) && !targeting.targets.length) continue;

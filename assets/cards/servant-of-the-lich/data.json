@@ -1,0 +1,47 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "servant-of-the-lich",
+  "revision": 2,
+  "name": "Servant of the Lich",
+  "deckLimitKey": "servant-of-the-lich",
+  "type": "creature",
+  "factions": [
+    "black-host"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "black-host": 2
+    }
+  },
+  "stats": {
+    "attack": 4,
+    "defense": 4,
+    "energyOutputs": [
+      {
+        "black-host": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "consume",
+      "params": {
+        "amount": 2
+      }
+    },
+    {
+      "id": "weaken",
+      "params": {
+        "amount": 2
+      }
+    }
+  ],
+  "lore": "He swore to serve until death. The Lich has not yet told him when that is.",
+  "set": "foundations"
+}

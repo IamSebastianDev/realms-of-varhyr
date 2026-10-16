@@ -9,7 +9,7 @@ import { compileContent, factionDefinitions, registry, setDefinitions } from '..
 
 const schema=buildCardJsonSchema(factionDefinitions,setDefinitions);
 const ajv=new Ajv({strict:false,allErrors:true}),validate=ajv.compile(schema);
-const card=(id='crown-recruit')=>{
+const card=(id='crownlands-recruit')=>{
   const {art:_art,animation:_animation,translations:_translations,...source}=structuredClone(registry.cards[id]);
   return source as Record<string,unknown>;
 };
@@ -45,7 +45,7 @@ describe('card authoring JSON Schema',()=>{
     expect(validate({...card(),stats:{attack:0,defense:0,energyOutputs:[]}})).toBe(true); // Bound undead are printed with 0 Defense.
     expect(validate({...card(),stats:{attack:0,defense:1,energyOutputs:[]}})).toBe(true);
   });
-  it('uses the registered ability parameter schemas, including faction-exclusive keywords',()=>{
+  it('uses the registered ability parameter schemas, including parameterless keywords',()=>{
     const withAbility=(id:string,params:Record<string,unknown>)=>({...card(),abilities:[{id,params}]});
     expect(validate(withAbility('charge',{amount:4}))).toBe(true);
     for(const params of [{},{amount:0},{amount:4,position:'Center'}])expect(validate(withAbility('charge',params))).toBe(false);
@@ -53,10 +53,9 @@ describe('card authoring JSON Schema',()=>{
     for(const params of [{},{amount:1.5},{ammount:2}])expect(validate(withAbility('armor',params))).toBe(false);
     expect(validate(withAbility('missing-ability',{}))).toBe(false);
     expect(validate(withAbility('primal',{}))).toBe(false);
-    expect(validate(withAbility('accord',{}))).toBe(false);
-    expect(validate({...withAbility('accord',{}),factions:['crownlands','winter-league']})).toBe(true);
-    expect(validate({...withAbility('wayfarer',{}),factions:['neutral']})).toBe(true);
-    expect(validate(withAbility('wayfarer',{}))).toBe(false);
+    expect(validate(withAbility('accord',{}))).toBe(true);
+    expect(validate(withAbility('accord',{amount:1}))).toBe(false);
+    expect(validate(withAbility('wayfarer',{}))).toBe(true);
   });
   it('checks type-specific fields and spell operations without coupling rarity to legendary status',()=>{
     expect(validate(card('ancient-unicorn'))).toBe(true);
