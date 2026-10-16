@@ -38,6 +38,7 @@ import { AuthoringLobby } from './AuthoringLobby';
 import { Coach } from './Coach';
 import { opponentCommand, opponentMoves, opponentNote, playerCommands, scriptFinished, startTutorial, stepAfter, tutorialKey, tutorialSteps } from './tutorial';
 import { Lobby, type Screen } from './Lobby';
+import { preloadPacks } from './packScene';
 import { decksKey, parseDecks, starterOptions, type CustomDeck } from './decks';
 import { randomSeed, startMatch, type DeckName, type MatchSetup } from './session';
 import { claimVictory, collectionRules, missingDeckCopies } from './collection';
@@ -97,6 +98,7 @@ function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSessi
   useEffect(()=>{updateCollection(current=>claimVictory(current,rewardId,collectionOutcome,rewardEligible));},[rewardId,collectionOutcome,rewardEligible]);
   const deck:DeckName=setup?.deck??defaultDeckId,customDeck=setup?.customDeck,opponentDeck=setup?.opponentDeck;
   const [screen,setScreen]=useState<Screen>('match');
+  useEffect(()=>{preloadPacks();},[]);
   const [savedDecks,setSavedDecks]=useState<CustomDeck[]>(()=>{try{return parseDecks(localStorage.getItem(decksKey));}catch{return [];}});
   const deckOptions=[...starterOptions,...savedDecks,...(customDeck&&!savedDecks.some(d=>d.id===customDeck.id)?[customDeck]:[])];
   const setupPrefs=useMemo<{mode?:Mode;deckId?:string;opponentId?:string}>(()=>{try{const p=JSON.parse(localStorage.getItem('varhir-setup-v1')??'{}');return {mode:p.mode==='practice'||p.mode==='hotseat'?p.mode:undefined,deckId:typeof p.deckId==='string'?p.deckId:undefined,opponentId:typeof p.opponentId==='string'?p.opponentId:undefined};}catch{return {};}},[]);

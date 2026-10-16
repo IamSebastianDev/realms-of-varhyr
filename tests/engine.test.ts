@@ -456,6 +456,14 @@ describe('single blockers and simultaneous retaliation',()=>{
   expect(s.cards[opposite].zone).toBe('discard');expect(s.cards[other].zone).toBe('board');
  });
 });
+describe('outflank',()=>{
+ const flankRegistry=compileContent([...raw,{...registry.cards['crown-recruit'],id:'flanker',deckLimitKey:'flanker',abilities:[{id:'outflank',params:{amount:3}}]}]);
+ const put=(s:GameState,slot:number)=>{const id=fixture(s,'crown-recruit','p1','board',slot);s.cards[id].definitionId='flanker';return id;};
+ it('adds Attack only while the creature stands on a flank',()=>{
+  const base=registry.cards['crown-recruit'].stats!.attack;
+  for(const [slot,bonus] of [[0,3],[1,0],[2,0],[3,0],[4,3]] as const){const s=setup(flankRegistry);expect(effectiveStats(s,put(s,slot),flankRegistry).attack).toBe(base+bonus);}
+ });
+});
 describe('bind',()=>{
  const boundRegistry=compileContent([...raw,
   {...registry.cards['crown-recruit'],id:'bound-undead',deckLimitKey:'bound-undead',subtypes:['undead'],stats:{attack:3,defense:0,energyOutputs:[]}},

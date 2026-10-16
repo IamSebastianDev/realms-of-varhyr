@@ -1,5 +1,5 @@
 import { deckRules, type CardDefinition, type GameState, type Registry } from '../../../packages/contracts/src';
-import { drawBooster, packCards, type BoosterPack } from '../../../packages/content/src/boosters';
+import { boosterPacks, drawBooster, packCards, packIds, type BoosterPack } from '../../../packages/content/src/boosters';
 import type { RewardCollection } from './boosterRewards';
 import { currentCardId } from './cardIds';
 
@@ -13,8 +13,10 @@ export function ownedCopyCount(collection: OwnedCopies, id: string): number {
 
 /** Provisional POC economy. Keep all tuning values here. */
 export const collectionRules = {
+  /** A new player starts with this many boosters of the pack that fits their starter deck. */
   startingBoosters: 5,
-  starterPack: 'bounty',
+  /** Spread used when the starter's faction is unknown. */
+  startingPacks: { [packIds.good]: 2, [packIds.neutral]: 1, [packIds.evil]: 2 },
   packCost: 100,
   victoryCrowns: 25,
   victoryBoosters: 1,
@@ -82,14 +84,15 @@ function grantCopies(collection: Collection, id: string, amount: number, content
 /** An empty account receives one starter and five general packs, once, when first persisted.
  * Import previous booster rewards as additional grants, dusting excess copies. Do not rewrite old storage.
  */
-export function createCollection(content: Registry, starter: string[], legacy?: RewardCollection): Collection {
+export function createCollection(content: Registry, starter: string[], legacy?: RewardCollection, starterFaction?: string): Collection {
   const collection = emptyCollection();
   for (const savedId of starter) { const id = currentCardId(savedId); if (content.cards[id]) grantCopies(collection, id, 1, content); }
   if (legacy) {
     for (const [id, count] of Object.entries(legacy.counts)) grantCopies(collection, currentCardId(id), count, content);
     collection.boostersOpened = legacy.boostersOpened;
   }
-  collection.packs[collectionRules.starterPack] = collectionRules.startingBoosters;
+  const home = starterFaction ? boosterPacks.find(pack => pack.factions.includes(starterFaction)) : undefined;
+  if (home) collection.packs[home.id] = collectionRules.startingBoosters; else Object.assign(collection.packs, collectionRules.startingPacks);
   return collection;
 }
 
@@ -107,12 +110,12 @@ export function parseCollection(raw: string | null, content: Registry): Collecti
       || !data.rewardedMatches.every((id: unknown) => typeof id === 'string' && id.length > 0)) return null;
     const collection: Collection = { version: 1, counts: {}, packs: { ...data.packs }, crowns: data.crowns,
       boostersOpened: data.boostersOpened, rewardedMatches: [...new Set<string>(data.rewardedMatches)] };
-    // Retired faction packs become all-card packs, so saved rewards remain usable.
+    // Packs that are no longer sold are shared out across the current ones, so saved rewards stay usable.
     // Removing their keys makes migration idempotent on subsequent reads/saves.
-    for (const id of ['crown','neutral','winter']) {
-      const count=collection.packs[id];
-      if(count)collection.packs.bounty=addNumber(collection.packs.bounty??0,count);
+    const retired = Object.entries(collection.packs).filter(([id]) => !boosterPacks.some(pack => pack.id === id));
+    for (const [id, count] of retired) {
       delete collection.packs[id];
+      boosterPacks.forEach((pack, index) => { const share = Math.floor(count / boosterPacks.length) + (index < count % boosterPacks.length ? 1 : 0); if (share) collection.packs[pack.id] = addNumber(collection.packs[pack.id] ?? 0, share); });
     }
     // If card content changes rarity/legendary status, convert surplus exactly once on the next save.
     for (const [id, count] of Object.entries<number>(data.counts)) grantCopies(collection, currentCardId(id), count, content);
@@ -161,7 +164,9 @@ export function gainDebugCrowns(collection: Collection): Collection {
 /** Wins by the collection owner (p1) earn rewards. Replaying, reloading, or revisiting a result cannot grant twice. */
 export function claimVictory(collection: Collection, matchId: string | undefined, outcome: GameState['outcome'], eligible: boolean): Collection {
   if (!eligible || !matchId || outcome !== 'p1' || collection.rewardedMatches.includes(matchId)) return collection;
+  // Victory boosters rotate through the packs so no alignment is favoured.
+  const reward = boosterPacks[collection.rewardedMatches.length % boosterPacks.length];
   return { ...collection, crowns: addNumber(collection.crowns, collectionRules.victoryCrowns),
-    packs: { ...collection.packs, [collectionRules.starterPack]: addNumber(packCount(collection, collectionRules.starterPack), collectionRules.victoryBoosters) },
+    packs: { ...collection.packs, [reward.id]: addNumber(packCount(collection, reward.id), collectionRules.victoryBoosters) },
     rewardedMatches: [...collection.rewardedMatches, matchId] };
 }

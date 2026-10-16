@@ -982,3 +982,6 @@ input,textarea,[contenteditable="true"]{-webkit-user-select:text;user-select:tex
 .concede-confirm p{margin:0}
 .concede-confirm div{display:flex;gap:10px}
 .concede-confirm .outline-button{flex:1}
+
+.booster-backdrop{background:#152519a8;backdrop-filter:blur(3px)}
+.booster-actions button{min-height:46px;min-width:156px;padding:0 22px;font-size:12px}

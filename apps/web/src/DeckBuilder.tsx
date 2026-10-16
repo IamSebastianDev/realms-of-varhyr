@@ -1,7 +1,7 @@
 import { Checkbox } from './Checkbox';
 import { FactionSelect } from './FactionSelect';
 import { t as msg, useLanguage, formatNumber } from '../../../packages/ui/src/i18n';
-import { ChartNoAxesColumn, Check, Copy, Download, Filter, Layers, Minus, MoreHorizontal, Plus, RotateCcw, Search, ShoppingBag, Trash2, Upload, X } from 'lucide-react';
+import { ArrowLeft, ChartNoAxesColumn, Check, Copy, Download, Filter, Layers, Minus, MoreHorizontal, Plus, RotateCcw, Search, ShoppingBag, Trash2, Upload, X } from 'lucide-react';
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { CardDefinition } from '../../../packages/contracts/src';
 import { deckRules } from '../../../packages/contracts/src';
@@ -9,6 +9,8 @@ import { factionInfo, registry, setDefinitions } from '../../../packages/content
 import { validateDeck } from '../../../packages/core/src';
 import { ArtCard, CardHoverButton } from '../../../packages/ui/src/CardPresentation';
 import { BuilderDialog } from './BuilderDialog';
+import { DeckShelf } from './DeckShelf';
+import { byOwnership, CardFilterBar, defaultOwnership, type Ownership } from './CardFilters';
 import { OwnershipPips } from './OwnershipPips';
 import { deckCardAvailability, starterOptions, type CustomDeck } from './decks';
 import { missingDeckCopies, missingDeckPurchase, type OwnedCopies } from './collection';
@@ -18,20 +20,22 @@ import { builderCards, cardCost, compareCards, exportDeck, importDeck, initialBu
 type Props = {
   draft: CustomDeck; decks: CustomDeck[]; ownedCopies: OwnedCopies; crowns: number; message: string; canUndo: boolean; reduced: boolean;
   change: (deck: CustomDeck) => void; add: (id: string) => void; remove: (id: string) => void;
-  load: (id: string) => void; removeDeck: () => void; save: () => void; undo: () => void; buyMissing: () => void; inspect: (card: CardDefinition) => void;
+  load: (id: string) => void; renameDeck: (id: string, name: string) => string | null; deleteSaved: (id: string) => string | null; removeDeck: () => void; save: () => void; undo: () => void; buyMissing: () => void; inspect: (card: CardDefinition) => void; openCollection: () => void;
 };
 const newDeck = (): CustomDeck => ({ id: `custom-${crypto.randomUUID()}`, name: msg("New deck"), cards: [] });
 const groups = [{ type: 'creature', name: 'Creatures' }, { type: 'holding', name: 'Holdings' }, { type: 'spell', name: 'Spells' }] as const;
 const signature = (deck: CustomDeck) => JSON.stringify([deck.name, [...deck.cards].sort()]);
 
-export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUndo, reduced, change, add, remove, load, save, removeDeck, undo, buyMissing, inspect }: Props) {
+export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUndo, reduced, change, add, remove, load, save, renameDeck, deleteSaved, removeDeck, undo, buyMissing, inspect, openCollection }: Props) {
   useLanguage();
   const [filters, setFilters] = useState<BuilderFilters>(initialBuilderFilters);
+  // The builder opens on the shelf of saved decks; choosing one (or starting a new one) opens the editor.
+  const [editing, setEditing] = useState(false);
   const [importError, setImportError] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const deckGalleryRef = useRef<HTMLDivElement>(null);
-  const [showUnowned, setShowUnowned] = useState(false);
+  const [ownership, setOwnership] = useState<Ownership>(defaultOwnership);
   const [deckCost, setDeckCost] = useState<number | null>(null);
   // Drag and drop: cards go from the collection into the deck, and rows go back out to remove them.
   const [drag, setDrag] = useState<{ id: string; from: 'collection' | 'deck' } | null>(null);
@@ -43,7 +47,7 @@ export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUnd
     onDragLeave: (event: React.DragEvent) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOver(null); },
     onDrop: (event: React.DragEvent) => { if (drag?.from !== accept) return; event.preventDefault(); apply(drag.id); endDrag(); },
   });
-  const [dialog, setDialogState] = useState<'filters' | 'deck' | 'overview' | 'import' | 'export' | null>(null);
+  const [dialog, setDialogState] = useState<'deck' | 'overview' | 'import' | 'export' | null>(null);
   const setDialog = (next: typeof dialog) => { setConfirmDelete(false); setDialogState(next); };
   const sharing = dialog === 'import' || dialog === 'export' ? dialog : null;
   const [deckCode, setDeckCode] = useState('');
@@ -53,12 +57,8 @@ export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUnd
   useLayoutEffect(() => { deckGalleryRef.current?.scrollTo({ top: 0 }); }, [draft.id]);
   const filter = <K extends keyof BuilderFilters>(key: K, value: BuilderFilters[K]) => setFilters(current => ({ ...current, [key]: value }));
   const allCards = useMemo(() => builderCards(registry, draft.cards, filters), [draft.cards, filters]);
-  // Cards you don't own are hidden unless the filter says otherwise; when shown they follow the owned ones.
-  const cards = useMemo(() => {
-    const owned = (card: CardDefinition) => (ownedCopies[card.id] ?? 0) > 0;
-    return showUnowned ? [...allCards.filter(owned), ...allCards.filter(card => !owned(card))] : allCards.filter(owned);
-  }, [allCards, ownedCopies, showUnowned]);
-  const hiddenCount = allCards.length - allCards.filter(card => (ownedCopies[card.id] ?? 0) > 0).length;
+  const cards = useMemo(() => byOwnership(allCards, ownedCopies, ownership), [allCards, ownedCopies, ownership]);
+  const hiddenCount = allCards.length - cards.length;
   const summary = useMemo(() => summarizeDeck(draft.cards, registry), [draft.cards]);
   const counts = new Map<string, number>();
   for (const id of draft.cards) counts.set(id, (counts.get(id) ?? 0) + 1);
@@ -70,9 +70,13 @@ export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUnd
   const saved = decks.find(deck => deck.id === draft.id);
   const isSaved = saved && signature(saved) === signature(draft);
   const maxCurve = Math.max(1, ...summary.curve);
-  const filterCount = Object.entries(filters).filter(([key, value]) => value !== initialBuilderFilters[key as keyof BuilderFilters] && key !== 'sort' && key !== 'query').length + (showUnowned ? 1 : 0);
-  const filtered = !!filters.query || filterCount > 0;
+  // Copies beyond what the player owns are listed apart from the owned ones and shown dimmed.
+  type DeckEntry = { card: CardDefinition; count: number; unowned: boolean };
   const shownDeckCards = deckCards.filter(card => (deckCost === null || Math.min(6, cardCost(card)) === deckCost));
+  const deckEntries: DeckEntry[] = shownDeckCards.flatMap(card => {
+    const total = counts.get(card.id) ?? 0, have = Math.min(total, ownedCopies[card.id] ?? 0);
+    return [...(have ? [{ card, count: have, unowned: false }] : []), ...(total > have ? [{ card, count: total - have, unowned: true }] : [])];
+  });
   function download() {
     const url = URL.createObjectURL(new Blob([exportDeck(draft)], { type: 'application/json' }));
     const link = document.createElement('a');
@@ -102,18 +106,18 @@ export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUnd
     } catch (error) { setImportError(error instanceof Error ? error.message : msg("Could not read this deck.")); }
   }
 
-  function deckRow(card: CardDefinition) {
+  function deckRow({ card, count, unowned }: { card: CardDefinition; count: number; unowned: boolean }) {
     const availability = deckCardAvailability(draft.cards, card.id, registry);
-    const count = availability.inDeck;
+    const ownedAll = !unowned && count >= (ownedCopies[card.id] ?? 0);
     const reason = availability.limitReached ? msg("Deck limit reached ({v0})", {v0: availability.limit}) : !availability.owned ? msg("No copies owned") : msg("All owned copies are in this deck");
-    return <li key={card.id} className={`dk-row ${card.legendary ? 'is-legendary' : ''} ${drag?.id === card.id && drag.from === 'deck' ? 'dragging' : ''}`} draggable onDragStart={event => startDrag(event, card.id, 'deck')} onDragEnd={endDrag} onContextMenu={event => { event.preventDefault(); inspect(card); }}>
+    return <li key={`${card.id}${unowned ? ':unowned' : ''}`} className={`dk-row ${card.legendary ? 'is-legendary' : ''} ${unowned ? 'not-owned' : ''} ${drag?.id === card.id && drag.from === 'deck' ? 'dragging' : ''}`} draggable onDragStart={event => startDrag(event, card.id, 'deck')} onDragEnd={endDrag} onContextMenu={event => { event.preventDefault(); inspect(card); }}>
       <span className="dk-art" aria-hidden style={{ backgroundImage: `url("${card.art}")` }}/>
       <span className="dk-cost" title={msg("Energy cost")}>{cardCost(card)}</span>
       <CardHoverButton card={card} className="dk-name" ariaLabel={msg("Inspect {v0}", {v0: card.name})} onClick={() => inspect(card)}>{msg(card.name)}</CardHoverButton>
       <span className="dk-copies">
         <button aria-label={msg("Remove one {v0}", {v0: card.name})} onClick={() => remove(card.id)}><Minus size={13}/></button>
-        <b aria-label={msg("{v0} copies", {v0: count})}>{count}</b>
-        <button aria-label={msg("Add one {v0}", {v0: card.name})} disabled={availability.remaining === 0} title={availability.remaining === 0 ? reason : undefined} onClick={() => add(card.id)}><Plus size={13}/></button>
+        <b aria-label={unowned ? msg("{v0} copies you don’t own", {v0: count}) : msg("{v0} copies", {v0: count})}>{count}</b>
+        <button aria-label={msg("Add one {v0}", {v0: card.name})} disabled={ownedAll || (unowned ? availability.limitReached : availability.remaining === 0)} title={availability.remaining === 0 || ownedAll ? reason : undefined} onClick={() => add(card.id)}><Plus size={13}/></button>
       </span>
     </li>;
   }
@@ -142,22 +146,26 @@ export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUnd
     </article>;
   }
 
+  const shelf = !editing && dialog !== 'import';
+  const importFromShelf = () => { setEditing(true); openSharing('import'); };
+  if (shelf) return <DeckShelf decks={decks} draft={draft} ownedCopies={ownedCopies}
+    open={id => { if (id) load(id); setEditing(true); }}
+    create={() => { change(newDeck()); setEditing(true); }} importDeck={importFromShelf} openCollection={openCollection} rename={renameDeck} remove={deleteSaved}/>;
   return <main className="collection-page builder-page deck-workshop" aria-label={msg("Deck builder")}>
     <input ref={fileRef} className="deck-file-input" type="file" accept=".json,application/json" aria-label={msg("Import deck file")} onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; if (file) void readFile(file); }}/>
     <section className={`builder-collection ${drag?.from === 'deck' ? 'drop-ready' : ''} ${over === 'collection' ? 'drop-over' : ''}`} aria-label={msg("All cards")} {...dropZone('collection', 'deck', id => remove(id))}>
       <div className="builder-collection-bar">
         <h2>{msg("Your cards")}<span>{cards.length} {msg("cards")}</span></h2>
-        <label className="collection-search"><Search size={15}/><input aria-label={msg("Search cards")} placeholder={msg("Search cards…")} value={filters.query} onChange={event => filter('query', event.target.value)}/></label>
-        <button className="builder-small-button filter-trigger" onClick={() => openDialog('filters')} aria-label={msg("Open card filters")}><Filter size={14}/><span>{msg("Filters")}</span>{filterCount > 0 && <b>{filterCount}</b>}</button>
-        {(filtered || showUnowned) && <button className="builder-icon-button" aria-label={msg("Clear filters")} title={msg("Clear filters")} onClick={() => { setFilters({ ...initialBuilderFilters, sort: filters.sort }); setShowUnowned(false); }}><X size={15}/></button>}
+        <CardFilterBar filters={filters} setFilters={setFilters} ownership={ownership} setOwnership={setOwnership} count={cards.length} hidden={hiddenCount} deck/>
       </div>
       <div className="builder-collection-gallery" aria-label={msg("Browse collection cards")}>
-        {!cards.length ? <div className="collection-empty"><Search size={24}/><p>{allCards.length && !showUnowned ? msg("No owned cards match. Open boosters in the Store, or show cards you don’t own in Filters.") : msg("No cards match these filters.")}</p><button className="outline-button" onClick={() => { setFilters(initialBuilderFilters); setShowUnowned(false); }}>{msg("Reset filters")}</button></div> : cards.map(card => tile(card, false))}
+        {!cards.length ? <div className="collection-empty"><Search size={24}/><p>{allCards.length && !ownership.unowned ? msg("No owned cards match. Open boosters in the Store, or show cards you don’t own in Filters.") : msg("No cards match these filters.")}</p><button className="outline-button" onClick={() => { setFilters(initialBuilderFilters); setOwnership(defaultOwnership); }}>{msg("Reset filters")}</button></div> : cards.map(card => tile(card, false))}
       </div>
     </section>
     <aside className={`builder-deck ${drag?.from === 'collection' ? 'drop-ready' : ''} ${over === 'deck' ? 'drop-over' : ''}`} aria-label={msg("Cards in deck")} {...dropZone('deck', 'collection', id => add(id))}>
       <div className="dk-head">
         <h2 className="sr-only">{msg("Your deck")}{' '}{summary.total} {msg("cards")}</h2>
+        <button className="builder-icon-button" aria-label={msg("Back to decks")} title={msg("Back to decks")} onClick={() => setEditing(false)}><ArrowLeft size={16}/></button>
         <input className="builder-deck-name" aria-label={msg("Deck name")} placeholder={msg("Name your deck")} maxLength={60} value={draft.name} onChange={event => change({ ...draft, name: event.target.value })}/>
         <div className="builder-deck-actions">
           <button className="builder-icon-button" aria-label={msg("Undo deck edit")} disabled={!canUndo} onClick={undo} title={msg("Undo the last edit")}><RotateCcw size={15}/></button>
@@ -178,8 +186,8 @@ export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUnd
           <div className="deck-empty-starters">{starterOptions.map(deck => <button key={deck.id} className="outline-button" onClick={() => load(deck.id)}>{msg(deck.name)}</button>)}</div></div>
         : !shownDeckCards.length ? <div className="collection-empty">{msg("No cards costing")}{' '}{deckCost === 6 ? '6+' : deckCost} {msg("in this deck.")}</div>
         : groups.map(group => {
-            const rows = shownDeckCards.filter(card => card.type === group.type);
-            const total = rows.reduce((sum, card) => sum + (counts.get(card.id) ?? 0), 0);
+            const rows = deckEntries.filter(entry => entry.card.type === group.type);
+            const total = rows.reduce((sum, entry) => sum + entry.count, 0);
             return rows.length ? <section key={group.type} className="dk-group" aria-label={msg(group.name)}><h3>{msg(group.name)}<span>{total}</span></h3><ul>{rows.map(deckRow)}</ul></section> : null;
           })}
       </div>
@@ -188,24 +196,10 @@ export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUnd
       </div>}
       <div className="builder-deck-footer"><span role="status" title={errors.map(issue=>msg(issue)).join(' ')}>{message || (errors.length ? errors[0] : isSaved ? msg("Saved on this device.") : msg("Draft saved automatically."))}</span><button onClick={() => openDialog('overview')} title={msg("Deck overview")}>{summary.freeProducers} {msg("free producers ·")}{' '}{formatNumber(summary.averageCost,{minimumFractionDigits:1,maximumFractionDigits:1})} {msg("avg. cost")}</button></div>
     </aside>
-    {dialog === 'filters' && <BuilderDialog title={msg("Card filters")} origin={sharingOrigin.current} close={() => setDialog(null)}>
-      <div className="builder-filter-dialog-grid">
-        <label>{msg("Set")}<select aria-label={msg("Filter by set")} value={filters.set} onChange={event => filter('set', event.target.value)}><option value="all">{msg("All sets")}</option>{setDefinitions.map(set => <option key={set.id} value={set.id}>{msg(set.name)}</option>)}</select></label>
-        <label>{msg("Faction")}<FactionSelect aria-label={msg("Filter by faction")} value={filters.faction} onChange={event => filter('faction', event.target.value)}/></label>
-        <label>{msg("Type")}<select aria-label={msg("Filter by card type")} value={filters.kind} onChange={event => filter('kind', event.target.value)}><option value="all">{msg("All types")}</option><option value="creature">{msg("Creatures")}</option><option value="spell">{msg("Spells")}</option><option value="holding">{msg("Holdings")}</option></select></label>
-        <label>{msg("Role")}<select aria-label={msg("Filter by role")} value={filters.role} onChange={event => filter('role', event.target.value as BuilderFilters['role'])}><option value="all">{msg("All roles")}</option><option value="producers">{msg("Energy producers")}</option><option value="free-producers">{msg("Free producers")}</option></select></label>
-        <label>{msg("Rarity")}<select aria-label={msg("Filter by rarity")} value={filters.rarity} onChange={event => filter('rarity', event.target.value)}><option value="all">{msg("All rarities")}</option><option value="common">{msg("Common")}</option><option value="rare">{msg("Rare")}</option><option value="legendary">{msg("Legendary")}</option></select></label>
-        <label className="builder-filter-sort">{msg("Sort cards")}<select aria-label={msg("Sort cards")} value={filters.sort} onChange={event => filter('sort', event.target.value as CardSort)}><option value="faction">{msg("Faction, cost, name")}</option><option value="cost">{msg("Cost: low to high")}</option><option value="name">{msg("Name: A–Z")}</option><option value="attack">{msg("Attack: high to low")}</option><option value="defense">{msg("Defense: high to low")}</option></select></label>
-      </div>
-      <div className="builder-cost-filter" role="group" aria-label={msg("Filter by total energy cost")}><span>{msg("Cost")}</span><button aria-pressed={filters.cost === null} onClick={() => filter('cost', null)}>{msg("All")}</button>{summary.curve.map((_, cost) => <button key={cost} aria-label={msg("Cost {v0}", {v0: cost === 6 ? '6 or more' : cost})} aria-pressed={filters.cost === cost} onClick={() => filter('cost', filters.cost === cost ? null : cost)}>{cost === 6 ? '6+' : cost}</button>)}</div>
-      <Checkbox className="builder-limit-filter" checked={showUnowned} onChange={event => setShowUnowned(event.target.checked)}>{msg("Show cards I don’t own")}{hiddenCount > 0 && msg(" ({v0} hidden)", {v0: hiddenCount})}</Checkbox>
-      <Checkbox className="builder-limit-filter" checked={filters.addable} onChange={event => filter('addable', event.target.checked)}>{msg("Only cards I can add")}</Checkbox>
-      <div className="builder-dialog-actions"><button className="outline-button" onClick={() => { setFilters(initialBuilderFilters); setShowUnowned(false); }}>{msg("Reset filters")}</button><button className="gold-button" onClick={() => setDialog(null)}>{msg("Show")}{' '}{cards.length} {msg("cards")}<Check size={15}/></button></div>
-    </BuilderDialog>}
     {dialog === 'deck' && <BuilderDialog title={msg("Deck actions")} origin={sharingOrigin.current} close={() => setDialog(null)}>
       <label>{msg("Load deck")}<select aria-label={msg("Load deck")} value={saved ? draft.id : 'draft'} onChange={event => { load(event.target.value); setDialog(null); }}><option value="draft">{msg("Current draft")}</option><optgroup label={msg("Starter decks")}>{starterOptions.map(deck => <option key={deck.id} value={deck.id}>{msg(deck.name)}</option>)}</optgroup>{decks.length > 0 && <optgroup label={msg("Your decks")}>{decks.map(deck => <option key={deck.id} value={deck.id}>{msg(deck.name)}</option>)}</optgroup>}</select></label>
       <div className="builder-manage-actions"><button className="outline-button" onClick={() => { change(newDeck()); setDialog(null); }}><Plus size={16}/>{msg("New deck")}</button><button className="outline-button" onClick={() => { change({ ...draft, id: newDeck().id, name: msg("{v0} (copy)", {v0: draft.name.slice(0, 53)}) }); setDialog(null); }}><Copy size={16}/>{msg("Duplicate deck")}</button><button className="outline-button" onClick={() => openSharing('import')}><Upload size={16}/>{msg("Import deck")}</button><button className="outline-button" disabled={!draft.cards.length} onClick={() => openSharing('export')}><Download size={16}/>{msg("Export deck")}</button></div>
-      {saved && (confirmDelete ? <div className="builder-delete-confirm" role="alertdialog" aria-label={msg("Delete deck")}><p>{msg("Delete “{v0}”? This can’t be undone.", {v0: saved.name})}</p><div className="builder-dialog-actions"><button className="outline-button" onClick={() => setConfirmDelete(false)}>{msg("Keep deck")}</button><button className="gold-button danger" data-autofocus onClick={() => { removeDeck(); setConfirmDelete(false); setDialog(null); }}><Trash2 size={15}/>{msg("Delete deck")}</button></div></div> : <button className="outline-button builder-delete" onClick={() => setConfirmDelete(true)}><Trash2 size={16}/>{msg("Delete deck")}</button>)}
+      {saved && (confirmDelete ? <div className="builder-delete-confirm" role="alertdialog" aria-label={msg("Delete deck")}><p>{msg("Delete “{v0}”? This can’t be undone.", {v0: saved.name})}</p><div className="builder-dialog-actions"><button className="outline-button" onClick={() => setConfirmDelete(false)}>{msg("Keep deck")}</button><button className="gold-button danger" data-autofocus onClick={() => { removeDeck(); setConfirmDelete(false); setDialog(null); setEditing(false); }}><Trash2 size={15}/>{msg("Delete deck")}</button></div></div> : <button className="outline-button builder-delete" onClick={() => setConfirmDelete(true)}><Trash2 size={16}/>{msg("Delete deck")}</button>)}
       <p>{deckRules.minimumCards} {msg("cards minimum ·")}{' '}{deckRules.copiesPerCard} {msg("copies per card ·")}{' '}{deckRules.copiesPerLegendary} {msg("per legendary")}</p>
     </BuilderDialog>}
     {dialog === 'overview' && <BuilderDialog title={msg("Deck overview")} origin={sharingOrigin.current} close={() => setDialog(null)}>

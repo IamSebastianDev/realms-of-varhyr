@@ -1,6 +1,5 @@
 import type { CardDefinition } from '../../contracts/src';
 import { factionDefinitions } from './factions';
-import { setDefinitions } from './sets';
 
 /** POC odds per slot, independent of the number of cards in each rarity. */
 export const boosterRules = { cardsPerPack: 5, rarityWeights: { common: 70, rare: 25, legendary: 5 } } as const;
@@ -24,17 +23,17 @@ export function drawBooster(cards: CardDefinition[], random: () => number = Math
   });
 }
 
-/** Store pools are either a logical set, a faction or the entire catalogue. Existing IDs preserve owned packs. */
-export type BoosterPack = { id: string; name: string; blurb: string; faction: string | null; set?: string };
-/** Faction packs come from each faction's optional `pack` entry in assets/factions/<id>.json. */
-export const boosterPacks: BoosterPack[] = [
-  { id: 'bounty', name: 'The Realm’s Bounty', blurb: 'Five random cards from across every faction. Legendaries are rare.', faction: null },
-  ...factionDefinitions.flatMap(faction => faction.pack ? [{ ...faction.pack, faction: faction.id }] : []),
-  ...setDefinitions.flatMap(set => set.pack ? [{ ...set.pack, faction: null, set: set.id }] : []),
+/** Boosters are sold by alignment: each draws from a fixed group of factions. */
+export type BoosterPack = { id: string; name: string; blurb: string; color: string; /** Faction whose icon stamps the pack. */ icon: string; factions: string[] };
+export const packIds = { good: 'hearth-and-crown', neutral: 'wanderers-road', evil: 'gathering-dark' } as const;
+const alignmentPacks: BoosterPack[] = [
+  { id: packIds.good, name: 'The Hearth and the Crown', blurb: 'Five cards from the Bright Marches, the League of Winter and the Crownlands. Legendaries are rare.', color: '#e3c46f', icon: 'crownlands', factions: ['bright-marches', 'winter-league', 'crownlands'] },
+  { id: packIds.neutral, name: 'The Wanderer’s Road', blurb: 'Five cards from the Mountain Clans, the Conclave and the unaligned. Legendaries are rare.', color: '#a9c0ad', icon: 'neutral', factions: ['mountain-clans', 'conclave', 'neutral'] },
+  { id: packIds.evil, name: 'The Gathering Dark', blurb: 'Five cards from the Black Host, the Ember Fields and the Horde. Legendaries are rare.', color: '#b0586f', icon: 'black-host', factions: ['black-host', 'ember-fields', 'horde'] },
 ];
-/** Neutral cards carry no named faction, so the Neutral pack draws the factionless cards. */
+const known = new Set(factionDefinitions.map(faction => faction.id));
+for (const pack of alignmentPacks) for (const id of [pack.icon, ...pack.factions]) if (!known.has(id)) throw new Error(`Booster '${pack.id}' references unknown faction '${id}'.`);
+export const boosterPacks: BoosterPack[] = alignmentPacks;
+/** Cards of any faction in the pool; factionless cards belong to the pool that lists neutral. */
 export const packCards = (cards: CardDefinition[], pack: BoosterPack) =>
-  pack.set ? cards.filter(card => card.set === pack.set)
-    : !pack.faction ? cards
-    : pack.faction === 'neutral' ? cards.filter(card => !card.factions.length)
-    : cards.filter(card => card.factions.includes(pack.faction as never));
+  cards.filter(card => card.factions.length ? card.factions.some(faction => pack.factions.includes(faction)) : pack.factions.includes('neutral'));

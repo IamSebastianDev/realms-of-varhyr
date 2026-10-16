@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "find-gold",
+  "revision": 2,
+  "name": "Find Gold",
+  "deckLimitKey": "find-gold",
+  "type": "spell",
+  "factions": [
+    "mountain-clans"
+  ],
+  "subtypes": [],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "mountain-clans": 1
+    }
+  },
+  "abilities": [],
+  "timing": [
+    "play"
+  ],
+  "cast": [
+    {
+      "id": "channel",
+      "params": {
+        "amount": 3,
+        "energy": "mountain-clans"
+      }
+    },
+    {
+      "id": "draw",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "set": "foundations",
+  "lore": "The dwarves do not dig for gold. Gold is only what is left when they are done."
+}

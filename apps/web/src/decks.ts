@@ -7,6 +7,11 @@ import { currentCardIds } from './cardIds';
 export type CustomDeck = { id: string; name: string; cards: string[] };
 export const decksKey = 'varhir-decks-v1';
 export const draftKey = 'varhir-deck-draft-v1';
+export const favoriteDecksKey = 'varhir-favorite-decks-v1';
+export function readFavoriteDecks(): string[] {
+  try { const value: unknown = JSON.parse(localStorage.getItem(favoriteDecksKey) ?? '[]'); return Array.isArray(value) ? value.filter((id): id is string => typeof id === 'string') : []; } catch { return []; }
+}
+export function writeFavoriteDecks(ids: string[]) { try { localStorage.setItem(favoriteDecksKey, JSON.stringify(ids)); } catch { /* favourites are a convenience */ } }
 export const starterOptions = starterDefinitions;
 export const copyLimit = (card: CardDefinition) => card.legendary ? deckRules.copiesPerLegendary : deckRules.copiesPerCard;
 

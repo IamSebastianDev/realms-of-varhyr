@@ -49,3 +49,12 @@
 @media(max-width:760px){.stats-hero{grid-template-columns:1fr;justify-items:center;padding:22px 18px;text-align:center}.stats-grid{grid-template-columns:1fr}.stats-curve ol{height:160px}}
 @media(prefers-reduced-motion:reduce){.stats-ring .ring-fill,.stat-bar i,.curve-column i{transition:none}}
 .reduce-motion .stats-ring .ring-fill,.reduce-motion .stat-bar i,.reduce-motion .curve-column i{transition:none}
+
+/* Inset like the deck screens, and the full window width. */
+.stats-page{width:100%;max-width:none;padding:14px 20px 40px}
+.stats-hero,.stats-panel{background:#0a1a1148;border-color:#0a160f99 #e5d29f1c #e5d29f22 #0a160f99;box-shadow:inset 0 3px 16px #040e0899,inset 0 0 0 1px #04100a55}
+.stats-hero{margin-top:12px}
+.stats-facts div{background:#0a170f66}
+.stat-set-code{margin-left:8px;font-size:10px;letter-spacing:.06em;color:#8fa596}
+.stats-grid{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.stats-grid{align-items:start}

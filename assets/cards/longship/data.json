@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "longship",
+  "revision": 2,
+  "name": "Longship",
+  "deckLimitKey": "longship",
+  "type": "creature",
+  "factions": [
+    "bright-marches"
+  ],
+  "subtypes": [
+    "ship"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "bright-marches": 1
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "bright-marches": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "trade",
+      "params": {}
+    }
+  ],
+  "set": "foundations",
+  "lore": "The rivers of the Marches run to every coast. The longships run faster."
+}

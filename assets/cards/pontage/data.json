@@ -1,0 +1,32 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "pontage",
+  "revision": 2,
+  "name": "Pontage",
+  "deckLimitKey": "pontage",
+  "type": "holding",
+  "factions": [
+    "crownlands"
+  ],
+  "subtypes": [],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "crownlands": 1
+    }
+  },
+  "stats": {
+    "attack": 0,
+    "defense": 3
+  },
+  "abilities": [
+    {
+      "id": "guard",
+      "params": {}
+    }
+  ],
+  "set": "foundations",
+  "lore": "A penny to cross, a penny for the bridge, a penny for the man who counts the pennies."
+}

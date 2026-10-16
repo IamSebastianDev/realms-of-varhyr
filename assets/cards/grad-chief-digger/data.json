@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "grad-chief-digger",
+  "revision": 2,
+  "name": "Grad, Chief Digger",
+  "deckLimitKey": "grad-chief-digger",
+  "type": "creature",
+  "factions": [
+    "mountain-clans"
+  ],
+  "subtypes": [
+    "dwarf"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "mountain-clans": 1
+    }
+  },
+  "stats": {
+    "attack": 0,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "mountain-clans": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "trade",
+      "params": {}
+    }
+  ],
+  "set": "foundations",
+  "lore": "Grad has never found a vein he did not already know was there. The others have stopped asking how."
+}

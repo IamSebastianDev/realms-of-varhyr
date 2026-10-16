@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Bergkavallerie",
+  "lore": "Sie nehmen nie die Straße. Sie nehmen den Grat und stehen plötzlich neben dir."
+}

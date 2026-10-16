@@ -230,6 +230,7 @@ Evergreen:
 | --- | --- | --- |
 | `armor` | `{ "amount": 1 }` | Reduce each incoming hit |
 | `banner` | `{ "amount": 1 }` | Immediately neighboring friendly creatures and holdings gain Attack |
+| `outflank` | `{ "amount": 3 }` | While on the Left or Right Flank, the creature gains Attack |
 | `drillmaster` | `{ "amount": 1, "subtype": "archer" }` | Immediately neighboring friendly creatures of that subtype gain Attack |
 | `bind` | `{ "amount": 1, "subtype": "undead" }` | All your other creatures of that subtype gain Defense, wherever they stand. A creature with 0 Defense is destroyed at the next state check, so bound creatures can be printed with Defense 0 |
 | `consume` | `{ "amount": 1 }` | Additional cost of playing the card (creature, holding or spell): sacrifice one of your creatures whose total cost is at least that much. A creature enters the sacrificed creature's position |
@@ -313,7 +314,7 @@ Rewards are granted once when opening begins and saved under `varhyr-collection-
 
 ## Background music
 
-`assets/audio/ambience.mp3` is the looping application soundtrack. Replace this file to change the music; Vite includes it in production builds. It starts when the player dismisses the splash, continues across menus and matches, and pauses when the tab is hidden. Settings stores separate music and effect switches and volumes. The splash unlocks audio without overriding a saved mute choice.
+Every `.mp3` in `assets/audio/` is part of the application soundtrack; add or remove files to change it. Tracks play in random order, never the same one twice in a row, and Vite includes them in production builds. Music starts when the player dismisses the splash, continues across menus and matches, and pauses when the tab is hidden. Settings stores separate music and effect switches and volumes. The splash unlocks audio without overriding a saved mute choice.
 
 
 ## Hero portraits

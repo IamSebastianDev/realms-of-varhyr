@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "mountain-cavalry",
+  "revision": 2,
+  "name": "Mountain Cavalry",
+  "deckLimitKey": "mountain-cavalry",
+  "type": "creature",
+  "factions": [
+    "mountain-clans"
+  ],
+  "subtypes": [
+    "dwarf"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "mountain-clans": 2
+    }
+  },
+  "stats": {
+    "attack": 3,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "mountain-clans": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "outflank",
+      "params": {
+        "amount": 2
+      }
+    }
+  ],
+  "set": "foundations",
+  "lore": "They never take the road. They take the ridge, and arrive at your side."
+}

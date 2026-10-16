@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Goldfund",
+  "lore": "Die Zwerge graben nicht nach Gold. Gold ist nur das, was übrig bleibt, wenn sie fertig sind."
+}

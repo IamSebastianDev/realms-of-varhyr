@@ -742,6 +742,34 @@
       ],
       "additionalProperties": false
     },
+    "ability-outflank": {
+      "type": "object",
+      "title": "Outflank {amount}",
+      "description": "While on a flank, this creature has +{amount} Attack.",
+      "properties": {
+        "id": {
+          "const": "outflank"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
     "ability-plague": {
       "type": "object",
       "title": "Plague",
@@ -1109,6 +1137,7 @@
             "heal",
             "longshot",
             "marches-rally",
+            "outflank",
             "plague",
             "primal",
             "rage",
@@ -1189,6 +1218,9 @@
           "$ref": "#/definitions/ability-marches-rally"
         },
         {
+          "$ref": "#/definitions/ability-outflank"
+        },
+        {
           "$ref": "#/definitions/ability-plague"
         },
         {
@@ -1253,6 +1285,7 @@
             "fealty",
             "guard",
             "heal",
+            "outflank",
             "plague",
             "rage",
             "raid",
@@ -1319,6 +1352,9 @@
         },
         {
           "$ref": "#/definitions/ability-heal"
+        },
+        {
+          "$ref": "#/definitions/ability-outflank"
         },
         {
           "$ref": "#/definitions/ability-plague"
@@ -1438,6 +1474,7 @@
             "heal",
             "longshot",
             "marches-rally",
+            "outflank",
             "plague",
             "rage",
             "raid",
@@ -1515,6 +1552,9 @@
         },
         {
           "$ref": "#/definitions/ability-marches-rally"
+        },
+        {
+          "$ref": "#/definitions/ability-outflank"
         },
         {
           "$ref": "#/definitions/ability-plague"

@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Langschiff",
+  "lore": "Die Flüsse der Marken führen zu jeder Küste. Die Langschiffe sind schneller."
+}

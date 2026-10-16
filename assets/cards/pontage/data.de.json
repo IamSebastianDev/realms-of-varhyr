@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Brückenzoll",
+  "lore": "Ein Pfennig fürs Überqueren, einer für die Brücke, einer für den, der die Pfennige zählt."
+}

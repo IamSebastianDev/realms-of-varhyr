@@ -1,21 +1,21 @@
 import { FactionIcon } from '../../../packages/renderer/src/FactionIcon';
 import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { ArrowRight, Crown, X } from 'lucide-react';
-import { factionInfo, registry, setInfo } from '../../../packages/content/src';
+import { registry } from '../../../packages/content/src';
 import type { BoosterPack } from '../../../packages/content/src/boosters';
 import type { CardDefinition } from '../../../packages/contracts/src';
 import type { BoosterCardReward } from './boosterRewards';
 import { ArtCard } from '../../../packages/ui/src/CardPresentation';
 import { CrownAmount } from './Crowns';
+import { carouselPack, hasWebGL, SceneBoundary } from './packScene';
+
+const BoosterBurst3D = lazy(() => import('./BoosterBurst3D'));
 
 export type OpenBooster = { id: string; cards: (BoosterCardReward & { crowns?: number })[]; saved: boolean; pack: BoosterPack };
 
-export const packColor = (pack: BoosterPack) => {
-  const color = pack.set ? setInfo[pack.set]?.color : pack.faction ? factionInfo[pack.faction]?.color : undefined;
-  return color ? { '--pack-color': color } : undefined;
-};
-export const packSymbol = (pack: BoosterPack) => pack.set ? setInfo[pack.set]?.symbol : pack.faction && factionInfo[pack.faction] ? <FactionIcon faction={pack.faction}/> : undefined;
+export const packColor = (pack: BoosterPack) => ({ '--pack-color': pack.color });
+export const packSymbol = (pack: BoosterPack) => <FactionIcon faction={pack.icon}/>;
 /** Breaks a pack name into short lines for the pack face. */
 export function packLines(name: string) {
   const lines: string[] = [];
@@ -32,7 +32,8 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, c
   useLanguage();
   const [opened, setOpened] = useState(reduced);
   const [revealed, setRevealed] = useState(reduced ? pack.cards.length : 0);
-  const [skip, setSkip] = useState(false);
+  const [skip, setSkip] = useState(false), [broken, setBroken] = useState(false);
+  const scene3d = hasWebGL && !reduced && !broken;
   const dialogRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const complete = revealed === pack.cards.length;
@@ -43,12 +44,18 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, c
   useEffect(() => {
     if (complete && !suspended && document.activeElement === document.body) closeRef.current?.focus();
   }, [complete, suspended]);
+  // Without 3D the flat pack breaks on a timer; with it the scene reports when its burst is over.
   useEffect(() => {
     if (skip || reduced) { setOpened(true); setRevealed(pack.cards.length); return; }
-    const timers = [window.setTimeout(() => setOpened(true), 850)];
-    pack.cards.forEach((_, index) => timers.push(window.setTimeout(() => setRevealed(index + 1), 1250 + index * 320)));
+    if (scene3d) return;
+    const timer = window.setTimeout(() => setOpened(true), 850);
+    return () => window.clearTimeout(timer);
+  }, [pack.cards, reduced, skip, scene3d]);
+  useEffect(() => {
+    if (!opened || skip || reduced) return;
+    const timers = pack.cards.map((_, index) => window.setTimeout(() => setRevealed(index + 1), 400 + index * 320));
     return () => timers.forEach(window.clearTimeout);
-  }, [pack.cards, reduced, skip]);
+  }, [opened, pack.cards, reduced, skip]);
 
   function trapFocus(event: KeyboardEvent) {
     if (event.key !== msg("Tab") || suspended) return;
@@ -66,10 +73,12 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, c
         <h2>{msg(pack.pack.name)}</h2>
         <p role="status" aria-live="polite">{complete ? msg("{v0} {v1} added{v2}", {v0: kept, v1: kept===1?'card':'cards', v2: crowns ? ` · ${crowns} crowns from extra copies` : ''}) : opened ? msg("Revealing cards · {v0} / 5", {v0: revealed}) : msg("Breaking the seal…")}</p>
       </header>
-      {!opened ? <div className="booster-pack-stage" aria-hidden="true">
+      {!opened ? (scene3d
+        ? <div className="booster-burst-stage" aria-hidden="true"><div className="booster-burst-canvas"><SceneBoundary onError={() => setBroken(true)} fallback={null}><Suspense fallback={null}><BoosterBurst3D pack={carouselPack(pack.pack)} tagline={msg("FIVE CARDS")} done={() => setOpened(true)}/></Suspense></SceneBoundary></div></div>
+        : <div className="booster-pack-stage" aria-hidden="true">
         <div className="booster-pack-glow"/><div className="booster-pack"><span>REALMS OF VARHYR</span>{packSymbol(pack.pack) ? <b className="pack-symbol">{packSymbol(pack.pack)}</b> : <Crown size={55}/>}<strong>{packLines(msg(pack.pack.name))}</strong><small>{msg("FIVE CARDS")}</small></div>
         <div className="booster-sparks">{Array.from({length:12}, (_,index)=><i key={index} style={{'--spark-angle':`${index*30}deg`} as React.CSSProperties}/>)}</div>
-      </div> : <div className="booster-grid">
+      </div>) : <div className="booster-grid">
         {pack.cards.map((reward, index) => {
           const card = registry.cards[reward.id], visible = index < revealed;
           return <div className={`booster-slot ${visible ? 'revealed' : ''} ${reward.crowns ? 'is-reclaimed' : ''} rarity-${card.rarity}`} key={index}>
@@ -87,7 +96,7 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, c
         })}
       </div>}
       {!pack.saved && <p className="booster-storage-error" role="alert">{msg("These rewards are available for this session, but browser storage could not save them.")}</p>}
-      {complete && crowns > 0 && <div className="booster-crown-total">{msg("Earned")}<CrownAmount amount={crowns}/></div>}
+      <div className={`booster-crown-total ${complete && crowns > 0 ? '' : 'idle'}`} aria-hidden={!(complete && crowns > 0)}>{msg("Earned")}<CrownAmount amount={crowns}/></div>
       <footer className="booster-actions">
         {!complete ? <button className="outline-button" onClick={()=>{setSkip(true);closeRef.current?.focus();}}>{msg("Reveal all")}</button> : <>
           <button className="outline-button" onClick={browse}>{msg("View cards")}</button>

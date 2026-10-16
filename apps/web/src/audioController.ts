@@ -1,19 +1,30 @@
 import type { Preferences } from '../../../packages/ui/src/preferences';
 type AudioSettings = Pick<Preferences, 'music' | 'sound' | 'musicVolume' | 'soundVolume'>;
-/** One soundtrack and one effect context for the lifetime of the application. No game state lives here. */
+/** A shuffled playlist and one effect context for the lifetime of the application. No game state lives here. */
 export class AudioController {
   private unlocked = false;
   private hidden = false;
   private disposed = false;
   private context?: AudioContext;
   private settings: AudioSettings;
-  constructor(private track: HTMLAudioElement, settings: AudioSettings,
+  private current = -1;
+  constructor(private track: HTMLAudioElement, private tracks: string[], settings: AudioSettings,
     private contextFactory: () => AudioContext = () => new AudioContext(),
     private reportBlocked: (blocked: boolean) => void = () => {}) {
     this.settings = settings;
-    track.loop = true;
+    track.loop = tracks.length < 2;
     track.volume = settings.musicVolume;
+    this.pick();
+    track.addEventListener('ended', this.next);
   }
+  /** Chooses a random track, never the one that just played. */
+  private pick() {
+    if (!this.tracks.length) return;
+    let index = Math.floor(Math.random() * this.tracks.length);
+    if (this.tracks.length > 1 && index === this.current) index = (index + 1 + Math.floor(Math.random() * (this.tracks.length - 1))) % this.tracks.length;
+    this.current = index; this.track.src = this.tracks[index];
+  }
+  private next = () => { this.pick(); if (this.shouldPlay()) void this.track.play().catch(() => { if (this.shouldPlay()) this.reportBlocked(true); }); };
   configure(settings: AudioSettings) { this.settings = settings; this.sync(); }
   setHidden(hidden: boolean) { this.hidden = hidden; this.sync(); }
   /** Called directly by the splash button, within the browser's user gesture. */
@@ -53,7 +64,7 @@ export class AudioController {
     } catch { /* Effects never interrupt a match. */ }
   }
   dispose() {
-    this.disposed = true; this.track.pause();
+    this.disposed = true; this.track.pause(); this.track.removeEventListener('ended', this.next);
     if (this.context) void this.context.close().catch(() => {});
   }
 }

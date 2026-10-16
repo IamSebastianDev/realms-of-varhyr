@@ -1,7 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowRight, Volume2 } from 'lucide-react';
 import { BurnEmbers } from './BurnEmbers';
-import soundtrack from '../../../assets/audio/ambience.mp3?url';
+/** Every mp3 in assets/audio joins the shuffle. */
+const soundtrack = Object.values(import.meta.glob<string>('../../../assets/audio/*.mp3', { eager: true, query: '?url', import: 'default' }));
 import { AudioController } from './audioController';
 import { getPreferences, subscribePreferences, usePreferences } from '../../../packages/ui/src/preferences';
 import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
@@ -14,7 +15,7 @@ export function AudioExperience({ children }: { children: ReactNode }) {
   const [entered, setEntered] = useState(false), [blocked, setBlocked] = useState(false);
   const enterButton = useRef<HTMLButtonElement>(null);
   useEffect(() => {
-    const player = new AudioController(track.current!, getPreferences(), undefined, setBlocked);
+    const player = new AudioController(track.current!, soundtrack, getPreferences(), undefined, setBlocked);
     controller.current = player;
     const visibility = () => player.setHidden(document.hidden);
     visibility(); document.addEventListener('visibilitychange', visibility);
@@ -26,7 +27,7 @@ export function AudioExperience({ children }: { children: ReactNode }) {
   const retry = useCallback(() => controller.current?.unlock(), []);
   function enter() { controller.current?.unlock(); setEntered(true); }
   return <audioContext.Provider value={{ playEffect, retry, blocked }}>
-    <audio ref={track} src={soundtrack} preload="none" loop hidden/>
+    <audio ref={track} preload="none" hidden/>
     <div inert={!entered} aria-hidden={!entered || undefined}>{children}</div>
     {!entered && <section className="realm-splash" role="dialog" aria-modal="true" aria-label={msg('Welcome to Realms of Varhyr')}>
       <div className="splash-horizon" aria-hidden="true"/><div className="splash-sigil" aria-hidden="true"><span>V</span></div>

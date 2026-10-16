@@ -97,3 +97,42 @@
   .profile-avatars button .avatar-art{width:clamp(60px,8vw,76px)}
 }
 .settings-version{margin:22px 2px 6px;font-size:10.5px;line-height:1.4;color:#9d927a;opacity:.6;text-align:center;letter-spacing:.03em}
+
+/* The profile fills the window as one inset: identity on the left, portraits and their story on the right. */
+.lobby:has(.profile-hall){height:100dvh;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.lobby:has(.profile-hall)>.lobby-header{flex:none}
+.profile-page.profile-hall{flex:1;min-height:0;width:100%;max-width:none;margin:0;padding:14px 20px 18px;display:flex;flex-direction:column}
+.profile-stage{flex:1;min-height:0;position:relative;display:flex;flex-direction:column;overflow:hidden;border:1px solid;border-color:#0a160f99 #e5d29f1c #e5d29f22 #0a160f99;border-radius:6px;box-shadow:inset 0 3px 16px #040e0899,inset 0 0 0 1px #04100a55;background:radial-gradient(ellipse 38% 55% at 22% 50%,color-mix(in srgb,var(--avatar) 22%,transparent),transparent 70%),#0a1a1148}
+.profile-bar{flex:none;padding:12px 24px;min-height:68px;display:flex;align-items:center;border-bottom:1px solid #e5d29f14}
+.profile-bar h1{font:600 34px/1 var(--serif);margin:0;color:#f6e8bd}
+.profile-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(340px,5fr) minmax(0,7fr);gap:0}
+.profile-identity{min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:24px 36px;border-right:1px solid #e5d29f14}
+.profile-identity .profile-fields{width:100%;max-width:440px}
+.profile-identity .profile-fields input{background:#040e0888;border-color:#e5d29f30;box-shadow:inset 0 2px 8px #0008}
+.profile-identity .profile-facts{width:100%;max-width:440px;margin:0;grid-template-columns:repeat(2,1fr)}
+.profile-identity .profile-facts div{background:#040e0866;border-color:#e5d29f14;box-shadow:inset 0 2px 8px #0006}
+.profile-page.profile-hall .profile-avatars{margin:0;min-height:0;display:flex;flex-direction:column;gap:16px;padding:22px 32px;justify-content:center}
+.profile-page.profile-hall .profile-avatars h2{margin:0}
+.profile-page.profile-hall .profile-avatars [role=radiogroup]{width:100%;max-width:640px;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));justify-self:start;justify-items:center;gap:10px}
+.profile-page.profile-hall .profile-avatars button{width:min(100%,100px)}
+.profile-page.profile-hall .avatar-lore{max-width:640px;min-height:0;background:#040e0866;box-shadow:inset 0 2px 12px #0008;border-color:color-mix(in srgb,var(--avatar) 38%,#0a160f)}
+@media(max-width:860px){
+  .lobby:has(.profile-hall){height:auto;min-height:100dvh;overflow:visible}
+  .profile-stage{overflow:visible}
+  .profile-body{grid-template-columns:1fr}
+  .profile-identity{border-right:0;border-bottom:1px solid #e5d29f14;padding:20px 16px}
+  .profile-page.profile-hall .profile-avatars{padding:20px 16px}
+}
+
+/* The name is a field you can edit (lit, outlined, with a pencil); the stats are plain read-only figures. */
+.name-input{position:relative;display:block}
+.name-input input{padding-right:44px;background:#f3e6bf14!important;border:1px solid #e9d298aa!important;box-shadow:0 0 0 3px #e9d29818,0 2px 10px #0006!important;transition:background .15s,box-shadow .15s}
+.name-input input:hover{background:#f3e6bf1c!important}
+.name-input input:focus-visible{background:#f3e6bf22!important;box-shadow:0 0 0 3px #e9d29855!important}
+.name-input svg{position:absolute;right:15px;top:50%;transform:translateY(-50%);color:#e9d298;pointer-events:none}
+.profile-identity .profile-facts{gap:0 28px;border-top:1px solid #e5d29f22;padding-top:6px}
+.profile-identity .profile-facts div{background:none;border:0;border-bottom:1px solid #e5d29f14;border-radius:0;box-shadow:none;padding:12px 2px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.profile-identity .profile-facts dt{margin:0}
+.profile-identity .profile-facts dd{margin:0;font-size:26px}
+.profile-page.profile-hall .profile-avatars button{aspect-ratio:1/1;height:auto;display:grid;place-items:stretch;box-sizing:border-box}
+.profile-page.profile-hall .profile-avatars button .avatar-art{width:100%;height:100%;aspect-ratio:1/1}

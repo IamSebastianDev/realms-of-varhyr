@@ -1,7 +1,8 @@
+import { ArrowLeft } from 'lucide-react';
 import { FactionIcon } from '../../../packages/renderer/src/FactionIcon';
 import { useEffect, useMemo, useState, type ReactNode, type CSSProperties } from 'react';
 import { localizedCard, t as msg, useLanguage } from '../../../packages/ui/src/i18n';
-import { factionInfo, registry } from '../../../packages/content/src';
+import { factionInfo, registry, setDefinitions, setInfo } from '../../../packages/content/src';
 import type { CardDefinition } from '../../../packages/contracts/src';
 import { totalPacks, type Collection } from './collection';
 import { cardCost, collectionStats, type StatSlice } from './collectionBreakdown';
@@ -18,9 +19,9 @@ function Row({ label, slice, color }: { label: ReactNode; slice: StatSlice; colo
   </li>;
 }
 
-export function CollectionStats({ collection, inspect }: { collection: Collection; inspect: (card: CardDefinition) => void }) {
+export function CollectionStats({ collection, inspect, back }: { collection: Collection; inspect: (card: CardDefinition) => void; back: () => void }) {
   useLanguage();
-  const stats = useMemo(() => collectionStats(collection.counts, registry, Object.keys(factionInfo)), [collection.counts]);
+  const stats = useMemo(() => collectionStats(collection.counts, registry, Object.keys(factionInfo), setDefinitions.map(set => set.id)), [collection.counts]);
   // The ring fills in once on arrival; reduced motion removes the transition in CSS.
   const [ready, setReady] = useState(false);
   useEffect(() => { const frame = requestAnimationFrame(() => setReady(true)); return () => cancelAnimationFrame(frame); }, []);
@@ -34,7 +35,7 @@ export function CollectionStats({ collection, inspect }: { collection: Collectio
     [msg("Boosters waiting"), totalPacks(collection)],
   ];
   return <main className="stats-page">
-    <div className="collection-heading"><div><h1>{msg("Statistics")}</h1></div></div>
+    <div className="collection-heading collection-subhead"><button className="builder-icon-button" aria-label={msg("Back to collection")} title={msg("Back to collection")} onClick={back}><ArrowLeft size={16}/></button><h1>{msg("Statistics")}</h1></div>
     <section className="stats-hero" aria-label={msg("Collection progress")}>
       <div className="stats-ring" role="img" aria-label={msg("{v0} of {v1} cards", { v0: stats.unique, v1: stats.uniqueTotal })}>
         <svg viewBox="0 0 120 120" aria-hidden="true"><circle className="ring-track" cx="60" cy="60" r="52"/><circle className="ring-fill" cx="60" cy="60" r="52" strokeDasharray={circumference} strokeDashoffset={circumference * (1 - (ready ? share : 0) / 100)} transform="rotate(-90 60 60)"/></svg>
@@ -46,6 +47,9 @@ export function CollectionStats({ collection, inspect }: { collection: Collectio
       </div>
     </section>
     <div className="stats-grid">
+      <section className="stats-panel" aria-label={msg("By set")}><h2>{msg("By set")}</h2>
+        <ul>{stats.bySet.map(slice => <Row key={slice.id} slice={slice} label={<>{msg(setInfo[slice.id]?.name ?? slice.id)}{setInfo[slice.id]?.code && <small className="stat-set-code">{setInfo[slice.id].code}</small>}</>}/>)}</ul>
+      </section>
       <section className="stats-panel" aria-label={msg("By faction")}><h2>{msg("By faction")}</h2>
         <ul>{stats.byFaction.map(slice => <Row key={slice.id} slice={slice} color={factionInfo[slice.id]?.color} label={<><FactionIcon faction={slice.id}/>{msg(factionInfo[slice.id]?.name ?? slice.id)}</>}/>)}</ul>
       </section>

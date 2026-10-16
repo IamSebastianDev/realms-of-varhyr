@@ -2,7 +2,7 @@ import { defineAbility as extension } from "./definition";
 import { spellAbilities } from "./spellAbilities";
 import { amount, amountSchema } from "./schemas";
 import * as v from "valibot";
-import { areAdjacent, type AbilityExtension, type BattlefieldState, type CardInstance } from "../../contracts/src";
+import { areAdjacent, battlefieldPositions, type AbilityExtension, type BattlefieldState, type CardInstance } from "../../contracts/src";
 import { positive } from "./schemas";
 /** `subtype` is a freeform creature subtype such as archer; it is matched against each card's subtypes. */
 const empty = v.object({});
@@ -43,6 +43,13 @@ export const evergreenAbilities: AbilityExtension[] = [
         description:
             "Adjacent friendly creatures and holdings get +{amount} Attack.",
         static: (source, target, p) => (areAdjacent(source, target) ? { attack: amount(p) } : {}),
+    }),
+
+    extension("outflank", amountSchema, {
+        translations: { de: { name: "Flankenangriff {amount}", description: "Solange diese Kreatur auf einer Flanke steht, hat sie +{amount} Angriff." } },
+        name: "Outflank {amount}",
+        description: "While on a flank, this creature has +{amount} Attack.",
+        static: (source, target, p) => source.id === target.id && (source.slot === 0 || source.slot === battlefieldPositions.length - 1) ? { attack: amount(p) } : {},
     }),
 
     extension("drillmaster", drillSchema, {

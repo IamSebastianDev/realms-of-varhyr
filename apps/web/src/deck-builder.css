@@ -137,3 +137,23 @@
 .builder-delete-confirm{margin-top:14px;padding:12px;border:1px solid #f0a8a066;border-radius:8px;background:#2a121266}
 .builder-delete-confirm p{margin:0 0 10px}
 .gold-button.danger{background:linear-gradient(#e08a80,#a94a42);color:#fff}
+
+/* Copies the player does not own: a separate, dimmed row. */
+.dk-row.not-owned{opacity:.5;filter:grayscale(.85);border-style:dashed}
+.dk-row.not-owned:hover{opacity:.7}
+.builder-collection-bar{padding-bottom:10px}
+.builder-filter-dialog-grid .faction-select{margin-top:7px}
+
+/* Experiment: panels and cards sit inset in the page background instead of on top of it. */
+.deck-workshop .builder-collection,.deck-workshop .builder-deck{background:#0a1a1148;border-color:#0a160f99 #e5d29f1c #e5d29f22 #0a160f99;box-shadow:inset 0 3px 16px #040e0899,inset 0 0 0 1px #04100a55}
+.deck-workshop .builder-card-tile .art-card{opacity:.82;box-shadow:inset 0 0 0 1px #0006,0 1px 3px #0a160f55;transition:opacity .15s,transform .15s,box-shadow .15s}
+.deck-workshop .builder-card-tile .art-card:hover{opacity:1}
+.deck-workshop .builder-card-tile.unavailable .art-card{opacity:.55}
+.deck-workshop .dk-row{background:#0c1d1470;border-color:#d8cd9b1f;box-shadow:inset 0 1px 4px #040e0866}
+.deck-workshop .dk-art{opacity:.4}
+.deck-workshop .dk-group h3{background:linear-gradient(#0c1c13cc 70%,#0c1c1300);backdrop-filter:blur(3px)}
+.deck-workshop .dk-copies{background:#0a170fa0}
+.deck-workshop .deck-purchase{background:linear-gradient(90deg,#5c4a2855,#0c1d1480)}
+
+/* The builder fills the window; nothing sits between it and the header any more. */
+.deck-workshop.builder-page{max-width:none;padding:12px 20px 16px}
