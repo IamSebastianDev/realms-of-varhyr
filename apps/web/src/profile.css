@@ -136,3 +136,28 @@
 .profile-identity .profile-facts dd{margin:0;font-size:26px}
 .profile-page.profile-hall .profile-avatars button{aspect-ratio:1/1;height:auto;display:grid;place-items:stretch;box-sizing:border-box}
 .profile-page.profile-hall .profile-avatars button .avatar-art{width:100%;height:100%;aspect-ratio:1/1}
+
+/* Profile tabs and the achievements list. */
+.profile-bar{justify-content:space-between;gap:16px}
+.profile-tabs{display:flex;gap:4px}
+.profile-tabs button{padding:9px 18px;font-size:13px;color:#b9c4aa;border-radius:999px;border:1px solid transparent}
+.profile-tabs button[aria-selected=true]{color:#f6e8bd;border-color:#e3c780aa;background:#e5d29f18}
+.profile-page.profile-hall .profile-achievements{margin:0;min-height:0;padding:22px 32px;display:flex;flex-direction:column;gap:16px;overflow:auto}
+.profile-achievements h2{display:flex;align-items:baseline;gap:12px;margin:0;font:600 24px/1 var(--serif);color:#f2e4b8}
+.profile-achievements h2 span{font:500 13px var(--sans,inherit);color:#c9ad6a}
+.profile-achievements ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.profile-achievements li{display:grid;gap:6px;align-content:start;padding:11px 13px;border-radius:5px;border:1px solid #e5d29f1c;background:#0a1a1166}
+.profile-achievements li.ready{border-color:#e3c780;box-shadow:0 0 18px #e3c78026}
+.profile-achievements li.done{border-color:#a9d49555}
+.ach-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ach-head b{font:600 16px/1.15 var(--serif);color:#f1ead0}
+.ach-tiers{display:flex;gap:5px}
+.ach-tiers i{width:14px;height:14px;border-radius:50%;display:grid;place-items:center;box-shadow:inset 0 0 0 1px #e5d29f44;color:#10180f}
+.ach-tiers i.on.t0{background:#b87d4b}.ach-tiers i.on.t1{background:#c5cbc7}.ach-tiers i.on.t2{background:#e3c780}
+.profile-achievements li small{color:#b3c0a7;font-size:12px}
+.ach-bar{height:6px;border-radius:3px;background:#05100a88;box-shadow:inset 0 1px 3px #000a}
+.ach-bar i{display:block;height:100%;border-radius:3px;background:linear-gradient(180deg,#f0d98f,#c9a24f)}
+.ach-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:11px;color:#c9d2b9;min-height:26px}
+.ach-note{margin:0;font-size:12px;color:#a9d495}
+.goal-claim{padding:5px 13px;font-size:12px;font-weight:600;color:#1b1608;border-radius:999px;background:linear-gradient(180deg,#f3dc95,#c9a24f);box-shadow:0 0 14px #e3c78055}
+.goal-claim:hover{filter:brightness(1.08)}

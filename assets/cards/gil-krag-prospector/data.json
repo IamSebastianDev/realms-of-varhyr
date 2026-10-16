@@ -1,0 +1,30 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "gil-krag-prospector",
+  "revision": 1,
+  "name": "Gil Krag Prospector",
+  "deckLimitKey": "gil-krag-prospector",
+  "type": "creature",
+  "factions": [
+    "mountain-clans"
+  ],
+  "subtypes": [
+    "dwarf"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0
+  },
+  "stats": {
+    "attack": 0,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "mountain-clans": 1
+      }
+    ]
+  },
+  "abilities": [],
+  "set": "foundations"
+}

@@ -1,8 +1,10 @@
 import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
-import { ArrowRight, Check, Play, Scroll, Swords, Users } from 'lucide-react';
+import { ArrowRight, Check, Play, RefreshCw, Scroll, Swords, Users } from 'lucide-react';
 import { registry } from '../../../packages/content/src';
 import { validateDeck } from '../../../packages/core/src';
 import { missingDeckCopies, type Collection } from './collection';
+import { achievementText, closestAchievement, dailyDef, type Reward } from './goals';
+import { claimAchievementTier, claimDailyGoal, externalOf, rerollGoal, useGoals } from './goalsStore';
 import './start-hall.css';
 
 type Option = { id: string; name: string; cards: string[] };
@@ -11,14 +13,9 @@ type Props = {
   canResume: boolean; resumeLabel: string; play: (ready: boolean) => void; friend: () => void; resume: () => void; newQuest: () => void;
 };
 
-/** Placeholder progress until goals and quests are tracked: shown so the layout can be judged. */
-const dailyGoals = [
-  { title: 'Win a match', progress: 0, goal: 1, reward: '25 crowns' },
-  { title: 'Play 3 matches', progress: 1, goal: 3, reward: '1 booster' },
-  { title: 'Cast 5 spells', progress: 2, goal: 5, reward: '15 crowns' },
-];
+/** The quest line is still a mock; goals and achievements are real. */
 const questSteps = { title: 'The Road to Tris Vale', done: 2, total: 7 };
-const achievement = { title: 'Veteran of the Marches', detail: 'Win 10 matches', progress: 7, goal: 10 };
+const rewardText = (reward: Reward) => [reward.crowns ? msg('{v0} crowns', { v0: reward.crowns }) : '', reward.boosters ? msg('{v0} booster', { v0: reward.boosters }) : ''].filter(Boolean).join(' + ');
 
 const art = (id: string) => ({ backgroundImage: `url(/cards/${id}/data.png)` });
 
@@ -34,6 +31,8 @@ function Ring({ progress, goal }: { progress: number; goal: number }) {
 /** Home: three big art cards to start playing, with daily goals and quest progress along the bottom. */
 export function StartPage({ inert, options, selected, collection, canResume, resumeLabel, play, friend, resume, newQuest }: Props) {
   useLanguage();
+  const goals = useGoals();
+  const closest = closestAchievement(goals, externalOf(collection));
   const deck = options.find(option => option.id === selected);
   const missing = deck ? missingDeckCopies(deck.cards, collection.counts).length : 0;
   const ready = !!deck && !validateDeck(deck.cards, registry).length && !missing;
@@ -55,15 +54,24 @@ export function StartPage({ inert, options, selected, collection, canResume, res
       </div>
       <div className="home-progress">
         <section className="home-goals" aria-label={msg("Daily goals")}>
-          <h2>{msg("Daily goals")}<em>{msg("Preview")}</em></h2>
-          <ul>{dailyGoals.map(goal => <li key={goal.title} className={goal.progress >= goal.goal ? 'done' : ''}>
-            <Ring progress={goal.progress} goal={goal.goal}/>
-            <span><b>{msg(goal.title)}</b><small>{goal.progress} / {goal.goal} · {msg(goal.reward)}</small></span>
-          </li>)}</ul>
+          <h2>{msg("Daily goals")}</h2>
+          <ul>{goals.daily.map((slot, index) => {
+            const def = dailyDef(slot.id)!, complete = slot.progress >= def.goal;
+            return <li key={`${slot.id}${index}`} className={slot.claimed ? 'done claimed' : complete ? 'done' : ''}>
+              <Ring progress={slot.progress} goal={def.goal}/>
+              <span className="goal-text"><b>{msg(def.title)}</b><small>{slot.progress} / {def.goal} · {rewardText(def.reward)}</small></span>
+              {complete && !slot.claimed && <button className="goal-claim" onClick={() => claimDailyGoal(index)}>{msg("Claim")}</button>}
+              {slot.claimed && <em className="goal-claimed">{msg("Claimed")}</em>}
+              {!complete && !goals.rerolled && <button className="goal-reroll" aria-label={msg("Swap this goal")} title={msg("Swap this goal (once a day)")} onClick={() => rerollGoal(index)}><RefreshCw size={14}/></button>}
+            </li>;
+          })}</ul>
         </section>
         <section className="home-achievement" aria-label={msg("Closest achievement")}>
-          <h2>{msg("Closest achievement")}<em>{msg("Preview")}</em></h2>
-          <div><Ring progress={achievement.progress} goal={achievement.goal}/><span><b>{msg(achievement.title)}</b><small>{achievement.progress} / {achievement.goal} · {msg(achievement.detail)}</small></span></div>
+          <h2>{msg("Closest achievement")}</h2>
+          {closest ? <div><Ring progress={Math.min(closest.value, closest.threshold!)} goal={closest.threshold!}/>
+            <span className="goal-text"><b>{msg(closest.def.title)}</b><small>{msg(...achievementText(closest.def, closest.threshold!))}</small></span>
+            {closest.claimable && <button className="goal-claim" onClick={() => claimAchievementTier(closest.def.id, collection)}>{msg("Claim")}</button>}
+          </div> : <p>{msg("Every achievement is done.")}</p>}
         </section>
       </div>
     </section>

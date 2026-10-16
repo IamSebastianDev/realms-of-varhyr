@@ -43,6 +43,8 @@ import { decksKey, parseDecks, starterOptions, type CustomDeck } from './decks';
 import { randomSeed, startMatch, type DeckName, type MatchSetup } from './session';
 import { claimVictory, collectionRules, missingDeckCopies } from './collection';
 import { updateCollection, useCollection } from './collectionStore';
+import { trackMatch } from './goalsStore';
+import { matchResult } from './goals';
 import { MatchSummary } from './MatchSummary';
 import { Avatar } from './Avatar';
 import { Onboarding } from './Onboarding';
@@ -97,6 +99,8 @@ function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSessi
   const collectionOutcome=sessionSnapshot.seat?(state.outcome===sessionSnapshot.seat?'p1':state.outcome==='draw'?'draw':state.outcome?'p2':null):state.outcome;
   useEffect(()=>{updateCollection(current=>claimVictory(current,rewardId,collectionOutcome,rewardEligible));},[rewardId,collectionOutcome,rewardEligible]);
   const deck:DeckName=setup?.deck??defaultDeckId,customDeck=setup?.customDeck,opponentDeck=setup?.opponentDeck;
+  // Goals count finished matches you played yourself: not replays, not the tutorial, and in hot seat only the first player.
+  useEffect(()=>{if(!state.outcome||watching||setup?.tutorial)return;trackMatch(matchResult(initial,state,commands,sessionSnapshot.seat??'p1',{id:sessionSnapshot.matchId||String(initial.seed),online,deckId:customDeck?.id??deck,registry}));},[state.outcome]);
   const [screen,setScreen]=useState<Screen>('match');
   useEffect(()=>{preloadPacks();},[]);
   const [savedDecks,setSavedDecks]=useState<CustomDeck[]>(()=>{try{return parseDecks(localStorage.getItem(decksKey));}catch{return [];}});

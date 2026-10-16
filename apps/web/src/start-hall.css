@@ -13,7 +13,7 @@
 .home-progress{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:clamp(20px,4vw,64px);padding:0 4px}
 .home-achievement h2{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding-bottom:10px;font:600 20px/1 var(--serif);color:#f2e4b8;border-bottom:1px solid #e5d29f44}
 .home-achievement h2 em{font:500 10px/1 var(--sans,inherit);font-style:normal;padding:3px 7px;border-radius:9px;color:#c9ad6a;box-shadow:inset 0 0 0 1px #c9ad6a55}
-.home-achievement>div{display:flex;align-items:center;gap:14px}.home-achievement>div span:last-child{display:grid;gap:4px}.home-achievement b{font:600 15px var(--sans,inherit);color:#f1ead0}
+.home-achievement>div{display:flex;align-items:center;gap:14px}.home-achievement b{font:600 15px var(--sans,inherit);color:#f1ead0}
 .quest-track{display:flex;gap:5px;width:min(100%,260px);margin-top:12px}
 .quest-track i{flex:1;height:8px;border-radius:4px;background:#e5d29f33;box-shadow:inset 0 1px 3px #000a,inset 0 0 0 1px #e5d29f22}
 .quest-track i.on{background:linear-gradient(180deg,#f0d98f,#c9a24f);box-shadow:0 0 10px #e3c78055}
@@ -22,8 +22,8 @@
 .home-goals h2{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding-bottom:10px;font:600 20px/1 var(--serif);color:#f2e4b8;border-bottom:1px solid #e5d29f44;text-shadow:0 2px 12px #000}
 .home-goals h2 em{font:500 10px/1 var(--sans,inherit);font-style:normal;padding:3px 7px;border-radius:9px;color:#c9ad6a;box-shadow:inset 0 0 0 1px #c9ad6a55}
 .home-goals ul{list-style:none;margin:0;padding:0;display:grid;gap:clamp(10px,2.2vh,18px)}
-.home-goals li{display:flex;align-items:center;gap:14px}
-.home-goals li span:last-child{display:grid;gap:4px;min-width:0}
+.home-goals li{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:6px 12px}
+.home-goals .goal-text,.home-achievement .goal-text{display:grid;gap:4px;min-width:0}
 .home-goals li b{font:600 15px/1.2 var(--sans,inherit);color:#f1ead0;text-shadow:0 1px 10px #000}
 .home-goals li small{color:#c9d2b9;font-size:12px;text-shadow:0 1px 8px #000}
 .home-goals li.done b{color:#a9d495}
@@ -41,3 +41,13 @@
   .home-progress{grid-template-columns:1fr}.home-goals ul{grid-auto-flow:row;grid-template-columns:1fr}
 }
 @media(max-height:640px) and (min-width:861px){.home-goals h2,.home-achievement h2{margin-bottom:8px}.home-mode small{display:none}}
+
+/* Claimable goals, swapping, and the achievement block. */
+.home-goals li .goal-claim,.home-goals li .goal-claimed,.home-goals li .goal-reroll{grid-column:2;justify-self:start;margin:0}
+.home-goals li .goal-reroll{grid-column:3;grid-row:1;justify-self:end}
+.goal-claimed{margin-left:auto;font-style:normal;font-size:11px;color:#a9d495}
+.goal-reroll{margin-left:auto;flex:none;padding:6px;border-radius:50%;color:#9fae93;opacity:.55;transition:opacity .15s,color .15s}
+.goal-reroll:hover,.goal-reroll:focus-visible{opacity:1;color:#e3c780}
+.home-goals li.claimed .goal-ring{opacity:.7}
+.home-achievement>div .goal-claim{margin-left:auto}
+.home-achievement p{margin:0;color:#a9d495;font-size:13px}

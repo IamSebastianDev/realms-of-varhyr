@@ -1,0 +1,30 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "alpaca-farmer",
+  "revision": 1,
+  "name": "Alpaca Farmer",
+  "deckLimitKey": "alpaca-farmer",
+  "type": "creature",
+  "factions": [
+    "mountain-clans"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "mountain-clans": 1
+      }
+    ]
+  },
+  "abilities": [],
+  "set": "foundations"
+}

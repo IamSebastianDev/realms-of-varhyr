@@ -15,6 +15,7 @@ import { OwnershipPips } from './OwnershipPips';
 import { addDeckCard, deckCardAvailability, draftKey, parseDeck, removeDeckCard, starterOptions, type CustomDeck } from './decks';
 import { buyCollectionBooster, buyCollectionCard, buyMissingDeckCards, collectionRules, gainDebugCrowns, missingDeckCopies, missingDeckPurchase, openCollectionBooster, ownedCopyCount, packCount, totalPacks } from './collection';
 import { updateCollection, useCollection } from './collectionStore';
+import { trackBooster, trackDeckSave, useGoals, externalOf, claimDailyGoal, rerollGoal } from './goalsStore';
 import { CardPurchase } from './CardPurchase';
 import { CollectionStats } from './CollectionStats';
 import { CrownAmount, CrownIcon } from './Crowns';
@@ -83,7 +84,7 @@ export function Lobby(props:Props){
       if(!booster)boosterOrigin.current=document.activeElement as HTMLElement;
       let reward:ReturnType<typeof openCollectionBooster>|undefined;
       const next=updateCollection(current=>{reward=openCollectionBooster(current,pack,registry);return reward.collection;});
-      if(reward)setBooster({id:crypto.randomUUID(),cards:reward.cards,saved:next.saved,pack});
+      if(reward){setBooster({id:crypto.randomUUID(),cards:reward.cards,saved:next.saved,pack});trackBooster(reward.cards.map(card=>card.id));}
       setCollectionMessage('');
     }catch(cause){setCollectionMessage(cause instanceof Error?cause.message:msg("Could not open this booster."));}
   }
@@ -121,7 +122,7 @@ export function Lobby(props:Props){
     if(saved)change({...saved,cards:[...saved.cards]});
     else if(starter)change({...emptyDeck(),name:msg("{v0} (copy)", {v0: starter.name}),cards:[...starter.cards]});
   }
-  function save(){const next={...draft,name:draft.name.trim()};const error=props.saveDeck(next);setMessage(error??msg("Saved locally. Your deck is available in Play."));if(!error){editingName.current=false;setDraft(next);}return !error;}
+  function save(){const next={...draft,name:draft.name.trim()};const error=props.saveDeck(next);setMessage(error??msg("Saved locally. Your deck is available in Play."));if(!error){editingName.current=false;setDraft(next);trackDeckSave();}return !error;}
   function renameSaved(id:string,name:string){const deck=props.decks.find(d=>d.id===id);if(!deck)return null;const error=props.saveDeck({...deck,name});if(!error&&draft.id===id)setDraft(current=>({...current,name}));return error;}
   function deleteSaved(id:string){const error=props.deleteDeck(id);if(!error&&draft.id===id){setPast([]);setDraft(emptyDeck());}return error;}
   function deleteDraft(){const error=props.deleteDeck(draft.id);if(error){setMessage(error);return;}editingName.current=false;setPast([]);setDraft(emptyDeck());setMessage(msg("Deck deleted."));}
