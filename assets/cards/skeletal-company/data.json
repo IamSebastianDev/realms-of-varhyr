@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "skeletal-company",
-  "revision": 2,
+  "revision": 3,
   "name": "Skeletal Company",
   "deckLimitKey": "skeletal-company",
   "type": "creature",
@@ -21,7 +21,7 @@
   },
   "stats": {
     "attack": 2,
-    "defense": 2,
+    "defense": 0,
     "energyOutputs": [
       {
         "black-host": 2

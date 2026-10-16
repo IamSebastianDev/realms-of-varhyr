@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Grabrufer",
+  "lore": "Er befiehlt den Toten nicht. Er erinnert sie nur daran, dass sie einst zusammengehalten wurden."
+}

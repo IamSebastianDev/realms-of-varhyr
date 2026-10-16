@@ -9,11 +9,10 @@
     "black-host"
   ],
   "subtypes": [
-    "skeleton"
+    "undead"
   ],
   "legendary": false,
   "rarity": "common",
-  "lore": "He still knows the drill. Everything else is gone.",
   "cost": {
     "generic": 0,
     "factions": {
@@ -21,8 +20,8 @@
     }
   },
   "stats": {
-    "attack": 1,
-    "defense": 2,
+    "attack": 2,
+    "defense": 0,
     "energyOutputs": [
       {
         "black-host": 1
@@ -30,5 +29,6 @@
     ]
   },
   "abilities": [],
+  "lore": "He still knows the drill. Everything else is gone.",
   "set": "foundations"
 }

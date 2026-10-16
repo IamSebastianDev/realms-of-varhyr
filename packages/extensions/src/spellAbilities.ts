@@ -26,6 +26,18 @@ export const spellAbilities: AbilityExtension[] = [
         cast: ctx => { if (ctx.target) ctx.issue({ type: "destroy", target: ctx.target }); },
     }),
 
+    extension("plague", v.strictObject({}), {
+        translations: { de: { name: "Seuche", description: "Zerstöre jede gegnerische Kreatur." } },
+        name: "Plague",
+        description: "Destroy each enemy creature.",
+        cast: ctx => {
+            const enemy = ctx.source.controller === "p1" ? "p2" : "p1";
+            for (const id of ctx.state.players[enemy].board)
+                if (id && ctx.registry.cards[ctx.state.cards[id].definitionId].type === "creature")
+                    ctx.issue({ type: "destroy", target: id });
+        },
+    }),
+
     extension("rage", amountSchema, {
         translations: { de: { name: "Wut {amount}", description: "Eine eigene Kreatur erhält bis zum Ende des Zuges +{amount} Angriff." } },
         name: "Rage {amount}",
@@ -43,9 +55,9 @@ export const spellAbilities: AbilityExtension[] = [
     }),
 
     extension("barrage", amountSchema, {
-        translations: { de: { name: "Sperrfeuer {amount}", description: "Füge jeder gegnerischen Kreatur {amount} Schaden zu. Besitzungen und Spieler sind nicht betroffen." } },
+        translations: { de: { name: "Sperrfeuer {amount}", description: "Füge jeder gegnerischen Kreatur {amount} Schaden zu." } },
         name: "Barrage {amount}",
-        description: "Deal {amount} damage to each enemy creature. Holdings and players are not affected.",
+        description: "Deal {amount} damage to each enemy creature.",
         cast: (ctx, p) => {
             const enemy = ctx.source.controller === "p1" ? "p2" : "p1";
             for (const id of ctx.state.players[enemy].board)
@@ -70,15 +82,15 @@ export const spellAbilities: AbilityExtension[] = [
 
     extension("channel", channelSchema, {
         name: "Channel {amount} {energy}",
-        description: "Gain {amount} {energy} energy in your current casting-phase pool. It pays that faction’s costs (neutral energy pays only generic costs) and expires with that pool.",
-        translations: { de: { name: "Kanalisieren: {amount} {energy}", description: "Erhalte {amount} Energie ({energy}) im Energievorrat deiner aktuellen Zauberphase. Sie bezahlt die Kosten dieser Fraktion (neutrale Energie nur allgemeine Kosten) und verfällt mit diesem Vorrat." } },
+        description: "Gain {amount} {energy} energy for this casting phase.",
+        translations: { de: { name: "Kanalisieren: {amount} {energy}", description: "Erhalte {amount} Energie ({energy}) für diese Zauberphase." } },
         cast: (ctx, p) => ctx.issue({ type: "gain-energy", player: ctx.source.controller, output: { [p.energy as string]: amount(p) }, source: ctx.source.id }),
     }),
 
     extension("raise", raiseSchema, {
-        translations: { de: { name: "Erwecken: {subtype}", description: "Wähle eine Kreatur der Art {subtype} aus deinem Ablagestapel und bringe sie auf eine freie Position deines Schlachtfelds. Sie kommt bereit ins Spiel." } },
+        translations: { de: { name: "Erwecken: {subtype}", description: "Bringe eine Kreatur der Art {subtype} aus deinem Ablagestapel auf eine freie Position. Sie kommt bereit ins Spiel." } },
         name: "Raise {subtype}",
-        description: "Choose a {subtype} creature in your discard pile and return it to a free position on your battlefield. It enters ready.",
+        description: "Return a {subtype} creature from your discard pile to a free position. It enters ready.",
         target: "friendly-discard-creature",
         placement: true,
         cast: (ctx, p) => {

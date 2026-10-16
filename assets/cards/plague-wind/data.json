@@ -1,0 +1,32 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "plague-wind",
+  "revision": 1,
+  "name": "Plague Wind",
+  "deckLimitKey": "plague-wind",
+  "type": "spell",
+  "factions": [
+    "black-host"
+  ],
+  "subtypes": [],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 3,
+    "factions": {
+      "black-host": 3
+    }
+  },
+  "abilities": [],
+  "timing": [
+    "play"
+  ],
+  "cast": [
+    {
+      "id": "plague",
+      "params": {}
+    }
+  ],
+  "lore": "The wind came first. The silence came after, and stayed.",
+  "set": "foundations"
+}

@@ -33,7 +33,7 @@ export function cardSchema(factionIds: readonly string[]) {
     abilities: v.array(binding),
     stats: v.optional(v.object({
       attack: nonnegativeInteger,
-      defense: v.pipe(nonnegativeInteger, v.minValue(1)),
+      defense: nonnegativeInteger,
       energyOutputs: v.optional(v.array(pool), []),
     })),
     timing: v.optional(v.pipe(v.array(v.picklist(['play', 'response'])), v.minLength(1))),
@@ -92,6 +92,7 @@ export function compileContent(
     }
     if (cards[card.id]) throw new Error(`Duplicate card ID: ${card.id}`);
     if (card.type !== 'spell' && (!card.stats || card.cast || card.timing)) throw new Error(`Invalid field card: ${card.id}`);
+    if (card.type === 'holding' && card.stats!.defense < 1) throw new Error(`Holding ${card.id} needs at least 1 Defense`);
     if (card.type === 'holding' && card.stats!.energyOutputs.length) throw new Error(`Holding ${card.id} cannot produce energy`);
     if (card.type === 'spell' && (card.stats || !card.cast?.length || !card.timing)) throw new Error(`Invalid spell: ${card.id}`);
     for (const binding of [...card.abilities, ...(card.cast ?? [])]) {

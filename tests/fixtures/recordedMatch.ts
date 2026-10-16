@@ -15,5 +15,14 @@ const legacyChannelNeutral = defineAbility('channel-neutral', v.object({ amount:
   cast: (ctx, p) => ctx.issue({ type: 'gain-energy', player: ctx.source.controller, output: { neutral: p.amount as number }, source: ctx.source.id }),
 });
 const pinned: typeof abilities = { ...abilities, ...Object.fromEntries(legacyAbilities.map(a => [a.id, a])), 'channel-neutral': legacyChannelNeutral };
-export const recordedAbilities = Object.fromEntries(abilityIds.map(id => [id, id === 'rally' ? { ...pinned[id], name: 'Rally {amount}' } : pinned[id]]));
+/** Rule texts as they were when the match was recorded (the live texts have since been shortened). */
+const recordedText: Record<string, { en: string; de: string }> = {
+  'shield-wall': { en: 'Adjacent friendly creatures and holdings get +{amount} Defense while this card is on the battlefield. Empty slots do not close the gap.', de: 'Benachbarte eigene Kreaturen und Besitzungen erhalten +{amount} Verteidigung, solange diese Karte auf dem Schlachtfeld liegt. Leere Plätze schließen die Lücke nicht.' },
+  guard: { en: "Attacks aimed at a lane next to this card are blocked by this card instead, even if that lane is empty. Stops one attacker per combat; the lane's own Guard blocks first.", de: 'Diese Karte blockt Angriffe auf eine benachbarte Bahn, selbst wenn die Bahn leer ist. Stoppt einen Angreifer pro Kampf; die Wache in der Zielbahn blockt zuerst.' },
+};
+const frozen = (id: string) => {
+  const t = recordedText[id], a = pinned[id];
+  return t ? { ...a, description: t.en, translations: { ...a.translations, de: { name: a.translations?.de?.name ?? a.name, description: t.de } } } : a;
+};
+export const recordedAbilities = Object.fromEntries(abilityIds.map(id => [id, id === 'rally' ? { ...frozen(id), name: 'Rally {amount}' } : frozen(id)]));
 export const recordedRegistry = compileContent(cards, recordedAbilities, undefined, ['crownlands']);

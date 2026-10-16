@@ -78,7 +78,7 @@ export function CardForm({ draft, patch, onArt, hasArt, folderLocked }: { draft:
 
     {field && <fieldset><legend>Stats</legend>
       <div className="grid"><Field group title="Attack"><Num name="Attack" value={draft.attack} onChange={attack => patch({ attack })}/></Field>
-        <Field group title="Defense"><Num name="Defense" min={1} value={draft.defense} onChange={defense => patch({ defense })}/></Field></div>
+        <Field group title="Defense"><Num name="Defense" min={draft.type === 'holding' ? 1 : 0} value={draft.defense} onChange={defense => patch({ defense })}/></Field></div>
       {draft.type === 'creature' && <>
         {draft.outputs.map((pool, index) => <div className="pool" key={index}><strong>Energy {index + 1}</strong>
           {energyTypes.map(id => <div key={id} className="param"><span>{label(id)}</span><Num name={`${label(id)} energy`} value={pool[id] ?? 0} onChange={n => patch({ outputs: draft.outputs.map((p, i) => i === index ? { ...p, [id]: n } : p) })}/></div>)}

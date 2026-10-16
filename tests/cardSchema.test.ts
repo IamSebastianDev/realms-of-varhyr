@@ -41,7 +41,8 @@ describe('card authoring JSON Schema',()=>{
     for(const type of ['monster','static'])expect(validate({...card(),type})).toBe(false);
     expect(validate({...card(),rarity:'epic'})).toBe(false);
     for(const generic of [-1,1.5])expect(validate({...card(),cost:{generic,factions:{}}})).toBe(false);
-    expect(validate({...card(),stats:{attack:0,defense:0,energyOutputs:[]}})).toBe(false);
+    expect(validate({...card(),stats:{attack:0,defense:-1,energyOutputs:[]}})).toBe(false);
+    expect(validate({...card(),stats:{attack:0,defense:0,energyOutputs:[]}})).toBe(true); // Bound undead are printed with 0 Defense.
     expect(validate({...card(),stats:{attack:0,defense:1,energyOutputs:[]}})).toBe(true);
   });
   it('uses the registered ability parameter schemas, including faction-exclusive keywords',()=>{

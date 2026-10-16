@@ -184,6 +184,21 @@ describe('simultaneous combat and response energy',()=>{
    expect(legalActions(s,destroyRegistry).playable.some(a=>a.cardId===spell)).toBe(false);
   });
  });
+ describe('plague',()=>{
+  const plagueRegistry=compileContent([...raw,{...registry.cards['cleansing-light'],id:'plague-test',deckLimitKey:'plague-test',cast:[{id:'plague',params:{}}]},{...registry.cards['wayfarer'],id:'plague-holding',deckLimitKey:'plague-holding',type:'holding',abilities:[],stats:{attack:0,defense:3,energyOutputs:[]}}]);
+  const plagueSetup=()=>{const s=setup(plagueRegistry);const spell=fixture(s,'cleansing-light','p1','hand');s.cards[spell].definitionId='plague-test';s.players.p1.energy={crownlands:1,neutral:1};return {s,spell};};
+  it('destroys every enemy creature but spares holdings and your own creatures',()=>{
+   const {s,spell}=plagueSetup();const a=fixture(s,'ashen-initiate','p2','board',0),b=fixture(s,'hollow-devourer','p2','board',2),hold=fixture(s,'hollow-devourer','p2','board',3),own=fixture(s,'crown-recruit','p1','board',1);
+   s.cards[hold].definitionId='plague-holding';
+   const legal=legalActions(s,plagueRegistry).playable.find(x=>x.cardId===spell)!;expect(legal.requiresTarget).toBe(false);
+   const r=step(s,{type:'play',cardId:spell},'p1',plagueRegistry);
+   expect(r.cards[a].zone).toBe('discard');expect(r.cards[b].zone).toBe('discard');expect(r.cards[hold].zone).toBe('board');expect(r.cards[own].zone).toBe('board');assertInvariants(r);
+  });
+  it('can be cast with no enemy creatures and changes nothing',()=>{
+   const {s,spell}=plagueSetup();const own=fixture(s,'crown-recruit','p1','board',1);
+   const r=step(s,{type:'play',cardId:spell},'p1',plagueRegistry);expect(r.cards[own].zone).toBe('board');assertInvariants(r);
+  });
+ });
  describe('raise',()=>{
   const raiseRegistry=compileContent([...raw,{...registry.cards['cleansing-light'],id:'raise-test',deckLimitKey:'raise-test',timing:['play','response'],cast:[{id:'raise',params:{subtype:'human'}}]},{...registry.cards['crown-recruit'],id:'raise-human',deckLimitKey:'raise-human',subtypes:['human']},{...registry.cards['crown-recruit'],id:'raise-orc',deckLimitKey:'raise-orc',subtypes:['orc']}]);
   const dead=(s:GameState,kind:string)=>{const id=fixture(s,'crown-recruit','p1','discard');s.cards[id].definitionId=kind;return id;};
@@ -439,5 +454,40 @@ describe('single blockers and simultaneous retaliation',()=>{
   const opposite=fixture(s,'clan-scout','p2','board',3),other=fixture(s,'clan-scout','p2','board',0),charger=fixture(s,'forest-sprite','p1','hand');s.cards[charger].definitionId='charger-test';
   s=step(s,{type:'play',cardId:charger,slot:3},'p1',r);
   expect(s.cards[opposite].zone).toBe('discard');expect(s.cards[other].zone).toBe('board');
+ });
+});
+describe('bind',()=>{
+ const boundRegistry=compileContent([...raw,
+  {...registry.cards['crown-recruit'],id:'bound-undead',deckLimitKey:'bound-undead',subtypes:['undead'],stats:{attack:3,defense:0,energyOutputs:[]}},
+  {...registry.cards['crown-recruit'],id:'bound-human',deckLimitKey:'bound-human',subtypes:['human']},
+  {...registry.cards['crown-recruit'],id:'bound-necro',deckLimitKey:'bound-necro',subtypes:['necromancer'],abilities:[{id:'bind',params:{amount:1,subtype:'undead'}}]},
+  {...registry.cards['cleansing-light'],id:'bound-destroy',deckLimitKey:'bound-destroy',cast:[{id:'destroy',params:{}}]}]);
+ const put=(s:GameState,kind:string,owner:PlayerId,slot:number)=>{const id=fixture(s,owner==='p1'?'crown-recruit':'ashen-initiate',owner,'board',slot);s.cards[id].definitionId=kind;return id;};
+ it('gives your undead creatures Defense, but not other subtypes, enemies or the source',()=>{
+  const s=setup(boundRegistry);const necro=put(s,'bound-necro','p1',0),own=put(s,'bound-undead','p1',3),human=put(s,'bound-human','p1',4),enemy=put(s,'bound-undead','p2',3);
+  expect(effectiveStats(s,own,boundRegistry).defense).toBe(1);
+  expect(effectiveStats(s,human,boundRegistry).defense).toBe(registry.cards['crown-recruit'].stats!.defense);
+  expect(effectiveStats(s,necro,boundRegistry).defense).toBe(registry.cards['crown-recruit'].stats!.defense);
+  expect(effectiveStats(s,enemy,boundRegistry).defense).toBe(0);
+ });
+ it('stacks with a second necromancer',()=>{
+  const s=setup(boundRegistry);put(s,'bound-necro','p1',0);put(s,'bound-necro','p1',1);const own=put(s,'bound-undead','p1',3);
+  expect(effectiveStats(s,own,boundRegistry).defense).toBe(2);
+ });
+ it('destroys a 0-Defense creature that has no necromancer at the next state check',()=>{
+  const s=setup(boundRegistry);const spell=fixture(s,'cleansing-light','p1','hand');s.cards[spell].definitionId='bound-destroy';s.players.p1.energy={crownlands:1,neutral:1};
+  const lone=put(s,'bound-undead','p2',1),target=put(s,'bound-human','p2',2);
+  const r=step(s,{type:'play',cardId:spell,target},'p1',boundRegistry);
+  expect(r.cards[target].zone).toBe('discard');expect(r.cards[lone].zone).toBe('discard');assertInvariants(r);
+ });
+ it('kills bound undead when the necromancer is destroyed, and not before',()=>{
+  const s=setup(boundRegistry);const spell=fixture(s,'cleansing-light','p1','hand');s.cards[spell].definitionId='bound-destroy';s.players.p1.energy={crownlands:1,neutral:1};
+  const necro=put(s,'bound-necro','p2',0),undead=put(s,'bound-undead','p2',3);
+  expect(s.cards[undead].zone).toBe('board');
+  const r=step(s,{type:'play',cardId:spell,target:necro},'p1',boundRegistry);
+  expect(r.cards[necro].zone).toBe('discard');expect(r.cards[undead].zone).toBe('discard');assertInvariants(r);
+ });
+ it('rejects a holding with 0 Defense',()=>{
+  expect(()=>compileContent([...raw,{...registry.cards['wayfarer'],id:'bad-holding',deckLimitKey:'bad-holding',type:'holding',abilities:[],stats:{attack:0,defense:0,energyOutputs:[]}}])).toThrow(/at least 1 Defense/);
  });
 });

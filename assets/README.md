@@ -128,7 +128,7 @@ Primal uses `target: "energy-type"` and `activationEnergy(params, registry)` to 
 ```ts
 extension("rest", amountSchema, {
   name: "Rest {amount}",
-  description: "Exhaust during your play phase to restore {amount} life to yourself.",
+  description: "Exhaust: restore {amount} life.",
   activate: (ctx, p) => ctx.issue({
     type: "heal", target: ctx.source.controller, amount: amount(p),
   }),
@@ -233,10 +233,11 @@ Evergreen:
 | `armor` | `{ "amount": 1 }` | Reduce each incoming hit |
 | `banner` | `{ "amount": 1 }` | Immediately neighboring friendly creatures and holdings gain Attack |
 | `drillmaster` | `{ "amount": 1, "subtype": "archer" }` | Immediately neighboring friendly creatures of that subtype gain Attack |
+| `bind` | `{ "amount": 1, "subtype": "undead" }` | All your other creatures of that subtype gain Defense, wherever they stand. A creature with 0 Defense is destroyed at the next state check, so bound creatures can be printed with Defense 0 |
 | `shield-wall` | `{ "amount": 1 }` | Immediately neighboring friendly creatures and holdings gain Defense |
 | `guard` | `{}` | Attacks aimed at a lane adjacent to this card are blocked by it instead, even if that lane is empty. A Guard in a targeted lane blocks there first; each Guard stops one attacker per combat |
 | `charge` | `{ "amount": 4 }` | On play, damage the enemy creature directly opposite |
-| `rest` | `{ "amount": 1 }` | Exhaust during your play phase to restore life to yourself |
+| `rest` | `{ "amount": 1 }` | Exhaust: restore life |
 | `weaken` | `{ "amount": 1 }` | The opposing field card in the same slot loses Attack while the source remains |
 | `longshot` | `{ "amount": 1 }` | Exhaust in the play phase to damage any enemy creature |
 | `primal` | `{ "amount": 1 }` | Exhaust during the play phase to produce that much energy of one chosen faction; no printed production is implied |

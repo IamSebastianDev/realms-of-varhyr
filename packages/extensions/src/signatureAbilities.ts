@@ -15,14 +15,14 @@ function factionAbility(id: string, faction: string, impl: Omit<AbilityExtension
 export const signatureAbilities: AbilityExtension[] = [
   factionAbility('fealty', 'crownlands', {
     name: 'Fealty',
-    description: 'All friendly creatures have +1 Attack and +1 Defense while this card is on the battlefield, including this creature itself.',
-    translations: { de: { name: 'Lehnstreue', description: 'Solange diese Karte auf dem Schlachtfeld liegt, erhalten alle eigenen Kreaturen +1 Angriff und +1 Verteidigung, einschließlich dieser Kreatur selbst.' } },
+    description: 'All friendly creatures, including this one, have +1 Attack and +1 Defense.',
+    translations: { de: { name: 'Lehnstreue', description: 'Alle eigenen Kreaturen, auch diese, erhalten +1 Angriff und +1 Verteidigung.' } },
     static: (source, target, _params, registry) => source.controller === target.controller && target.zone === 'board' && registry.cards[target.definitionId].type === 'creature' ? { attack: 1, defense: 1 } : {},
   }, 3),
   factionAbility('accord', 'winter-league', {
     name: 'Accord',
-    description: 'After the first spell you cast during your play phase each turn, gain 1 Winter energy. Active even while exhausted.',
-    translations: { de: { name: 'Übereinkunft', description: 'Nach dem ersten Zauber, den du während deiner Spielphase in einem Zug wirkst, erhältst du 1 Winterenergie. Auch im erschöpften Zustand aktiv.' } },
+    description: 'After the first spell you cast during your play phase each turn, gain 1 Winter energy.',
+    translations: { de: { name: 'Übereinkunft', description: 'Nach dem ersten Zauber, den du während deiner Spielphase in einem Zug wirkst, erhältst du 1 Winterenergie.' } },
     hooks: { 'spell.cast': ctx => {
       if (ctx.state.phase !== 'play' || ctx.state.active !== ctx.source.controller || ctx.event.player !== ctx.source.controller) return;
       let start = ctx.state.events.length - 1;
@@ -33,22 +33,22 @@ export const signatureAbilities: AbilityExtension[] = [
   }),
   factionAbility('marches-rally', 'bright-marches', {
     name: 'Rally',
-    description: 'Exhaust during your play phase to deploy a creature or holding from your hand into a free position without paying its energy cost. It enters exhausted and its entry abilities trigger normally.',
-    translations: { de: { name: 'Aufgebot', description: 'Erschöpfe diese Karte während deiner Spielphase, um eine Kreatur oder eine Besitzung aus deiner Hand auf einem freien Platz einzusetzen, ohne ihre Energiekosten zu bezahlen. Sie kommt erschöpft ins Spiel und ihre Eintrittsfähigkeiten werden normal ausgelöst.' } },
+    description: 'Exhaust: deploy a creature or holding from your hand to a free position without paying its cost. It enters exhausted.',
+    translations: { de: { name: 'Aufgebot', description: 'Erschöpfe: Setze eine Kreatur oder Besitzung aus deiner Hand ohne Kosten auf einen freien Platz ein. Sie kommt erschöpft ins Spiel.' } },
     target: 'friendly-hand-field',
     placement: true,
     activate: ctx => { if (ctx.target && ctx.slot !== undefined) ctx.issue({ type: 'deploy', target: ctx.target, player: ctx.source.controller, slot: ctx.slot }); },
   }),
   factionAbility('trade', 'mountain-clans', {
     name: 'Trade',
-    description: 'When this creature channels during your play phase, it also produces 1 neutral energy. This bonus does not apply to response energy.',
-    translations: { de: { name: 'Handel', description: 'Wenn diese Kreatur während deiner Spielphase Energie kanalisiert, erzeugt sie zusätzlich 1 neutrale Energie. Dieser Bonus gilt nicht für Todesenergie.' } },
+    description: 'When this creature channels during your play phase, it also produces 1 neutral energy.',
+    translations: { de: { name: 'Handel', description: 'Wenn diese Kreatur während deiner Spielphase Energie kanalisiert, erzeugt sie zusätzlich 1 neutrale Energie.' } },
     before: { 'energy.generate.before': (_ctx, _params, payload) => ({ ...payload, output: { ...payload.output, neutral: (payload.output?.neutral ?? 0) + 1 } }) },
   }),
   factionAbility('sanctuary', 'conclave', {
     name: 'Sanctuary',
-    description: 'Adjacent friendly creatures have +1 Defense while this card is on the battlefield. Elves receive an additional +1 Defense.',
-    translations: { de: { name: 'Zuflucht', description: 'Solange diese Karte auf dem Schlachtfeld liegt, erhalten benachbarte eigene Kreaturen +1 Verteidigung. Elfen erhalten zusätzlich +1 Verteidigung.' } },
+    description: 'Adjacent friendly creatures have +1 Defense (+2 for Elves).',
+    translations: { de: { name: 'Zuflucht', description: 'Benachbarte eigene Kreaturen erhalten +1 Verteidigung (Elfen +2).' } },
     static: (source, target, _params, registry) => {
       const card = registry.cards[target.definitionId];
       return areAdjacent(source, target) && card.type === 'creature' ? { defense: card.subtypes.includes('elf') ? 2 : 1 } : {};
@@ -56,8 +56,8 @@ export const signatureAbilities: AbilityExtension[] = [
   }, 3),
   factionAbility('scorch', 'ember-fields', {
     name: 'Scorch',
-    description: 'When played, deal 3 damage to the opposing creature or holding directly opposite this card’s deployed position. An empty position takes no damage; players are not targets.',
-    translations: { de: { name: 'Versengen', description: 'Beim Ausspielen: Füge der direkt gegenüberliegenden gegnerischen Kreatur oder der Besitzung 3 Schaden zu. Ein leerer Platz erleidet keinen Schaden; Spieler sind keine Ziele.' } },
+    description: 'When played, deal 3 damage to the enemy creature or holding opposite.',
+    translations: { de: { name: 'Versengen', description: 'Beim Ausspielen: Füge der gegenüberliegenden gegnerischen Kreatur oder Besitzung 3 Schaden zu.' } },
     hooks: { 'card.played': ctx => {
       if (ctx.event.cardId !== ctx.source.id) return;
       const id = opposite(ctx.source, ctx.state);
@@ -66,8 +66,8 @@ export const signatureAbilities: AbilityExtension[] = [
   }),
   factionAbility('raid', 'horde', {
     name: 'Raid',
-    description: 'This card has +1 Attack for each adjacent friendly creature. Holdings do not count.',
-    translations: { de: { name: 'Überfall', description: 'Diese Karte erhält +1 Angriff für jede benachbarte eigene Kreatur. Besitzungen zählen nicht.' } },
+    description: 'This card has +1 Attack for each adjacent friendly creature.',
+    translations: { de: { name: 'Überfall', description: 'Diese Karte erhält +1 Angriff für jede benachbarte eigene Kreatur.' } },
     static: (source, target, _params, registry, state) => {
       if (source.id !== target.id || !state) return {};
       const neighbors = state.players[source.controller].board.filter(id => id &&
@@ -77,8 +77,8 @@ export const signatureAbilities: AbilityExtension[] = [
   }, 3),
   factionAbility('soul-harvest', 'black-host', {
     name: 'Soul Harvest',
-    description: 'While this card is on the battlefield, whenever another friendly creature is destroyed, draw one card from your library. Does not trigger for holdings or this card itself.',
-    translations: { de: { name: 'Seelenernte', description: 'Solange diese Karte auf dem Schlachtfeld liegt: Wird eine andere eigene Kreatur zerstört, ziehe eine Karte aus deiner Bibliothek. Gilt nicht für Besitzungen oder diese Karte selbst.' } },
+    description: 'Whenever another friendly creature is destroyed, draw a card.',
+    translations: { de: { name: 'Seelenernte', description: 'Wird eine andere eigene Kreatur zerstört, ziehe eine Karte.' } },
     hooks: { 'creature.destroyed': ctx => {
       if (ctx.event.cardId !== ctx.source.id && ctx.event.snapshot?.controller === ctx.source.controller)
         ctx.issue({ type: 'draw', player: ctx.source.controller, amount: 1 });
@@ -86,8 +86,8 @@ export const signatureAbilities: AbilityExtension[] = [
   }),
   factionAbility('dark-harvest', 'black-host', {
     name: 'Dark Harvest',
-    description: 'Exhaust during your play phase: put the top card of your library into your discard pile and gain 2 Host energy. Needs at least two cards in your library.',
-    translations: { de: { name: 'Dunkle Ernte', description: 'Erschöpfe diese Karte während deiner Spielphase: Lege die oberste Karte deiner Bibliothek auf deinen Ablagestapel und erhalte 2 Heerenergie. Benötigt mindestens zwei Karten in deiner Bibliothek.' } },
+    description: 'Exhaust: put the top card of your library into your discard pile and gain 2 Host energy. Needs two cards in your library.',
+    translations: { de: { name: 'Dunkle Ernte', description: 'Erschöpfe: Lege die oberste Karte deiner Bibliothek auf den Ablagestapel und erhalte 2 Heerenergie. Benötigt zwei Karten in der Bibliothek.' } },
     canActivate: (source, state) => state.players[source.controller].deck.length > 1,
     activate: ctx => {
       ctx.issue({ type: 'mill', player: ctx.source.controller, amount: 1 });
@@ -96,8 +96,8 @@ export const signatureAbilities: AbilityExtension[] = [
   }),
   factionAbility('wayfarer', 'neutral', {
     name: 'Wayfarer',
-    description: 'Exhaust during your play phase to return a friendly creature to its owner’s hand, clearing its damage. You may choose this card itself. Costs are not refunded; replaying it pays its normal cost and it enters exhausted.',
-    translations: { de: { name: 'Weggefährte', description: 'Erschöpfe diese Karte während deiner Spielphase, um eine eigene Kreatur auf die Hand ihres Besitzers zurückzunehmen und ihren Schaden zu entfernen. Du darfst diese Karte selbst wählen. Kosten werden nicht erstattet; beim erneuten Ausspielen gelten die normalen Kosten und sie kommt erschöpft ins Spiel.' } },
+    description: 'Exhaust: return a friendly creature (including this one) to its owner’s hand, clearing its damage.',
+    translations: { de: { name: 'Weggefährte', description: 'Erschöpfe: Nimm eine eigene Kreatur (auch diese) auf die Hand ihres Besitzers zurück und entferne ihren Schaden.' } },
     target: 'friendly-creature',
     activate: ctx => { if (ctx.target) ctx.issue({ type: 'return', target: ctx.target }); },
   }, 1),

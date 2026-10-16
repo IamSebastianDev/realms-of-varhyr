@@ -1,0 +1,42 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "gravecaller",
+  "revision": 1,
+  "name": "Gravecaller",
+  "deckLimitKey": "gravecaller",
+  "type": "creature",
+  "factions": [
+    "black-host"
+  ],
+  "subtypes": [
+    "necromancer"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "black-host": 1
+    }
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "black-host": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "bind",
+      "params": {
+        "amount": 1,
+        "subtype": "undead"
+      }
+    }
+  ],
+  "lore": "He does not command the dead. He only reminds them they were once held together.",
+  "set": "foundations"
+}

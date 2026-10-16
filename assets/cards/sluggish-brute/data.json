@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "sluggish-brute",
-  "revision": 2,
+  "revision": 3,
   "name": "Sluggish Brute",
   "deckLimitKey": "sluggish-brute",
   "type": "creature",
@@ -21,7 +21,7 @@
   },
   "stats": {
     "attack": 3,
-    "defense": 2,
+    "defense": 0,
     "energyOutputs": [
       {
         "black-host": 2
@@ -36,6 +36,6 @@
       }
     }
   ],
-  "set": "foundations",
-  "lore": "Dead for a century and still in no hurry. The blow lands anyway."
+  "lore": "Dead for a century and still in no hurry. The blow lands anyway.",
+  "set": "foundations"
 }

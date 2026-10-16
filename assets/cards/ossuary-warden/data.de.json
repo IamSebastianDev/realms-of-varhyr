@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Beinhauswächter",
+  "lore": "Jeder Knochen im Gewölbe ist gezählt. Jede Zahl ist ein Versprechen."
+}

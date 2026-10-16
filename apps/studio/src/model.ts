@@ -69,7 +69,8 @@ export function validate(draft: Draft, existingIds: ReadonlySet<string>, hasArt:
   if (!draft.set) errors.push('Choose a set.');
   if (draft.type === 'spell' && !draft.cast.length) errors.push('A spell needs at least one spell effect.');
   if (draft.type === 'spell' && !draft.timing.length) errors.push('Choose when the spell can be played.');
-  if (draft.type === 'creature' && draft.defense < 1) errors.push('Defense must be at least 1.');
+  if (draft.type === 'holding' && draft.defense < 1) errors.push('Holding Defense must be at least 1.');
+  if (draft.type === 'creature' && draft.defense < 0) errors.push('Defense cannot be negative.');
   if (!errors.length) {
     try { compileContent([{ ...serialize(draft).data, art: '/placeholder.png' }]); }
     catch (error) {

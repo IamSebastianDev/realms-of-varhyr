@@ -14,7 +14,7 @@
     "check:engine": "tsc --project tsconfig.engine.json",
     "audit:bot": "node --import tsx scripts/audit-bot.ts",
     "audit:balance": "node --import tsx scripts/audit-first-player.ts",
-    "import:cards": "node --import tsx scripts/import-cards.ts",
+    "import:cards": "node scripts/ensure-generated.mjs && node --import tsx scripts/import-cards.ts",
     "prebuild": "npm run import:cards",
     "pretest": "npm run import:cards",
     "pretest:watch": "npm run import:cards",

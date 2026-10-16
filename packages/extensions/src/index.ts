@@ -13,8 +13,8 @@ const drillSchema = v.strictObject({ amount: positive, subtype: v.pipe(v.string(
 export const evergreenAbilities: AbilityExtension[] = [
     extension("primal", amountSchema, {
         name: "Primal {amount}",
-        description: "Exhaust during your play phase: choose a faction and gain {amount} energy of that faction.",
-        translations: { de: { name: "Urkraft {amount}", description: "Erschöpfe diese Kreatur während deiner Spielphase: Wähle eine Fraktion und erhalte {amount} Energie dieser Fraktion." } },
+        description: "Exhaust: choose a faction and gain {amount} energy of that faction.",
+        translations: { de: { name: "Urkraft {amount}", description: "Erschöpfe: Wähle eine Fraktion und erhalte {amount} Energie dieser Fraktion." } },
         target: "energy-type",
         activationEnergy: (params, registry) => registry.energyTypes.filter(color => color !== "neutral").map(color => ({ [color]: amount(params) })),
         activate: (ctx, p) => ctx.issue({ type: "gain-energy", player: ctx.source.controller, output: { [ctx.target!]: amount(p) }, source: ctx.source.id }),
@@ -33,44 +33,57 @@ export const evergreenAbilities: AbilityExtension[] = [
     }),
 
     extension("banner", amountSchema, {
-        translations: { de: {"name": "Banner {amount}", "description": "Benachbarte eigene Kreaturen und Besitzungen erhalten +{amount} Angriff, solange diese Karte auf dem Schlachtfeld liegt. Leere Plätze schließen die Lücke nicht."} },
+        translations: { de: {"name": "Banner {amount}", "description": "Benachbarte eigene Kreaturen und Besitzungen erhalten +{amount} Angriff."} },
         name: "Banner {amount}",
         description:
-            "Adjacent friendly creatures and holdings get +{amount} Attack while this card is on the battlefield. Empty slots do not close the gap.",
+            "Adjacent friendly creatures and holdings get +{amount} Attack.",
         static: (source, target, p) => (areAdjacent(source, target) ? { attack: amount(p) } : {}),
     }),
 
     extension("drillmaster", drillSchema, {
-        translations: { de: { name: "Drillmeister {amount}", description: "Benachbarte eigene Kreaturen vom Typ {subtype} erhalten +{amount} Angriff, solange diese Karte auf dem Schlachtfeld liegt. Leere Plätze schließen die Lücke nicht." } },
+        translations: { de: { name: "Drillmeister {amount}", description: "Benachbarte eigene Kreaturen vom Typ {subtype} erhalten +{amount} Angriff." } },
         name: "Drillmaster {amount}",
-        description: "Adjacent friendly {subtype} creatures have +{amount} Attack while this card is on the battlefield. Empty slots do not close the gap.",
+        description: "Adjacent friendly {subtype} creatures get +{amount} Attack.",
         static: (source, target, p, registry) =>
             areAdjacent(source, target) && registry.cards[target.definitionId].type === "creature" && registry.cards[target.definitionId].subtypes.includes(p.subtype as string)
                 ? { attack: amount(p) }
                 : {},
     }),
 
+    extension("bind", drillSchema, {
+        translations: { de: { name: "Bindung {amount}", description: "Eigene Kreaturen vom Typ {subtype} erhalten +{amount} Verteidigung." } },
+        name: "Bind {amount}",
+        description: "Friendly {subtype} creatures have +{amount} Defense.",
+        static: (source, target, p, registry) =>
+            source.id !== target.id &&
+            source.controller === target.controller &&
+            registry.cards[target.definitionId].type === "creature" &&
+            registry.cards[target.definitionId].subtypes.includes(p.subtype as string)
+                ? { defense: amount(p) }
+                : {},
+    }),
+
     extension("shield-wall", amountSchema, {
-        translations: { de: {"name": "Schildwall {amount}", "description": "Benachbarte eigene Kreaturen und Besitzungen erhalten +{amount} Verteidigung, solange diese Karte auf dem Schlachtfeld liegt. Leere Plätze schließen die Lücke nicht."} },
+        translations: { de: {"name": "Schildwall {amount}", "description": "Benachbarte eigene Kreaturen und Besitzungen erhalten +{amount} Verteidigung."} },
         name: "Shield Wall {amount}",
         description:
-            "Adjacent friendly creatures and holdings get +{amount} Defense while this card is on the battlefield. Empty slots do not close the gap.",
+            "Adjacent friendly creatures and holdings get +{amount} Defense.",
         static: (source, target, p) => (areAdjacent(source, target) ? { defense: amount(p) } : {}),
     }),
 
     extension("guard", empty, {
-        translations: { de: {"name": "Wache", "description": "Diese Karte blockt Angriffe auf eine benachbarte Bahn, selbst wenn die Bahn leer ist. Stoppt einen Angreifer pro Kampf; die Wache in der Zielbahn blockt zuerst."} },
+        translations: { de: {"name": "Wache", "description": "Blockt Angriffe auf benachbarte Bahnen, auch leere. Stoppt einen Angreifer pro Kampf."} },
         name: "Guard",
         description:
-            "Attacks aimed at a lane next to this card are blocked by this card instead, even if that lane is empty. Stops one attacker per combat; the lane's own Guard blocks first.",
+            "Blocks attacks aimed at adjacent lanes, even empty ones. Stops one attacker per combat.",
         intercepts: (source, _attacker, lane) => source.slot !== null && Math.abs(source.slot - lane) === 1,
     }),
 
     extension("charge", v.strictObject({ amount: positive }), {
-        translations: { de: {"name": "Ansturm {amount}", "description": "Beim Ausspielen: Füge der gegnerischen Kreatur direkt gegenüber {amount} Schaden zu. Ist der Platz leer oder mit einer Besitzung besetzt, entsteht kein Schaden."} },
+        translations: { de: {"name": "Ansturm {amount}", "description": "Beim Ausspielen: Füge der gegenüberliegenden gegnerischen Kreatur {amount} Schaden zu."} },
         name: "Charge {amount}",
         description:
-            "When played, deal {amount} damage to the enemy creature directly opposite. If that position is empty or holds a holding, deal no damage.",
+            "When played, deal {amount} damage to the enemy creature opposite.",
         hooks: {
             "card.played": (ctx, p) => {
                 if (ctx.event.cardId !== ctx.source.id || ctx.source.slot === null) return;
@@ -83,23 +96,23 @@ export const evergreenAbilities: AbilityExtension[] = [
     }),
 
     extension("rest", amountSchema, {
-        translations: { de: {"name": "Rast {amount}", "description": "Erschöpfe diese Karte während deiner Spielphase, um bei dir selbst {amount} Leben wiederherzustellen."} },
+        translations: { de: {"name": "Rast {amount}", "description": "Erschöpfe: Stelle {amount} Leben wieder her."} },
         name: "Rest {amount}",
-        description: "Exhaust during your play phase to restore {amount} life to yourself.",
+        description: "Exhaust: restore {amount} life.",
         activate: (ctx, p) => ctx.issue({ type: "heal", target: ctx.source.controller, amount: amount(p) }),
     }),
 
     extension("weaken", amountSchema, {
         name: "Weaken {amount}",
-        description: "The enemy creature or holding directly opposite has -{amount} Attack, down to zero, while this card remains on the battlefield. Active even while exhausted.",
-        translations: { de: { name: "Schwächung {amount}", description: "Die direkt gegenüberliegende gegnerische Kreatur oder die Besitzung hat -{amount} Angriff, bis auf null, solange diese Karte auf dem Schlachtfeld liegt. Auch im erschöpften Zustand aktiv." } },
+        description: "The enemy creature or holding opposite has -{amount} Attack.",
+        translations: { de: { name: "Schwächung {amount}", description: "Die gegenüberliegende gegnerische Kreatur oder Besitzung hat -{amount} Angriff." } },
         static: (source, target, p) => source.controller !== target.controller && source.slot !== null && target.zone === "board" && source.slot === target.slot ? { attack: -amount(p) } : {},
     }),
 
     extension("longshot", amountSchema, {
         name: "Longshot {amount}",
-        description: "Exhaust during your play phase to deal {amount} damage to any enemy creature. Cannot target holdings or players.",
-        translations: { de: { name: "Fernschuss {amount}", description: "Erschöpfe diese Karte während deiner Spielphase, um einer beliebigen gegnerischen Kreatur {amount} Schaden zuzufügen. Besitzungen und Spieler sind keine Ziele." } },
+        description: "Exhaust: deal {amount} damage to an enemy creature.",
+        translations: { de: { name: "Fernschuss {amount}", description: "Erschöpfe: Füge einer gegnerischen Kreatur {amount} Schaden zu." } },
         target: "enemy-creature",
         activate: (ctx, p) => { if (ctx.target) ctx.issue({ type: "damage", target: ctx.target, amount: amount(p), source: ctx.source.id }); },
     }),

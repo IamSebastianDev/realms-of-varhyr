@@ -1,0 +1,46 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "ossuary-warden",
+  "revision": 1,
+  "name": "Ossuary Warden",
+  "deckLimitKey": "ossuary-warden",
+  "type": "creature",
+  "factions": [
+    "black-host"
+  ],
+  "subtypes": [
+    "necromancer"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "black-host": 2
+    }
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "black-host": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "guard",
+      "params": {}
+    },
+    {
+      "id": "bind",
+      "params": {
+        "amount": 1,
+        "subtype": "undead"
+      }
+    }
+  ],
+  "lore": "Every bone in the vault is counted. Every count is a promise.",
+  "set": "foundations"
+}

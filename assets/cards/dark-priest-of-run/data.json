@@ -31,8 +31,11 @@
   },
   "abilities": [
     {
-      "id": "soul-harvest",
-      "params": {}
+      "id": "bind",
+      "params": {
+        "amount": 2,
+        "subtype": "undead"
+      }
     },
     {
       "id": "weaken",

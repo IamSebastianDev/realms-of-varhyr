@@ -151,7 +151,7 @@
         },
         "defense": {
           "type": "integer",
-          "minimum": 1
+          "minimum": 0
         },
         "energyOutputs": {
           "type": "array",
@@ -257,7 +257,7 @@
     "ability-accord": {
       "type": "object",
       "title": "Accord",
-      "description": "After the first spell you cast during your play phase each turn, gain 1 Winter energy. Active even while exhausted.",
+      "description": "After the first spell you cast during your play phase each turn, gain 1 Winter energy.",
       "properties": {
         "id": {
           "const": "accord"
@@ -306,7 +306,7 @@
     "ability-banner": {
       "type": "object",
       "title": "Banner {amount}",
-      "description": "Adjacent friendly creatures and holdings get +{amount} Attack while this card is on the battlefield. Empty slots do not close the gap.",
+      "description": "Adjacent friendly creatures and holdings get +{amount} Attack.",
       "properties": {
         "id": {
           "const": "banner"
@@ -334,7 +334,7 @@
     "ability-barrage": {
       "type": "object",
       "title": "Barrage {amount}",
-      "description": "Deal {amount} damage to each enemy creature. Holdings and players are not affected.",
+      "description": "Deal {amount} damage to each enemy creature.",
       "properties": {
         "id": {
           "const": "barrage"
@@ -359,10 +359,43 @@
       ],
       "additionalProperties": false
     },
+    "ability-bind": {
+      "type": "object",
+      "title": "Bind {amount}",
+      "description": "Friendly {subtype} creatures have +{amount} Defense.",
+      "properties": {
+        "id": {
+          "const": "bind"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "subtype": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "amount",
+            "subtype"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
     "ability-channel": {
       "type": "object",
       "title": "Channel {amount} {energy}",
-      "description": "Gain {amount} {energy} energy in your current casting-phase pool. It pays that faction’s costs (neutral energy pays only generic costs) and expires with that pool.",
+      "description": "Gain {amount} {energy} energy for this casting phase.",
       "properties": {
         "id": {
           "const": "channel"
@@ -406,7 +439,7 @@
     "ability-charge": {
       "type": "object",
       "title": "Charge {amount}",
-      "description": "When played, deal {amount} damage to the enemy creature directly opposite. If that position is empty or holds a holding, deal no damage.",
+      "description": "When played, deal {amount} damage to the enemy creature opposite.",
       "properties": {
         "id": {
           "const": "charge"
@@ -462,7 +495,7 @@
     "ability-dark-harvest": {
       "type": "object",
       "title": "Dark Harvest",
-      "description": "Exhaust during your play phase: put the top card of your library into your discard pile and gain 2 Host energy. Needs at least two cards in your library.",
+      "description": "Exhaust: put the top card of your library into your discard pile and gain 2 Host energy. Needs two cards in your library.",
       "properties": {
         "id": {
           "const": "dark-harvest"
@@ -532,7 +565,7 @@
     "ability-drillmaster": {
       "type": "object",
       "title": "Drillmaster {amount}",
-      "description": "Adjacent friendly {subtype} creatures have +{amount} Attack while this card is on the battlefield. Empty slots do not close the gap.",
+      "description": "Adjacent friendly {subtype} creatures get +{amount} Attack.",
       "properties": {
         "id": {
           "const": "drillmaster"
@@ -565,7 +598,7 @@
     "ability-fealty": {
       "type": "object",
       "title": "Fealty",
-      "description": "All friendly creatures have +1 Attack and +1 Defense while this card is on the battlefield, including this creature itself.",
+      "description": "All friendly creatures, including this one, have +1 Attack and +1 Defense.",
       "properties": {
         "id": {
           "const": "fealty"
@@ -586,7 +619,7 @@
     "ability-guard": {
       "type": "object",
       "title": "Guard",
-      "description": "Attacks aimed at a lane next to this card are blocked by this card instead, even if that lane is empty. Stops one attacker per combat; the lane's own Guard blocks first.",
+      "description": "Blocks attacks aimed at adjacent lanes, even empty ones. Stops one attacker per combat.",
       "properties": {
         "id": {
           "const": "guard"
@@ -635,7 +668,7 @@
     "ability-longshot": {
       "type": "object",
       "title": "Longshot {amount}",
-      "description": "Exhaust during your play phase to deal {amount} damage to any enemy creature. Cannot target holdings or players.",
+      "description": "Exhaust: deal {amount} damage to an enemy creature.",
       "properties": {
         "id": {
           "const": "longshot"
@@ -663,7 +696,7 @@
     "ability-marches-rally": {
       "type": "object",
       "title": "Rally",
-      "description": "Exhaust during your play phase to deploy a creature or holding from your hand into a free position without paying its energy cost. It enters exhausted and its entry abilities trigger normally.",
+      "description": "Exhaust: deploy a creature or holding from your hand to a free position without paying its cost. It enters exhausted.",
       "properties": {
         "id": {
           "const": "marches-rally"
@@ -681,10 +714,31 @@
       ],
       "additionalProperties": false
     },
+    "ability-plague": {
+      "type": "object",
+      "title": "Plague",
+      "description": "Destroy each enemy creature.",
+      "properties": {
+        "id": {
+          "const": "plague"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
     "ability-primal": {
       "type": "object",
       "title": "Primal {amount}",
-      "description": "Exhaust during your play phase: choose a faction and gain {amount} energy of that faction.",
+      "description": "Exhaust: choose a faction and gain {amount} energy of that faction.",
       "properties": {
         "id": {
           "const": "primal"
@@ -740,7 +794,7 @@
     "ability-raid": {
       "type": "object",
       "title": "Raid",
-      "description": "This card has +1 Attack for each adjacent friendly creature. Holdings do not count.",
+      "description": "This card has +1 Attack for each adjacent friendly creature.",
       "properties": {
         "id": {
           "const": "raid"
@@ -761,7 +815,7 @@
     "ability-raise": {
       "type": "object",
       "title": "Raise {subtype}",
-      "description": "Choose a {subtype} creature in your discard pile and return it to a free position on your battlefield. It enters ready.",
+      "description": "Return a {subtype} creature from your discard pile to a free position. It enters ready.",
       "properties": {
         "id": {
           "const": "raise"
@@ -789,7 +843,7 @@
     "ability-rest": {
       "type": "object",
       "title": "Rest {amount}",
-      "description": "Exhaust during your play phase to restore {amount} life to yourself.",
+      "description": "Exhaust: restore {amount} life.",
       "properties": {
         "id": {
           "const": "rest"
@@ -817,7 +871,7 @@
     "ability-sanctuary": {
       "type": "object",
       "title": "Sanctuary",
-      "description": "Adjacent friendly creatures have +1 Defense while this card is on the battlefield. Elves receive an additional +1 Defense.",
+      "description": "Adjacent friendly creatures have +1 Defense (+2 for Elves).",
       "properties": {
         "id": {
           "const": "sanctuary"
@@ -838,7 +892,7 @@
     "ability-scorch": {
       "type": "object",
       "title": "Scorch",
-      "description": "When played, deal 3 damage to the opposing creature or holding directly opposite this card’s deployed position. An empty position takes no damage; players are not targets.",
+      "description": "When played, deal 3 damage to the enemy creature or holding opposite.",
       "properties": {
         "id": {
           "const": "scorch"
@@ -859,7 +913,7 @@
     "ability-shield-wall": {
       "type": "object",
       "title": "Shield Wall {amount}",
-      "description": "Adjacent friendly creatures and holdings get +{amount} Defense while this card is on the battlefield. Empty slots do not close the gap.",
+      "description": "Adjacent friendly creatures and holdings get +{amount} Defense.",
       "properties": {
         "id": {
           "const": "shield-wall"
@@ -887,7 +941,7 @@
     "ability-soul-harvest": {
       "type": "object",
       "title": "Soul Harvest",
-      "description": "While this card is on the battlefield, whenever another friendly creature is destroyed, draw one card from your library. Does not trigger for holdings or this card itself.",
+      "description": "Whenever another friendly creature is destroyed, draw a card.",
       "properties": {
         "id": {
           "const": "soul-harvest"
@@ -936,7 +990,7 @@
     "ability-trade": {
       "type": "object",
       "title": "Trade",
-      "description": "When this creature channels during your play phase, it also produces 1 neutral energy. This bonus does not apply to response energy.",
+      "description": "When this creature channels during your play phase, it also produces 1 neutral energy.",
       "properties": {
         "id": {
           "const": "trade"
@@ -957,7 +1011,7 @@
     "ability-wayfarer": {
       "type": "object",
       "title": "Wayfarer",
-      "description": "Exhaust during your play phase to return a friendly creature to its owner’s hand, clearing its damage. You may choose this card itself. Costs are not refunded; replaying it pays its normal cost and it enters exhausted.",
+      "description": "Exhaust: return a friendly creature (including this one) to its owner’s hand, clearing its damage.",
       "properties": {
         "id": {
           "const": "wayfarer"
@@ -978,7 +1032,7 @@
     "ability-weaken": {
       "type": "object",
       "title": "Weaken {amount}",
-      "description": "The enemy creature or holding directly opposite has -{amount} Attack, down to zero, while this card remains on the battlefield. Active even while exhausted.",
+      "description": "The enemy creature or holding opposite has -{amount} Attack.",
       "properties": {
         "id": {
           "const": "weaken"
@@ -1013,6 +1067,7 @@
             "armor",
             "banner",
             "barrage",
+            "bind",
             "channel",
             "charge",
             "damage",
@@ -1025,6 +1080,7 @@
             "heal",
             "longshot",
             "marches-rally",
+            "plague",
             "primal",
             "rage",
             "raid",
@@ -1062,6 +1118,9 @@
           "$ref": "#/definitions/ability-barrage"
         },
         {
+          "$ref": "#/definitions/ability-bind"
+        },
+        {
           "$ref": "#/definitions/ability-channel"
         },
         {
@@ -1096,6 +1155,9 @@
         },
         {
           "$ref": "#/definitions/ability-marches-rally"
+        },
+        {
+          "$ref": "#/definitions/ability-plague"
         },
         {
           "$ref": "#/definitions/ability-primal"
@@ -1148,6 +1210,7 @@
             "armor",
             "banner",
             "barrage",
+            "bind",
             "channel",
             "charge",
             "damage",
@@ -1157,6 +1220,7 @@
             "fealty",
             "guard",
             "heal",
+            "plague",
             "rage",
             "raid",
             "raise",
@@ -1191,6 +1255,9 @@
           "$ref": "#/definitions/ability-barrage"
         },
         {
+          "$ref": "#/definitions/ability-bind"
+        },
+        {
           "$ref": "#/definitions/ability-channel"
         },
         {
@@ -1216,6 +1283,9 @@
         },
         {
           "$ref": "#/definitions/ability-heal"
+        },
+        {
+          "$ref": "#/definitions/ability-plague"
         },
         {
           "$ref": "#/definitions/ability-rage"
@@ -1261,6 +1331,7 @@
             "destroy",
             "draw",
             "heal",
+            "plague",
             "rage",
             "raise",
             "steadfast"
@@ -1294,6 +1365,9 @@
           "$ref": "#/definitions/ability-heal"
         },
         {
+          "$ref": "#/definitions/ability-plague"
+        },
+        {
           "$ref": "#/definitions/ability-rage"
         },
         {
@@ -1314,6 +1388,7 @@
             "armor",
             "banner",
             "barrage",
+            "bind",
             "channel",
             "charge",
             "damage",
@@ -1326,6 +1401,7 @@
             "heal",
             "longshot",
             "marches-rally",
+            "plague",
             "rage",
             "raid",
             "raise",
@@ -1362,6 +1438,9 @@
           "$ref": "#/definitions/ability-barrage"
         },
         {
+          "$ref": "#/definitions/ability-bind"
+        },
+        {
           "$ref": "#/definitions/ability-channel"
         },
         {
@@ -1396,6 +1475,9 @@
         },
         {
           "$ref": "#/definitions/ability-marches-rally"
+        },
+        {
+          "$ref": "#/definitions/ability-plague"
         },
         {
           "$ref": "#/definitions/ability-rage"
