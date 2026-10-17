@@ -4,7 +4,7 @@ import { registry } from '../../../packages/content/src';
 import { validateDeck } from '../../../packages/core/src';
 import { missingDeckCopies, type Collection } from './collection';
 import { achievementText, closestAchievement, dailyDef, type Reward } from './goals';
-import { claimAchievementTier, claimDailyGoal, externalOf, rerollGoal, useGoals } from './goalsStore';
+import { claimAchievementTier, externalOf, rerollGoal, useGoals } from './goalsStore';
 import './start-hall.css';
 
 type Option = { id: string; name: string; cards: string[] };
@@ -20,12 +20,14 @@ const rewardText = (reward: Reward) => [reward.crowns ? msg('{v0} crowns', { v0:
 const art = (id: string) => ({ backgroundImage: `url(/cards/${id}/data.png)` });
 
 /** A small progress ring: the number inside is how far along the goal is. */
-function Ring({ progress, goal }: { progress: number; goal: number }) {
+function Ring({ progress, goal, onSwap }: { progress: number; goal: number; onSwap?: () => void }) {
   const r = 17, c = 2 * Math.PI * r, done = progress >= goal;
-  return <span className={`goal-ring ${done ? 'done' : ''}`} role="progressbar" aria-valuemin={0} aria-valuemax={goal} aria-valuenow={progress}>
+  const ring = <span className={`goal-ring ${done ? 'done' : ''} ${onSwap ? 'swappable' : ''}`} role="progressbar" aria-valuemin={0} aria-valuemax={goal} aria-valuenow={progress}>
     <svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r={r}/><circle className="fill" cx="22" cy="22" r={r} strokeDasharray={c} strokeDashoffset={c * (1 - Math.min(1, progress / goal))}/></svg>
     {done ? <Check size={15}/> : <b>{progress}</b>}
+    {onSwap && <RefreshCw className="ring-swap" size={16}/>}
   </span>;
+  return onSwap ? <button className="ring-button" aria-label={msg("Swap this goal")} title={msg("Swap this goal (once a day)")} onClick={onSwap}>{ring}</button> : ring;
 }
 
 /** Home: three big art cards to start playing, with daily goals and quest progress along the bottom. */
@@ -57,12 +59,10 @@ export function StartPage({ inert, options, selected, collection, canResume, res
           <h2>{msg("Daily goals")}</h2>
           <ul>{goals.daily.map((slot, index) => {
             const def = dailyDef(slot.id)!, complete = slot.progress >= def.goal;
-            return <li key={`${slot.id}${index}`} className={slot.claimed ? 'done claimed' : complete ? 'done' : ''}>
-              <Ring progress={slot.progress} goal={def.goal}/>
+            const swappable = !complete && !goals.rerolled;
+            return <li key={`${slot.id}${index}`} className={complete ? 'done' : ''}>
+              <Ring progress={slot.progress} goal={def.goal} onSwap={swappable ? () => rerollGoal(index) : undefined}/>
               <span className="goal-text"><b>{msg(def.title)}</b><small>{slot.progress} / {def.goal} · {rewardText(def.reward)}</small></span>
-              {complete && !slot.claimed && <button className="goal-claim" onClick={() => claimDailyGoal(index)}>{msg("Claim")}</button>}
-              {slot.claimed && <em className="goal-claimed">{msg("Claimed")}</em>}
-              {!complete && !goals.rerolled && <button className="goal-reroll" aria-label={msg("Swap this goal")} title={msg("Swap this goal (once a day)")} onClick={() => rerollGoal(index)}><RefreshCw size={14}/></button>}
             </li>;
           })}</ul>
         </section>

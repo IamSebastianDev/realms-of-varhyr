@@ -62,7 +62,7 @@ function glowTexture() {
 
 const SPARKS = 160;
 
-function Burst({ pack, tagline, done }: { pack: CarouselPack; tagline: string; done: () => void }) {
+function Burst({ pack, tagline, go, done }: { pack: CarouselPack; tagline: string; go: boolean; done: () => void }) {
   const art = usePackArt([pack], tagline)[0];
   const loaded = useLoader(GLTFLoader, pack.model);
   const chunks = useMemo(() => {
@@ -82,16 +82,19 @@ function Burst({ pack, tagline, done }: { pack: CarouselPack; tagline: string; d
   useEffect(() => () => { chunks.forEach(chunk => chunk.geometry.dispose()); materials.forEach(material => material.dispose()); glow.dispose(); sparks.geometry.dispose(); sparks.material.dispose(); }, [chunks, materials, glow, sparks]);
 
   const root = useRef<THREE.Group>(null), pieces = useRef<(THREE.Mesh | null)[]>([]), flash = useRef<THREE.Sprite>(null), light = useRef<THREE.PointLight>(null), points = useRef<THREE.Points>(null);
-  const start = useRef<number | null>(null), finished = useRef(false);
+  const mount = useRef<number | null>(null), start = useRef<number | null>(null), finished = useRef(false);
   useFrame(state => {
-    if (start.current === null) start.current = state.clock.elapsedTime;
-    const t = state.clock.elapsedTime - start.current, g = root.current; if (!g) return;
+    const now = state.clock.elapsedTime;
+    if (mount.current === null) mount.current = now;
+    if (go && start.current === null) start.current = now;
+    // `tm` runs from the pack's arrival and keeps it gently turning; `t` runs from the click that starts the burst.
+    const tm = now - mount.current, t = start.current === null ? -1 : now - start.current, g = root.current; if (!g) return;
     const s = Math.max(0, t - BURST);
-    // Arrival and charge: the pack settles to face front, then shakes harder until it bursts.
-    const arrive = Math.min(1, t / .55), charge = THREE.MathUtils.clamp((t - .5) / (BURST - .5), 0, 1);
-    const shake = charge * charge * .07 * (t < BURST ? 1 : 0);
-    g.position.set(Math.sin(t * 61) * shake, Math.cos(t * 47) * shake, 0);
-    g.rotation.set(0, THREE.MathUtils.lerp(-.9, Math.sin(t * .8) * .18, 1 - Math.pow(1 - arrive, 3)), Math.sin(t * 53) * shake * .6);
+    // Arrival, then idle until clicked; after the click the pack shakes harder until it bursts.
+    const arrive = Math.min(1, tm / .55), charge = t < 0 ? 0 : THREE.MathUtils.clamp(t / BURST, 0, 1);
+    const shake = charge * charge * .07 * (t < BURST ? 1 : 0), bob = t < 0 ? Math.sin(tm * 1.6) * .06 : 0;
+    g.position.set(Math.sin(tm * 61) * shake, Math.cos(tm * 47) * shake + bob, 0);
+    g.rotation.set(0, THREE.MathUtils.lerp(-.9, Math.sin(tm * .8) * .18, 1 - Math.pow(1 - arrive, 3)), Math.sin(tm * 53) * shake * .6);
     g.scale.setScalar((.7 + .3 * (1 - Math.pow(1 - arrive, 3))) * (1 + charge * .12));
     // Shards.
     const k = 2.1, travel = (1 - Math.exp(-k * s)) / k;
@@ -100,7 +103,7 @@ function Burst({ pack, tagline, done }: { pack: CarouselPack; tagline: string; d
       mesh.position.copy(chunk.center).addScaledVector(chunk.velocity, travel);
       mesh.rotation.set(chunk.spin.x * s * .5, chunk.spin.y * s * .5, chunk.spin.z * s * .5);
     });
-    const fade = t < BURST ? Math.min(1, t / .3) : Math.max(0, 1 - Math.max(0, s - .35) / .85);
+    const fade = t < BURST ? Math.min(1, tm / .3) : Math.max(0, 1 - Math.max(0, s - .35) / .85);
     for (const material of materials) material.opacity = fade;
     // Flash, light and sparks.
     if (flash.current) { const m = flash.current.material as THREE.SpriteMaterial; flash.current.scale.setScalar(.8 + s * 9); m.opacity = s > 0 ? Math.max(0, 1 - s / .7) * .95 : charge * charge * .35; }
@@ -124,12 +127,12 @@ function Burst({ pack, tagline, done }: { pack: CarouselPack; tagline: string; d
 }
 
 /** The booster on its dark stage: it charges, bursts into shards and sparks, then reports that it is done. */
-export default function BoosterBurst3D({ pack, tagline, done }: { pack: CarouselPack; tagline: string; done: () => void }) {
+export default function BoosterBurst3D({ pack, tagline, go, done }: { pack: CarouselPack; tagline: string; go: boolean; done: () => void }) {
   return <Canvas flat dpr={[1, 2]} camera={{ position: [0, 0, 10], fov: 30 }} gl={{ antialias: true, alpha: true }}>
     <Environment/>
     <ambientLight intensity={.3}/>
     <directionalLight position={[3, 4, 5]} intensity={1.1}/>
     <pointLight position={[-3, -2, 3]} intensity={8} color={pack.color}/>
-    <Burst pack={pack} tagline={tagline} done={done}/>
+    <Burst pack={pack} tagline={tagline} go={go} done={done}/>
   </Canvas>;
 }

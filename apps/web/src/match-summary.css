@@ -103,3 +103,10 @@ button.peek-toggle.on,button.peek-toggle.on svg{color:#1c2a20;opacity:1}
 /* Hand size sits with the library and discard; a fanned-card look keeps it distinct from the library's card back. */
 .app .library-count.hand-count{border-color:#cfae6acc;background:linear-gradient(160deg,#35563f,#223d2e)}
 .app .library-count.hand-count::before{border-color:#cfae6a55}
+
+/* The result sits straight on a near-opaque dark screen, like the booster reveal: no card, more room. */
+.ms-backdrop{background:radial-gradient(ellipse 75% 65% at 50% 40%,color-mix(in srgb,#e4c47a 14%,#050b07) 0%,#030604 72%);background-color:#030604fa}
+.ms-backdrop.lost{background:radial-gradient(ellipse 75% 65% at 50% 40%,color-mix(in srgb,#d38a72 14%,#050b07) 0%,#030604 72%);background-color:#030604fa}
+.ms-backdrop.draw{background:radial-gradient(ellipse 75% 65% at 50% 40%,color-mix(in srgb,#b9c4d4 12%,#050b07) 0%,#030604 72%);background-color:#030604fa}
+.ms,.ms.lost{width:min(1080px,100%);border:0;border-radius:0;box-shadow:none;background:none;padding:28px 4vw 24px}
+.ms::before{display:none}

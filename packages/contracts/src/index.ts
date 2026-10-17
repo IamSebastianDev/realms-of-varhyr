@@ -24,7 +24,7 @@ export type CardDefinition = {
   timing?: ('play' | 'response')[]; cast?: AbilityBinding[];
 };
 export type CardInstance = { id: string; definitionId: string; owner: PlayerId; controller: PlayerId; zone: 'deck' | 'hand' | 'board' | 'discard' | 'choice'; slot: number | null; exhausted: boolean; damage: number; /** Until-end-of-turn bonuses from spells such as Rage and Steadfast. */ attackBonus?: number; defenseBonus?: number };
-export type Player = { id: PlayerId; name: string; /** Portrait id; optional presentation only. */ avatar?: string; life: number; deck: string[]; hand: string[]; board: (string | null)[]; discard: string[]; energy: Pool; responseEnergy: Pool };
+export type Player = { id: PlayerId; name: string; /** Portrait id; optional presentation only. */ avatar?: string; /** Card back id; optional presentation only. */ cardBack?: string; life: number; deck: string[]; hand: string[]; board: (string | null)[]; discard: string[]; energy: Pool; responseEnergy: Pool };
 export type Phase = 'draw' | 'play' | 'attack' | 'end';
 export type DeadSnapshot = { card: CardInstance; outputs: Pool[] };
 export type PendingChoice =

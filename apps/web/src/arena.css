@@ -378,3 +378,144 @@ html,body,#root{overscroll-behavior:none}
 .pile-picker h2{margin:0;font-size:1.1rem}
 .pile-picker-cards{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
 .pile-picker-card{width:132px;cursor:pointer}
+
+/* The battle log floats over the board only when asked for; the left column belongs to the players. */
+.battle-log{position:fixed!important;z-index:28;left:auto!important;right:14px;top:62px!important;bottom:auto!important;width:min(340px,calc(100vw - 28px))!important;height:min(48dvh,420px);display:flex!important;margin:0;border-radius:10px;border:1px solid #cfae6a55;background:#06100def;box-shadow:0 18px 44px #000b;backdrop-filter:blur(6px)}
+.match-corner button[aria-pressed=true]{border-color:#c9b27a;color:#fff;background:#2a2c1acc}
+@media(min-width:951px) and (min-aspect-ratio:1/1){
+  .topbar .brand{display:none}
+  /* Your side: a large library pile, with hand and discard beside it. */
+  .app .player-banner.own .piles{display:grid;grid-template-columns:auto 1fr;grid-template-rows:1fr 1fr;align-items:center;justify-items:start;column-gap:26px;row-gap:4px;padding:12px 0 18px 4px}
+  .app .player-banner.own .piles .library-count:not(.hand-count){grid-column:1;grid-row:1 / 3;width:92px;height:128px;margin-right:12px}
+  .app .player-banner.own .piles .hand-count{grid-column:2;grid-row:1}
+  .app .player-banner.own .piles .discard-count{grid-column:2;grid-row:2}
+  .app .player-banner.own .library-count:not(.hand-count) strong{right:-14px;bottom:-12px;min-width:30px;height:30px;font-size:17px}
+  .app .player-banner.own .library-count:not(.hand-count) .card-back-face{border-radius:5px}
+}
+
+/* Player panels are inset into the sidebar, with brass corner chrome. */
+@media(min-width:951px) and (min-aspect-ratio:1/1){
+  .app .player-banner{border:1px solid;border-color:#0a160f99 #e5d29f26 #e5d29f33 #0a160f99;border-radius:6px;
+    background:
+      linear-gradient(#cfae6acc,#cfae6acc) top left/14px 1px no-repeat,linear-gradient(#cfae6acc,#cfae6acc) top left/1px 14px no-repeat,
+      linear-gradient(#cfae6acc,#cfae6acc) top right/14px 1px no-repeat,linear-gradient(#cfae6acc,#cfae6acc) top right/1px 14px no-repeat,
+      linear-gradient(#cfae6acc,#cfae6acc) bottom left/14px 1px no-repeat,linear-gradient(#cfae6acc,#cfae6acc) bottom left/1px 14px no-repeat,
+      linear-gradient(#cfae6acc,#cfae6acc) bottom right/14px 1px no-repeat,linear-gradient(#cfae6acc,#cfae6acc) bottom right/1px 14px no-repeat,
+      #050d0866;
+    box-shadow:inset 0 3px 16px #040e0899,inset 0 0 0 1px #04100a55,0 1px 0 #e5d29f14}
+  .app .player-banner.opponent{border-bottom-color:#e5d29f33}
+  .player-banner .piles{border-top:1px solid #e5d29f1f}
+}
+
+/* One inset per player: the energy row and pile row sit flat inside it, and the elements are larger. */
+@media(min-width:951px) and (min-aspect-ratio:1/1){
+  .app .player-banner .energy-meter{border:0;background:none;box-shadow:none;padding:0;height:30px}
+  .app .player-banner .energy-meter .pool-icon{width:17px;height:17px}
+  .app .player-banner .energy-meter .energy-empty{font-size:13px}
+  .app .player-banner .energy-meter .energy-token{font-size:15px}
+  .player-banner .player-name h2{font-size:23px}
+  .app .player-banner .portrait .avatar{width:56px;height:56px}
+  .app .player-banner .portrait .life-counter{width:50px;height:57px}
+  .player-banner .piles{border-top:0;margin-top:2px}
+  .app .player-banner.own .piles{padding:6px 0 16px 4px;column-gap:22px}
+  .app .player-banner.own .piles .library-count:not(.hand-count){width:var(--lib-w);height:var(--lib-h);margin-right:14px}
+  .app .player-banner.own .piles .library-count:not(.hand-count) strong{min-width:36px;height:36px;font-size:20px}
+  .app .player-banner .piles .hand-count,.app .player-banner .piles .discard-count{width:48px;height:66px}
+}
+
+/* Two separate insets per player: who they are (portrait, name, life, energy) and their piles. The opponent mirrors you:
+   piles outermost, identity towards the centre. */
+.player-id{display:contents}
+@media(min-width:951px) and (min-aspect-ratio:1/1){
+  .app .player-banner,.app .player-banner.opponent{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:12px;padding:0;border:0;border-radius:0;background:none;box-shadow:none}
+  .app .player-banner.opponent{top:var(--opp-top)}
+  .app .player-banner.opponent .piles{order:-1}
+  .app .player-id,.app .player-banner:is(.own,.opponent) .piles{border:1px solid;border-color:#0a160f99 #e5d29f26 #e5d29f33 #0a160f99;border-radius:6px;box-shadow:inset 0 3px 16px #040e0899,inset 0 0 0 1px #04100a55;
+    background:
+      linear-gradient(#cfae6acc,#cfae6acc) top left/14px 1px no-repeat,linear-gradient(#cfae6acc,#cfae6acc) top left/1px 14px no-repeat,
+      linear-gradient(#cfae6acc,#cfae6acc) top right/14px 1px no-repeat,linear-gradient(#cfae6acc,#cfae6acc) top right/1px 14px no-repeat,
+      linear-gradient(#cfae6acc,#cfae6acc) bottom left/14px 1px no-repeat,linear-gradient(#cfae6acc,#cfae6acc) bottom left/1px 14px no-repeat,
+      linear-gradient(#cfae6acc,#cfae6acc) bottom right/14px 1px no-repeat,linear-gradient(#cfae6acc,#cfae6acc) bottom right/1px 14px no-repeat,
+      #050d0866}
+  .app{--id-h:92px;--pile-h:192px;--lib-h:calc(var(--pile-h) - 26px);--lib-w:calc(var(--lib-h) * .667);--own-h:calc(var(--id-h) + var(--pile-h) + 12px)}
+  .app .player-id{height:var(--id-h);box-sizing:border-box;display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"portrait name gem" "portrait energy gem";column-gap:10px;row-gap:2px;align-items:center;padding:0 12px}
+  .app .player-id .portrait .avatar{width:48px;height:48px}
+  .app .player-id .portrait .life-counter{width:42px;height:48px}
+  .app .player-banner:is(.own,.opponent) .piles{margin:0;height:var(--pile-h);box-sizing:border-box;border-top:1px solid;padding:0 13px;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:1fr 1fr;align-items:stretch;justify-items:stretch;column-gap:12px;row-gap:10px}
+  .app .player-banner:is(.own,.opponent) .piles .library-count:not(.hand-count){grid-column:1;grid-row:1 / 3;width:var(--lib-w);height:var(--lib-h);align-self:center;margin:0}
+  .app .player-banner:is(.own,.opponent) .piles .hand-count,.app .player-banner:is(.own,.opponent) .piles .discard-count{width:auto;height:auto;margin:0;border:1px solid #cfae6a55;border-radius:5px;background:#ffffff0a;box-shadow:inset 0 2px 8px #0006;display:grid;place-items:center}
+  .app .player-banner:is(.own,.opponent) .piles .hand-count{grid-column:2;grid-row:1}
+  .app .player-banner:is(.own,.opponent) .piles .discard-count{grid-column:2;grid-row:2}
+  .app .player-banner:is(.own,.opponent) .piles .discard-count{overflow:hidden;position:relative}
+  .app .player-banner:is(.own,.opponent) .piles .discard-top{border:0;box-shadow:none;border-radius:0;opacity:.5}
+  .app .player-banner:is(.own,.opponent) .piles .discard-top img{width:100%;height:100%;object-fit:cover}
+  .app .player-banner:is(.own,.opponent) .piles .discard-count strong,.app .player-banner:is(.own,.opponent) .piles .discard-count small{z-index:1;text-shadow:0 1px 3px #000}
+  .app .player-banner:is(.own,.opponent) .piles .hand-count,.app .player-banner:is(.own,.opponent) .piles .discard-count{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;position:relative}
+  .app .player-banner:is(.own,.opponent) .piles .hand-count svg{display:none}
+  .app .player-banner:is(.own,.opponent) .piles .hand-count strong,.app .player-banner:is(.own,.opponent) .piles .discard-count strong{position:static;transform:none;min-width:0;height:auto;width:auto;border:0;background:none;box-shadow:none;font:600 24px/1 var(--serif);color:#f3e7c4}
+  .app .player-banner:is(.own,.opponent) .piles .hand-count small,.app .player-banner:is(.own,.opponent) .piles .discard-count small{position:static;transform:none;font:600 9px/1 var(--sans,inherit);letter-spacing:1.4px;color:#b8c4a6}
+  .app .player-banner:is(.own,.opponent) .library-count:not(.hand-count) strong{min-width:34px;height:34px;font-size:19px;right:-8px;bottom:-8px}
+  .app .player-banner:is(.own,.opponent) .library-count:not(.hand-count) .card-back-face{border-radius:5px}
+}
+@media(min-width:951px) and (min-aspect-ratio:1/1) and (max-height:780px){.app{--id-h:80px;--pile-h:164px;--opp-top:64px}}
+@media(min-width:951px) and (min-aspect-ratio:1/1) and (min-height:920px){.app{--pile-h:240px}}
+.app .player-banner .player-name h2{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:clip;line-height:1.2}
+.app .player-banner .player-name{flex-wrap:nowrap;min-width:0}
+.app .player-banner:is(.own,.opponent) .library-count:not(.hand-count) small{display:none}
+
+/* Sidebar, final: player at the top and bottom edge, the turn between them, the library scaling with the window.
+   Hand and discard are small card-shaped fields; the energy sits in a tray. */
+@media(min-width:951px) and (min-aspect-ratio:1/1){
+  .app{--pile-h:min(calc((100dvh - 104px) / 2 - var(--id-h) - 12px),262px);--lib-h:calc(var(--pile-h) - 24px);--lib-w:calc(var(--lib-h) * .667);--opp-top:14px}
+  .topbar .match-status{top:50%;transform:translateY(-50%)}
+  .app .player-banner.opponent{top:14px}
+  .app .player-banner:is(.own,.opponent) .piles{grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;align-content:center;justify-content:space-between;column-gap:10px;row-gap:12px;padding:0 14px}
+  .app .player-banner:is(.own,.opponent) .piles .library-count:not(.hand-count){grid-column:1;grid-row:1 / 3;width:var(--lib-w);height:var(--lib-h);align-self:center;justify-self:start}
+  .app .player-banner:is(.own,.opponent) .piles .hand-count,.app .player-banner:is(.own,.opponent) .piles .discard-count{grid-column:2;width:48px;height:auto;aspect-ratio:5/7;justify-self:end;align-self:center}
+  .app .player-banner:is(.own,.opponent) .piles .hand-count{grid-row:1;align-self:end}
+  .app .player-banner:is(.own,.opponent) .piles .discard-count{grid-row:2;align-self:start}
+  .app .player-banner:is(.own,.opponent) .piles .hand-count strong,.app .player-banner:is(.own,.opponent) .piles .discard-count strong{font-size:19px}
+  .app .player-banner:is(.own,.opponent) .piles .hand-count small,.app .player-banner:is(.own,.opponent) .piles .discard-count small{font-size:7px;letter-spacing:1px}
+  /* One frame on the card back: no brass border, inner frame or stack lines from the old pile style. */
+  .app .player-banner .library-count.has-back{border:0;background:none;box-shadow:2px 3px 0 -1px #0d1d18,4px 6px 8px #0009}
+  .app .player-banner .library-count.has-back::before{display:none}
+  .app .player-id,.app .player-banner .piles{border-color:#0a160f99 #e5d29f1a #e5d29f22 #0a160f99;background:
+      linear-gradient(#cfae6a88,#cfae6a88) top left/12px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top left/1px 12px no-repeat,
+      linear-gradient(#cfae6a88,#cfae6a88) top right/12px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top right/1px 12px no-repeat,
+      linear-gradient(#cfae6a88,#cfae6a88) bottom left/12px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom left/1px 12px no-repeat,
+      linear-gradient(#cfae6a88,#cfae6a88) bottom right/12px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom right/1px 12px no-repeat,
+      #050d0866}
+  .app .player-id .portrait .avatar{box-shadow:0 0 0 2px var(--fir),0 0 0 3px #cfae6a55}
+  .app .player-id .energy-meter{justify-self:stretch;width:auto;height:30px;padding:0 10px;border:1px solid;border-color:#0a160f99 #e5d29f1a #e5d29f22 #0a160f99;border-radius:5px;background:#040d0888;box-shadow:inset 0 2px 8px #040e08cc}
+}
+
+/* Hierarchy: tight inside a player, generous between a player and the turn. No light edges on the insets. */
+@media(min-width:951px) and (min-aspect-ratio:1/1){
+  .app{--pile-h:min(calc((100dvh - 132px) / 2 - var(--id-h) - 8px),262px);--lib-h:calc(var(--pile-h) - 24px);--lib-w:calc(var(--lib-h) * .667);--own-h:calc(var(--id-h) + var(--pile-h) + 8px)}
+  .app .player-banner,.app .player-banner.opponent{gap:8px}
+  .app .player-id,.app .player-banner .piles,.app .player-id .energy-meter{border-color:#06100a99}
+  .app .player-id,.app .player-banner .piles{box-shadow:inset 0 3px 16px #040e0899}
+}
+@media(min-width:951px) and (min-aspect-ratio:1/1){
+  .app .player-banner:is(.own,.opponent) .piles,.app .player-banner:is(.own,.opponent) .player-id{border:1px solid #06100a99}
+}
+
+/* The turn is engraved into the sidebar rather than sitting in a card. */
+@media(min-width:951px) and (min-aspect-ratio:1/1){
+  .topbar .match-status{border:0;background:none;box-shadow:none;gap:12px}
+  .topbar .match-status span{font:700 28px/1 var(--serif);letter-spacing:.5px;color:#d9b866;text-shadow:0 -1px 1px #000c,0 1px 0 #f4e2a622}
+  .topbar .match-status strong{font:700 15px/1 var(--sans,inherit);letter-spacing:.4px;color:#c9a95a;text-shadow:0 -1px 1px #000c,0 1px 0 #f4e2a61c}
+  .topbar .match-status i{background:#c9a95a88;width:4px;height:4px;border-radius:50%}
+}
+
+/* The turn readout is gone from the sidebar (kept for screen readers); the players use the room. */
+@media(min-width:951px) and (min-aspect-ratio:1/1){
+  .topbar .match-status{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden;clip:rect(0 0 0 0);padding:0!important;margin:-1px!important;border:0}
+  .app{--pile-h:min(calc((100dvh - 60px) / 2 - var(--id-h) - 8px),236px)}
+}
+
+/* The library count shows on hover (always when the deck is nearly empty, since running out loses). */
+@media(min-width:951px) and (min-aspect-ratio:1/1){
+  .app .player-banner:is(.own,.opponent) .library-count:not(.hand-count):not(.library-low) strong{opacity:0;transform:scale(.8);transition:opacity .15s,transform .15s}
+  .app .player-banner:is(.own,.opponent) .library-count:not(.hand-count):hover strong,.app .player-banner:is(.own,.opponent) .library-count:not(.hand-count):focus-within strong{opacity:1;transform:none}
+}

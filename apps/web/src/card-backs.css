@@ -1,0 +1,38 @@
+/* Card backs: the sleeve artwork (public/sleeves) as a background. */
+.card-back-face{position:relative;width:28px;aspect-ratio:2/3;flex:none;border-radius:4px;overflow:hidden;background:#1a0f0c center/cover no-repeat;box-shadow:0 0 0 1px #0008,0 1px 3px #0008}
+.back-picker-button{display:grid;place-items:center;padding:3px;border-radius:5px;border:1px solid #e5d29f44;background:#0a160f99}
+.back-picker-button:hover{border-color:#e3c780}
+.back-picker-button .card-back-face{width:24px;border-radius:3px}
+.back-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;max-height:min(62dvh,520px);overflow:auto;padding:2px}
+.back-grid button{position:relative;display:grid;justify-items:center;align-content:start;gap:4px;padding:10px 6px 8px;text-align:center;border-radius:6px;border:1px solid #e5d29f1f;background:#0a1a1166;color:#e8e2c8}
+.back-grid button:hover:not(:disabled){border-color:#e5d29f66}
+.back-grid button.on{border-color:#e3c780;background:#e5d29f18}
+.back-grid button:disabled{cursor:default}
+.back-grid button:disabled .card-back-face{filter:saturate(.45) brightness(.65)}
+.back-grid .card-back-face{width:76px;border-radius:5px;margin-bottom:4px}
+.back-grid b{font:600 14px/1.15 var(--serif)}
+.back-grid small{font-size:10.5px;line-height:1.25;color:#a9b89b}
+.back-grid svg{position:absolute;top:8px;right:8px;color:#e3c780}
+/* The library pile in a match shows your deck's back. */
+.app .library-count .card-back-face{position:absolute;inset:0;width:auto;height:auto;aspect-ratio:auto;border-radius:3px;box-shadow:none}
+.app .library-count.has-back{border-color:#cfae6a66;background:none}
+.app .library-count.has-back::before,.app .library-count.has-back>svg{display:none}
+
+/* The sleeve and deck pickers float on a dark, shadowy screen instead of sitting in a panel. */
+.builder-dialog-backdrop:has(.back-grid),.builder-dialog-backdrop:has(.setup-deck-grid){background:radial-gradient(ellipse at 50% 45%,#050c08d9 0,#020504f2 75%);backdrop-filter:blur(3px)}
+.builder-dialog:has(.back-grid),.builder-dialog:has(.setup-deck-grid){width:min(92vw,860px);max-width:none;background:none;border:0;box-shadow:none;backdrop-filter:none}
+.builder-dialog:has(.back-grid) h2,.builder-dialog:has(.setup-deck-grid) h2{text-align:center;font-size:38px;text-shadow:0 2px 14px #000}
+.builder-dialog:has(.back-grid) .back-grid,.builder-dialog:has(.setup-deck-grid) .setup-deck-grid{max-height:min(68dvh,600px);padding:10px}
+.back-grid button{background:#ffffff08;border-color:#e5d29f1f}
+.back-grid button.on{background:#e5d29f1a}
+
+/* More room in the two pickers. */
+.builder-dialog:has(.back-grid),.builder-dialog:has(.setup-deck-grid){width:min(94vw,1040px);padding:48px 40px 40px}
+.builder-dialog:has(.back-grid) h2,.builder-dialog:has(.setup-deck-grid) h2{margin:0 0 34px}
+.builder-dialog:has(.back-grid) .builder-dialog-close,.builder-dialog:has(.setup-deck-grid) .builder-dialog-close{top:22px;right:26px}
+.back-grid{grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:18px}
+.back-grid button{padding:16px 10px 14px;gap:6px}
+.back-grid .card-back-face{width:90px;margin-bottom:8px}
+.setup-deck-grid{grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px}
+.setup-deck-grid .setup-deck{min-height:150px}
+.builder-dialog:has(.back-grid) .back-grid,.builder-dialog:has(.setup-deck-grid) .setup-deck-grid{max-height:min(66dvh,640px);padding:12px}

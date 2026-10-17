@@ -26,7 +26,7 @@ export class RtcRoom {
   private previews=new Map<string,(forecast:Forecast)=>void>();
   private closed=false;
   private state:RoomState;
-  private constructor(role:'host'|'guest',code:string,private name:string,private deck:MatchDeck){
+  private constructor(role:'host'|'guest',code:string,private name:string,private deck:MatchDeck,private back?:string){
     this.state={role,code,phase:'connecting',connected:false,busy:false,message:'Connecting to the room service…',snapshot:null};
     if(role==='guest')try{
       // Keep the seat identity in this tab so a guest reload can rejoin the same host match.
@@ -34,10 +34,10 @@ export class RtcRoom {
       this.token=sessionStorage.getItem(key)||this.token;sessionStorage.setItem(key,this.token);
     }catch{/* Reconnect within this page still works without storage. */}
   }
-  static async host(name:string,deck:MatchDeck){const room=new RtcRoom('host',newRoomCode(),name,structuredClone(deck));await room.initialize();return room;}
-  static async join(code:string,name:string,deck:MatchDeck){
+  static async host(name:string,deck:MatchDeck,back?:string){const room=new RtcRoom('host',newRoomCode(),name,structuredClone(deck),back);await room.initialize();return room;}
+  static async join(code:string,name:string,deck:MatchDeck,back?:string){
     const normalized=normalizeRoomCode(code);if(!validRoomCode(normalized))throw new Error('Enter the eight-character room code.');
-    const room=new RtcRoom('guest',normalized,name,structuredClone(deck));await room.initialize();return room;
+    const room=new RtcRoom('guest',normalized,name,structuredClone(deck),back);await room.initialize();return room;
   }
   readonly subscribe=(listener:()=>void)=>{this.listeners.add(listener);return()=>{this.listeners.delete(listener);};};
   readonly getSnapshot=()=>this.state;
@@ -91,7 +91,7 @@ export class RtcRoom {
       }
     });
   }
-  private sendHello(connection:DataConnection){this.safeSend(connection,{type:'hello',version:NETWORK_VERSION,rules:RULES_VERSION,content:registry.version,token:this.token,name:this.name,avatar:getProfile().avatar,deck:this.deck});}
+  private sendHello(connection:DataConnection){this.safeSend(connection,{type:'hello',version:NETWORK_VERSION,rules:RULES_VERSION,content:registry.version,token:this.token,name:this.name,avatar:getProfile().avatar,cardBack:this.back,deck:this.deck});}
   private safeSend(connection:DataConnection,message:unknown){
     if(!connection.open)return false;
     try{connection.send(message);return true;}catch{if(connection===this.connection)this.disconnect();return false;}
@@ -109,7 +109,7 @@ export class RtcRoom {
           if(this.guestToken&&message.token!==this.guestToken)throw new Error('This room already belongs to another opponent.');
           if(!this.authority){
             this.guestToken=message.token;
-            this.authority=new MatchAuthority(registry,crypto.randomUUID(),[this.deck,message.deck],[this.name,message.name],crypto.getRandomValues(new Uint32Array(1))[0],[getProfile().avatar,message.avatar]);
+            this.authority=new MatchAuthority(registry,crypto.randomUUID(),[this.deck,message.deck],[this.name,message.name],crypto.getRandomValues(new Uint32Array(1))[0],[getProfile().avatar,message.avatar],[this.back,message.cardBack]);
           }
           authenticated=true;this.clearTimer(deadline);
           const previous=this.connection;this.connection=connection;if(previous&&previous!==connection)previous.close();

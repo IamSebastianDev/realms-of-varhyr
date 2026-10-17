@@ -14,17 +14,27 @@
 .game-setup-pane .setup-friend-modes{margin-top:18px}
 .local-game-setup{display:flex;flex-direction:column;margin-top:22px}
 .setup-label{margin:0 0 10px;font:600 13px/1 var(--sans,inherit);color:#c9ad6a}
-.setup-decks{display:grid;gap:8px;max-height:min(34dvh,300px);overflow:auto;overscroll-behavior:contain;padding:2px}
-.setup-deck{position:relative;display:flex;align-items:center;gap:14px;width:100%;padding:0 14px 0 0;min-height:60px;text-align:left;border-radius:5px;overflow:hidden;border:1px solid #e5d29f1f;background:#0a1a1166;color:#e8e2c8;transition:border-color .15s,background .15s}
-.setup-deck:hover{border-color:#e5d29f55}
-.setup-deck[aria-checked=true]{border-color:#e3c780;background:#e5d29f18;box-shadow:0 0 18px #e3c78022}
-.setup-deck-art{flex:none;align-self:stretch;width:84px;background:#0a1a11 center 30%/cover;-webkit-mask-image:linear-gradient(90deg,#000 55%,transparent);mask-image:linear-gradient(90deg,#000 55%,transparent)}
-.setup-deck-text{flex:1;min-width:0;display:grid;gap:3px;padding:10px 0}
-.setup-deck-text b{font:600 17px/1.15 var(--serif);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.setup-deck-text small{font-size:11px;color:#a9b89b}
+.setup-chosen{display:grid;gap:10px}
+.setup-chosen .setup-deck{min-height:132px;width:100%}
+.setup-change{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;border-radius:5px;border:1px solid #e5d29f44;background:#0a1a1166;color:#e8e2c8;font-size:13px}
+.setup-change:hover{border-color:#e3c780;color:#f6e8bd}
+.setup-deck-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;max-height:min(62dvh,520px);overflow:auto;padding:3px}
+.setup-deck-sleeve{position:absolute;z-index:1;right:10px;bottom:10px;width:30px!important;border-radius:3px!important;box-shadow:0 2px 6px #000a,0 0 0 1px #0009!important}
+.setup-deck{position:relative;display:flex;flex-direction:column;justify-content:flex-end;min-height:128px;padding:0;text-align:left;border-radius:6px;overflow:hidden;border:1px solid #e5d29f2a;background:#0a1a11;color:#f3ecd2;transition:border-color .15s,box-shadow .15s,transform .15s}
+.setup-deck-art{position:absolute;inset:0;background:#0a1a11 center 25%/cover;transition:transform .3s,filter .2s}
+.setup-deck::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,#06100a00 25%,#06100aee 88%)}
+.setup-deck:hover:not(:disabled){border-color:#e5d29f88}
+.setup-deck:hover:not(:disabled) .setup-deck-art{transform:scale(1.04)}
+.setup-deck[aria-checked=true]{border-color:#e3c780;box-shadow:0 0 0 1px #e3c780,0 0 22px #e3c78033}
+.setup-deck-text{position:relative;z-index:1;display:grid;gap:2px;padding:10px 12px 10px}
+.setup-deck-text b{font:600 17px/1.15 var(--serif);text-shadow:0 1px 4px #000;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.setup-deck-text small{font-size:11px;color:#c3cfb3;text-shadow:0 1px 3px #000}
+.setup-deck:disabled{cursor:not-allowed}
+.setup-deck:disabled .setup-deck-art{filter:grayscale(.9) brightness(.5)}
+.setup-deck:disabled .setup-deck-text b{color:#aeb7a0}
 .setup-deck.warn .setup-deck-text small{color:#f0cf98}
-.setup-deck>svg{flex:none;color:#e3c780}
+.setup-deck>svg:not(.card-back-face){position:absolute;z-index:2;top:8px;right:8px;box-sizing:content-box;padding:4px;border-radius:50%;background:#e3c780;color:#2b1e08}
 .local-game-setup .deck-warning{margin:14px 0 0}
 .local-game-setup .setup-advanced{margin-top:18px}
-.local-game-setup .setup-start.start-play{margin:22px 0 0;width:100%;min-width:0;height:68px;grid-template-columns:1fr 28px;padding:0 24px 0 32px}
+.local-game-setup .setup-start.start-play,.local-game-setup .setup-start.start-play:hover:not(:disabled){margin:22px 0 0 auto;width:fit-content;min-width:230px;height:68px;grid-template-columns:auto 28px;gap:20px;padding:0 22px 0 30px}
 .local-game-setup .setup-start.start-play span{font-size:28px;text-align:left}

@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Prospektor von Gil Krag",
+  "lore": "Jeder Clan beansprucht den Berg. Der Prospektor beansprucht nur, was im nächsten Stein glitzert."
+}

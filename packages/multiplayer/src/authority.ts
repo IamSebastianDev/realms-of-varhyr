@@ -12,12 +12,13 @@ export class MatchAuthority {
   private revision = 0;
   private accepted = new Map<string, { serialized: string; error?: string }>();
   constructor(registry: Registry, matchId: string, start: GameState);
-  constructor(registry: Registry, matchId: string, decks: [MatchDeck,MatchDeck], names: [string,string], seed: number, avatars?: [string|undefined,string|undefined]);
-  constructor(private registry: Registry, readonly matchId: string, start: GameState|[MatchDeck,MatchDeck], names?: [string,string], seed?: number, avatars?: [string|undefined,string|undefined]) {
+  constructor(registry: Registry, matchId: string, decks: [MatchDeck,MatchDeck], names: [string,string], seed: number, avatars?: [string|undefined,string|undefined], backs?: [string|undefined,string|undefined]);
+  constructor(private registry: Registry, readonly matchId: string, start: GameState|[MatchDeck,MatchDeck], names?: [string,string], seed?: number, avatars?: [string|undefined,string|undefined], backs?: [string|undefined,string|undefined]) {
     if(Array.isArray(start)){
       this.initial = createMatch(registry,[start[0].cards,start[1].cards],seed!,{mulligan:true});
       this.initial.players.p1.name=names![0];this.initial.players.p2.name=names![1];
       if(avatars?.[0])this.initial.players.p1.avatar=avatars[0];if(avatars?.[1])this.initial.players.p2.avatar=avatars[1];
+      if(backs?.[0])this.initial.players.p1.cardBack=backs[0];if(backs?.[1])this.initial.players.p2.cardBack=backs[1];
     }else this.initial = structuredClone(start);
     this.state=structuredClone(this.initial);
   }

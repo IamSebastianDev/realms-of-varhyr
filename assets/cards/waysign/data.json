@@ -1,0 +1,30 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "waysign",
+  "revision": 1,
+  "name": "Waysign",
+  "deckLimitKey": "waysign",
+  "type": "holding",
+  "factions": [
+    "neutral"
+  ],
+  "subtypes": [],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 2
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 3
+  },
+  "abilities": [
+    {
+      "id": "rest",
+      "params": {
+        "amount": 2
+      }
+    }
+  ],
+  "set": "foundations"
+}

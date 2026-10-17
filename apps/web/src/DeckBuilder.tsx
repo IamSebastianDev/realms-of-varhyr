@@ -1,3 +1,4 @@
+import { CardBackPicker } from './CardBackFace';
 import { Checkbox } from './Checkbox';
 import { FactionSelect } from './FactionSelect';
 import { t as msg, useLanguage, formatNumber } from '../../../packages/ui/src/i18n';
@@ -24,7 +25,7 @@ type Props = {
 };
 const newDeck = (): CustomDeck => ({ id: `custom-${crypto.randomUUID()}`, name: msg("New deck"), cards: [] });
 const groups = [{ type: 'creature', name: 'Creatures' }, { type: 'holding', name: 'Holdings' }, { type: 'spell', name: 'Spells' }] as const;
-const signature = (deck: CustomDeck) => JSON.stringify([deck.name, [...deck.cards].sort()]);
+const signature = (deck: CustomDeck) => JSON.stringify([deck.name, [...deck.cards].sort(), deck.back ?? '']);
 
 export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUndo, reduced, change, add, remove, load, save, renameDeck, deleteSaved, removeDeck, undo, buyMissing, inspect, openCollection }: Props) {
   useLanguage();
@@ -168,6 +169,7 @@ export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUnd
         <button className="builder-icon-button" aria-label={msg("Back to decks")} title={msg("Back to decks")} onClick={() => setEditing(false)}><ArrowLeft size={16}/></button>
         <input className="builder-deck-name" aria-label={msg("Deck name")} placeholder={msg("Name your deck")} maxLength={60} value={draft.name} onChange={event => change({ ...draft, name: event.target.value })}/>
         <div className="builder-deck-actions">
+          <CardBackPicker value={draft.back} onChange={back => change({ ...draft, back })}/>
           <button className="builder-icon-button" aria-label={msg("Undo deck edit")} disabled={!canUndo} onClick={undo} title={msg("Undo the last edit")}><RotateCcw size={15}/></button>
           <button className="gold-button builder-save" disabled={!draft.name.trim() || !!isSaved} onClick={save}>{isSaved ? msg("Saved") : msg("Save")}<Check size={14}/></button>
           <button className="builder-icon-button" aria-label={msg("Deck actions")} title={msg("Load, new, duplicate, import or export")} onClick={() => openDialog('deck')}><MoreHorizontal size={18}/></button>

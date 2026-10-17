@@ -1,6 +1,6 @@
 import { useEffect, useSyncExternalStore } from 'react';
 import { registry } from '../../../packages/content/src';
-import { claimAchievement, claimDaily, localDay, newGoals, parseGoals, recordBooster, recordDeckSave, recordMatch, rerollDaily, rollDay, type External, type Goals, type MatchResult, type Reward } from './goals';
+import { claimAchievement, claimDaily, dailyDef, localDay, newGoals, parseGoals, recordBooster, recordDeckSave, recordMatch, rerollDaily, rollDay, type External, type Goals, type MatchResult, type Reward } from './goals';
 import { boosterPacks } from '../../../packages/content/src/boosters';
 import { packCount, type Collection } from './collection';
 import { updateCollection } from './collectionStore';
@@ -35,9 +35,11 @@ function subscribe(listener: () => void) {
 }
 
 /** Live goals; a new local day deals fresh dailies even if the page was left open overnight. */
+export const currentGoals = (): Goals => read();
 export function useGoals(): Goals {
   useEffect(() => {
-    const check = () => { change(goals => rollDay(goals, localDay())); };
+    const check = () => { change(goals => rollDay(goals, localDay())); settleDailies(); };
+    check();
     const timer = window.setInterval(check, 30000);
     window.addEventListener('focus', check);
     return () => { window.clearInterval(timer); window.removeEventListener('focus', check); };
@@ -45,9 +47,14 @@ export function useGoals(): Goals {
   return useSyncExternalStore(subscribe, read, read);
 }
 
-export const trackMatch = (result: MatchResult) => { change(goals => recordMatch(goals, result)); };
-export const trackBooster = (cardIds: string[]) => { change(goals => recordBooster(goals, cardIds.map(id => registry.cards[id]?.rarity ?? 'common'))); };
-export const trackDeckSave = () => { change(goals => recordDeckSave(goals)); };
+/** Finished dailies pay out on their own: the reward lands the moment the goal completes. */
+export function settleDailies() {
+  const goals = read();
+  goals.daily.forEach((slot, index) => { const def = dailyDef(slot.id); if (def && !slot.claimed && slot.progress >= def.goal) claimDailyGoal(index); });
+}
+export const trackMatch = (result: MatchResult) => { change(goals => recordMatch(goals, result)); settleDailies(); };
+export const trackBooster = (cardIds: string[]) => { change(goals => recordBooster(goals, cardIds.map(id => registry.cards[id]?.rarity ?? 'common'))); settleDailies(); };
+export const trackDeckSave = () => { change(goals => recordDeckSave(goals)); settleDailies(); };
 export const rerollGoal = (index: number) => { change(goals => rerollDaily(goals, index)); };
 
 export function externalOf(collection: Collection): External {

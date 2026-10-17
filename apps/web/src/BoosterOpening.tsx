@@ -32,7 +32,7 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, c
   useLanguage();
   const [opened, setOpened] = useState(reduced);
   const [revealed, setRevealed] = useState(reduced ? pack.cards.length : 0);
-  const [skip, setSkip] = useState(false), [broken, setBroken] = useState(false);
+  const [skip, setSkip] = useState(false), [broken, setBroken] = useState(false), [armed, setArmed] = useState(reduced);
   const scene3d = hasWebGL && !reduced && !broken;
   const dialogRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -48,9 +48,10 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, c
   useEffect(() => {
     if (skip || reduced) { setOpened(true); setRevealed(pack.cards.length); return; }
     if (scene3d) return;
+    if (!armed) return;
     const timer = window.setTimeout(() => setOpened(true), 850);
     return () => window.clearTimeout(timer);
-  }, [pack.cards, reduced, skip, scene3d]);
+  }, [pack.cards, reduced, skip, scene3d, armed]);
   useEffect(() => {
     if (!opened || skip || reduced) return;
     const timers = pack.cards.map((_, index) => window.setTimeout(() => setRevealed(index + 1), 400 + index * 320));
@@ -71,11 +72,11 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, c
       <button ref={closeRef} className="booster-close" aria-label={msg("Close booster")} onClick={close}><X size={22}/></button>
       <header className="booster-heading">
         <h2>{msg(pack.pack.name)}</h2>
-        <p role="status" aria-live="polite">{complete ? msg("{v0} {v1} added{v2}", {v0: kept, v1: kept===1?'card':'cards', v2: crowns ? ` · ${crowns} crowns from extra copies` : ''}) : opened ? msg("Revealing cards · {v0} / 5", {v0: revealed}) : msg("Breaking the seal…")}</p>
+        <p role="status" aria-live="polite">{complete ? msg("{v0} {v1} added{v2}", {v0: kept, v1: kept===1?'card':'cards', v2: crowns ? ` · ${crowns} crowns from extra copies` : ''}) : opened ? msg("Revealing cards · {v0} / 5", {v0: revealed}) : (armed ? msg("Breaking the seal…") : msg("Ready to open"))}</p>
       </header>
       {!opened ? (scene3d
-        ? <div className="booster-burst-stage" aria-hidden="true"><div className="booster-burst-canvas"><SceneBoundary onError={() => setBroken(true)} fallback={null}><Suspense fallback={null}><BoosterBurst3D pack={carouselPack(pack.pack)} tagline={msg("FIVE CARDS")} done={() => setOpened(true)}/></Suspense></SceneBoundary></div></div>
-        : <div className="booster-pack-stage" aria-hidden="true">
+        ? <div className="booster-burst-stage"><div className="booster-burst-canvas" aria-hidden="true"><SceneBoundary onError={() => setBroken(true)} fallback={null}><Suspense fallback={null}><BoosterBurst3D pack={carouselPack(pack.pack)} tagline={msg("FIVE CARDS")} go={armed} done={() => setOpened(true)}/></Suspense></SceneBoundary></div>{!armed && <button className="booster-pack-hit" autoFocus aria-label={msg("Open the booster")} onClick={() => setArmed(true)}><span>{msg("Click the pack to open it")}</span></button>}</div>
+        : <div className={`booster-pack-stage ${armed ? '' : 'waiting'}`} onClick={() => setArmed(true)}>
         <div className="booster-pack-glow"/><div className="booster-pack"><span>REALMS OF VARHYR</span>{packSymbol(pack.pack) ? <b className="pack-symbol">{packSymbol(pack.pack)}</b> : <Crown size={55}/>}<strong>{packLines(msg(pack.pack.name))}</strong><small>{msg("FIVE CARDS")}</small></div>
         <div className="booster-sparks">{Array.from({length:12}, (_,index)=><i key={index} style={{'--spark-angle':`${index*30}deg`} as React.CSSProperties}/>)}</div>
       </div>) : <div className="booster-grid">

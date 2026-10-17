@@ -1,11 +1,12 @@
 import { lazy, Suspense, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react';
-import { ChevronLeft, ChevronRight, Crown, Gift, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Crown, Gift } from 'lucide-react';
 import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 import { boosterPacks, type BoosterPack } from '../../../packages/content/src/boosters';
-import { collectionRules, packCount, totalPacks, type Collection } from './collection';
+import { collectionRules, packCount, type Collection } from './collection';
 import { CrownAmount } from './Crowns';
 import { packColor, packLines, packSymbol } from './BoosterOpening';
 import type { CarouselPack } from './BoosterPack3D';
+import { CardBacksShop } from './CardBacksShop';
 import { carouselPack, hasWebGL, SceneBoundary } from './packScene';
 import './store.css';
 
@@ -16,12 +17,13 @@ function FlatPack({ pack }: { pack: BoosterPack }) {
   return <div className="booster-pack store-pack"><span>REALMS OF VARHYR</span>{packSymbol(pack) ? <b className="pack-symbol">{packSymbol(pack)}</b> : <Crown size={55}/>}<strong>{packLines(msg(pack.name))}</strong><small>{msg("FIVE CARDS")}</small></div>;
 }
 
-type Props = { collection: Collection; saved: boolean; message: string; reduced: boolean; open: (pack: BoosterPack) => void; buy: (pack: BoosterPack) => void; grant: () => void };
+type Props = { collection: Collection; saved: boolean; message: string; reduced: boolean; open: (pack: BoosterPack) => void; buy: (pack: BoosterPack) => void };
 
 /** One window-sized inset: the wallet on top, an endless carousel of boosters, and the focused booster to open or buy. */
-export function Store({ collection, saved, message, reduced, open, buy, grant }: Props) {
+export function Store({ collection, saved, message, reduced, open, buy }: Props) {
   useLanguage();
-  const waiting = totalPacks(collection), count = boosterPacks.length;
+  const count = boosterPacks.length, canBuy = collection.crowns >= collectionRules.packCost;
+  const [tab, setTab] = useState<'boosters' | 'backs'>('boosters');
   const [position, setPosition] = useState(0), [showing3d] = useState(hasWebGL);
   const step = (delta: number) => setPosition(value => value + delta);
   const pack = boosterPacks[mod(position, count)];
@@ -35,12 +37,11 @@ export function Store({ collection, saved, message, reduced, open, buy, grant }:
     <section className="store-stage" style={{ '--pack-color': color } as CSSProperties}>
       <header className="store-bar">
         <h1>{msg("Store")}</h1>
-        <div className="store-wallet"><CrownAmount amount={collection.crowns}/><span className="store-waiting"><Gift size={17}/><b>{waiting}</b>{waiting === 1 ? msg("booster waiting") : msg("boosters waiting")}</span></div>
-        <p className="store-note">{msg("Duplicate crowns: common")}{' '}{collectionRules.duplicateCrowns.common} {msg("· rare")}{' '}{collectionRules.duplicateCrowns.rare} {msg("· legendary")}{' '}{collectionRules.duplicateCrowns.legendary}</p>
-        <button className="crown-debug-button" onClick={grant}><Plus size={14}/>{msg("Gain 1,000 crowns")}<small>{msg("DEBUG")}</small></button>
+        <div className="store-tabs" role="tablist"><button role="tab" aria-selected={tab === 'boosters'} onClick={() => setTab('boosters')}>{msg("Boosters")}</button><button role="tab" aria-selected={tab === 'backs'} onClick={() => setTab('backs')}>{msg("Card backs")}</button></div>
       </header>
       {!saved && <p className="collection-save-error" role="alert">{msg("Your collection is available for this session. Browser storage could not save it.")}</p>}
-      <div className="store-carousel" role="group" aria-roledescription="carousel" aria-label={msg("Boosters")} tabIndex={0} onKeyDown={onKey} onPointerDown={onDown} onPointerUp={onUp}>
+      {tab === 'backs' ? <CardBacksShop crowns={collection.crowns}/> : <>
+      <div className="store-carousel" role="group" aria-roledescription="carousel" aria-label={msg("Boosters")} tabIndex={0} onKeyDown={onKey} onPointerDown={onDown} onPointerUp={onUp} onDoubleClick={() => { if (canBuy) buy(pack); }}>
         <div className="store-pack-view" aria-hidden="true">
           {showing3d
             ? <SceneBoundary fallback={<FlatPack pack={pack}/>}><Suspense fallback={<FlatPack pack={pack}/>}><BoosterCarousel3D packs={packs} tagline={msg("FIVE CARDS")} position={position} pick={offset => setPosition(offset)} reduced={reduced}/></Suspense></SceneBoundary>
@@ -61,6 +62,7 @@ export function Store({ collection, saved, message, reduced, open, buy, grant }:
           <button className="outline-button store-crown-buy" aria-label={msg("Buy {v0} booster for {v1} crowns", { v0: pack.name, v1: collectionRules.packCost })} disabled={collection.crowns < collectionRules.packCost} onClick={() => buy(pack)}>{msg("Buy")}<CrownAmount amount={collectionRules.packCost}/></button>
         </div>
       </div>
+      </>}
     </section>
   </main>;
 }

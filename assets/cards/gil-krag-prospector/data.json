@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "gil-krag-prospector",
-  "revision": 1,
+  "revision": 2,
   "name": "Gil Krag Prospector",
   "deckLimitKey": "gil-krag-prospector",
   "type": "creature",
@@ -26,5 +26,6 @@
     ]
   },
   "abilities": [],
+  "lore": "Every clan claims the mountain. The prospector claims only what glitters in the next stone.",
   "set": "foundations"
 }

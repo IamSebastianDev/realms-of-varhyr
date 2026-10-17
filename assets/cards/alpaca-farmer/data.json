@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "alpaca-farmer",
-  "revision": 1,
+  "revision": 2,
   "name": "Alpaca Farmer",
   "deckLimitKey": "alpaca-farmer",
   "type": "creature",
@@ -26,5 +26,6 @@
     ]
   },
   "abilities": [],
+  "lore": "In the high villages a good alpaca is worth more than a bad sword, and every clan knows it.",
   "set": "foundations"
 }

@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Alpakabauer",
+  "lore": "In den Hochdörfern ist ein gutes Alpaka mehr wert als ein schlechtes Schwert, und jeder Clan weiß das."
+}

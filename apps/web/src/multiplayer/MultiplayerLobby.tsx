@@ -1,3 +1,4 @@
+import { resolveCardBack } from '../cardBackStore';
 import { t as msg, useLanguage } from '../../../../packages/ui/src/i18n';
 import { updateProfile } from '../profile';
 import { useEffect, useRef, useState } from 'react';
@@ -10,7 +11,7 @@ import { RtcRoom, normalizeRoomCode, validRoomCode } from './RtcRoom';
 import { useRoom } from './useRoom';
 import { LiveMatchSession } from '../match/MatchSession';
 
-type DeckChoice={id:string;name:string;cards:string[]};
+type DeckChoice={id:string;name:string;cards:string[];back?:string};
 export function MultiplayerLobby({decks,selected,onStart,compact=false,onSelectDeck}:{decks:DeckChoice[];selected:string;onStart:(session:LiveMatchSession)=>void;compact?:boolean;onSelectDeck?:(id:string)=>void}){
   useLanguage();
   const {collection}=useCollection();
@@ -26,7 +27,7 @@ export function MultiplayerLobby({decks,selected,onStart,compact=false,onSelectD
     if(!ready||!chosen)return;setCreating(true);setError('');
     try{
       updateProfile({name});
-      const next=role==='host'?await RtcRoom.host(name.trim(),chosen):await RtcRoom.join(code,name.trim(),chosen);
+      const next=role==='host'?await RtcRoom.host(name.trim(),chosen,resolveCardBack(chosen.back)):await RtcRoom.join(code,name.trim(),chosen,resolveCardBack(chosen.back));
       if(!mounted.current){next.leave();return;}
       roomRef.current=next;setRoom(next);
     }catch(cause){if(mounted.current)setError(cause instanceof Error?cause.message:msg("Could not create the room."));}

@@ -69,7 +69,7 @@ export function MatchSummary({ state, viewer, registry, reduced, symbol, reward,
     {outcome === id && <span className="ms-plate-crown" aria-label={msg("Winner")}>♛</span>}
   </div>;
   const fallen = (s: SideStats) => s.fallen.length ? <p>{s.fallen.slice(0, 6).map(name=>msg(name)).join(' · ')}{s.fallen.length > 6 ? msg(" · +{v0} more", {v0: s.fallen.length - 6}) : ''}</p> : <p className="none">{msg("None fell")}</p>;
-  return <PeekBackdrop className="ms-backdrop" back={msg("Back to the summary")}>
+  return <PeekBackdrop className={`ms-backdrop ${tone}`} back={msg("Back to the summary")}>
     <div className={`ms ${tone}`} role="dialog" aria-label={msg("Match summary")}>
       <div className="ms-embers" aria-hidden="true">{Array.from({ length: 14 }, (_, i) => <i key={i} style={{ '--x': `${(i * 37) % 100}%`, '--d': `${6 + (i % 5)}s`, '--l': `${-(i * 1.3)}s` } as CSSProperties}/>)}</div>
       <header className="ms-head">

@@ -2,7 +2,9 @@ import { ResetControls } from './ResetControls';
 import { useState } from 'react';
 import { useAudio } from './AudioExperience';
 import { useFullscreen } from './useFullscreen';
-import { Eye, GraduationCap } from 'lucide-react';
+import { Eye, GraduationCap, Plus } from 'lucide-react';
+import { gainDebugCrowns } from './collection';
+import { updateCollection } from './collectionStore';
 import { RULES_VERSION } from '../../../packages/core/src';
 import { registry } from '../../../packages/content/src';
 import { ReplayMatchSession, type MatchSession } from './match/MatchSession';
@@ -64,6 +66,10 @@ export function SettingsPage({ learn, watch }: { learn: () => void; watch: (sess
           catch (cause) { setError(cause instanceof Error ? cause.message : 'This replay could not be opened.'); }
         }}/>
       </label>
+    </section>
+    <section className="settings-group" aria-label={msg('Developer')}>
+      <div><h2>{msg('Developer')}</h2><p>{msg('Tools for testing the prototype.')}</p></div>
+      <button className="outline-button" onClick={() => { updateCollection(gainDebugCrowns); }}><Plus size={16}/>{msg('Gain 1,000 crowns')}</button>
     </section>
     <ResetControls/>
     <VersionLine/>

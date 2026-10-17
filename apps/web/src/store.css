@@ -67,3 +67,37 @@
 @media(max-width:860px){.booster-backdrop .booster-grid{height:auto;min-height:clamp(320px,52dvh,540px)}}
 @media(min-width:861px){.booster-backdrop .booster-slot{width:min(calc((100% - 4 * clamp(14px,2vw,34px)) / 5),300px,calc((clamp(320px,52dvh,540px) - 82px) * .71))}}
 .booster-burst-canvas,.booster-burst-canvas *{pointer-events:none!important}
+
+/* Store tabs and the card back shelf. */
+.store-tabs{display:flex;gap:4px}
+.store-tabs button{padding:9px 18px;font-size:13px;color:#b9c4aa;border-radius:999px;border:1px solid transparent}
+.store-tabs button[aria-selected=true]{color:#f6e8bd;border-color:#e3c780aa;background:#e5d29f18}
+.backs-shop{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:14px;padding:0 24px 20px;outline:none}
+.backs-stage{position:relative;flex:1;min-height:0;width:100%;display:flex;justify-content:center;align-items:center}
+.backs-stage .card-back-face{height:100%;max-height:min(46dvh,460px);width:auto;border-radius:10px;box-shadow:0 22px 46px #000a,0 0 0 1px #0008;transition:filter .2s}
+.backs-stage .card-back-face:not(.have){filter:saturate(.6) brightness(.78)}
+.backs-stage .store-arrow{top:50%}
+.backs-info{display:grid;justify-items:center;gap:6px;text-align:center}
+.backs-info h2{margin:0;font:600 30px/1.1 var(--serif);color:#f6e8bd}
+.backs-info p{margin:0;color:#b3c0a7;font-size:14px;min-height:20px}
+.backs-info .store-buy{min-height:48px}
+.backs-state{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;font-size:14px;color:#a9d495}
+.backs-state.off{color:#9fae93}
+.backs-strip{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;max-width:min(100%,760px)}
+.backs-strip button{padding:3px;border-radius:6px;border:1px solid transparent;background:none}
+.backs-strip button.on{border-color:#e3c780;background:#e5d29f18}
+.backs-strip button.locked .card-back-face{filter:saturate(.5) brightness(.7)}
+.backs-strip .card-back-face{width:34px;border-radius:3px}
+.backs-strip button:focus-visible{outline:2px solid #e3c780}
+@media(max-width:860px){.backs-stage .card-back-face{max-height:min(36dvh,320px)}}
+
+/* The pack waits for a click before it bursts. */
+.booster-burst-stage{position:relative}
+.booster-pack-hit{position:absolute;inset:0;z-index:2;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;cursor:pointer;background:none;border:0;color:#f6e8bd}
+.booster-pack-hit span{padding:8px 16px;border-radius:999px;font-size:13px;background:#050d08aa;border:1px solid #e5d29f55;animation:pack-hint 1.8s ease-in-out infinite}
+.booster-pack-hit:focus-visible span{outline:2px solid #e3c780}
+@keyframes pack-hint{50%{opacity:.55}}
+.booster-pack-stage.waiting{cursor:pointer}
+.booster-pack-stage.waiting .booster-sparks{display:none}
+.booster-pack-stage.waiting .booster-pack{animation:none}
+@media(prefers-reduced-motion:reduce){.booster-pack-hit span{animation:none}}
