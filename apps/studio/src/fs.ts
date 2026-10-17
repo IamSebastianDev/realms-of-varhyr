@@ -150,3 +150,31 @@ export async function toPng(file: Blob): Promise<Blob> {
   canvas.getContext('2d')!.drawImage(bitmap, 0, 0);
   return new Promise((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not convert the image to PNG.')), 'image/png'));
 }
+
+/** The quest map: assets/quest/map.json next to the painted map image it describes. */
+const imageName = /\.(png|jpe?g|webp)$/i;
+async function questDir(repo: Repo, create: boolean) { try { return await dir(repo, 'assets/quest', create); } catch { return null; } }
+export async function readQuestMap(repo: Repo): Promise<string | null> {
+  const folder = await questDir(repo, false);
+  return folder ? readText(folder, 'map.json') : null;
+}
+export async function writeQuestMap(repo: Repo, text: string) {
+  const folder = await questDir(repo, true);
+  await write(folder!, 'map.json', text);
+}
+/** Image files in assets/quest. The committed map is preferred over the local placeholder. */
+export async function listQuestImages(repo: Repo): Promise<string[]> {
+  const folder = await questDir(repo, false), names: string[] = [];
+  if (folder) for await (const entry of folder.values()) if (entry.kind === 'file' && imageName.test(entry.name)) names.push(entry.name);
+  const rank = (name: string) => name.startsWith('placeholder') ? 1 : 0;
+  return names.sort((a, b) => rank(a) - rank(b) || (a < b ? -1 : 1));
+}
+export async function readQuestImage(repo: Repo, name: string): Promise<Blob | null> {
+  const folder = await questDir(repo, false);
+  if (!folder) return null;
+  try { return await (await folder.getFileHandle(name)).getFile(); } catch { return null; }
+}
+export async function writeQuestImage(repo: Repo, name: string, image: Blob) {
+  const folder = await questDir(repo, true);
+  await write(folder!, name, image);
+}

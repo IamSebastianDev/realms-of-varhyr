@@ -55,6 +55,8 @@ export type MatchSetup = {
   /** Local identity for a once-only victory reward; independent of shuffle seed. */
   rewardId?: string;
   rewardEligible?: boolean;
+  /** A fight on the quest map; the result is reported back to the run. */
+  quest?: { run: string; node: string };
   /** The guided first match: scripted opponent, no rewards. */
   tutorial?: boolean;
 };

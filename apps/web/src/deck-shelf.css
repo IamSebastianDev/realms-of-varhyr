@@ -1,26 +1,26 @@
 /* Both panels share one fixed height. */
 .deck-shelf{width:100%;max-width:1240px;margin-inline:auto;padding:16px 22px 24px}
 .deck-shelf-body{height:clamp(460px,calc(100dvh - 200px),760px);display:grid;grid-template-columns:minmax(280px,360px) minmax(0,1fr);gap:20px}
-.deck-list,.deck-preview{position:relative;min-height:0;border:1px solid #b9a57455;border-radius:6px;background:linear-gradient(180deg,#14251bd9,#0c1711e6);box-shadow:inset 0 0 0 3px #0c171199,0 18px 40px #0008}
+.deck-list,.deck-preview{position:relative;min-height:0;border:1px solid #b9a57455;border-radius:6px;background:linear-gradient(180deg,#131210d9,#0c0b0ae6);box-shadow:inset 0 0 0 3px #0c0b0a99,0 18px 40px #0008}
 .deck-list{display:flex;flex-direction:column;gap:10px;padding:14px;overflow-y:auto;min-height:0}
 .deck-import{margin-top:auto;align-self:center}
 .deck-list .deck-strip-new+*{margin-top:6px}
 /* A deck banner: faction sigil on the left, the hero fading in from the right. */
 .deck-strip{--box:#b9a574;position:relative;flex:none;display:flex;align-items:center;gap:14px;width:100%;min-height:72px;padding:8px 14px 8px 10px;border:1px solid color-mix(in srgb,var(--box) 45%,#000);border-radius:4px;color:#f6ebcb;text-align:left;cursor:pointer;overflow:hidden;
-  background:linear-gradient(90deg,#0b1610 24%,#0b161000 78%),var(--art,none) right 18%/cover no-repeat,#0f1c14;transition:border-color .15s,box-shadow .15s,filter .15s}
+  background:linear-gradient(90deg,#0b0b09 24%,#0b0b0900 78%),var(--art,none) right 18%/cover no-repeat,#0f0e0c;transition:border-color .15s,box-shadow .15s,filter .15s}
 .deck-strip:hover{border-color:var(--box);filter:brightness(1.12)}
 .deck-strip:focus-visible{outline:2px solid #fff0c9;outline-offset:2px}
 .deck-strip.selected{border-color:var(--box);box-shadow:0 0 0 1px var(--box),0 0 22px color-mix(in srgb,var(--box) 55%,transparent),inset 0 0 28px color-mix(in srgb,var(--box) 28%,transparent)}
-.deck-sigil{flex:none;display:grid;place-items:center;width:44px;height:44px;transform:rotate(45deg);border:2px solid var(--box);background:#0b1610d9;color:var(--box);border-radius:3px}
+.deck-sigil{flex:none;display:grid;place-items:center;width:44px;height:44px;transform:rotate(45deg);border:2px solid var(--box);background:#0b0b09d9;color:var(--box);border-radius:3px}
 .deck-sigil>*{transform:rotate(-45deg);width:22px;height:22px}
 .deck-strip-text{display:flex;flex-direction:column;gap:2px;min-width:0}
 .deck-strip strong{font:600 19px/1.15 var(--serif);letter-spacing:.02em;overflow-wrap:anywhere;text-shadow:0 2px 6px #000}
 .deck-strip small{font-size:12px;color:#d8c99f;text-shadow:0 1px 4px #000}
-.deck-strip-new{background:#050b07;border-style:dashed;border-color:#b9a57477;min-height:56px;--box:#d9b867}
+.deck-strip-new{background:#060504;border-style:dashed;border-color:#b9a57477;min-height:56px;--box:#d9b867}
 .deck-strip-new .deck-sigil{width:34px;height:34px}
-.deck-preview-art{position:absolute;inset:0;background:#0b1610}
+.deck-preview-art{position:absolute;inset:0;background:#0b0b09}
 .deck-preview-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:75% 18%}
-.deck-preview-art::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#0c1711f2 0,#0c1711b3 38%,transparent 72%),linear-gradient(0deg,#0c1711f5 0,#0c171199 28%,transparent 55%)}
+.deck-preview-art::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#0c0b0af2 0,#0c0b0ab3 38%,transparent 72%),linear-gradient(0deg,#0c0b0af5 0,#0c0b0a99 28%,transparent 55%)}
 .deck-preview-info{position:relative;height:100%;display:flex;flex-direction:column;justify-content:space-between;gap:24px;padding:34px 36px;min-width:0}
 .deck-preview-head{display:flex;flex-direction:column;gap:10px;max-width:60%}
 .deck-preview-state{max-width:60%}
@@ -39,24 +39,24 @@
 .deck-preview-actions{display:flex;flex-wrap:nowrap;align-items:center;gap:12px;margin-top:6px}
 .deck-confirm{color:#f0b46a;margin-right:4px}
 .outline-button.danger{border-color:#d08a6a;color:#f2b9a0}
-.deck-rename{font:600 30px/1.1 var(--serif);color:#fff0c9;background:#0b1610;border:1px solid var(--box);border-radius:4px;padding:6px 10px;width:100%}
+.deck-rename{font:600 30px/1.1 var(--serif);color:#fff0c9;background:#0b0b09;border:1px solid var(--box);border-radius:4px;padding:6px 10px;width:100%}
 .deck-problem{margin:0;color:#f0b46a;font-size:13px}
 @media(max-width:860px){.deck-shelf-body{height:auto;grid-template-columns:1fr}.deck-list{max-height:none}.deck-preview{min-height:420px}.deck-preview-info{padding:22px 20px}.deck-preview-head,.deck-preview-state{max-width:none}.deck-preview-info h2{font-size:26px}}
 .deck-preview-actions button{min-height:46px;min-width:132px;padding:0 22px;font-size:12px}
 
 /* Experiment: both panels sit inset in the page background. */
-.deck-list,.deck-preview{background:#0a1a1148;border-color:#0a160f99 #e5d29f1c #e5d29f22 #0a160f99;box-shadow:inset 0 3px 16px #040e0899,inset 0 0 0 1px #04100a55}
+.deck-list,.deck-preview{background:#0d0c0a48;border-color:#0b0a0999 #e5d29f1c #e5d29f22 #0b0a0999;box-shadow:inset 0 3px 16px #040e0899,inset 0 0 0 1px #04100a55}
 .deck-preview{overflow:hidden}
 .deck-preview::after{content:"";position:absolute;inset:0;z-index:2;border-radius:inherit;box-shadow:inset 0 3px 18px #040e08cc,inset 0 0 0 1px #04100a66;pointer-events:none}
 
 .deck-strip{opacity:.9}.deck-strip:hover,.deck-strip.selected{opacity:1}
-.deck-strip-new{background:#050b0766}
+.deck-strip-new{background:#06050466}
 
 /* Decks is the top-level screen now: use the whole window. */
 .deck-shelf{max-width:none;padding:14px 20px 20px}
 .deck-row{position:relative;flex:none}
 .deck-row .deck-strip{padding-right:56px}
-.deck-star{position:absolute;top:50%;right:10px;transform:translateY(-50%);display:grid;place-items:center;width:36px;height:36px;border-radius:50%;color:#d8c99f;background:#0b161099;border:1px solid transparent;opacity:.55;cursor:pointer;transition:opacity .15s,color .15s,border-color .15s}
+.deck-star{position:absolute;top:50%;right:10px;transform:translateY(-50%);display:grid;place-items:center;width:36px;height:36px;border-radius:50%;color:#d8c99f;background:#0b0b0999;border:1px solid transparent;opacity:.55;cursor:pointer;transition:opacity .15s,color .15s,border-color .15s}
 .deck-row:hover .deck-star,.deck-star:focus-visible,.deck-star.on{opacity:1}
 .deck-star:hover{border-color:#e3c78088;color:#f6dc9b}
 .deck-star.on{color:#f1d27a}.deck-star.on svg{fill:currentColor}
@@ -78,9 +78,9 @@
 
 /* The deck's three rarest cards run top to bottom as plain artwork on the right. */
 .deck-preview-art{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;inset:0;background:none;-webkit-mask-image:none;mask-image:none}
-.deck-preview-art::after{inset:0;background:linear-gradient(180deg,#0c1711cc 0,#0c171155 38%,#0c171155 55%,#0c1711ee 100%)}
+.deck-preview-art::after{inset:0;background:linear-gradient(180deg,#0c0b0acc 0,#0c0b0a55 38%,#0c0b0a55 55%,#0c0b0aee 100%)}
 .deck-preview-art img{position:relative;inset:auto;width:100%;height:100%;min-width:0;object-fit:cover;object-position:50% 20%}
-.deck-preview-actions .outline-button{background:#0b1610cc}
+.deck-preview-actions .outline-button{background:#0b0b09cc}
 .deck-preview-info h2,.deck-preview-state,.deck-preview-faction{text-shadow:0 2px 10px #000}
 
 @media(max-width:860px){.deck-preview-art{inset:0;opacity:.4;-webkit-mask-image:none;mask-image:none}}

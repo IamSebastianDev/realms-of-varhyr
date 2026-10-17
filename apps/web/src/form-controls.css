@@ -6,20 +6,20 @@ select:not([multiple]):not([size]) {
   color: #eee8d5;
   background:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='m3 4.5 3 3 3-3' fill='none' stroke='%23d5c39b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") right 13px center / 12px 12px no-repeat,
-    linear-gradient(180deg, #31483b, #273c30);
-  border: 1px solid #b9c2a840;
+    linear-gradient(180deg, #282623, #211f1d);
+  border: 1px solid #b9b6b140;
   border-radius: 6px;
   padding-inline: 12px 36px;
   min-inline-size: 0;
   font-weight: 500;
   text-overflow: ellipsis;
   cursor: pointer;
-  box-shadow: inset 0 1px #eee8d509, 0 1px 2px #1023191f;
+  box-shadow: inset 0 1px #eee8d509, 0 1px 2px #12100e1f;
   transition: border-color .15s, box-shadow .15s;
 }
 select:not([multiple]):not([size]):hover:not(:disabled) {
   border-color: #d5c39b80;
-  box-shadow: inset 0 1px #eee8d50d, 0 2px 5px #10231933;
+  box-shadow: inset 0 1px #eee8d50d, 0 2px 5px #12100e33;
 }
 select:not([multiple]):not([size]):focus-visible {
   border-color: #dfc28c;
@@ -32,7 +32,7 @@ select:not([multiple]):not([size]):disabled {
 }
 select:not([multiple]):not([size]) option,
 select:not([multiple]):not([size]) optgroup {
-  background: #293e32;
+  background: #22211e;
   color: #eee8d5;
 }
 /* Supporting browsers can also skin the native popup. Other browsers keep their OS picker. */
@@ -43,14 +43,14 @@ select:not([multiple]):not([size]) optgroup {
   select:not([multiple]):not([size]):open { border-color: #dfc28c; }
   select:not([multiple]):not([size])::picker(select) {
     color: #eee8d5;
-    background: #293e32;
+    background: #22211e;
     border: 1px solid #cbb78c66;
     border-radius: 7px;
     padding: 5px;
     margin-block-start: 6px;
     max-block-size: min(320px, 60dvh);
     overflow-y: auto;
-    box-shadow: 0 12px 30px #07180b55;
+    box-shadow: 0 12px 30px #0b0a0855;
   }
   select:not([multiple]):not([size]) option {
     gap: 12px;
@@ -62,7 +62,7 @@ select:not([multiple]):not([size]) optgroup {
     cursor: pointer;
   }
   select:not([multiple]):not([size]) option:is(:hover, :focus-visible) {
-    background: #3b5241;
+    background: #2e2c2a;
     outline: none;
   }
   select:not([multiple]):not([size]) option:checked {
@@ -85,13 +85,13 @@ select:not([multiple]):not([size]) optgroup {
 }
 
 /* Shared checkbox. The input remains the focusable, accessible and form-bearing control. */
-label.ui-checkbox {position:relative;display:inline-flex;align-items:center;gap:8px;min-height:26px;font-size:11px;font-weight:500;letter-spacing:0;line-height:1.5;color:#d0d7c8;cursor:pointer}
+label.ui-checkbox {position:relative;display:inline-flex;align-items:center;gap:8px;min-height:26px;font-size:11px;font-weight:500;letter-spacing:0;line-height:1.5;color:#d2d0cd;cursor:pointer}
 label.ui-checkbox > input.ui-checkbox-input {position:absolute;inset:50% auto auto 0;transform:translateY(-50%);width:18px;height:18px;min-height:0;padding:0;margin:0;border:0;opacity:0;cursor:inherit;z-index:1}
-.ui-checkbox-box {display:grid;place-items:center;flex:0 0 18px;width:18px;height:18px;border:1px solid #b9c2a85c;border-radius:4px;background:linear-gradient(180deg,#31483b,#24382c);box-shadow:inset 0 1px #eee8d509;transition:border-color .15s,background .15s,box-shadow .15s}
+.ui-checkbox-box {display:grid;place-items:center;flex:0 0 18px;width:18px;height:18px;border:1px solid #b9b6b15c;border-radius:4px;background:linear-gradient(180deg,#282623,#1e1d1b);box-shadow:inset 0 1px #eee8d509;transition:border-color .15s,background .15s,box-shadow .15s}
 .ui-checkbox-box svg {color:#f1d69f;opacity:0;transform:scale(.7);transition:opacity .12s,transform .12s}
 .ui-checkbox-label {min-width:0}
 .ui-checkbox:not([data-disabled]):hover .ui-checkbox-box {border-color:#d5c39b9c}
-.ui-checkbox-input:checked + .ui-checkbox-box {border-color:#dfc28c;background:linear-gradient(135deg,#d3b6752b,#314637);box-shadow:inset 0 1px #eee8d50d,0 0 5px #dfc28c1c}
+.ui-checkbox-input:checked + .ui-checkbox-box {border-color:#dfc28c;background:linear-gradient(135deg,#d3b6752b,#272623);box-shadow:inset 0 1px #eee8d50d,0 0 5px #dfc28c1c}
 .ui-checkbox-input:checked + .ui-checkbox-box svg {opacity:1;transform:scale(1)}
 .ui-checkbox-input:focus-visible + .ui-checkbox-box {outline:2px solid #dfc28c;outline-offset:3px}
 .ui-checkbox[data-disabled] {cursor:default;opacity:.45}

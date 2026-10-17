@@ -3,6 +3,7 @@ import { usePreferences } from '../../../packages/ui/src/preferences';
 import { useEffect, useState } from 'react';
 import { defaultDeckId } from '../../../packages/content/src';
 import { Lobby, type Screen } from './Lobby';
+import { setWantsQuestScreen, wantsQuestScreen } from './quest/questStore';
 import { decksKey, parseDecks, starterOptions, type CustomDeck } from './decks';
 import { randomSeed, startMatch, type MatchSetup } from './session';
 import { getProfile } from './profile';
@@ -16,7 +17,7 @@ export function AuthoringLobby({ onStart, onSessionStart }: { onStart: (session:
   useLanguage();
   const { collection } = useCollection();
   const { reduced } = usePreferences();
-  const [screen, setScreen] = useState<Exclude<Screen, 'match'>>('menu');
+  const [screen, setScreen] = useState<Exclude<Screen, 'match'>>(() => { if (wantsQuestScreen()) { setWantsQuestScreen(false); return 'quest'; } return 'menu'; });
   const [decks, setDecks] = useState(() => {
     try { return parseDecks(localStorage.getItem(decksKey)); } catch { return []; }
   });
@@ -62,7 +63,7 @@ export function AuthoringLobby({ onStart, onSessionStart }: { onStart: (session:
       screen={screen} navigate={next => { if (next !== 'match') setScreen(next); }}
       canResume={false} resumeLabel="" decks={decks} options={options} saveDeck={saveDeck} deleteDeck={deleteDeck}
       mode={mode} setMode={setMode} selected={selected} setSelected={setSelected} opponentId={opponentId} setOpponentId={setOpponentId}
-      start={start} startSession={onSessionStart} learn={() => onStart(startTutorial())}/>
+      start={start} startSession={onSessionStart} learn={() => onStart(startTutorial())} beginMatch={onStart} questFight={false}/>
     {error && <div className="toast" role="alert">{error}</div>}
   </>;
 }

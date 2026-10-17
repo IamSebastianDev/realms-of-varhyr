@@ -1,0 +1,216 @@
+.quest-page{flex:1;min-width:0;min-height:0;position:relative;overflow:hidden;color:#e9e8e5}
+.quest-message{display:grid;place-items:center;text-align:center;padding:24px}
+.quest-message p{color:var(--muted);max-width:44ch}
+
+/* Map */
+.quest-frame{position:absolute;inset:0;overflow:hidden;background:#0e0d0b;touch-action:none;cursor:grab}
+.quest-frame:active{cursor:grabbing}
+.quest-world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+.quest-world>svg{position:absolute;left:0;top:0;overflow:visible}
+.quest-tile{position:absolute;display:block;max-width:none;user-select:none;-webkit-user-drag:none}
+.quest-fog{fill:#0c0b09;opacity:.88}
+.quest-border{fill:none;stroke:#f1d59a;stroke-opacity:.7;stroke-width:.0016;stroke-dasharray:.006 .004;vector-effect:none}
+.quest-border-shade{fill:none;stroke:#000;stroke-opacity:.35;stroke-width:.004}
+.quest-trail{fill:none;stroke:var(--gold-bright);stroke-width:.0022;stroke-dasharray:.005 .005;stroke-linecap:round;opacity:.85}
+.quest-hint circle{fill:#c04a3a22;stroke:#e0735f;stroke-width:.003;stroke-dasharray:.01 .006}
+.quest-hint text{fill:#f0a190;text-anchor:middle;font-family:var(--serif);font-weight:700;paint-order:stroke;stroke:#000;stroke-width:.003}
+.quest-node{cursor:pointer;color:#fff7e0}
+.quest-node .hit{fill:transparent}
+.quest-node .body{stroke:#0f0e0d;stroke-width:2.5;filter:drop-shadow(0 1px 2px #000a)}
+.quest-node .body.unknown{fill:#141310ee;stroke-width:2.5;stroke-dasharray:4 3}
+.quest-node .mark{fill:var(--gold-bright);text-anchor:middle;font:700 14px var(--serif)}
+.quest-node .icon{pointer-events:none;color:#fffaf0}
+.quest-node.done:not(.here) .body,.quest-node.done:not(.here) .icon,.quest-node.done:not(.here) .crown{filter:grayscale(1) brightness(.8);opacity:.6}
+.quest-node .ring{fill:none;stroke:var(--gold-bright);stroke-width:2}
+.quest-node .crown{fill:none;stroke:var(--gold);stroke-width:1.5}
+.quest-node .bounty{fill:#e8b84a;stroke:#0f0e0d;stroke-width:1.5}
+.quest-node .label{fill:#fff4d8;text-anchor:middle;font:600 11px var(--serif);paint-order:stroke;stroke:#000;stroke-width:3px;stroke-linejoin:round;pointer-events:none}
+.quest-node.boss .body{stroke:#e0735f}
+.quest-node:hover .body{stroke:var(--gold-bright)}
+.quest-token path{fill:var(--gold-bright);stroke:#0f0e0d;stroke-width:2;stroke-linejoin:round;filter:drop-shadow(0 2px 3px #000a)}
+
+/* HUD */
+.quest-hearts{display:flex;gap:2px}
+.quest-hearts svg{width:15px;height:15px;color:#4a3a3a;fill:#2a2020}
+.quest-hearts .full svg,.quest-hearts svg.full{color:#e0735f;fill:#e0735f}
+.quest-purse{display:inline-flex;align-items:center;gap:5px;color:var(--gold-bright);font-weight:700}
+.quest-hint-line{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);margin:0;display:flex;gap:6px;align-items:center;padding:6px 12px;border-radius:99px;background:#0f0e0dd9;color:var(--muted);font-size:13px;pointer-events:none}
+
+/* Dialogs */
+.quest-dialog-backdrop{position:absolute;inset:0;display:grid;place-items:center;padding:16px;background:#0706058c;z-index:5}
+.quest-dialog{width:min(460px,100%);max-height:100%;overflow:hidden;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;background:#100f0d;box-shadow:0 20px 60px #000a}
+.quest-art{flex:none;height:min(32vh,210px);display:grid;place-items:center;background:linear-gradient(160deg,#1a1916,#0e0d0c);color:var(--gold);overflow:hidden}
+.quest-art img{width:100%;height:100%;object-fit:cover}
+.quest-dialog-body{padding:16px 18px 18px;display:grid;gap:10px;overflow:auto}
+.quest-dialog-body h2{margin:0;font:700 24px var(--serif);color:var(--gold-bright)}
+.quest-dialog-body p{margin:0;color:#d4d3d0;line-height:1.45}
+.quest-notice{color:#c9c4b9;margin:0}
+.quest-error{color:#f0a190;margin:0}
+.quest-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.quest-actions>button{flex:1 1 auto;display:inline-flex;gap:6px;align-items:center;justify-content:center}
+.quest-sacrifice{display:grid;gap:6px;max-height:34vh;overflow:auto}
+.quest-x{position:absolute;right:10px;top:10px}
+.quest-resume .quest-dialog-body{padding-top:20px}
+
+/* Offers and deck */
+.quest-offer{position:absolute;inset:0;z-index:6;display:flex;flex-direction:column;gap:12px;padding:18px;background:#0b0a09f2;overflow:auto;align-items:center}
+.quest-offer h2{margin:6px 0 0;font:700 26px var(--serif);color:var(--gold-bright);text-align:center}
+.quest-offer>p{margin:0;color:var(--muted);text-align:center}
+.quest-offer-cards{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.quest-offer-cards.deck{max-width:1100px}
+.quest-offer-card{display:grid;gap:6px;justify-items:center;background:none;border:0;padding:0;color:inherit;cursor:pointer}
+.quest-offer-card:hover{transform:translateY(-3px)}
+.quest-offer-card:disabled{opacity:.5;cursor:default;transform:none}
+
+
+/* Pick packs and shops: real card sizes */
+.quest-offer-cards{align-items:flex-start}
+.quest-offer-card{width:clamp(140px,min(17vw,30vh),240px)}
+.quest-offer-card .art-card{width:100%}
+.quest-offer-cards.deck .quest-offer-card{width:clamp(100px,min(10vw,18vh),150px)}
+.quest-offer-card small{color:var(--muted)}
+
+/* Alignment tabs and faction stripes */
+.quest-picker{display:grid;gap:12px}
+.quest-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.quest-tabs button{display:grid;gap:2px;justify-items:center;padding:10px 6px;border:1px solid var(--line);border-bottom-width:3px;border-radius:8px 8px 0 0;background:#0d0c0a48;color:#bbb8b3;cursor:pointer}
+.quest-tabs button b{font:600 18px/1.1 var(--serif)}
+.quest-tabs button small{font-size:11px;color:#a5a29c;text-align:center}
+.quest-tabs button[aria-selected=true]{color:#f6e8bd;border-bottom-color:var(--gold);background:linear-gradient(180deg,#e5d29f26,#e5d29f0c)}
+.quest-tabs button:disabled{opacity:.45;cursor:default}
+.quest-stripes{display:grid;gap:10px}
+.quest-stripe{width:100%;min-height:96px;border-left:6px solid var(--tint,#e3c780)}
+.game-setup-pane .setup-modes{grid-template-columns:repeat(3,1fr)}
+
+/* Play dialog spacing */
+.game-setup-pane .setup-modes{margin-bottom:22px}
+.quest-picker{gap:16px}
+.quest-picker .quest-goal{margin-top:6px;font:600 20px/1.3 var(--serif)}
+.quest-picker .quest-stripes{margin-top:4px}
+.quest-picker .quest-wallet{margin-top:6px}
+.quest-tabs button{padding:12px 8px}
+
+/* Draft page */
+.quest-draft{display:grid;grid-template-columns:minmax(0,1fr) clamp(280px,26vw,380px);gap:14px;padding:14px 18px 16px;max-width:1680px;margin-inline:auto;width:100%}
+.quest-draft-picks{min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;overflow:hidden}
+.quest-draft-picks header{text-align:center}
+.quest-draft-picks h1{margin:0;font:700 30px var(--serif);color:var(--gold-bright)}
+.quest-draft-picks header p{margin:4px 0 0;color:var(--muted)}
+.quest-draft-picks .quest-offer-card{width:clamp(120px,min(14vw,27vh),230px)}
+.quest-draft-deck{min-height:0}
+
+/* Travel */
+.quest-trail.walking{stroke:var(--gold-bright);opacity:1}
+.quest-token.walking path{animation:quest-step .38s ease-in-out infinite alternate}
+@keyframes quest-step{from{transform:translateY(0)}to{transform:translateY(-5px)}}
+@media(prefers-reduced-motion:reduce){.quest-token.walking path{animation:none}}
+.quest-node.here .ring{animation:quest-pulse 1.8s ease-out infinite}
+@keyframes quest-pulse{from{stroke-opacity:1}to{stroke-opacity:.25}}
+.quest-draft-exit{display:flex;gap:8px;align-items:center;color:var(--muted)}
+
+/* Deck view */
+.quest-deckview header{display:flex;align-items:center;gap:14px;width:min(900px,100%);position:relative;padding-right:44px}
+.quest-deckview header h2{margin:0}
+.quest-deckview header>span{color:var(--muted)}
+.quest-deckview-tabs{margin-left:auto;display:flex;gap:4px}
+.quest-deckview-tabs button{padding:5px 12px;border:1px solid var(--line);border-radius:6px;background:#0d0c0a48;color:#bbb8b3;cursor:pointer}
+.quest-deckview-tabs button[aria-pressed=true]{color:#f6e8bd;border-color:#e3c780aa;background:#e5d29f1f}
+.quest-deckview-list{width:min(900px,100%);flex:1;min-height:0}
+.quest-deckview-list .dk-group ul{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.quest-offer footer{display:flex;gap:10px;align-items:center;justify-content:center;color:var(--muted)}
+
+/* End screen */
+.quest-stats{display:grid;grid-template-columns:repeat(4,minmax(80px,1fr));gap:8px;margin:0;width:min(480px,100%)}
+.quest-stats div{padding:10px 8px;border-radius:8px;background:#0c0b0aaa;border:1px solid var(--line);text-align:center}
+.quest-stats dt{color:var(--muted);font-size:12px}
+.quest-stats dd{margin:2px 0 0;font:700 24px var(--serif);color:var(--gold-bright)}
+.quest-over .quest-draft-picks p{margin:0}
+
+/* Text used by the picker and the end screen */
+.quest-goal{margin:0;color:#e7e6e4}
+.quest-sub{margin:0;color:var(--muted);font-size:13px}
+.quest-wallet{display:flex;gap:8px;align-items:center;color:var(--muted)}
+.quest-reward{color:#c9c4b9;font-weight:700}
+
+/* Draft: five picks in one row, sized by the room and the height */
+.quest-draft-picks .quest-offer-cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;width:100%;max-width:1100px}
+.quest-draft-picks .quest-offer-card{width:100%;max-width:min(230px,calc((100dvh - 340px) * .711));justify-self:center}
+.quest-draft-exit button{padding:8px 16px;font-size:13px}
+.quest-draft-picks{padding:0 10px}
+
+/* Shell: the match's own frame (.app, .topbar, .floating-action); only the stage and its info cards are new */
+.quest-info{display:grid;gap:5px;padding:11px 13px;border:1px solid #cfae6a33;border-radius:12px;background:#ffffff07}
+.quest-info strong{font:600 18px/1.15 var(--serif);color:var(--brass-hi,#f1d89a)}
+.quest-info span{font-size:12px;line-height:1.35;color:#c1c0bd}
+.quest-info .quest-timer{color:#d9b27a}
+.quest-vitals{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.quest-purse{display:inline-flex;align-items:center;gap:7px;color:var(--brass-hi,#f1d89a);font-size:16px}
+.quest-purse svg,.quest-purse .crown-icon{width:18px;height:18px}
+.quest-side{position:absolute;z-index:3;left:0;top:0;bottom:0;width:var(--side,232px);display:flex;flex-direction:column;gap:12px;padding:16px 14px 14px;overflow:hidden}
+.quest-side .brand{align-self:flex-start;padding:0}
+.quest-actions-column{display:grid;gap:8px;margin-top:auto}
+.quest-actions-column .outline-button{display:flex;align-items:center;gap:8px;justify-content:flex-start;padding:9px 12px;font-size:13px}
+.quest-app{--side:clamp(250px,22vw,320px)}
+.quest-stage{position:absolute;z-index:2;left:calc(var(--side,0px) + 20px);right:20px;top:14px;bottom:14px;display:flex}
+.quest-stage>.quest-page{border:1px solid #cfae6a55;border-radius:10px;background:#0808078c;box-shadow:0 12px 34px #0008}
+.quest-stage>.quest-page.quest-draft{border:0;background:none;box-shadow:none}
+.quest-stage>.quest-offer{inset:0;border-radius:10px}
+@media(max-width:950px),(max-aspect-ratio:1/1){
+  .app.quest-app{display:flex;flex-direction:column;height:100dvh;min-height:0;overflow:hidden;grid-template-rows:none}
+  .app.quest-app::before{display:none}
+  .quest-side{position:relative;width:auto;flex-direction:row;flex-wrap:wrap;align-items:center;padding:8px 12px;gap:8px}
+  .quest-app .quest-info:not(.quest-vitals){display:none}
+  .quest-actions-column{display:flex;margin:0 0 0 auto}
+  .quest-actions-column .outline-button{font-size:0;padding:7px 9px}.quest-actions-column .outline-button svg{width:16px;height:16px}
+  .quest-stage{position:relative;left:auto;right:auto;top:auto;bottom:auto;flex:1;min-height:0;margin:0 10px 10px}
+}
+.quest-draft{grid-template-columns:minmax(0,1fr) clamp(260px,22vw,320px)}
+.quest-draft-picks .quest-offer-cards{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));max-width:900px}
+.quest-draft-picks .quest-offer-card{max-width:min(230px,calc((100dvh - 300px) * .711 / 1.9))}
+
+/* Full-screen map: quest log top left, you bottom left, menu top right. */
+.quest-map-mode{--fir:#0c0b0a;--moss:#181714;--brass:#cfae6a;--brass-hi:#f1d89a;--ember:#c25a4c;--ember-deep:#7f2a27;position:fixed;inset:0;background:#080807;overflow:hidden}
+.quest-map-mode .quest-stage{inset:0;left:0;right:0;top:0;bottom:0}
+.quest-map-mode .quest-stage>.quest-page{border:0;border-radius:0;background:none;box-shadow:none}
+.quest-map-mode .quest-info{position:absolute;z-index:4;background:#0c0b09e6;box-shadow:0 8px 24px #0008}
+.quest-log{left:16px;top:16px;width:min(300px,42vw);max-height:46vh;overflow:auto}
+.quest-log>small{font-size:11px;color:#c1c0bd}
+.quest-log-item{display:grid;gap:2px;padding-top:6px;border-top:1px solid #cfae6a22}
+.quest-log-item:first-of-type{border-top:0;padding-top:0}
+.quest-log-item strong{font-size:15px}
+.quest-log-item.done{opacity:.5;text-decoration:line-through}
+.quest-menu-button{position:absolute;z-index:4;right:16px;top:16px}
+/* Same plate chrome as the match: bracket corners on a dark inset panel. */
+.quest-map-mode .quest-info,.quest-menu-button{border:1px solid;border-color:#0b0a0999 #e5d29f1a #e5d29f22 #0b0a0999;border-radius:6px;box-shadow:inset 0 3px 16px #040e0899,0 8px 24px #0008;background:linear-gradient(#cfae6a88,#cfae6a88) top left/12px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top left/1px 12px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top right/12px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top right/1px 12px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom left/12px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom left/1px 12px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom right/12px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom right/1px 12px no-repeat,#060605cc}
+.quest-log{left:12px;top:12px}
+.quest-menu-button{right:12px;top:12px;padding:10px 18px;color:#f0e6cc;font:500 15px var(--serif)}
+.quest-id{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"portrait name gem" "portrait energy gem";column-gap:10px;row-gap:2px;align-items:center;padding:0 12px;height:92px;box-sizing:border-box;min-width:0;position:relative;left:auto;bottom:auto}
+.quest-me .portrait{display:contents}
+.quest-me .portrait .avatar{grid-area:portrait;width:48px;height:48px;box-shadow:0 0 0 2px var(--fir),0 0 0 3px #cfae6a55}
+.quest-me .portrait .life-counter{grid-area:gem;position:relative;right:auto;bottom:auto;width:42px;height:48px;margin:0}
+.quest-me .player-name{grid-area:name;display:flex}
+.quest-id{height:76px!important;grid-template-areas:"portrait name gem"!important}
+.quest-id .player-name{align-self:center}
+.quest-me .player-name h2{font:500 21px/1.1 var(--serif);margin:0;color:#f0e6cc}
+.quest-me{position:absolute;z-index:4;left:12px;bottom:12px;display:flex;flex-direction:column;gap:12px}
+.quest-map-mode .quest-me .quest-info{position:relative}
+.quest-pile{height:150px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:22px;padding:0 16px}
+.quest-deck{position:relative;padding:0;border:0;background:none;cursor:pointer}
+.quest-deck .card-back-face{height:126px;width:auto;aspect-ratio:2/3;border-radius:5px;box-shadow:2px 3px 0 -1px #0f0e0c,4px 6px 8px #0009}
+.quest-deck strong{position:absolute;right:-12px;bottom:-9px;display:grid;place-items:center;min-width:26px;height:26px;padding:0 5px;border:1px solid var(--brass);border-radius:999px;background:var(--fir);font:700 14px/1 'Manrope',sans-serif;color:#f6ebce}
+.quest-crowns{display:inline-flex;align-items:center;gap:8px;color:var(--brass-hi);font:600 22px/1 var(--serif)}
+.quest-crowns svg,.quest-crowns .crown-icon{width:24px;height:24px}
+.quest-map-mode .quest-pile .quest-crowns{font:600 22px/1 var(--serif);color:var(--brass-hi)}
+.quest-map-mode .quest-pile .quest-crowns b{font:inherit}
+.quest-me{width:240px}
+.quest-log{width:240px}
+/* Balance pass: both plates share one grid; the deck plate splits evenly into sleeve and crowns. */
+.quest-me{width:232px}.quest-log{width:232px}
+.quest-map-mode .quest-id{grid-template-columns:auto minmax(0,1fr) auto;column-gap:12px;padding:0 14px 0 12px}
+.quest-map-mode .quest-id .player-name{justify-content:center}
+.quest-map-mode .quest-pile{height:144px;display:grid;grid-template-columns:1fr 1fr;gap:0;padding:0;align-items:center;justify-items:center}
+.quest-map-mode .quest-pile .quest-deck .card-back-face{height:112px}
+.quest-map-mode .quest-pile .quest-deck strong{right:-14px;bottom:-8px}
+.quest-map-mode .quest-pile .quest-crowns{flex-direction:column;gap:8px;position:relative}
+.quest-map-mode .quest-pile .quest-crowns{align-self:stretch;justify-content:center;width:100%;border-left:1px solid #cfae6a33}
+.quest-map-mode .quest-pile .quest-crowns svg,.quest-map-mode .quest-pile .quest-crowns .crown-icon{width:64px;height:64px}

@@ -18,12 +18,14 @@ export function VersionLine() {
 }
 
 /** Shared by the home screen and the in-match settings overlay, so an online game stays connected. */
-export function PreferenceControls() {
+export function PreferenceControls({ part }: { part?: 'general' | 'audio' }) {
   useLanguage();
+  const g = part !== 'audio', a = part !== 'general';
   const preferences = usePreferences();
   const audio = useAudio();
   const fullscreen = useFullscreen();
   return <>
+    {g && <>
     <section className="settings-group" aria-label={msg('Language')}><div><h2>{msg('Language')}</h2><p>{msg('Choose the language for the interface, tutorial and cards.')}</p></div>
       <select aria-label={msg('Language')} value={preferences.language} onChange={event => updatePreferences({ language: event.target.value as Language })}><option value="en">English</option><option value="de">Deutsch</option></select>
     </section>
@@ -36,6 +38,8 @@ export function PreferenceControls() {
     <section className="settings-group" aria-label={msg('Skip empty response steps')}><div><h2>{msg('Skip empty response steps')}</h2><p>{msg('Automatically pass your response step when you have no spell to cast. Turn off to see every window.')}</p></div>
       <div className="settings-audio-controls"><button className={`toggle ${preferences.skipEmptyWindows ? 'on' : ''}`} role="switch" aria-checked={preferences.skipEmptyWindows} aria-label={msg('Skip empty response steps')} onClick={() => updatePreferences({ skipEmptyWindows: !preferences.skipEmptyWindows })}><span/></button></div>
     </section>
+    </>}
+    {a && <>
     <section className="settings-group" aria-label={msg('Background music')}><div><h2>{msg('Background music')}</h2><p>{msg('The soundtrack follows you through menus and matches.')}</p></div>
       <div className="settings-audio-controls"><button className={`toggle ${preferences.music ? 'on' : ''}`} role="switch" aria-checked={preferences.music} aria-label={msg('Background music')} onClick={() => updatePreferences({ music: !preferences.music })}><span/></button>
         <label className="settings-volume"><input aria-label={msg('Music volume')} type="range" min="0" max="100" step="1" disabled={!preferences.music} value={Math.round(preferences.musicVolume * 100)} onChange={event => updatePreferences({ musicVolume: Number(event.target.value) / 100 })}/><output>{Math.round(preferences.musicVolume * 100)}%</output></label></div>
@@ -45,14 +49,19 @@ export function PreferenceControls() {
         <label className="settings-volume"><input aria-label={msg('Effects volume')} type="range" min="0" max="100" step="1" disabled={!preferences.sound} value={Math.round(preferences.soundVolume * 100)} onChange={event => updatePreferences({ soundVolume: Number(event.target.value) / 100 })}/><output>{Math.round(preferences.soundVolume * 100)}%</output></label></div>
     </section>
     {audio.blocked && <p className="settings-audio-error" role="status">{msg('Music could not start.')}<button onClick={audio.retry}>{msg('Try again')}</button></p>}
+    </>}
   </>;
 }
 export function SettingsPage({ learn, watch }: { learn: () => void; watch: (session: MatchSession) => void }) {
   useLanguage();
   const [error, setError] = useState('');
+  const [tab, setTab] = useState<'general' | 'audio' | 'learn' | 'data'>('general');
+  const tabs: [typeof tab, string][] = [['general', msg('General')], ['audio', msg('Audio')], ['learn', msg('Learn and watch')], ['data', msg('Data')]];
   return <main className="settings-page">
-    <div className="collection-heading"><div><h1>{msg('Settings')}</h1></div></div>
-    <PreferenceControls/>
+    <div className="collection-heading"><div><h1>{msg('Settings')}</h1></div><div className="profile-tabs" role="tablist">{tabs.map(([id, label]) => <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)}>{label}</button>)}</div></div>
+    {tab === 'general' && <PreferenceControls part="general"/>}
+    {tab === 'audio' && <PreferenceControls part="audio"/>}
+    {tab === 'learn' && <>
     <section className="settings-group" aria-label={msg('Learning')}>
       <div><h2>{msg('Tutorial')}</h2><p>{msg('A guided first match that walks through energy, creatures, combat and spells.')}</p></div>
       <button className="outline-button" onClick={learn}><GraduationCap size={16}/>{msg('Learn to play')}</button>
@@ -67,11 +76,14 @@ export function SettingsPage({ learn, watch }: { learn: () => void; watch: (sess
         }}/>
       </label>
     </section>
+    </>}
+    {tab === 'data' && <>
     <section className="settings-group" aria-label={msg('Developer')}>
       <div><h2>{msg('Developer')}</h2><p>{msg('Tools for testing the prototype.')}</p></div>
       <button className="outline-button" onClick={() => { updateCollection(gainDebugCrowns); }}><Plus size={16}/>{msg('Gain 1,000 crowns')}</button>
     </section>
     <ResetControls/>
+    </>}
     <VersionLine/>
   </main>;
 }

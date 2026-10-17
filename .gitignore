@@ -15,3 +15,7 @@ playwright-report/
 *.tsbuildinfo
 
 .card-import-*/
+# Placeholder map for developing the quest map screen; the real painted map is committed under its own name
+assets/quest/placeholder-map.*
+
+public/quest/

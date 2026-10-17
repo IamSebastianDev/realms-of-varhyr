@@ -1,6 +1,6 @@
 /* Coach panel and rings for the guided first match. Sits above dialogs so it can explain them. */
 .coach{position:fixed;z-index:50;left:16px;top:74px;width:min(340px,calc(100vw - 32px));pointer-events:none}
-.coach-body{pointer-events:auto;background:linear-gradient(180deg,#14261dfa,#0b1813fa);border:1px solid #cfae6a88;border-radius:6px;box-shadow:0 18px 44px #000b,0 0 0 1px #05100b,inset 0 1px 0 #ffffff14;padding:14px 16px 16px;color:#e9dfc6}
+.coach-body{pointer-events:auto;background:linear-gradient(180deg,#141310fa,#0c0b0afa);border:1px solid #cfae6a88;border-radius:6px;box-shadow:0 18px 44px #000b,0 0 0 1px #070706,inset 0 1px 0 #ffffff14;padding:14px 16px 16px;color:#e9dfc6}
 .coach.opponent .coach-body{border-color:#d0675f99;background:linear-gradient(180deg,#2a1717fa,#170d0dfa)}
 .coach.finish{left:50%;top:50%;transform:translate(-50%,-50%);width:min(420px,calc(100vw - 32px))}
 .coach.finish .coach-body{padding:24px 26px 24px;text-align:center;border-color:#e9c87c}
@@ -12,15 +12,15 @@
 .coach-pips li{width:5px;height:5px;border-radius:50%;background:#ffffff26}
 .coach-pips li.done{background:#cfae6a99}
 .coach-pips li.now{background:#f1d89a;box-shadow:0 0 6px #f1d89a}
-.coach-skip{margin-left:6px;background:none;border:0;color:#9aab9f;cursor:pointer;padding:2px;border-radius:3px;display:grid;place-items:center}
+.coach-skip{margin-left:6px;background:none;border:0;color:#a5a3a0;cursor:pointer;padding:2px;border-radius:3px;display:grid;place-items:center}
 .coach-skip:hover,.coach-skip:focus-visible{color:#fff;background:#ffffff1c}
 .coach h2{margin:0 0 6px;font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;line-height:1.15;font-weight:600;color:#f6ecd0}
-.coach p{margin:0;font-size:13.5px;line-height:1.55;color:#cfd8cc}
+.coach p{margin:0;font-size:13.5px;line-height:1.55;color:#d4d3d0}
 .coach.opponent p{color:#e8d3cf}
 .coach footer{display:flex;justify-content:flex-end;gap:10px;margin-top:14px}
 .coach.finish footer{justify-content:center}
 .coach-next{min-height:38px;padding:0 16px;font-size:13px}
-.coach-secondary{background:none;border:0;color:#b6c5ba;font:inherit;font-size:13px;cursor:pointer;padding:0 8px;text-decoration:underline;text-underline-offset:3px}
+.coach-secondary{background:none;border:0;color:#c0bebb;font:inherit;font-size:13px;cursor:pointer;padding:0 8px;text-decoration:underline;text-underline-offset:3px}
 .coach-secondary:hover{color:#fff}
 .coach-body.nudged{animation:coach-nudge .42s}
 @keyframes coach-nudge{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}

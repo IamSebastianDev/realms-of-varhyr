@@ -4,7 +4,7 @@
 @keyframes pack-badge-in{from{transform:scale(.4) rotate(-40deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
 @keyframes pack-badge-glow{50%{box-shadow:0 6px 18px #000b,0 0 0 1px #3a2b0c,0 0 38px color-mix(in srgb,var(--pack-color) 90%,transparent)}}
 .packs-store{margin-left:auto;display:inline-flex;align-items:center;gap:8px}
-.packs-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;color:#a9baa3}
+.packs-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;color:#b2b0ab}
 .packs-empty h2{margin:6px 0 0;font:600 30px/1.1 var(--serif);color:#f6e8bd}
 .packs-empty p{margin:0;max-width:44ch;font-size:14px;line-height:1.55}
 @media(prefers-reduced-motion:reduce){.pack-badge{animation:none}}

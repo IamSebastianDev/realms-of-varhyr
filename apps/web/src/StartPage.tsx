@@ -5,6 +5,7 @@ import { validateDeck } from '../../../packages/core/src';
 import { missingDeckCopies, type Collection } from './collection';
 import { achievementText, closestAchievement, dailyDef, type Reward } from './goals';
 import { claimAchievementTier, externalOf, rerollGoal, useGoals } from './goalsStore';
+import { useQuestRun } from './quest/questStore';
 import './start-hall.css';
 
 type Option = { id: string; name: string; cards: string[] };
@@ -13,8 +14,6 @@ type Props = {
   canResume: boolean; resumeLabel: string; play: (ready: boolean) => void; friend: () => void; resume: () => void; newQuest: () => void;
 };
 
-/** The quest line is still a mock; goals and achievements are real. */
-const questSteps = { title: 'The Road to Tris Vale', done: 2, total: 7 };
 const rewardText = (reward: Reward) => [reward.crowns ? msg('{v0} crowns', { v0: reward.crowns }) : '', reward.boosters ? msg('{v0} booster', { v0: reward.boosters }) : ''].filter(Boolean).join(' + ');
 
 const art = (id: string) => ({ backgroundImage: `url(/cards/${id}/data.png)` });
@@ -34,6 +33,7 @@ function Ring({ progress, goal, onSwap }: { progress: number; goal: number; onSw
 export function StartPage({ inert, options, selected, collection, canResume, resumeLabel, play, friend, resume, newQuest }: Props) {
   useLanguage();
   const goals = useGoals();
+  const run = useQuestRun();
   const closest = closestAchievement(goals, externalOf(collection));
   const deck = options.find(option => option.id === selected);
   const missing = deck ? missingDeckCopies(deck.cards, collection.counts).length : 0;
@@ -48,9 +48,8 @@ export function StartPage({ inert, options, selected, collection, canResume, res
           <Users size={26}/><b>{msg("Play a friend")}</b><small>{msg("Online or on one device")}</small><ArrowRight className="go" size={22}/>
         </button>
         <button className="home-mode quest" style={art('the-lonely-wanderer')} onClick={canResume ? resume : newQuest}>
-          {canResume ? <Play size={26}/> : <Scroll size={26}/>}<b>{canResume ? msg("Continue match") : msg("Continue quest")}</b>
-          <small>{canResume ? msg(resumeLabel) : msg(questSteps.title)}</small>
-          <span className="quest-track" role="progressbar" aria-label={msg("Quest progress")} aria-valuemin={0} aria-valuemax={questSteps.total} aria-valuenow={questSteps.done}>{Array.from({ length: questSteps.total }, (_, index) => <i key={index} className={index < questSteps.done ? 'on' : ''}/>)}</span>
+          {canResume ? <Play size={26}/> : <Scroll size={26}/>}<b>{canResume ? msg("Continue match") : run && run.stage !== 'over' ? msg("Continue quest") : msg("Daily quests")}</b>
+          <small>{canResume ? msg(resumeLabel) : run && run.stage !== 'over' ? msg("Defeat {v0}", { v0: run.quest.bossName }) : msg("Three new quests every day")}</small>
           <ArrowRight className="go" size={22}/>
         </button>
       </div>

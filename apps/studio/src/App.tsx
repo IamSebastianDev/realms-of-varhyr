@@ -7,6 +7,7 @@ import { Preview } from './Preview';
 import * as fs from './fs';
 import { DeckBuilder } from './DeckBuilder';
 import { SetOverview } from './SetOverview';
+import { MapEditor } from './MapEditor';
 import { FactionDots } from './SetOverview';
 import { compareCards, draftFromFiles, glance, groupOf, named, matches, newDraft, noFilters, serialize, toJson, validate, type Draft, type Filters, type Stored } from './model';
 
@@ -36,7 +37,8 @@ export function App() {
   const [status, setStatus] = useState('');
   const [problem, setProblem] = useState('');
   const [filters, setFilters] = useState<Filters>(noFilters);
-  const [view, setView] = useState<'cards' | 'sets' | 'decks'>('cards');
+  const [view, setView] = useState<'cards' | 'sets' | 'decks' | 'map'>('cards');
+  const [mapOpened, setMapOpened] = useState(false);
   const [activeSet, setActiveSet] = useState('');
   /** The faction chosen on the set statistics page; it also narrows the card list on the left. */
   const [statFaction, setStatFaction] = useState<string | null>(null);
@@ -156,12 +158,13 @@ export function App() {
       <div className="views" role="tablist" aria-label="View">
         <button role="tab" aria-selected={view === 'cards'} className={view === 'cards' ? 'on' : ''} onClick={() => setView('cards')}>Cards</button>
         <button role="tab" aria-selected={view === 'sets'} className={view === 'sets' ? 'on' : ''} onClick={() => setView('sets')}>Sets</button>
-        <button role="tab" aria-selected={view === 'decks'} className={view === 'decks' ? 'on' : ''} onClick={() => setView('decks')}>Decks</button></div>
+        <button role="tab" aria-selected={view === 'decks'} className={view === 'decks' ? 'on' : ''} onClick={() => setView('decks')}>Decks</button>
+        <button role="tab" aria-selected={view === 'map'} className={view === 'map' ? 'on' : ''} onClick={() => { setMapOpened(true); setView('map'); }}>Map</button></div>
       {view === 'cards' && <input placeholder="Search cards…" aria-label="Search cards" value={filters.query} onChange={event => setFilter({ query: event.target.value })}/>}
       <button onClick={() => updatePreferences({ language: language === 'en' ? 'de' : 'en' })}>{language === 'en' ? 'English' : 'Deutsch'}</button>
       <button onClick={() => { void fs.forgetRepo(); setRepo(null); setCurrentKey(null); setSandbox(false); }}>Change folder</button>
     </header>
-    <div className="studio-body">
+    <div className={`studio-body${view === 'map' ? ' wide' : ''}`}>
       <nav className="studio-list" aria-label="Cards">
         <button className="primary" onClick={() => create()}>New card</button>
         <div className="filters" role="group" aria-label="Filters">
@@ -182,7 +185,8 @@ export function App() {
           <Thumb art={card.art}/><span className="name">{card.data.name}</span><FactionDots members={named(card.data)}/><small title="Cost, Attack/Defense and energy per turn">{[glance(card.data), hasDraft(card.folder) ? 'unsaved changes' : card.art ? '' : 'no art'].filter(Boolean).join(' · ')}</small></button>)}
         {!visible.length && <p className="studio-hint">{cards.length ? 'No card matches these filters.' : 'This folder has no cards yet.'}</p>}
       </nav>
-      {view === 'decks' ? <DeckBuilder repo={repo} cards={cards}/> : view === 'sets' ? <SetOverview cards={cards} set={activeSet || filters.set} faction={statFaction} onSet={setActiveSet} onFaction={setStatFaction} onOpen={openCards} onCreate={create}/> : draft ? <>
+      {mapOpened && <MapEditor repo={repo} scope={scope} active={view === 'map'}/>}
+      {view === 'map' ? null : view === 'decks' ? <DeckBuilder repo={repo} cards={cards}/> : view === 'sets' ? <SetOverview cards={cards} set={activeSet || filters.set} faction={statFaction} onSet={setActiveSet} onFaction={setStatFaction} onOpen={openCards} onCreate={create}/> : draft ? <>
         <main className="studio-edit"><CardForm draft={draft} patch={patch} hasArt={!!art} folderLocked={false}
           onArt={file => change(value => ({ ...value, art: file, artChanged: true, dirty: true }))}/></main>
         <aside className="studio-side">
