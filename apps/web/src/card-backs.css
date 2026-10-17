@@ -19,7 +19,7 @@
 .app .library-count.has-back::before,.app .library-count.has-back>svg{display:none}
 
 /* The sleeve and deck pickers float on a dark, shadowy screen instead of sitting in a panel. */
-.builder-dialog-backdrop:has(.back-grid),.builder-dialog-backdrop:has(.setup-deck-grid){background:radial-gradient(ellipse at 50% 45%,#060605d9 0,#020504f2 75%);backdrop-filter:blur(3px)}
+.builder-dialog-backdrop:has(.back-grid),.builder-dialog-backdrop:has(.setup-deck-grid){background:radial-gradient(ellipse at 50% 45%,#040303d9 0,#020202f2 75%);backdrop-filter:blur(3px)}
 .builder-dialog:has(.back-grid),.builder-dialog:has(.setup-deck-grid){width:min(92vw,860px);max-width:none;background:none;border:0;box-shadow:none;backdrop-filter:none}
 .builder-dialog:has(.back-grid) h2,.builder-dialog:has(.setup-deck-grid) h2{text-align:center;font-size:38px;text-shadow:0 2px 14px #000}
 .builder-dialog:has(.back-grid) .back-grid,.builder-dialog:has(.setup-deck-grid) .setup-deck-grid{max-height:min(68dvh,600px);padding:10px}
@@ -50,7 +50,7 @@
 .sleeve-grid button.locked .card-back-face,.sleeve-detail .card-back-face.dim{filter:saturate(.45) brightness(.65)}
 .sleeve-grid i{position:absolute;right:-5px;top:-5px;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#e9d298;color:#171614}
 .sleeve-grid i.lock{background:#171614;color:#cfae6a;border:1px solid #cfae6a88}
-.sleeve-detail{display:grid;grid-template-columns:auto minmax(0,1fr);gap:20px;align-items:center;padding:18px 20px;border:1px solid #e5d29f33;border-radius:6px;background:#06060566}
+.sleeve-detail{display:grid;grid-template-columns:auto minmax(0,1fr);gap:20px;align-items:center;padding:18px 20px;border:1px solid #e5d29f33;border-radius:6px;background:#04030366}
 .sleeve-detail .card-back-face{width:clamp(110px,14vw,150px);border-radius:6px;box-shadow:0 10px 24px #000a}
 .sleeve-detail>div{display:grid;gap:10px;justify-items:start}
 .sleeve-detail h3{margin:0;font:500 24px/1.15 var(--serif);color:#f3e6bf}

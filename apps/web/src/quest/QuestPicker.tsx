@@ -53,7 +53,7 @@ export function QuestPicker({ onStarted }: { onStarted: () => void }) {
         const art = rarest(Object.values(questContent.cards).filter(card => card.factions?.includes(faction)).map(card => card.id))[0];
         return <button key={faction} className="setup-deck quest-stripe" disabled={!ready || poor} style={{ ['--tint' as string]: factionInfo[faction]?.color }} onClick={() => start(quest, faction)}>
           <span className="setup-deck-art" style={art ? { backgroundImage: `url(/cards/${art.id}/data.png)` } : undefined}/>
-          <span className="setup-deck-text"><b>{factionInfo[faction]?.name ?? faction}</b><small>{!ready ? msg("Not playable yet") : poor ? msg("Not enough crowns") : msg("Set out for {v0} crowns", { v0: questRules.entryCrowns })}</small></span>
+          <span className="setup-deck-text"><b>{msg(factionInfo[faction]?.name ?? faction)}</b><small>{!ready ? msg("Not playable yet") : poor ? msg("Not enough crowns") : msg("Set out for {v0} crowns", { v0: questRules.entryCrowns })}</small></span>
         </button>;
       })}</div>
     </> : <p className="quest-notice">{msg("No quest can be offered yet: the map needs start sites for a faction with enough cards.")}</p>}

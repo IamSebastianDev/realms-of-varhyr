@@ -57,25 +57,15 @@ function useCardTexture(card: CardInstance, registry: Registry, reduced:boolean)
     const render=(art?:HTMLImageElement|HTMLVideoElement)=>{
       if(!alive)return;
       const dim=exhausted.current;
-      ctx.fillStyle=dim?'#2b382f':'#314b38';ctx.fillRect(0,0,512,720);
+      ctx.fillStyle=dim?'#0d0c0a':'#12100d';ctx.fillRect(0,0,512,720);
       if(art){
         const width=art instanceof HTMLVideoElement?art.videoWidth:art.naturalWidth,height=art instanceof HTMLVideoElement?art.videoHeight:art.naturalHeight;
-        const scale=Math.max(512/width,670/height),cropWidth=512/scale,cropHeight=670/scale;
-        ctx.filter=dim?'brightness(0.62) saturate(0.25) contrast(1.05)':'none';ctx.drawImage(art,(width-cropWidth)/2,(height-cropHeight)/2,cropWidth,cropHeight,0,0,512,670);ctx.filter='none';
+        const scale=Math.max(512/width,720/height),cropWidth=512/scale,cropHeight=720/scale;
+        ctx.filter=dim?'brightness(0.62) saturate(0.25) contrast(1.05)':'none';ctx.drawImage(art,(width-cropWidth)/2,(height-cropHeight)/2,cropWidth,cropHeight,0,0,512,720);ctx.filter='none';
         // A cold wash makes a spent card read as asleep rather than merely darker.
-        if(dim){ctx.fillStyle='#0d1c2c4d';ctx.fillRect(0,0,512,670);}
+        if(dim){ctx.fillStyle='#0d1c2c4d';ctx.fillRect(0,0,512,720);}
       }
-      const fade=ctx.createLinearGradient(0,365,0,690);fade.addColorStop(0,'#08151700');fade.addColorStop(.5,dim?'#1a272eb8':'#2e4836a0');fade.addColorStop(1,dim?'#151f25':'#223e2e');ctx.fillStyle=fade;ctx.fillRect(0,365,512,355);
-      ctx.strokeStyle=def.type==='holding'?(dim?'#6d6678':'#ceb3e2'):(dim?'#6a7279':'#c2aa77');ctx.lineWidth=5;ctx.strokeRect(9,9,494,702);ctx.strokeStyle='#c6ae784d';ctx.lineWidth=1;ctx.strokeRect(18,18,476,684);
-      if(def.legendary){
-        ctx.strokeStyle=dim?'#a89468':'#ffe0a0';ctx.lineWidth=7;ctx.strokeRect(7,7,498,706);
-        ctx.strokeStyle=dim?'#8b7c59':'#dcc58a';ctx.lineWidth=2;ctx.strokeRect(21,21,470,678);
-        // Etched corner brackets distinguish legendary frames without a badge.
-        ctx.strokeStyle=dim?'#a89468':'#fff0be';ctx.lineWidth=5;
-        for(const [x,y,dx,dy] of [[24,24,1,1],[488,24,-1,1],[24,696,1,-1],[488,696,-1,-1]]){
-          ctx.beginPath();ctx.moveTo(x,y+dy*28);ctx.lineTo(x,y);ctx.lineTo(x+dx*28,y);ctx.stroke();
-        }
-      }
+      // Frame, shade, type line and stats are the DOM card face laid over this plane (one design for hand, board and menus); the texture is only art on a dark ground.
       lastExhausted=dim;map.needsUpdate=true;
     };
     render();setTexture(map);img.onload=()=>render(img);img.src=def.art;
@@ -172,11 +162,10 @@ function Card({ card,view,registry,own,highlight,selected,targeted,attacking,blo
   });
   return <group ref={root} position={pos}><mesh ref={shadow} rotation={[-Math.PI/2,0,0]} position={[0,-.012,0]} renderOrder={-1} raycast={()=>{}}><planeGeometry args={[2.15,2.8]}/><meshBasicMaterial map={blobTexture()} color="#000000" transparent opacity={.5} depthWrite={false}/></mesh><group ref={fx}><group ref={group} onPointerDown={e=>{hold.onPointerDown(e);if(own)onDragStart?.(card.id,e.nativeEvent);}} onPointerMove={e=>{hold.onPointerMove(e);if(e.uv)foilPointer.copy(e.uv);}} onPointerUp={hold.onPointerUp} onPointerCancel={hold.onPointerCancel} onPointerOver={e=>{e.stopPropagation();setHovered(true);onHover(card.id);document.body.style.cursor='pointer';}} onPointerOut={()=>{hold.onPointerCancel();foilPointer.set(.5,.5);setHovered(false);onHover(null);document.body.style.cursor='';}} onContextMenu={e=>{e.nativeEvent.preventDefault();e.stopPropagation();onInspect(card.id);}} onClick={e=>{e.stopPropagation();if(hold.suppressClick())return;if(e.shiftKey)onInspect(card.id);else onSelect(card.id);}}>
     <mesh position={[0,.002,0]} castShadow receiveShadow><boxGeometry args={[1.6,.042,2.21]}/><meshStandardMaterial color={blocking?'#4aaeb5':attacking?'#b78a42':selected?'#8c713f':legendary?'#ae8a48':'#2e3330'} roughness={.7}/></mesh>
-    <mesh position={[0,.027,0]} rotation={[-Math.PI/2,0,0]}><planeGeometry args={[1.54,2.15]}/><meshBasicMaterial key={texture?.uuid??'loading'} map={texture} color={texture?'#ffffff':'#1b3333'} toneMapped={false}/></mesh>
+    <mesh position={[0,.027,0]} rotation={[-Math.PI/2,0,0]}><planeGeometry args={[1.6,2.21]}/><meshBasicMaterial key={texture?.uuid??'loading'} map={texture} color={texture?'#ffffff':'#14110c'} toneMapped={false}/></mesh>
     <mesh ref={sheen} visible={false} rotation={[-Math.PI/2,0,0]} raycast={()=>{}}><planeGeometry args={[1.5,1.5]}/><meshBasicMaterial map={blobTexture()} color="#fff3d0" transparent opacity={0} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false}/></mesh>
     {legendary&&<LegendaryFoil pointer={foilPointer} exhausted={card.exhausted} reduced={reduced}/>}
-    {legendary&&<Frame width={1.57} height={2.18} color="#ffe2a2" opacity={card.exhausted?.4:.9}/>}
-    <Frame width={1.65} height={2.26} color={pulse==='damage'?'#e9a17e':pulse==='energy'?'#d6ebbd':targeted?'#d58873':blocking?'#9df5fa':attacking?'#ffe0a0':selected?'#efd18b':highlight?'#96ceb3':'#a18a5f'} opacity={highlight||selected||targeted||blocking||attacking||pulse?1:card.exhausted?.28:.50}/>
+    <Frame width={1.65} height={2.26} color={pulse==='damage'?'#e9a17e':pulse==='energy'?'#f3e2b4':targeted?'#d58873':blocking?'#9df5fa':attacking?'#ffe0a0':selected?'#efd18b':highlight?'#e2c98c':'#a18a5f'} opacity={highlight||selected||targeted||blocking||attacking||pulse?1:card.exhausted?.28:.50}/>
     {(selected||targeted||attacking||blocking)&&<mesh position={[0,-.018,0]} rotation={[-Math.PI/2,0,0]}><planeGeometry args={[1.79,2.4]}/><meshBasicMaterial color={targeted?'#c87150':blocking?'#6ce5f3':'#f1c15a'} transparent opacity={blocking?.28:.13}/></mesh>}
   </group></group></group>;
 }
@@ -213,7 +202,7 @@ function EmptySlot({ ready,reduced }: {ready:boolean;reduced:boolean}) {
   const w=1.68,h=2.3,b=.3,t=.02,col='#cfae6a';
   const corners=[[-1,-1],[1,-1],[-1,1],[1,1]] as const;
   return <group>
-    <mesh rotation={[-Math.PI/2,0,0]}><planeGeometry args={[w,h]}/><meshBasicMaterial color={ready?'#16301f':'#06120d'} transparent opacity={ready?.5:.38}/></mesh>
+    <mesh rotation={[-Math.PI/2,0,0]}><planeGeometry args={[w,h]}/><meshBasicMaterial color={ready?'#2a2113':'#0b0a08'} transparent opacity={ready?.5:.38}/></mesh>
     <Frame color={ready?'#e2c98c':col} opacity={ready?.85:.34}/>
     <Frame width={1.5} height={2.12} color={col} opacity={.12}/>
     {corners.map(([sx,sz],i)=><group key={i}>
@@ -223,7 +212,7 @@ function EmptySlot({ ready,reduced }: {ready:boolean;reduced:boolean}) {
     <mesh rotation={[-Math.PI/2,0,0]} position={[0,.021,0]}><ringGeometry args={[.27,.285,48]}/><meshBasicMaterial color={col} transparent opacity={.2}/></mesh>
     <mesh rotation={[-Math.PI/2,0,Math.PI/4]} position={[0,.021,0]}><ringGeometry args={[.08,.095,4]}/><meshBasicMaterial color={col} transparent opacity={.45}/></mesh>
     <group ref={live}>
-      <mesh rotation={[-Math.PI/2,0,0]} position={[0,.018,0]}><planeGeometry args={[w+.14,h+.14]}/><meshBasicMaterial map={blobTexture()} color="#9be3b4" transparent opacity={0} depthWrite={false} blending={THREE.AdditiveBlending}/></mesh>
+      <mesh rotation={[-Math.PI/2,0,0]} position={[0,.018,0]}><planeGeometry args={[w+.14,h+.14]}/><meshBasicMaterial map={blobTexture()} color="#e2c98c" transparent opacity={0} depthWrite={false} blending={THREE.AdditiveBlending}/></mesh>
     </group>
   </group>;
 }

@@ -1,6 +1,6 @@
 /* Coach panel and rings for the guided first match. Sits above dialogs so it can explain them. */
 .coach{position:fixed;z-index:50;left:16px;top:74px;width:min(340px,calc(100vw - 32px));pointer-events:none}
-.coach-body{pointer-events:auto;background:linear-gradient(180deg,#141310fa,#0c0b0afa);border:1px solid #cfae6a88;border-radius:6px;box-shadow:0 18px 44px #000b,0 0 0 1px #070706,inset 0 1px 0 #ffffff14;padding:14px 16px 16px;color:#e9dfc6}
+.coach-body{pointer-events:auto;background:linear-gradient(180deg,#141310fa,#0c0b0afa);border:1px solid #cfae6a88;border-radius:6px;box-shadow:0 18px 44px #000b,0 0 0 1px #040404,inset 0 1px 0 #ffffff14;padding:14px 16px 16px;color:#e9dfc6}
 .coach.opponent .coach-body{border-color:#d0675f99;background:linear-gradient(180deg,#2a1717fa,#170d0dfa)}
 .coach.finish{left:50%;top:50%;transform:translate(-50%,-50%);width:min(420px,calc(100vw - 32px))}
 .coach.finish .coach-body{padding:24px 26px 24px;text-align:center;border-color:#e9c87c}
@@ -41,4 +41,4 @@
 .coach.anchored h2{font-size:20px}
 .coach.anchored p{font-size:13px}
 .app.tutorial-on .battle-log{display:none}
-.coach-scrim{position:fixed;inset:0;z-index:48;background:#020b0ccc;backdrop-filter:blur(3px)}
+.coach-scrim{position:fixed;inset:0;z-index:48;background:#050504cc;backdrop-filter:blur(3px)}

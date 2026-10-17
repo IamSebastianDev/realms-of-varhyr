@@ -2,7 +2,7 @@
 .lobby:has(.store-hall){height:100dvh;min-height:0;display:flex;flex-direction:column;overflow:hidden}
 .lobby:has(.store-hall)>.lobby-header{flex-shrink:0}
 .store-hall{flex:1;min-height:0;width:100%;max-width:none;margin:0;padding:14px 20px 18px;display:flex;flex-direction:column;gap:14px;position:relative;z-index:1}
-.store-stage{flex:1;min-height:0;position:relative;display:flex;flex-direction:column;overflow:hidden;border:1px solid;border-color:#0b0a0999 #e5d29f1c #e5d29f22 #0b0a0999;border-radius:6px;box-shadow:inset 0 3px 16px #040e0899,inset 0 0 0 1px #04100a55;background:radial-gradient(ellipse 45% 50% at 50% 46%,color-mix(in srgb,var(--pack-color) 24%,transparent),transparent 72%),#0d0c0a48;transition:background .5s}
+.store-stage{flex:1;min-height:0;position:relative;display:flex;flex-direction:column;overflow:hidden;border:1px solid;border-color:#0b0a0999 #e5d29f1c #e5d29f22 #0b0a0999;border-radius:6px;box-shadow:inset 0 3px 16px #06060599,inset 0 0 0 1px #07060555;background:radial-gradient(ellipse 45% 50% at 50% 46%,color-mix(in srgb,var(--pack-color) 24%,transparent),transparent 72%),#0d0c0a48;transition:background .5s}
 .store-bar{position:relative;flex:none;display:flex;align-items:center;gap:26px;padding:12px 24px;min-height:68px;border-bottom:1px solid #e5d29f14}
 .store-bar h1{font:600 34px/1 var(--serif);margin:0;color:#f6e8bd}
 .store-wallet{display:flex;align-items:center;gap:22px}
@@ -37,14 +37,14 @@
 }
 
 /* Opening a booster: just a near-opaque dark backdrop tinted by the pack; the 3D pack bursts across the whole window, then the cards are dealt. */
-.booster-backdrop{background:radial-gradient(ellipse 75% 65% at 50% 45%,color-mix(in srgb,var(--pack-color) 17%,#060504) 0%,#030604 72%);background-color:#030604fa}
+.booster-backdrop{background:radial-gradient(ellipse 75% 65% at 50% 45%,color-mix(in srgb,var(--pack-color) 17%,#060504) 0%,#030303 72%);background-color:#030303fa}
 .booster-backdrop .booster-dialog{border:0;background:none;box-shadow:none}
 .booster-burst-stage{position:relative;height:clamp(320px,52dvh,540px)}
 .booster-burst-canvas{position:fixed;inset:0;pointer-events:none}
 .booster-burst-canvas canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .booster-backdrop .booster-heading{position:relative;z-index:1}
 .booster-backdrop .booster-heading h2{text-shadow:0 0 28px color-mix(in srgb,var(--pack-color) 55%,transparent)}
-.booster-backdrop .booster-card-back{background:repeating-linear-gradient(45deg,#d0b77708 0 1px,transparent 1px 10px),radial-gradient(color-mix(in srgb,var(--pack-color) 30%,#0d0d0b),#0a0a09)}
+.booster-backdrop .booster-card-back{background:repeating-linear-gradient(45deg,#d0b77708 0 1px,transparent 1px 10px),radial-gradient(color-mix(in srgb,var(--pack-color) 30%,#080807),#060606)}
 
 /* The dealt cards use the whole window width, like the other screens. */
 .booster-backdrop{padding:22px 3vw}
@@ -94,7 +94,7 @@
 /* The pack waits for a click before it bursts. */
 .booster-burst-stage{position:relative}
 .booster-pack-hit{position:absolute;inset:0;z-index:2;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;cursor:pointer;background:none;border:0;color:#f6e8bd}
-.booster-pack-hit span{padding:8px 16px;border-radius:999px;font-size:13px;background:#060605aa;border:1px solid #e5d29f55;animation:pack-hint 1.8s ease-in-out infinite}
+.booster-pack-hit span{padding:8px 16px;border-radius:999px;font-size:13px;background:#040303aa;border:1px solid #e5d29f55;animation:pack-hint 1.8s ease-in-out infinite}
 .booster-pack-hit:focus-visible span{outline:2px solid #e3c780}
 @keyframes pack-hint{50%{opacity:.55}}
 .booster-pack-stage.waiting{cursor:pointer}

@@ -152,7 +152,7 @@
 .quest-actions-column .outline-button{display:flex;align-items:center;gap:8px;justify-content:flex-start;padding:9px 12px;font-size:13px}
 .quest-app{--side:clamp(250px,22vw,320px)}
 .quest-stage{position:absolute;z-index:2;left:calc(var(--side,0px) + 20px);right:20px;top:14px;bottom:14px;display:flex}
-.quest-stage>.quest-page{border:1px solid #cfae6a55;border-radius:10px;background:#0808078c;box-shadow:0 12px 34px #0008}
+.quest-stage>.quest-page{border:1px solid #cfae6a55;border-radius:10px;background:#0505058c;box-shadow:0 12px 34px #0008}
 .quest-stage>.quest-page.quest-draft{border:0;background:none;box-shadow:none}
 .quest-stage>.quest-offer{inset:0;border-radius:10px}
 @media(max-width:950px),(max-aspect-ratio:1/1){
@@ -169,7 +169,7 @@
 .quest-draft-picks .quest-offer-card{max-width:min(230px,calc((100dvh - 300px) * .711 / 1.9))}
 
 /* Full-screen map: quest log top left, you bottom left, menu top right. */
-.quest-map-mode{--fir:#0c0b0a;--moss:#181714;--brass:#cfae6a;--brass-hi:#f1d89a;--ember:#c25a4c;--ember-deep:#7f2a27;position:fixed;inset:0;background:#080807;overflow:hidden}
+.quest-map-mode{--fir:#0c0b0a;--moss:#181714;--brass:#cfae6a;--brass-hi:#f1d89a;--ember:#c25a4c;--ember-deep:#7f2a27;position:fixed;inset:0;background:#050505;overflow:hidden}
 .quest-map-mode .quest-stage{inset:0;left:0;right:0;top:0;bottom:0}
 .quest-map-mode .quest-stage>.quest-page{border:0;border-radius:0;background:none;box-shadow:none}
 .quest-map-mode .quest-info{position:absolute;z-index:4;background:#0c0b09e6;box-shadow:0 8px 24px #0008}
@@ -181,7 +181,7 @@
 .quest-log-item.done{opacity:.5;text-decoration:line-through}
 .quest-menu-button{position:absolute;z-index:4;right:16px;top:16px}
 /* Same plate chrome as the match: bracket corners on a dark inset panel. */
-.quest-map-mode .quest-info,.quest-menu-button{border:1px solid;border-color:#0b0a0999 #e5d29f1a #e5d29f22 #0b0a0999;border-radius:6px;box-shadow:inset 0 3px 16px #040e0899,0 8px 24px #0008;background:linear-gradient(#cfae6a88,#cfae6a88) top left/12px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top left/1px 12px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top right/12px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top right/1px 12px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom left/12px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom left/1px 12px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom right/12px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom right/1px 12px no-repeat,#060605cc}
+.quest-map-mode .quest-info,.quest-menu-button{border:1px solid;border-color:#0b0a0999 #e5d29f1a #e5d29f22 #0b0a0999;border-radius:6px;box-shadow:inset 0 3px 16px #06060599,0 8px 24px #0008;background:linear-gradient(#cfae6a88,#cfae6a88) top left/12px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top left/1px 12px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top right/12px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top right/1px 12px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom left/12px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom left/1px 12px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom right/12px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom right/1px 12px no-repeat,#040303cc}
 .quest-log{left:12px;top:12px}
 .quest-menu-button{right:12px;top:12px;padding:10px 18px;color:#f0e6cc;font:500 15px var(--serif)}
 .quest-id{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"portrait name gem" "portrait energy gem";column-gap:10px;row-gap:2px;align-items:center;padding:0 12px;height:92px;box-sizing:border-box;min-width:0;position:relative;left:auto;bottom:auto}
@@ -214,3 +214,4 @@
 .quest-map-mode .quest-pile .quest-crowns{flex-direction:column;gap:8px;position:relative}
 .quest-map-mode .quest-pile .quest-crowns{align-self:stretch;justify-content:center;width:100%;border-left:1px solid #cfae6a33}
 .quest-map-mode .quest-pile .quest-crowns svg,.quest-map-mode .quest-pile .quest-crowns .crown-icon{width:64px;height:64px}
+.quest-map-mode.has-offer .quest-log,.quest-map-mode.has-offer .quest-me,.quest-map-mode.has-offer .quest-menu-button{visibility:hidden}

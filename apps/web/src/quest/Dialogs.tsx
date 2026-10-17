@@ -66,7 +66,7 @@ export function LocationDialog({ run, node, notice, error, act, leave, offering,
     <section className="quest-dialog" role="dialog" aria-modal="true" aria-label={title}>
       <LocationArt role={role} affiliation={node.affiliation}/>
       <div className="quest-dialog-body">
-        <header><h2>{msg(title)}</h2>{faction && node.affiliation !== 'neutral' && <small>{faction}</small>}</header>
+        <header><h2>{msg(title)}</h2>{faction && node.affiliation !== 'neutral' && <small>{msg(faction)}</small>}</header>
         <p>{role === 'boss' ? msg("{v0} waits here. Everything you have gathered on this road decides how this ends.", { v0: run.quest.bossName }) : msg(info.text)}</p>
         {notice && <p className="quest-notice" role="status">{notice}</p>}
         {error && <p className="quest-error" role="alert">{error}</p>}

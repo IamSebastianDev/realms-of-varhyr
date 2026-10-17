@@ -1,8 +1,8 @@
 /* Black and bronze: one plate for every panel, dialog and sheet. Loaded last so it replaces the older green surfaces. */
 :root{
   --plate-bg:#0d0c0af2;
-  --plate-edge:#07070699 #e5d29f26 #e5d29f33 #07070699;
-  --plate-shadow:inset 0 3px 16px #040e0899,0 24px 80px #000b;
+  --plate-edge:#04040499 #e5d29f26 #e5d29f33 #04040499;
+  --plate-shadow:inset 0 3px 16px #06060599,0 24px 80px #000b;
   --plate-bracket:#cfae6acc;
 }
 .profile-stage,.builder-dialog,.quest-dialog,.privacy-card,.result-dialog,.side-panel,.game-setup-pane,.hover-preview,.creature-actions{
@@ -13,7 +13,7 @@
 .builder-dialog h2,.privacy-card h2,.result-dialog h2,.quest-dialog h2{color:#f0e6cc}
 /* Buttons on a plate: bronze chrome, serif. */
 :is(.builder-dialog,.quest-dialog,.privacy-card,.result-dialog,.side-panel,.game-setup-pane,.profile-stage) .outline-button{
-  border:1px solid;border-color:#07070699 #e5d29f1a #e5d29f22 #07070699;border-radius:6px;box-shadow:inset 0 3px 16px #040e0899;
+  border:1px solid;border-color:#04040499 #e5d29f1a #e5d29f22 #04040499;border-radius:6px;box-shadow:inset 0 3px 16px #06060599;
   background:linear-gradient(#cfae6a88,#cfae6a88) top left/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top left/1px 10px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top right/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top right/1px 10px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom left/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom left/1px 10px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom right/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom right/1px 10px no-repeat,#0b0a08cc;color:#f0e6cc;font:500 15px var(--serif)}
 :is(.builder-dialog,.quest-dialog,.privacy-card,.result-dialog,.side-panel,.game-setup-pane,.profile-stage) .outline-button:hover:not(:disabled){border-color:#cfae6a99}
 :is(.builder-dialog,.quest-dialog,.privacy-card,.result-dialog,.side-panel,.game-setup-pane,.profile-stage) .outline-button svg{color:#cfae6a}
@@ -25,11 +25,28 @@
 .lobby .world-vignette,.world-vignette:not(.app>.world-vignette){background:radial-gradient(ellipse at 50% 40%,#100f0cc0 0,#0a0908f0 85%)}
 
 /* Every button except Play gets the bronze chrome. Square buttons carry the bracket corners; pills and round buttons a bronze edge. */
-:is(.outline-button,.text-button,.builder-icon-button,.builder-small-button,.filter-trigger,.setup-change,.reset-button,.store-crown-buy,.coach-secondary,.lobby-resume,.packs-store,.deck-strip-new):not(.gold-button){border:1px solid;border-color:#0a160f99 #e5d29f1f #e5d29f2e #0a160f99;border-radius:6px;box-shadow:inset 0 3px 16px #040e0899;background:linear-gradient(#cfae6a88,#cfae6a88) top left/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top left/1px 10px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top right/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top right/1px 10px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom left/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom left/1px 10px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom right/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom right/1px 10px no-repeat,#0b0a08cc;color:#f0e6cc}
+:is(.outline-button,.text-button,.builder-icon-button,.builder-small-button,.filter-trigger,.setup-change,.reset-button,.store-crown-buy,.coach-secondary,.lobby-resume,.packs-store,.deck-strip-new):not(.gold-button){border:1px solid;border-color:#0b0a0999 #e5d29f1f #e5d29f2e #0b0a0999;border-radius:6px;box-shadow:inset 0 3px 16px #06060599;background:linear-gradient(#cfae6a88,#cfae6a88) top left/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top left/1px 10px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top right/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top right/1px 10px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom left/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom left/1px 10px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom right/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom right/1px 10px no-repeat,#0b0a08cc;color:#f0e6cc}
 :is(.outline-button,.text-button,.builder-icon-button,.builder-small-button,.filter-trigger,.setup-change,.reset-button,.store-crown-buy,.coach-secondary,.lobby-resume,.packs-store,.deck-strip-new):not(.gold-button):hover:not(:disabled){border-color:#cfae6a99;color:#fff4d6}
 :is(.outline-button,.text-button,.builder-icon-button,.builder-small-button,.filter-trigger,.setup-change,.reset-button,.store-crown-buy,.coach-secondary,.lobby-resume,.packs-store,.deck-strip-new):not(.gold-button) svg{color:#cfae6a}
 .outline-button.danger{border-color:#c25a4c99;color:#f0b5a6}
-:is(.peek-toggle,.profile-tabs button,.store-tabs button,.collection-tabs button,.collection-wallet-pill,.collection-close,.setup-close,.energy-arc-close,.store-arrow,.ob-arrow,.ring-button,.goal-claim,.board-key-row button,.match-corner button,.builder-dialog-close,.preview-close,.booster-close,.quest-x,.coach-skip){border:1px solid;border-color:#0a160f99 #e5d29f26 #e5d29f33 #0a160f99;box-shadow:inset 0 2px 10px #040e0899;background:#0b0a08cc;color:#e8dcb8}
+:is(.peek-toggle,.profile-tabs button,.store-tabs button,.collection-tabs button,.collection-wallet-pill,.collection-close,.setup-close,.energy-arc-close,.store-arrow,.ob-arrow,.ring-button,.goal-claim,.board-key-row button,.match-corner button,.builder-dialog-close,.preview-close,.booster-close,.quest-x,.coach-skip){border:1px solid;border-color:#0b0a0999 #e5d29f26 #e5d29f33 #0b0a0999;box-shadow:inset 0 2px 10px #06060599;background:#0b0a08cc;color:#e8dcb8}
 :is(.peek-toggle,.profile-tabs button,.store-tabs button,.collection-tabs button,.collection-wallet-pill,.collection-close,.setup-close,.energy-arc-close,.store-arrow,.ob-arrow,.ring-button,.goal-claim,.board-key-row button,.match-corner button,.builder-dialog-close,.preview-close,.booster-close,.quest-x,.coach-skip):hover:not(:disabled){border-color:#cfae6a99;color:#fff4d6}
 :is(.peek-toggle,.profile-tabs button,.store-tabs button,.collection-tabs button,.collection-wallet-pill,.collection-close,.setup-close,.energy-arc-close,.store-arrow,.ob-arrow,.ring-button,.goal-claim,.board-key-row button,.match-corner button,.builder-dialog-close,.preview-close,.booster-close,.quest-x,.coach-skip)[aria-selected=true],:is(.peek-toggle,.profile-tabs button,.store-tabs button,.collection-tabs button,.collection-wallet-pill,.collection-close,.setup-close,.energy-arc-close,.store-arrow,.ob-arrow,.ring-button,.goal-claim,.board-key-row button,.match-corner button,.builder-dialog-close,.preview-close,.booster-close,.quest-x,.coach-skip).active,:is(.peek-toggle,.profile-tabs button,.store-tabs button,.collection-tabs button,.collection-wallet-pill,.collection-close,.setup-close,.energy-arc-close,.store-arrow,.ob-arrow,.ring-button,.goal-claim,.board-key-row button,.match-corner button,.builder-dialog-close,.preview-close,.booster-close,.quest-x,.coach-skip).on{border-color:#cfae6acc;background:#cfae6a1f;color:#f6e6b4}
 :is(.peek-toggle,.profile-tabs button,.store-tabs button,.collection-tabs button,.collection-wallet-pill,.collection-close,.setup-close,.energy-arc-close,.store-arrow,.ob-arrow,.ring-button,.goal-claim,.board-key-row button,.match-corner button,.builder-dialog-close,.preview-close,.booster-close,.quest-x,.coach-skip) svg{color:#cfae6a}
+
+/* The Play button: bronze plate chrome, the ember still burns around its edge on hover. */
+.start-play.start-play,.start-play.start-play:hover:not(:disabled),.start-play.start-play:active:not(:disabled){--c:#cfae6acc;color:#f3e2b4;text-shadow:0 1px 6px #000c;border:1px solid;border-color:#0b0a0999 #e5d29f40 #e5d29f59 #0b0a0999;border-radius:6px;filter:none;
+  background:linear-gradient(106deg,transparent 40%,#f3dc9c24 50%,transparent 60%) var(--glint,140%) 0/260% 100% no-repeat,
+    linear-gradient(var(--c),var(--c)) top left/14px 1px no-repeat,linear-gradient(var(--c),var(--c)) top left/1px 14px no-repeat,linear-gradient(var(--c),var(--c)) top right/14px 1px no-repeat,linear-gradient(var(--c),var(--c)) top right/1px 14px no-repeat,
+    linear-gradient(var(--c),var(--c)) bottom left/14px 1px no-repeat,linear-gradient(var(--c),var(--c)) bottom left/1px 14px no-repeat,linear-gradient(var(--c),var(--c)) bottom right/14px 1px no-repeat,linear-gradient(var(--c),var(--c)) bottom right/1px 14px no-repeat,
+    radial-gradient(ellipse at 50% 0,#cfae6a2e,transparent 72%),#0c0b09;
+  box-shadow:inset 0 3px 16px #060605cc,inset 0 0 0 5px #0c0b09,inset 0 0 0 6px #cfae6a33,0 10px 24px #0008}
+.start-play.start-play:hover:not(:disabled){--c:#ecd08ae6;color:#fff4d6;border-color:#0b0a0999 #f3dc9c66 #f3dc9c80 #0b0a0999}
+.start-play>svg{stroke:#e8cd8f;background:radial-gradient(circle at 35% 28%,#2b2823,#12110f 72%);box-shadow:0 0 0 1.5px #8f6c2c,0 0 0 3px #cfae6a55,inset 0 1px 2px #0008}
+.start-play span{text-shadow:0 1px 6px #000c}
+.start-play.start-play:disabled{filter:grayscale(.5);opacity:.55}
+
+/* Cards are not stacking contexts, so their cost coins sit above neighbouring cards. Dimming goes on the card's face, not the card. */
+.art-card{isolation:auto}
+.hand-card.unaffordable,.hand-scroll .hand-card.unaffordable{filter:none}
+.hand-card.unaffordable>.card-box{filter:saturate(.7) brightness(.8)}

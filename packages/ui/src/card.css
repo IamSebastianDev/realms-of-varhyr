@@ -2,7 +2,7 @@
 .faction-icon{display:inline-block;width:1em;height:1em;flex:none;vertical-align:-.12em;overflow:visible}
 .cost-bundle>span{display:inline-flex;align-items:center;gap:.16em}
 .cost-bundle .faction-icon{width:1.05em;height:1.05em;vertical-align:middle}
-.energy-token .energy-symbol.faction-icon{font-size:1.05em;filter:drop-shadow(0 1px 2px #07100d66)}
+.energy-token .energy-symbol.faction-icon{font-size:1.05em;filter:drop-shadow(0 1px 2px #08070666)}
 .card-energy-output .energy-symbol.faction-icon{font-size:.9em}
 .card-cost .faction-icon{width:.95em;height:.95em}
 .avatar>.faction-icon{width:60%;height:60%}
@@ -14,17 +14,17 @@
 .faction-select.has-faction select{padding-left:35px}
 .faction-select select{margin-top:0}
 
-.no-energy-output{font-size:11px;color:#acbba2;margin:10px 0}
+.no-energy-output{font-size:11px;color:#b2b0ab;margin:10px 0}
 
 /* from styles.css */
 .energy-bundle{display:inline-flex;gap:10px;align-items:center;font-family:var(--serif);font-size:21px}
 .energy-bundle>span{display:flex;align-items:center;gap:3px}
 .energy-bundle b{font-size:21px;font-weight:500}
-.energy-empty{color:#66877d;font:20px var(--serif)}
-.art-card{position:relative;aspect-ratio:512/720;overflow:hidden;border:1px solid #ab967459;border-radius:3px;background:#0c2226;padding:0;flex-shrink:0;display:block;box-shadow:0 6px 12px #0004;text-align:center;isolation:isolate}
+.energy-empty{color:#7b7872;font:20px var(--serif)}
+.art-card{position:relative;aspect-ratio:512/720;overflow:hidden;border:1px solid #ab967459;border-radius:3px;background:#12100d;padding:0;flex-shrink:0;display:block;box-shadow:0 6px 12px #0004;text-align:center;isolation:isolate}
 .art-card img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:-2;pointer-events:none}
-.card-shade{position:absolute;inset:0;background:linear-gradient(transparent 38%,#07171991 58%,#071719ee 83%,#09191b 99%);z-index:-1}
-.card-cost{position:absolute;left:6px;top:6px;background:#0b2226ed;border:1px solid #c1aa7c94;border-radius:20px;min-width:24px;height:24px;display:flex;align-items:center;justify-content:center;padding:1px 6px;box-shadow:0 2px 6px #0005}
+.card-shade{position:absolute;inset:0;background:linear-gradient(transparent 38%,#0b0a0991 58%,#0b0a09ee 83%,#0d0c0a 99%);z-index:-1}
+.card-cost{position:absolute;left:6px;top:6px;background:#11100ded;border:1px solid #c1aa7c94;border-radius:20px;min-width:24px;height:24px;display:flex;align-items:center;justify-content:center;padding:1px 6px;box-shadow:0 2px 6px #0005}
 .cost-bundle{display:inline-flex;align-items:center;justify-content:center;gap:3px;font-family:var(--serif);font-size:13px;font-weight:600;white-space:nowrap}
 .cost-free{color:#e7d5b7;font-size:17px}
 .cost-generic{color:#d3cdbd}
@@ -33,36 +33,36 @@
 .card-statline{display:flex;gap:17px;align-items:center;justify-content:center;color:#cab788;font:500 15px var(--serif)}
 .card-statline span{display:flex;align-items:center;gap:3px}
 .card-statline svg{width:10px;height:10px}
-.card-statline span:nth-child(2){color:#a5bab4}
+.card-statline span:nth-child(2){color:#b3b1ac}
 .card-corners{position:absolute;inset:3px;pointer-events:none;border:1px solid #cab78829;border-radius:1px}
 @media(max-width:700px){
 .energy-bundle{gap:7px;font-size:16px}
 .energy-bundle b{font-size:16px}}
-.hover-preview{position:fixed;z-index:25;pointer-events:none;padding:17px;background:linear-gradient(135deg,#20342efc,#0d2025fc);border:1px solid #d2b7798a;border-radius:5px;box-shadow:0 16px 60px #000a;overflow:hidden}
-.card-facts{margin-top:13px;padding-top:11px;border-top:1px solid #b3b79330;color:#becab5}
+.hover-preview{position:fixed;z-index:25;pointer-events:none;padding:17px;background:linear-gradient(135deg,#1c1b18fc,#12100dfc);border:1px solid #d2b7798a;border-radius:5px;box-shadow:0 16px 60px #000a;overflow:hidden}
+.card-facts{margin-top:13px;padding-top:11px;border-top:1px solid #aaa7a030;color:#c3c1bc}
 .fact-stats{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:10px}
 .fact-stats>span{display:flex;align-items:center;gap:4px}
 .fact-stats b{color:#f1dfb4;font-size:13px}
 .fact-energy{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:10px}
-.fact-energy>span:first-child{font-size:7px;letter-spacing:1px;margin-right:auto;color:#a3b398}
+.fact-energy>span:first-child{font-size:7px;letter-spacing:1px;margin-right:auto;color:#aaa7a1}
 .fact-energy>span:not(:first-child){display:flex;align-items:center;gap:6px}
-.fact-energy small{font-size:9px;color:#adb89f}
+.fact-energy small{font-size:9px;color:#afada8}
 .fact-energy .energy-bundle,.fact-energy .energy-bundle b{font-size:18px}
 @media(max-width:700px){
 .hover-preview{display:none}}
 @media(max-width:700px) and (hover:hover) and (pointer:fine){.hover-preview{display:block}}
-.energy-empty{color:#a5b99b}
+.energy-empty{color:#aeaca5}
 .energy-bundle{flex-wrap:wrap;gap:7px;font-family:'Manrope',sans-serif}
 .energy-bundle>.energy-token{gap:3px;white-space:nowrap;line-height:1.15}
-.energy-token .energy-symbol{font-family:Georgia,serif;font-size:1.18em;line-height:1;text-shadow:0 1px 3px #15291e}
+.energy-token .energy-symbol{font-family:Georgia,serif;font-size:1.18em;line-height:1;text-shadow:0 1px 3px #151411}
 .energy-bundle b{color:#f0edd8;font:600 .85em 'Manrope',sans-serif}
 .energy-output,.output-option{display:inline-flex;align-items:center;justify-content:center;gap:5px}
 .energy-output{flex-wrap:wrap;row-gap:2px}
-.output-or{font:italic 9px Georgia,serif;color:#c5cdb5}
-.card-shade{background:linear-gradient(transparent 32%,#213e2870 55%,#203b2deb 82%,#243f2e 99%)}
-.art-card{background:#314b38;border-color:#d4c59570}
+.output-or{font:italic 9px Georgia,serif;color:#c5c2bd}
+.card-shade{background:linear-gradient(transparent 32%,#201e1b70 55%,#1f1d1aeb 82%,#21201c 99%)}
+.art-card{background:#292724;border-color:#d4c59570}
 .art-card img{filter:brightness(1.12) saturate(1.05)}
-.card-cost{background:#294537f2;border-color:#dbc38c}
+.card-cost{background:#25231ff2;border-color:#dbc38c}
 .card-title{bottom:8px}
 .card-statline{gap:22px}
 .card-energy-output{margin-top:5px;line-height:1;min-height:13px}
@@ -78,12 +78,12 @@
 .ability-facts{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin:14px 0 0}
 .ability-fact{padding:10px 12px;border:1px solid #e2ce9750;border-radius:5px;background:#d9c38712}
 .ability-fact dt{margin:0 0 5px;color:#ffe6ae;font:700 11px/1.4 'Manrope',sans-serif;overflow-wrap:anywhere}
-.ability-fact dd{margin:0;color:#e1e8d7;font-size:11px;line-height:1.65;overflow-wrap:anywhere}
+.ability-fact dd{margin:0;color:#e2e0dd;font-size:11px;line-height:1.65;overflow-wrap:anywhere}
 .card-lore{margin:16px 0 0;color:#dfd1ad;font:italic 17px/1.5 var(--serif);white-space:pre-line;overflow-wrap:anywhere}
 .art-card.holding-card{border-color:#bcaaca;box-shadow:inset 0 0 0 1px #d9cde8,0 8px 24px #38294730}
 .card-statline .holding-type{margin-left:auto;color:#e7d9f3;font-size:10px;gap:4px}
 .art-card{container-type:inline-size}
-.art-card .card-header{position:absolute;top:0;left:0;right:0;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:5px 6px;padding:10px 8px 24px;background:linear-gradient(#193025f5 0%,#193025dc 65%,transparent);text-align:left}
+.art-card .card-header{position:absolute;top:0;left:0;right:0;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:5px 6px;padding:10px 8px 24px;background:linear-gradient(#191714f5 0%,#191714dc 65%,transparent);text-align:left}
 .art-card .card-header h3{font:600 clamp(11px,10cqw,23px)/1.08 var(--serif);color:#fff0d4;margin:0;min-width:0;overflow-wrap:break-word;text-shadow:0 1px 3px #0008}
 .art-card.legendary-card .card-header{background:linear-gradient(#302c18f5 0%,#302c18dc 65%,transparent)}
 .art-card.legendary-card .card-header h3{color:#fff1c2}
@@ -92,7 +92,7 @@
 .art-card .card-header .cost-bundle{font-size:clamp(13px,10cqw,22px);white-space:nowrap}
 .art-card .card-identity{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:5px}
 .art-card .card-affiliation{display:block;font:600 clamp(5.5px,4.5cqw,9px)/1.4 'Manrope',sans-serif;letter-spacing:.65px;color:#dedac5;text-transform:uppercase}
-.art-card .card-shade{background:linear-gradient(transparent 62%,#203b2d70 76%,#243f2ef5 96%)}
+.art-card .card-shade{background:linear-gradient(transparent 62%,#1f1d1a70 76%,#21201cf5 96%)}
 .art-card.legendary-card .card-shade{background:linear-gradient(transparent 62%,#3c2a0c70 76%,#252410f5 96%)}
 @media(max-width:480px){.art-card .card-header{padding:7px 6px 16px;gap:4px}}
 .art-card .card-header h3{grid-column:1/-1;white-space:nowrap;overflow-wrap:normal;min-width:0}
@@ -100,16 +100,16 @@
 .art-card .card-identity{grid-column:1;grid-row:2}
 
 /* from card-layout.css */
-.art-card{border-radius:4px;box-shadow:0 8px 18px #10231840}
+.art-card{border-radius:4px;box-shadow:0 8px 18px #12100e40}
 .art-card .card-information{position:absolute;bottom:7px;left:8px;right:8px;z-index:2;display:flex;flex-direction:column;gap:6px;text-align:left}
 .art-card .card-header{position:static;display:flex;flex-direction:column;align-items:stretch;padding:0 clamp(5px,4cqw,10px);gap:4px;background:none;text-align:center}
 .art-card .card-header h3{width:100%;line-height:1.08}
-.art-card .card-cost{position:absolute;top:8px;right:8px;left:auto;z-index:2;min-width:0;height:auto;min-height:0;padding:4px 5px;border-radius:3px;background:#13291ddd;border-color:#dbc38c99;box-shadow:0 2px 6px #0003}
+.art-card .card-cost{position:absolute;top:8px;right:8px;left:auto;z-index:2;min-width:0;height:auto;min-height:0;padding:4px 5px;border-radius:3px;background:#151311dd;border-color:#dbc38c99;box-shadow:0 2px 6px #0003}
 .art-card>.card-cost .cost-bundle{font-size:clamp(13px,10cqw,22px);white-space:nowrap}
 .art-card.holding-card .card-header{background:none}
 .art-card .card-identity{align-self:center;min-width:0}
-.art-card .card-affiliation{letter-spacing:.45px;color:#d9ddcb}
-.art-card .card-title{position:static;display:flex;align-items:center;justify-content:space-between;gap:clamp(4px,4cqw,9px);padding:clamp(4px,3cqw,7px) 4px;background:#152b23c9;border-top:1px solid #d5c79455;border-radius:2px}
+.art-card .card-affiliation{letter-spacing:.45px;color:#d7d5d1}
+.art-card .card-title{position:static;display:flex;align-items:center;justify-content:space-between;gap:clamp(4px,4cqw,9px);padding:clamp(4px,3cqw,7px) 4px;background:#161512c9;border-top:1px solid #d5c79455;border-radius:2px}
 .art-card .card-statline{font-size:clamp(13px,10cqw,22px);gap:clamp(8px,8cqw,20px)}
 .art-card .card-statline svg{width:clamp(9px,6cqw,13px);height:clamp(9px,6cqw,13px)}
 .art-card .card-energy-output{margin:0;min-height:0}
@@ -118,7 +118,7 @@
 .art-card .card-energy-output .energy-symbol.faction-icon,.art-card .card-cost .faction-icon,.art-card .card-cost svg,.art-card .card-energy-output svg{width:clamp(9px,6cqw,13px);height:clamp(9px,6cqw,13px);font-size:inherit}
 .art-card.holding-card .card-title{justify-content:center;background:#292633cc}
 .art-card .card-corners{z-index:3;inset:4px;border-color:#ece4c324;border-radius:2px}
-.art-card.legendary-card{border:1px solid #edce8d;box-shadow:0 0 0 1px #735b37,0 0 0 3px #dfbd7224,0 9px 24px #10231865}
+.art-card.legendary-card{border:1px solid #edce8d;box-shadow:0 0 0 1px #735b37,0 0 0 3px #dfbd7224,0 9px 24px #12100e65}
 .art-card.legendary-card .card-corners{
   inset:4px;border:1px solid #efd39570;border-radius:2px;
   background:
@@ -162,14 +162,14 @@
 .art-card .card-energy-output .output-or {font-size:4.5cqw}
 
 /* The same face laid over the 3D board art */
-.card-face-overlay {position:absolute;inset:0;width:auto;height:auto;aspect-ratio:auto;border:0;border-radius:3px;background:none;box-shadow:none;pointer-events:none;transition:filter .15s}
+.card-face-overlay {position:absolute;inset:0;width:auto;height:auto;aspect-ratio:auto;border-radius:3px;background:none;box-shadow:none;pointer-events:none;transition:filter .15s}
 .board-card-label.is-exhausted .card-face-overlay {filter:saturate(.8) brightness(.93)}
 
 /* from card-detail.css */
 .card-detail {display:grid;grid-template-columns:190px minmax(0,1fr);gap:26px;align-items:center;text-align:left}
 .card-detail .card-detail-art {width:190px;height:267px;margin:0;box-shadow:0 8px 28px #0008}
 .card-detail-body {min-width:0}
-.card-detail-body .eyebrow {display:block;font-size:8px;letter-spacing:1.1px;color:#c5c8ab}
+.card-detail-body .eyebrow {display:block;font-size:8px;letter-spacing:1.1px;color:#bebbb5}
 .card-detail-body h2 {font:500 32px/1.05 var(--serif);color:#f5e7c8;margin:10px 0 8px}
 .card-detail-body .cost-bundle {font:700 14px 'Manrope',sans-serif}
 .card-detail-body .card-lore {margin:14px 0}
@@ -213,3 +213,100 @@
 
 .card-detail-set {display:flex;align-items:center;gap:7px;margin:0 0 12px;font-size:11px;color:#d1b988}
 .card-detail-set small {border:1px solid #bca46b55;border-radius:3px;padding:2px 5px;font-size:9px;letter-spacing:.08em}
+
+/* ---- Card refinement: bronze plate chrome, a type mark, and a distinct dress per kind.
+   Creatures are bronze, spells arcane blue, holdings stone, legendaries gold. Sizes are container units. ---- */
+.art-card{--ink:#cfae6a;--ink-hi:#ecd9a2;--ink-dim:#cfae6a70;--ink-faint:#cfae6a33}
+.art-card:has(.type-spell){--ink:#9fb6e2;--ink-hi:#dbe5fa;--ink-dim:#9fb6e270;--ink-faint:#9fb6e233}
+.art-card.holding-card{--ink:#b9b09c;--ink-hi:#ebe4d3;--ink-dim:#b9b09c70;--ink-faint:#b9b09c33}
+.art-card.legendary-card{--ink:#f0cf86;--ink-hi:#fff2c8;--ink-dim:#f0cf86aa;--ink-faint:#f0cf8638}
+.art-card{border-color:var(--ink-dim)}
+.art-card .card-corners{inset:2.6cqw;border:1px solid var(--ink-faint);border-radius:1.4cqw;
+  background:linear-gradient(var(--ink),var(--ink)) left top/7cqw 1px no-repeat,linear-gradient(var(--ink),var(--ink)) left top/1px 7cqw no-repeat,linear-gradient(var(--ink),var(--ink)) right top/7cqw 1px no-repeat,linear-gradient(var(--ink),var(--ink)) right top/1px 7cqw no-repeat,
+    linear-gradient(var(--ink),var(--ink)) left bottom/7cqw 1px no-repeat,linear-gradient(var(--ink),var(--ink)) left bottom/1px 7cqw no-repeat,linear-gradient(var(--ink),var(--ink)) right bottom/7cqw 1px no-repeat,linear-gradient(var(--ink),var(--ink)) right bottom/1px 7cqw no-repeat}
+  background:radial-gradient(circle at 35% 30%,#2b2822,#0c0b09 74%);box-shadow:0 0 0 1px #000a,0 1cqw 2.4cqw #000a,inset 0 0 0 .8cqw #0c0b09}
+.art-card .card-cost{background:linear-gradient(#1b1914,#0c0b09);border:1px solid var(--ink-dim);border-radius:1.8cqw;box-shadow:0 1cqw 2.4cqw #000a,inset 0 1px 0 #ffffff12}
+.art-card .card-header h3{text-shadow:0 1px 0 #000,0 0 3cqw #000c}
+.art-card .card-identity{align-self:stretch;display:flex;align-items:center;justify-content:center;gap:2.4cqw}
+.art-card .card-identity::before,.art-card .card-identity::after{content:'';flex:1;height:1px;min-width:3cqw}
+.art-card .card-identity::before{background:linear-gradient(90deg,transparent,var(--ink-dim))}
+.art-card .card-identity::after{background:linear-gradient(270deg,transparent,var(--ink-dim))}
+.art-card .card-affiliation{flex:none;color:var(--ink-hi);opacity:.88}
+.art-card .card-title{background:linear-gradient(#1a1813f0,#0b0a08f5);border:1px solid var(--ink-dim);border-top-color:var(--ink);border-radius:1.4cqw;box-shadow:inset 0 1px 0 #ffffff10,0 1.2cqw 3cqw #000b}
+.art-card .card-statline{color:var(--ink-hi)}
+@container (max-width:84px){.art-card .card-identity::before,.art-card .card-identity::after{display:none}}
+
+/* Spells: a doubled arcane frame, cool glow rising from the name, no plate. */
+.art-card:has(.type-spell) .card-shade{background:linear-gradient(transparent 46%,#0a0e1ccc 70%,#070913f7 98%),radial-gradient(ellipse 90% 40% at 50% 104%,#7f9de05c,transparent 70%)}
+.art-card .card-corners.type-spell{border-radius:5cqw 5cqw 1.4cqw 1.4cqw;box-shadow:inset 0 0 0 1.5cqw #0000,inset 0 0 0 calc(1.5cqw + 1px) var(--ink-faint)}
+.art-card:has(.type-spell) .card-header h3{text-shadow:0 1px 0 #000,0 0 4cqw #6f8fd8aa}
+
+/* Holdings: a stone frame and a crenellated plaque. */
+.art-card.holding-card .card-shade{background:linear-gradient(transparent 52%,#14110dcc 72%,#0d0b08f7 98%)}
+.art-card .card-corners.type-holding{inset:0;border:2.2cqw solid #4b463bcc;border-radius:inherit;box-shadow:inset 0 0 0 1px var(--ink-dim),inset 0 0 0 2.2cqw #0000,inset 0 0 0 calc(2.2cqw + 1px) #00000099;background:none}
+.art-card.holding-card .card-title{background:linear-gradient(#2a2721f2,#0f0d0af7);border:0;box-shadow:none;border-radius:0;padding-top:calc(clamp(4px,3cqw,7px) + 1.6cqw);
+  -webkit-mask:linear-gradient(#000,#000) bottom/100% calc(100% - 1.6cqw) no-repeat,repeating-linear-gradient(90deg,#000 0 3.4cqw,transparent 3.4cqw 5.8cqw) top/100% 1.6cqw no-repeat;mask:linear-gradient(#000,#000) bottom/100% calc(100% - 1.6cqw) no-repeat,repeating-linear-gradient(90deg,#000 0 3.4cqw,transparent 3.4cqw 5.8cqw) top/100% 1.6cqw no-repeat}
+
+/* Legendaries: a gold double frame, a gilded name and a crest above it. */
+.art-card.legendary-card{border:1px solid #f6dc9a;box-shadow:0 0 0 1px #5d4520,0 0 0 3px #f0cf8630,0 0 26px #e8b64a2e,0 9px 24px #12100e70}
+.art-card.legendary-card .card-corners{inset:2.6cqw;border:1px solid #f0cf8688;box-shadow:inset 0 0 0 1.4cqw #0000,inset 0 0 0 calc(1.4cqw + 1px) #f0cf8640,0 0 0 1px #00000066}
+.art-card.legendary-card .card-corners.type-holding{inset:0;border:2.2cqw solid #2a2113e6;box-shadow:inset 0 0 0 1px #f0cf86cc,inset 0 0 0 calc(2.2cqw + 1px) #f0cf8666}
+.art-card.legendary-card .card-corners.type-spell{border-radius:5cqw 5cqw 1.4cqw 1.4cqw}
+.art-card.legendary-card .card-header h3{background:linear-gradient(#fff8dc 20%,#f1cf80 82%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 1px 1px #000) drop-shadow(0 0 2.4cqw #000c)}
+.art-card.legendary-card .card-title{background:linear-gradient(#2c2310f2,#0f0c06f7);border-color:#f0cf86aa;border-top-color:#f6dc9a}
+.art-card.legendary-card.holding-card .card-title{border:0}
+.art-card.legendary-card .card-cost{border-color:#f0cf86aa}
+
+.art-card.holding-card:not(.legendary-card){border-color:var(--ink-dim);box-shadow:0 0 0 1px #000a,0 8px 24px #0009}
+.art-card.legendary-card .card-corners.type-holding{border-color:#6a5530e6}
+
+/* ---- Pop: more room for the type mark, a faction accent, a glossy edge light, a legendary shimmer and a hover glow. ---- */
+.art-card .card-cost{top:4cqw;right:4cqw}
+/* The faction colour: a glow rising from the bottom, tinted rules around the type line, a lit edge under the stat bar. */
+.art-card .card-shade{background-image:radial-gradient(ellipse 95% 42% at 50% 104%,color-mix(in srgb,var(--faction,#0000) 52%,transparent),transparent 72%),linear-gradient(transparent 56%,#0d0c0acc 80%,#0a0908f5 99%)}
+.art-card:has(.type-spell) .card-shade{background-image:radial-gradient(ellipse 90% 40% at 50% 104%,color-mix(in srgb,var(--faction,#7f9de0) 38%,transparent),transparent 70%),linear-gradient(transparent 46%,#0a0e1ccc 70%,#070913f7 98%)}
+.art-card .card-identity::before{background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--faction,var(--ink)) 70%,var(--ink-dim)))}
+.art-card .card-identity::after{background:linear-gradient(270deg,transparent,color-mix(in srgb,var(--faction,var(--ink)) 70%,var(--ink-dim)))}
+.art-card .card-title{border-bottom:2px solid color-mix(in srgb,var(--faction,var(--ink)) 78%,#000)}
+.art-card.holding-card .card-title{border:0;box-shadow:inset 0 -2px 0 color-mix(in srgb,var(--faction,var(--ink)) 78%,#000)}
+/* Gloss: a soft light falling from the top left across the frame. */
+.art-card .card-corners{background-image:linear-gradient(var(--ink),var(--ink)),linear-gradient(var(--ink),var(--ink)),linear-gradient(var(--ink),var(--ink)),linear-gradient(var(--ink),var(--ink)),linear-gradient(var(--ink),var(--ink)),linear-gradient(var(--ink),var(--ink)),linear-gradient(var(--ink),var(--ink)),linear-gradient(var(--ink),var(--ink)),linear-gradient(155deg,#ffffff26 0%,#ffffff0a 22%,transparent 42%)}
+.art-card .card-corners{background-position:left top,left top,right top,right top,left bottom,left bottom,right bottom,right bottom,0 0;background-size:7cqw 1px,1px 7cqw,7cqw 1px,1px 7cqw,7cqw 1px,1px 7cqw,7cqw 1px,1px 7cqw,100% 100%;background-repeat:no-repeat}
+.art-card .card-corners.type-holding{background-image:linear-gradient(155deg,#ffffff1c 0%,transparent 40%);background-position:0 0;background-size:100% 100%}
+/* Legendaries catch the light now and then. */
+.art-card.legendary-card .card-corners::after{content:'';position:absolute;inset:-2.6cqw;pointer-events:none;mix-blend-mode:screen;background:linear-gradient(112deg,transparent 42%,#fff2c855 50%,transparent 58%) 160% 0/260% 100% no-repeat;animation:legend-sheen 7s ease-in-out infinite}
+@keyframes legend-sheen{0%,55%{background-position:160% 0}100%{background-position:-60% 0}}
+@media(prefers-reduced-motion:reduce){.art-card.legendary-card .card-corners::after{animation:none;opacity:0}}
+.art-card:hover{box-shadow:0 0 18px var(--ink-faint),0 8px 18px #12100e40}
+.art-card .card-affiliation{display:block;flex:0 1 auto;min-width:0;white-space:nowrap;overflow:hidden}
+
+/* ---- Cost: a stack of bronze coins down the right edge, half outside the card.
+   The card is not a stacking context, so the coins sit above everything around it. The printed face lives in .card-box,
+   which carries the size container; the coins size themselves from their own width. ---- */
+.art-card,.art-card.art-card{container-type:normal;overflow:visible}
+.art-card>.card-art{position:absolute;inset:0;z-index:0;overflow:hidden;border-radius:3px;pointer-events:none}
+.card-art>img,.card-art>video,.card-art>.holographic-foil{z-index:0}
+.card-box{position:absolute;inset:0;z-index:0;container-type:inline-size;border-radius:inherit;overflow:hidden;pointer-events:none}
+.card-box>*{pointer-events:auto}
+.art-card>.card-cost{container-type:inline-size;display:block;position:absolute;top:4.5%;right:3.5%;left:auto;width:16%;z-index:30;transition:translate .32s cubic-bezier(.2,.8,.2,1),scale .32s cubic-bezier(.2,.8,.2,1);padding:0;border:0;background:none;box-shadow:none;border-radius:0;min-height:0;min-width:0}
+.art-card>.card-cost .cost-bundle{width:100%;display:flex;flex-direction:column;align-items:stretch;gap:0;font-size:0}
+.art-card>.card-cost .cost-bundle>span{position:relative;display:grid;place-items:center;box-sizing:border-box;width:100%;aspect-ratio:1;border-radius:50%;gap:0;
+  background:radial-gradient(circle at 34% 26%,#4a3f2b,#14110c 70%);border:1.5px solid currentColor;
+  box-shadow:0 0 0 1px #000b,0 10cqw 19cqw #000c,inset 0 0 0 8cqw #0d0b08,inset 0 0 0 calc(8cqw + 1px) color-mix(in srgb,currentColor 45%,transparent)}
+.art-card>.card-cost .cost-bundle>span+span{margin-top:12%}
+.art-card>.card-cost .cost-bundle>.cost-generic{color:var(--ink-hi);font:700 56cqw/1 'Manrope',sans-serif}
+.art-card>.card-cost .cost-bundle>span svg{position:static;width:58cqw;height:58cqw;padding:0;border:0;background:none;border-radius:0;filter:drop-shadow(0 1px 1px #000)}
+.card-face-overlay>.card-cost{right:3%;width:12%}
+
+/* hover: coins slide out to the right and forward; layers drift with the pointer (parallax) */
+.art-card{--px:0;--py:0}
+.card-art>img,.card-art>video,.card-art>.holographic-foil{transition:translate .25s ease-out,scale .35s ease-out}
+.art-card>.card-box{transition:translate .25s ease-out}
+@media (hover:hover){
+  .art-card:hover>.card-cost,.art-card:focus-visible>.card-cost{translate:62% 0;scale:1.12}
+}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){
+  .art-card:hover>.card-cost,.art-card:focus-visible>.card-cost{translate:calc(62% + var(--px)*7%) calc(var(--py)*6%);scale:1.12}
+  .art-card:hover .card-art>img,.art-card:hover .card-art>video,.art-card:hover .card-art>.holographic-foil{scale:1.07;translate:calc(var(--px)*-2.2%) calc(var(--py)*-2.2%)}
+  .art-card:hover>.card-box{translate:calc(var(--px)*1.1%) calc(var(--py)*1.1%)}
+}

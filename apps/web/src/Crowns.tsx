@@ -13,5 +13,5 @@ export function CrownIcon({ className = '', tilt = false }: { className?: string
 }
 export function CrownAmount({ amount, className = '' }: { amount: number; className?: string }) {
   useLanguage();
-  return <span className={`crown-amount ${className}`} aria-label={msg("{v0} {v1}", {v0: formatNumber(amount), v1: amount === 1 ? 'crown' : 'crowns'})}><CrownIcon/><b>{formatNumber(amount)}</b><span>{amount === 1 ? 'crown' : 'crowns'}</span></span>;
+  return <span className={`crown-amount ${className}`} aria-label={msg("{v0} {v1}", {v0: formatNumber(amount), v1: amount === 1 ? 'crown' : 'crowns'})}><CrownIcon/><b>{formatNumber(amount)}</b><span>{msg(amount === 1 ? 'crown' : 'crowns')}</span></span>;
 }

@@ -1,5 +1,7 @@
 /** Public engine messages are translated at display time; stored events and replays stay language-neutral. */
 export const eventMessages: [RegExp, string][] = [
+  [/^Champion of (.+)$/, 'Kämpfer von $1'],
+  [/^Raiders of (.+)$/, 'Plünderer von $1'],
   [/^Channels energy: (.+)$/, '$1 erzeugt Energie.'],
   [/^Turn (\d+) begins\.$/, 'Zug $1 beginnt.'],
   [/^(.+) begins turn (\d+)\.$/, '$1 beginnt Zug $2.'],

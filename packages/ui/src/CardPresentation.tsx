@@ -39,6 +39,14 @@ export function Cost({card}:{card:CardDefinition}) {
   if(!hasEnergyCost(card))return null;
   return <span className="cost-bundle">{card.cost.generic>0&&<span className="cost-generic" role="img" aria-label={`${card.cost.generic} ${msg("Generic: any energy")}`} title={msg("Generic: any energy")}>{card.cost.generic}<GenericEnergyIcon/></span>}{Object.entries(card.cost.factions).filter(([,amount])=>amount>0).map(([color,amount])=><span key={color} style={{color:factionInfo[color as EnergyType].color}} title={msg(factionInfo[color as EnergyType].name)} role="img" aria-label={msg("{v0} {v1} energy",{v0:amount,v1:msg(factionInfo[color as EnergyType].name)})}>{amount}<FactionIcon faction={color}/></span>)}</span>;
 }
+/** The cost on a card face: one coin per energy, each showing only its icon. */
+export function CostCoins({card}:{card:CardDefinition}) {
+  useLanguage();
+  const coins:{key:string;color?:string;label:string;faction?:string}[]=[];
+  for(const [color,amount] of Object.entries(card.cost.factions))for(let i=0;i<amount;i++)coins.push({key:`${color}${i}`,color:factionInfo[color as EnergyType].color,faction:color,label:msg(factionInfo[color as EnergyType].name)});
+  if(card.cost.generic>0)coins.push({key:'generic',label:`${card.cost.generic} ${msg("Generic: any energy")}`});
+  return <span className="cost-bundle" role="img" aria-label={msg("Cost")+': '+coins.map(coin=>coin.label).join(', ')}>{coins.map(coin=><span key={coin.key} className={coin.faction?'cost-coin':'cost-coin cost-generic'} style={coin.color?{color:coin.color}:undefined} title={coin.label}>{coin.faction?<FactionIcon faction={coin.faction}/>:card.cost.generic}</span>)}</span>;
+}
 export function Energy({pool}:{pool:Pool}) {
   useLanguage();
   const entries=Object.entries(pool).filter(([,v])=>v!>0);
@@ -63,13 +71,15 @@ export function CardFace({card,stats,showCost=true}:{card:CardDefinition;stats?:
   useLanguage();
   card=localizedCard(card);
   const nameRef=useSingleLineName<HTMLHeadingElement>(card.name);
+  const typeLine=card.type==='creature'?msg("{v0} · {v1}",{v0:msg("Creature"),v1:cardClassification(card)}):cardClassification(card),typeRef=useSingleLineName<HTMLSpanElement>(typeLine);
+  const tint=factionInfo[card.factions.find(f=>f!=='neutral')??card.factions[0]]?.color,tone={'--faction':tint??'var(--ink)'} as React.CSSProperties;
   return <>
-    <div className="card-shade"/>
-    {showCost&&hasEnergyCost(card)&&<span className="card-cost"><Cost card={card}/></span>}
-    <div className="card-information">
+    <div className="card-box">
+    <div className="card-shade" style={tone}/>
+    <div className={`card-information type-${card.type}`} style={tone}>
     <div className="card-header">
       <h3 ref={nameRef}>{card.name}</h3>
-      <div className="card-identity"><span className="card-affiliation">{cardIdentity(card)}</span></div>
+      <div className="card-identity"><span className="card-affiliation" ref={typeRef}>{typeLine}</span></div>
     </div>
     {card.type!=='spell'&&<div className="card-title">
       <div className="card-statline">
@@ -79,7 +89,9 @@ export function CardFace({card,stats,showCost=true}:{card:CardDefinition;stats?:
       {card.type==='creature'&&card.stats!.energyOutputs.length>0&&<div className="card-energy-output"><EnergyOutput outputs={card.stats!.energyOutputs}/></div>}
     </div>}
     </div>
-    <span className="card-corners"/>
+    <span className={`card-corners type-${card.type}`} style={tone}/>
+    </div>
+    {showCost&&hasEnergyCost(card)&&<span className="card-cost"><CostCoins card={card}/></span>}
   </>;
 }
 export function ArtCard({card,onClick,selected=false,disabled=false,className='',stats,interaction,animated=false,reduced=false,detail=true}:{card:CardDefinition;/** Show the hover detail panel. On by default for every card; off where the caller supplies its own (hand, board) or the card is already shown in detail. */detail?:boolean;animated?:boolean;reduced?:boolean;interaction?:Pick<ButtonHTMLAttributes<HTMLButtonElement>,'id'|'title'|'aria-label'|'aria-disabled'|'onContextMenu'|'onPointerDown'|'onPointerEnter'|'onPointerLeave'|'onFocus'|'onBlur'>;onClick?:()=>void;selected?:boolean;disabled?:boolean;className?:string;stats?:{attack:number;defense:number}}) {
@@ -89,13 +101,17 @@ export function ArtCard({card,onClick,selected=false,disabled=false,className=''
   const showDetail=(element:HTMLElement)=>{if(!detail)return;window.clearTimeout(hoverTimer.current);hoverTimer.current=window.setTimeout(()=>setHoverRect(element.getBoundingClientRect()),350);};
   const hideDetail=()=>{window.clearTimeout(hoverTimer.current);setHoverRect(null);};
   useEffect(()=>()=>window.clearTimeout(hoverTimer.current),[]);
+  const tilt=(e:React.PointerEvent<HTMLElement>)=>{if(reduced||e.pointerType==='touch')return;const el=e.currentTarget,r=el.getBoundingClientRect();el.style.setProperty('--px',String(Math.max(-1,Math.min(1,((e.clientX-r.left)/r.width-.5)*2)).toFixed(3)));el.style.setProperty('--py',String(Math.max(-1,Math.min(1,((e.clientY-r.top)/r.height-.5)*2)).toFixed(3)));};
+  const untilt=(el:HTMLElement)=>{el.style.removeProperty('--px');el.style.removeProperty('--py');};
   const preview=hoverRect&&<CardHoverDetail card={card} rect={hoverRect} reduced={reduced}/>;
   const body=<>
+    <div className="card-art">
     <CardArtwork art={card.art} animation={card.animation} alt={msg("{v0} illustration", {v0: card.name})} playing={animated||hovered||focused} reduced={reduced}/>
     {card.legendary&&<HolographicFoil playing={animated||hovered||focused} reduced={reduced}/>}
+    </div>
     <CardFace card={card} stats={stats}/>
   </>;
-  return onClick?<button {...interaction} onPointerEnter={e=>{if(e.pointerType!=='touch'){setHovered(true);showDetail(e.currentTarget);}interaction?.onPointerEnter?.(e);}} onPointerLeave={e=>{setHovered(false);hideDetail();interaction?.onPointerLeave?.(e);}} onPointerDown={e=>{hideDetail();interaction?.onPointerDown?.(e);}} onFocus={e=>{setFocused(true);if(e.currentTarget.matches(':focus-visible'))showDetail(e.currentTarget);interaction?.onFocus?.(e);}} onBlur={e=>{setFocused(false);hideDetail();interaction?.onBlur?.(e);}} className={`art-card ${card.legendary?'legendary-card':''} ${card.type==='holding'?'holding-card':''} ${className} ${selected?'selected':''} ${disabled?'unaffordable':''}`} onClick={()=>{hideDetail();onClick();}} aria-label={interaction?.['aria-label']??msg("{v0}, {v1}{v2}. {v3}", {v0: card.name, v1: card.legendary?msg('legendary')+' ':'', v2: msg(card.type), v3: [card.lore, ...cardAbilityDescriptions(card).map(ability => ability.description)].filter(Boolean).join(' ')})} aria-pressed={interaction?.['aria-label']?undefined:selected}>{body}{preview}</button>:<div className={`art-card ${card.legendary?'legendary-card':''} ${card.type==='holding'?'holding-card':''} ${className}`} onPointerEnter={e=>{if(e.pointerType!=='touch')showDetail(e.currentTarget);}} onPointerLeave={hideDetail} onPointerDown={hideDetail}>{body}{preview}</div>;
+  return onClick?<button {...interaction} onPointerMove={tilt} onPointerEnter={e=>{if(e.pointerType!=='touch'){setHovered(true);showDetail(e.currentTarget);}interaction?.onPointerEnter?.(e);}} onPointerLeave={e=>{setHovered(false);hideDetail();untilt(e.currentTarget);interaction?.onPointerLeave?.(e);}} onPointerDown={e=>{hideDetail();interaction?.onPointerDown?.(e);}} onFocus={e=>{setFocused(true);if(e.currentTarget.matches(':focus-visible'))showDetail(e.currentTarget);interaction?.onFocus?.(e);}} onBlur={e=>{setFocused(false);hideDetail();interaction?.onBlur?.(e);}} className={`art-card ${card.legendary?'legendary-card':''} ${card.type==='holding'?'holding-card':''} ${className} ${selected?'selected':''} ${disabled?'unaffordable':''}`} onClick={()=>{hideDetail();onClick();}} aria-label={interaction?.['aria-label']??msg("{v0}, {v1}{v2}. {v3}", {v0: card.name, v1: card.legendary?msg('legendary')+' ':'', v2: msg(card.type), v3: [card.lore, ...cardAbilityDescriptions(card).map(ability => ability.description)].filter(Boolean).join(' ')})} aria-pressed={interaction?.['aria-label']?undefined:selected}>{body}{preview}</button>:<div className={`art-card ${card.legendary?'legendary-card':''} ${card.type==='holding'?'holding-card':''} ${className}`} onPointerMove={tilt} onPointerEnter={e=>{if(e.pointerType!=='touch')showDetail(e.currentTarget);}} onPointerLeave={e=>{hideDetail();untilt(e.currentTarget);}} onPointerDown={hideDetail}>{body}{preview}</div>;
 }
 export function CardFacts({card,stats}:{card:CardDefinition;stats?:{attack:number;defense:number}}) {
   useLanguage();

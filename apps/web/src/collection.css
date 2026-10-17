@@ -25,7 +25,7 @@
 .collection-filterbar .collection-search input{flex:1;width:100%}
 
 /* Experiment: the card panel and cards sit inset in the page background. */
-.collection-page:not(.builder-page) .all-cards-panel{background:#0d0c0a48;border-color:#0b0a0999 #e5d29f1c #e5d29f22 #0b0a0999;box-shadow:inset 0 3px 16px #040e0899,inset 0 0 0 1px #04100a55}
+.collection-page:not(.builder-page) .all-cards-panel{background:#0d0c0a48;border-color:#0b0a0999 #e5d29f1c #e5d29f22 #0b0a0999;box-shadow:inset 0 3px 16px #06060599,inset 0 0 0 1px #07060555}
 .collection-card-grid article:not(.unowned-card) .art-card{opacity:.82;transition:opacity .15s,transform .15s,box-shadow .15s}
 .collection-card-grid article:not(.unowned-card) .art-card:hover{opacity:1}
 

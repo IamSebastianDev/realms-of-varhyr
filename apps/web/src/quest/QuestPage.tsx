@@ -85,7 +85,7 @@ export function QuestPage(props: Props) {
   if (active && run && map && !drafting) {
     const rumors = Object.entries(run.bounties).map(([id, bounty]) => ({ id, bounty, done: run.visited.includes(id), name: map.nodes.find(node => node.id === id)?.name }));
     const reward = (bounty: RunState['bounties'][string]) => 'gold' in bounty ? msg("{v0} crowns", { v0: bounty.gold }) : 'card' in bounty ? questContent.cards[bounty.card]?.name ?? msg("a card") : msg("a card to pick");
-    return <div className={`quest-app quest-map-mode ${props.reduced ? 'reduce-motion' : ''}`}>
+    return <div className={`quest-app quest-map-mode ${props.reduced ? 'reduce-motion' : ''} ${run.offer && !run.fight ? 'has-offer' : ''}`}>
       <div className="quest-stage">{body}</div>
       <section className="quest-info quest-log" aria-label={msg("Quest log")}>
         <small>{msg("Quest log")}</small>
@@ -162,7 +162,7 @@ function RunScreen({ run, map, reduced, leave, liveMatch, resume, beginFight, op
   function launch(next: RunState) {
     const fight = next.fight!;
     const customDeck: CustomDeck = { id: `custom-quest-${next.id}`, name: msg("Quest deck"), cards: next.deck };
-    const opponent = { id: `quest-enemy-${fight.node}`, name: fight.enemy.name, cards: fight.enemy.deck };
+    const opponent = { id: `quest-enemy-${fight.node}`, name: msg(fight.enemy.name), cards: fight.enemy.deck };
     const profile = getProfile();
     const initial = startMatch(fight.seed, defaultDeckId, false, customDeck, undefined, opponent, profile.name, profile.avatar);
     initial.players.p1.life = next.life; initial.players.p2.life = fight.enemy.life;

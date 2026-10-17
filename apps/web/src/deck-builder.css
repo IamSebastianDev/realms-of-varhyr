@@ -40,7 +40,7 @@
 .builder-deck-stacks{display:grid;grid-template-columns:repeat(auto-fill,minmax(calc(var(--deck-card-width) + 24px),1fr));grid-auto-rows:calc(var(--deck-card-width) * 1.40625 - var(--deck-overlap));column-gap:10px;align-items:start;align-content:start;padding:12px 24px calc(var(--deck-overlap) + 18px) 8px}
 .builder-deck-grid .builder-card-tile{width:var(--deck-card-width);justify-self:center;transform:translateY(var(--deck-stagger,0px))}
 .builder-deck-grid .builder-card-tile:hover,.builder-deck-grid .builder-card-tile:focus-within{z-index:100!important}
-.deck-workshop .builder-deck-grid .art-card:hover{transform:none;box-shadow:0 10px 25px #06160fa6}
+.deck-workshop .builder-deck-grid .art-card:hover{transform:none;box-shadow:0 10px 25px #0a0908a6}
 .builder-deck-grid .collection-empty{grid-column:1/-1;min-height:140px;display:grid;align-content:center;justify-items:center;padding:20px}
 .builder-card-back{position:absolute;inset:0;border:1px solid #d9c18c99;border-radius:5px;background-position:center;background-size:cover;filter:brightness(.65);pointer-events:none;box-shadow:0 3px 10px #0a090866}
 .copy-back-1{transform:translate(-4px,-4px) rotate(-1.5deg)}
@@ -84,7 +84,7 @@
 
 /* Workshop: collection grid on the left, deck side panel on the right. */
 .deck-workshop.builder-page{grid-template-columns:minmax(0,1fr) clamp(300px,25vw,380px);grid-template-rows:minmax(0,1fr);gap:12px;padding:12px 18px}
-.builder-collection-gallery{container-type:normal;display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(116px,9.4vw,150px),1fr));grid-auto-rows:max-content;gap:12px;align-items:start;align-content:start;overflow-y:auto;overflow-x:hidden;padding:10px 6px 10px 2px;scrollbar-width:thin;scrollbar-color:#a7a39b #21201c;scrollbar-gutter:stable}
+.builder-collection-gallery{container-type:normal;display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(116px,9.4vw,150px),1fr));grid-auto-rows:max-content;gap:12px 18px;align-items:start;align-content:start;overflow-y:auto;overflow-x:hidden;padding:10px 16px 10px 2px;scrollbar-width:thin;scrollbar-color:#a7a39b #21201c;scrollbar-gutter:stable}
 .builder-collection-gallery>.builder-card-tile{flex:none}
 .builder-collection-gallery>.collection-empty{grid-column:1/-1}
 .builder-collection .collection-search{max-width:360px}
@@ -145,14 +145,14 @@
 .builder-filter-dialog-grid .faction-select{margin-top:7px}
 
 /* Experiment: panels and cards sit inset in the page background instead of on top of it. */
-.deck-workshop .builder-collection,.deck-workshop .builder-deck{background:#0d0c0a48;border-color:#0b0a0999 #e5d29f1c #e5d29f22 #0b0a0999;box-shadow:inset 0 3px 16px #040e0899,inset 0 0 0 1px #04100a55}
+.deck-workshop .builder-collection,.deck-workshop .builder-deck{background:#0d0c0a48;border-color:#0b0a0999 #e5d29f1c #e5d29f22 #0b0a0999;box-shadow:inset 0 3px 16px #06060599,inset 0 0 0 1px #07060555}
 .deck-workshop .builder-card-tile .art-card{opacity:.82;box-shadow:inset 0 0 0 1px #0006,0 1px 3px #0b0a0955;transition:opacity .15s,transform .15s,box-shadow .15s}
 .deck-workshop .builder-card-tile .art-card:hover{opacity:1}
 .deck-workshop .builder-card-tile.unavailable .art-card{opacity:.55}
-.deck-workshop .dk-row{background:#0e0d0b70;border-color:#d8cd9b1f;box-shadow:inset 0 1px 4px #040e0866}
+.deck-workshop .dk-row{background:#0e0d0b70;border-color:#d8cd9b1f;box-shadow:inset 0 1px 4px #06060566}
 .deck-workshop .dk-art{opacity:.4}
 .deck-workshop .dk-group h3{background:linear-gradient(#0e0d0bcc 70%,#0e0d0b00);backdrop-filter:blur(3px)}
-.deck-workshop .dk-copies{background:#0b0b09a0}
+.deck-workshop .dk-copies{background:#060606a0}
 .deck-workshop .deck-purchase{background:linear-gradient(90deg,#5c4a2855,#0e0d0b80)}
 
 /* The builder fills the window; nothing sits between it and the header any more. */
