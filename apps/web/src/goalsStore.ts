@@ -1,6 +1,6 @@
 import { useEffect, useSyncExternalStore } from 'react';
 import { registry } from '../../../packages/content/src';
-import { claimAchievement, claimDaily, dailyDef, localDay, newGoals, parseGoals, recordBooster, recordDeckSave, recordMatch, rerollDaily, rollDay, type External, type Goals, type MatchResult, type Reward } from './goals';
+import { achievements, claimAchievement, claimDaily, dailyDef, localDay, newGoals, parseGoals, recordBooster, recordDeckSave, recordMatch, rerollDaily, rollDay, type External, type Goals, type MatchResult, type Reward } from './goals';
 import { boosterPacks } from '../../../packages/content/src/boosters';
 import { packCount, type Collection } from './collection';
 import { updateCollection } from './collectionStore';
@@ -36,6 +36,12 @@ function subscribe(listener: () => void) {
 
 /** Live goals; a new local day deals fresh dailies even if the page was left open overnight. */
 export const currentGoals = (): Goals => read();
+/** Debug completion grants the tiers themselves, without fabricating match stats or paying achievement rewards. */
+export function completeAllAchievements() {
+  change(goals => achievements.every(def => (goals.claimedTiers[def.id] ?? 0) >= def.tiers.length) ? goals : {
+    ...goals, claimedTiers: { ...goals.claimedTiers, ...Object.fromEntries(achievements.map(def => [def.id, def.tiers.length])) },
+  });
+}
 export function useGoals(): Goals {
   useEffect(() => {
     const check = () => { change(goals => rollDay(goals, localDay())); settleDailies(); };

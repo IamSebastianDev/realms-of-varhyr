@@ -461,6 +461,13 @@ html,body,#root{overscroll-behavior:none}
 @media(min-width:951px) and (min-aspect-ratio:1/1) and (min-height:920px){.app{--pile-h:240px}}
 .app .player-banner .player-name h2{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:clip;line-height:1.2}
 .app .player-banner .player-name{flex-wrap:nowrap;min-width:0}
+.board-scene.spell-drop-ready{outline:1px solid #e8cf8a88;outline-offset:3px}
+.board-scene.spell-drop-over{outline-color:#ffe6a3;box-shadow:inset 0 0 60px #e3c78016,0 0 22px #e3c78033}
+.spell-drop-hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:7;padding:6px 12px;border:1px solid #e3c78066;border-radius:5px;background:#100e09e8;color:#f1dfa8;font-size:12px;white-space:nowrap;pointer-events:none}
+.player-banner.spell-drop-ready,.player-banner.targetable{outline:1px solid #e3c78088;outline-offset:3px;border-radius:6px}
+.player-banner.spell-drop-over{outline:2px solid #ffe6a3;outline-offset:3px;box-shadow:0 0 24px #e3c78044}
+.player-banner.targetable{cursor:crosshair}
+.player-banner.targetable:hover{outline-color:#ffe6a3;box-shadow:0 0 20px #e3c78033}
 .app .player-banner:is(.own,.opponent) .library-count:not(.hand-count) small{display:none}
 
 /* Sidebar, final: player at the top and bottom edge, the turn between them, the library scaling with the window.

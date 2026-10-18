@@ -286,8 +286,8 @@
 .art-card,.art-card.art-card{container-type:normal;overflow:visible}
 .art-card>.card-art{position:absolute;inset:0;z-index:0;overflow:hidden;border-radius:3px;pointer-events:none}
 .card-art>img,.card-art>video,.card-art>.holographic-foil{z-index:0}
+/* The face is decorative. Let the card button (or the battlefield canvas beneath it) receive clicks. */
 .card-box{position:absolute;inset:0;z-index:0;container-type:inline-size;border-radius:inherit;overflow:hidden;pointer-events:none}
-.card-box>*{pointer-events:auto}
 .art-card>.card-cost{container-type:inline-size;display:block;position:absolute;top:4.5%;right:3.5%;left:auto;width:16%;z-index:30;transition:translate .32s cubic-bezier(.2,.8,.2,1),scale .32s cubic-bezier(.2,.8,.2,1);padding:0;border:0;background:none;box-shadow:none;border-radius:0;min-height:0;min-width:0}
 .art-card>.card-cost .cost-bundle{width:100%;display:flex;flex-direction:column;align-items:stretch;gap:0;font-size:0}
 .art-card>.card-cost .cost-bundle>span{position:relative;display:grid;place-items:center;box-sizing:border-box;width:100%;aspect-ratio:1;border-radius:50%;gap:0;
@@ -310,3 +310,6 @@
   .art-card:hover .card-art>img,.art-card:hover .card-art>video,.art-card:hover .card-art>.holographic-foil{scale:1.07;translate:calc(var(--px)*-2.2%) calc(var(--py)*-2.2%)}
   .art-card:hover>.card-box{translate:calc(var(--px)*1.1%) calc(var(--py)*1.1%)}
 }
+
+/* Battlefield faces sit above the 3D hit targets; no decoration may intercept their pointer events. */
+.card-face-overlay,.card-face-overlay *{pointer-events:none!important}

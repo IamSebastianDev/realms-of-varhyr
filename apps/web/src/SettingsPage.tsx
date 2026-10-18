@@ -2,9 +2,13 @@ import { ResetControls } from './ResetControls';
 import { useState } from 'react';
 import { useAudio } from './AudioExperience';
 import { useFullscreen } from './useFullscreen';
-import { Eye, GraduationCap, Plus } from 'lucide-react';
+import { Eye, GraduationCap, Plus, Unlock } from 'lucide-react';
 import { gainDebugCrowns } from './collection';
 import { updateCollection } from './collectionStore';
+import { cardBacks, isBackUnlocked } from './cardBacks';
+import { unlockAllSleeves, useBoughtBacks } from './cardBackStore';
+import { achievements } from './goals';
+import { completeAllAchievements, useGoals } from './goalsStore';
 import { RULES_VERSION } from '../../../packages/core/src';
 import { registry } from '../../../packages/content/src';
 import { ReplayMatchSession, type MatchSession } from './match/MatchSession';
@@ -54,6 +58,9 @@ export function PreferenceControls({ part }: { part?: 'general' | 'audio' }) {
 }
 export function SettingsPage({ learn, watch }: { learn: () => void; watch: (session: MatchSession) => void }) {
   useLanguage();
+  const goals = useGoals(), boughtBacks = useBoughtBacks();
+  const achievementsComplete = achievements.every(def => (goals.claimedTiers[def.id] ?? 0) >= def.tiers.length);
+  const sleevesUnlocked = cardBacks.every(back => isBackUnlocked(back, goals, boughtBacks));
   const [error, setError] = useState('');
   const [tab, setTab] = useState<'general' | 'audio' | 'learn' | 'data'>('general');
   const tabs: [typeof tab, string][] = [['general', msg('General')], ['audio', msg('Audio')], ['learn', msg('Learn and watch')], ['data', msg('Data')]];
@@ -80,7 +87,11 @@ export function SettingsPage({ learn, watch }: { learn: () => void; watch: (sess
     {tab === 'data' && <>
     <section className="settings-group" aria-label={msg('Developer')}>
       <div><h2>{msg('Developer')}</h2><p>{msg('Tools for testing the prototype.')}</p></div>
-      <button className="outline-button" onClick={() => { updateCollection(gainDebugCrowns); }}><Plus size={16}/>{msg('Gain 1,000 crowns')}</button>
+      <div className="settings-debug-actions">
+        <button className="outline-button" onClick={() => { updateCollection(gainDebugCrowns); }}><Plus size={16}/>{msg('Gain 1,000 crowns')}</button>
+        <button className="outline-button" disabled={sleevesUnlocked} onClick={unlockAllSleeves}><Unlock size={16}/>{msg('Unlock all sleeves')}</button>
+        <button className="outline-button" disabled={achievementsComplete} onClick={completeAllAchievements}><Unlock size={16}/>{msg('Complete all achievements')}</button>
+      </div>
     </section>
     <ResetControls/>
     </>}

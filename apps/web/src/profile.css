@@ -51,6 +51,7 @@
 .settings-group p{font-size:12px;line-height:1.7;color:#b9b7b4;max-width:46ch}
 .settings-group .settings-error{color:#f0b9a4;margin-top:8px}
 .settings-group .outline-button{display:inline-flex;align-items:center;gap:8px;flex:none}
+.settings-debug-actions{display:flex;flex-direction:column;gap:10px;flex-shrink:0;max-width:100%}
 .settings-file{position:relative;cursor:pointer}.settings-file input{position:absolute;inset:0;width:100%;opacity:0;cursor:pointer}
 
 .menu-destination.menu-profile .avatar-art{flex:none}

@@ -25,7 +25,7 @@ export const cardBacks: CardBackDef[] = [
 export const defaultCardBack = cardBacks[0].id;
 export const cardBackById = (id: string | undefined) => cardBacks.find(back => back.id === id) ?? cardBacks[0];
 export function isBackUnlocked(back: CardBackDef, goals: Goals, bought: readonly string[]) {
-  if (back.source === 'free') return true;
-  if (back.source === 'shop') return bought.includes(back.id);
+  if (back.source === 'free' || bought.includes(back.id)) return true;
+  if (back.source === 'shop') return false;
   return (goals.claimedTiers[back.unlock!.achievement] ?? 0) >= back.unlock!.tier;
 }

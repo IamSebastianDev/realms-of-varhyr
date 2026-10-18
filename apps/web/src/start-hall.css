@@ -13,7 +13,7 @@
 .home-progress{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:clamp(20px,4vw,64px);padding:0 4px}
 .home-achievement h2{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding-bottom:10px;font:600 20px/1 var(--serif);color:#f2e4b8;border-bottom:1px solid #e5d29f44}
 .home-achievement h2 em{font:500 10px/1 var(--sans,inherit);font-style:normal;padding:3px 7px;border-radius:9px;color:#c9ad6a;box-shadow:inset 0 0 0 1px #c9ad6a55}
-.home-achievement>div{display:flex;align-items:center;gap:14px}.home-achievement b{font:600 15px var(--sans,inherit);color:#f1ead0}
+.home-achievement>div{display:flex;align-items:flex-start;gap:12px}.home-achievement b{font:600 15px/1.2 var(--sans,inherit);color:#f1ead0}
 .quest-track{display:flex;gap:5px;width:min(100%,260px);margin-top:12px}
 .quest-track i{flex:1;height:8px;border-radius:4px;background:#e5d29f33;box-shadow:inset 0 1px 3px #000a,inset 0 0 0 1px #e5d29f22}
 .quest-track i.on{background:linear-gradient(180deg,#f0d98f,#c9a24f);box-shadow:0 0 10px #e3c78055}
@@ -22,7 +22,7 @@
 .home-goals h2{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding-bottom:10px;font:600 20px/1 var(--serif);color:#f2e4b8;border-bottom:1px solid #e5d29f44;text-shadow:0 2px 12px #000}
 .home-goals h2 em{font:500 10px/1 var(--sans,inherit);font-style:normal;padding:3px 7px;border-radius:9px;color:#c9ad6a;box-shadow:inset 0 0 0 1px #c9ad6a55}
 .home-goals ul{list-style:none;margin:0;padding:0;display:grid;gap:clamp(10px,2.2vh,18px)}
-.home-goals li{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:6px 12px}
+.home-goals li{display:grid;grid-template-columns:44px minmax(0,1fr);align-items:start;gap:6px 12px}
 .home-goals .goal-text,.home-achievement .goal-text{display:grid;gap:4px;min-width:0}
 .home-goals li b{font:600 15px/1.2 var(--sans,inherit);color:#f1ead0;text-shadow:0 1px 10px #000}
 .home-goals li small{color:#c9c7c2;font-size:12px;text-shadow:0 1px 8px #000}
@@ -32,7 +32,7 @@
 .goal-ring circle{fill:#04030388;stroke:#e5d29f2c;stroke-width:3.5}
 .goal-ring circle.fill{fill:none;stroke:#e3c780;stroke-linecap:round;transition:stroke-dashoffset .5s}
 .goal-ring.done circle.fill{stroke:#beb8ab}.goal-ring.done{color:#beb8ab}
-.goal-ring b{position:relative;font:700 15px var(--serif)}.goal-ring svg+svg,.goal-ring>svg:last-child:not(:first-child){position:relative;inset:auto;transform:none}
+.home-progress .goal-ring b{position:relative;font:700 15px/1 var(--serif)}.goal-ring svg+svg,.goal-ring>svg:last-child:not(:first-child){position:relative;inset:auto;transform:none}
 .home-victories{margin:18px 0 0;color:#bab7b1;font-size:12px;text-shadow:0 1px 8px #000}
 @media(max-width:860px){
   .lobby.menu-screen{height:auto;min-height:100dvh;overflow:visible}
@@ -55,7 +55,8 @@
 /* Finished dailies pay out by themselves and just grey out; the ring swaps a goal on hover. */
 .home-goals li.done{opacity:.55}
 .home-goals li.done .goal-text b{text-decoration:line-through;text-decoration-color:#e5d29f66}
-.ring-button{padding:0;border-radius:50%;display:block;line-height:0}
+.ring-button{width:44px;height:44px;padding:0;border-radius:50%;display:grid;place-items:center;line-height:0}
+.ring-button .goal-ring{width:42px;height:42px}
 .goal-ring .ring-swap{position:absolute!important;inset:0!important;transform:none!important;margin:auto;opacity:0;color:#e3c780;background:#040303ee;border-radius:50%;width:100%;height:100%;padding:11px;transition:opacity .15s}
 .ring-button:hover .ring-swap,.ring-button:focus-visible .ring-swap{opacity:1}
 .ring-button:focus-visible{outline:2px solid #e3c780;outline-offset:2px}

@@ -4,7 +4,7 @@ import { useGoals, currentGoals } from './goalsStore';
 import { updateCollection } from './collectionStore';
 import type { Goals } from './goals';
 
-/** Which store backs are bought. The back a deck uses is saved with the deck itself (CustomDeck.back). */
+/** Owned backs, including debug grants. The back a deck uses is saved with the deck itself (CustomDeck.back). */
 const key = 'varhyr-card-backs-v1';
 type State = { bought: string[]; favorite?: string };
 let snapshot: State | undefined;
@@ -34,6 +34,12 @@ export function buyCardBack(id: string): boolean {
   return paid;
 }
 export function useBoughtBacks(): readonly string[] { return useSyncExternalStore(subscribe, () => read().bought, () => read().bought); }
+/** Grant sleeves independently of achievement progress. */
+export function unlockAllSleeves() {
+  const state = read();
+  const bought = [...new Set([...state.bought, ...cardBacks.map(back => back.id)])];
+  if (bought.length !== state.bought.length) write({ ...state, bought });
+}
 /** The standard sleeve: the favourite if it is still available, else the default. Decks without a sleeve of their own use it. */
 function standardOf(state: State, goals: Goals): string {
   const back = state.favorite ? cardBackById(state.favorite) : undefined;
