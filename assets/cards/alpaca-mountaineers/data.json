@@ -1,0 +1,46 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "alpaca-mountaineers",
+  "revision": 1,
+  "name": "Alpaca Mountaineers",
+  "deckLimitKey": "alpaca-mountaineers",
+  "type": "creature",
+  "factions": [
+    "mountain-clans"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "mountain-clans": 2
+    }
+  },
+  "stats": {
+    "attack": 3,
+    "defense": 4,
+    "energyOutputs": [
+      {
+        "mountain-clans": 3
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "armor",
+      "params": {
+        "amount": 2
+      }
+    },
+    {
+      "id": "outflank",
+      "params": {
+        "amount": 2
+      }
+    }
+  ],
+  "set": "foundations"
+}

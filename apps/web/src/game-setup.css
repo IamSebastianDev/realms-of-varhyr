@@ -38,3 +38,15 @@
 .local-game-setup .setup-advanced{margin-top:18px}
 .local-game-setup .setup-start.start-play,.local-game-setup .setup-start.start-play:hover:not(:disabled){margin:22px 0 0 auto;width:fit-content;min-width:230px;height:68px;grid-template-columns:auto 28px;gap:20px;padding:0 22px 0 30px}
 .local-game-setup .setup-start.start-play span{font-size:28px;text-align:left}
+
+/* Short windows (a phone held sideways, scaled up to 560 css px tall): keep the whole dialog in view without scrolling. */
+@media(max-height:640px){
+  .game-setup-pane .setup-heading{padding:12px 24px 8px}
+  .game-setup-pane .setup-heading h2{font-size:30px}
+  .game-setup-pane .setup-scroll{padding:2px 24px 14px}
+  .game-setup-pane .setup-modes button{flex-direction:row;gap:10px;padding:10px 8px;min-height:0}
+  .game-setup-pane .setup-modes button small{display:none}
+  .game-setup-pane .setup-modes button svg{width:22px;height:22px}
+  .game-setup-pane .setup-modes button b{font-size:18px}
+  .local-game-setup .setup-start.start-play,.local-game-setup .setup-start.start-play:hover:not(:disabled){margin-top:12px;height:54px}
+}

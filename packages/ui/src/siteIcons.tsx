@@ -4,7 +4,7 @@ import type { PermanentSite } from '../../quest/src';
 /** One silhouette per kind of permanent site, drawn in a 24 x 24 box centred on the origin. They take the colour of the surrounding text. */
 const shapes: Record<PermanentSite, ReactNode> = {
   city: <g><rect x={-9} y={1} width={18} height={8}/><rect x={-9} y={-6} width={5} height={9}/><rect x={4} y={-6} width={5} height={9}/><rect x={-3} y={-10} width={6} height={13}/></g>,
-  market: <path fillRule="evenodd" d="M0-10L10 7H-10ZM0 0L3.2 7H-3.2Z"/>,
+  village: <path fillRule="evenodd" d="M0-10L10-1V8H-10V-1ZM-2.5 8V2H2.500V8Z"/>,
   shrine: <path fillRule="evenodd" d="M0-11C4-6 8-3 8 3A8 8 0 0 1-8 3C-8-1-4-4 0-11ZM0 1C2 3 3.4 4 3.4 6A3.4 3.4 0 0 1-3.4 6C-3.4 4-2 3 0 1Z"/>,
   ruin: <g><rect x={-9} y={7} width={18} height={3}/><path d="M-7 7V-3L-4.500-6L-2-3L-1-5V7Z"/><path d="M2 7V1L4-2L6 1L8 0V7Z"/></g>,
   waymark: <g><rect x={-1.200} y={-10} width={2.400} height={20}/><path d="M1-8H7.500L10-5L7.500-2H1Z"/><path d="M-1 0H-7.500L-10 3L-7.500 6H-1Z"/></g>,

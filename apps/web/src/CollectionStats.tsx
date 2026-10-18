@@ -25,7 +25,7 @@ export function CollectionStats({ collection, inspect, back }: { collection: Col
   // The ring fills in once on arrival; reduced motion removes the transition in CSS.
   const [ready, setReady] = useState(false);
   useEffect(() => { const frame = requestAnimationFrame(() => setReady(true)); return () => cancelAnimationFrame(frame); }, []);
-  const share = percent(stats.unique, stats.uniqueTotal), circumference = 2 * Math.PI * 52;
+  const share = percent(stats.unique, stats.uniqueTotal), circumference = 2 * Math.PI * 84;
   const peak = Math.max(1, ...stats.curve.map(bucket => bucket.uniqueTotal));
   const facts: [string, number, string?][] = [
     [msg("Copies owned"), stats.copies, `/${stats.copiesTotal}`],
@@ -38,7 +38,13 @@ export function CollectionStats({ collection, inspect, back }: { collection: Col
     <div className="collection-heading collection-subhead"><button className="builder-icon-button" aria-label={msg("Back to collection")} title={msg("Back to collection")} onClick={back}><ArrowLeft size={16}/></button><h1>{msg("Statistics")}</h1></div>
     <section className="stats-hero" aria-label={msg("Collection progress")}>
       <div className="stats-ring" role="img" aria-label={msg("{v0} of {v1} cards", { v0: stats.unique, v1: stats.uniqueTotal })}>
-        <svg viewBox="0 0 120 120" aria-hidden="true"><circle className="ring-track" cx="60" cy="60" r="52"/><circle className="ring-fill" cx="60" cy="60" r="52" strokeDasharray={circumference} strokeDashoffset={circumference * (1 - (ready ? share : 0) / 100)} transform="rotate(-90 60 60)"/></svg>
+        <svg viewBox="0 0 200 200" aria-hidden="true"><defs>
+          <linearGradient id="stats-ring-chrome" gradientUnits="userSpaceOnUse" x1="20" y1="20" x2="180" y2="180"><stop offset="0" stopColor="#e5d29f"/><stop offset=".5" stopColor="#6b5527"/><stop offset="1" stopColor="#cfae6a"/></linearGradient>
+          <linearGradient id="stats-ring-bronze" gradientUnits="userSpaceOnUse" x1="20" y1="20" x2="180" y2="180"><stop offset="0" stopColor="#e3c780"/><stop offset="1" stopColor="#b58f46"/></linearGradient></defs>
+          <circle className="ring-track" cx="100" cy="100" r="84"/>
+          <circle className="ring-fill" cx="100" cy="100" r="84" strokeDasharray={circumference} strokeDashoffset={circumference * (1 - (ready ? share : 0) / 100)} transform="rotate(-90 100 100)"/>
+          <circle className="ring-edge" cx="100" cy="100" r="88.5"/><circle className="ring-edge" cx="100" cy="100" r="79.5"/>
+        </svg>
         <div><strong>{share}<small>%</small></strong><span>{msg("discovered")}</span></div>
       </div>
       <div className="stats-hero-body">

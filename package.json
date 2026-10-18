@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.3.0",
-    "@fontsource/manrope": "^5.3.0",
+    "@fontsource/source-serif-4": "^5.3.1",
     "@react-three/fiber": "^9.4.0",
     "lucide-react": "^0.468.0",
     "peerjs": "^1.5.5",

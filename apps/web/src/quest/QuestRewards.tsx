@@ -7,14 +7,13 @@ import { ArtCard } from '../../../../packages/ui/src/CardPresentation';
 import { localizedCard, t as msg, useLanguage } from '../../../../packages/ui/src/i18n';
 import { ownedCopyCount, ownershipLimit } from '../collection';
 import { updateCollection, useCollection } from '../collectionStore';
-import { CrownIcon } from '../Crowns';
+import { SilverIcon } from '../Crowns';
 import { OwnershipPips } from '../OwnershipPips';
-import { acknowledgeQuestReward, availableQuestCopies, buyQuestCards, closeQuestRewards, keepPrice, needsQuestRewardScreen, purchasedQuestCopies, settleQuest } from './rewards';
-import { QuestVictory } from './QuestVictory';
-import { paidToday, saveRun } from './questStore';
+import { availableQuestCopies, buyQuestCards, closeQuestRewards, keepPrice, purchasedQuestCopies, settleQuest } from './rewards';
+import { saveRun } from './questStore';
 
 /** The final deck becomes a shop on wins and losses alike. The collection receipt owns its remaining budget. */
-export function QuestRewards({ run, reduced, place, leave }: { run: RunState; reduced: boolean; place: string; leave: () => void }) {
+export function QuestRewards({ run, reduced, leave }: { run: RunState; reduced: boolean; leave: () => void }) {
   useLanguage();
   const { collection } = useCollection();
   const receipt = collection.questSettlements?.[run.id];
@@ -23,12 +22,11 @@ export function QuestRewards({ run, reduced, place, leave }: { run: RunState; re
   const [search, setSearch] = useState('');
   const [error, setError] = useState(''), [notice, setNotice] = useState(''), [confirm, setConfirm] = useState(false);
   function openRewards() {
-    try { updateCollection(current => settleQuest(current, run, paidToday(run.day)), { requireSave: true }); setError(''); }
+    try { updateCollection(current => settleQuest(current, run), { requireSave: true }); setError(''); }
     catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); }
   }
   useEffect(() => { openRewards(); }, [run.id]); // A saved receipt makes reopening idempotent.
-  const title = run.result === 'won' ? msg('Quest complete') : run.result === 'expired' ? msg('The day has run out')
-    : run.result === 'abandoned' ? msg('You turned back') : msg('You have fallen');
+  const title = run.result === 'retired' ? msg('You turned back') : msg('You have fallen');
   const rows = Object.entries(receipt?.cards ?? {}).flatMap(([id, copies]) => {
     const card = registry.cards[id];
     return card ? [{ id, card, copies, price: keepPrice(card), available: availableQuestCopies(collection, receipt!, registry, id) }] : [];
@@ -66,22 +64,11 @@ export function QuestRewards({ run, reduced, place, leave }: { run: RunState; re
       saveRun(null); leave();
     } catch (cause) { setConfirm(false); setError(cause instanceof Error ? cause.message : String(cause)); }
   }
-  function continueToCards() {
-    try { updateCollection(current => acknowledgeQuestReward(current, run.id), { requireSave: true }); setError(''); }
-    catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); }
-  }
-  if (needsQuestRewardScreen(run, receipt)) return <QuestVictory run={run} receipt={receipt} place={place} reduced={reduced}
-    error={error} retry={openRewards} leave={leave} continueToCards={continueToCards}/>;
-
   return <main className="quest-page quest-rewards" aria-label={msg('Quest rewards')}>
     <header className="quest-rewards-heading">
       <button className="builder-icon-button" aria-label={msg('Back to the menu')} title={msg('Back to the menu. Your run is saved.')} onClick={leave}><ArrowLeft size={17}/></button>
       <div className="quest-rewards-title"><h1>{title}</h1><p><FactionIcon faction={run.faction}/>{msg(factionInfo[run.faction]?.name ?? run.faction)}<span>·</span>{msg('Fights won')}: {run.stats.fights}</p></div>
-      <div className="quest-rewards-bonus" title={run.result === 'won' ? msg('{v0} is defeated at {v1}.', { v0: run.quest.bossName, v1: msg(place) }) : undefined}>
-      {receipt?.reward && receipt.reward !== 'claimed' ? <><Check size={18}/><span>{msg('Victory reward received')}<strong>{msg('{v0} crowns · {v1} boosters', { v0: receipt.reward.crowns, v1: receipt.reward.packs })}</strong></span></>
-        : receipt?.reward === 'claimed' && <span>{msg("Today's reward for this quest was already claimed.")}</span>}
-      </div>
-      <div className="quest-rewards-wallet" aria-label={msg('Run coins remaining')}><CrownIcon tilt/><strong>{receipt?.coins ?? run.gold}</strong><span>{msg('Run coins')}<small>{msg('Choose cards to keep')}</small></span></div>
+      <div className="quest-rewards-wallet" aria-label={msg('Silver remaining')}><SilverIcon tilt/><strong>{receipt?.coins ?? run.silver}</strong><span>{msg('Silver')}<small>{msg('Choose cards to keep')}</small></span></div>
     </header>
     <section className="all-cards-panel quest-rewards-deck" aria-label={msg('Your final deck')}>
       <div className="quest-rewards-deck-heading"><h2>{msg('Your final deck')}</h2><span>{msg('{v0} cards in your deck', { v0: run.deck.length })}</span></div>
@@ -96,7 +83,7 @@ export function QuestRewards({ run, reduced, place, leave }: { run: RunState; re
           <ArtCard card={row.card} reduced={reduced} selected={picked} onClick={() => toggleCopy(row.id, row.index)}
             interaction={{ 'aria-label': label, 'aria-disabled': !picked && !canAdd }}/>
           <div className="collection-card-meta"><span className={`collection-rarity rarity-${row.card.legendary ? 'legendary' : row.card.rarity}`}>{msg(row.card.rarity)}</span><OwnershipPips card={row.card} owned={collection.counts}/></div>
-          <div className="quest-rewards-card-controls"><span className="quest-purse"><CrownIcon/><b>{row.price}</b></span>
+          <div className="quest-rewards-card-controls"><span className="quest-purse"><SilverIcon/><b>{row.price}</b></span>
             {kept ? <span className="quest-rewards-kept"><Check size={14}/>{msg('Kept')}</span>
               : <button className="outline-button" disabled={!picked && !canAdd} aria-label={label} aria-pressed={picked} onClick={() => toggleCopy(row.id, row.index)}>{picked ? <Check size={14}/> : <Plus size={14}/>}<span>{picked ? msg('Selected') : msg('Select')}</span></button>}
           </div>
@@ -105,23 +92,23 @@ export function QuestRewards({ run, reduced, place, leave }: { run: RunState; re
       })}{!shown.length && <p className="collection-empty">{msg('No cards match. Try another search.')}</p>}</div>
     </section>
     <aside className="quest-rewards-checkout" aria-label={msg('Keep your cards')}>
-      <header><h2>{msg('Choose cards to keep')}</h2><p>{msg('Click a card to select a copy. Spend only the coins from this run.')}</p></header>
+      <header><h2>{msg('Choose cards to keep')}</h2><p>{msg('Click a card to select a copy. Spend only the silver from this run.')}</p></header>
       <div className="quest-rewards-basket"><h2><ShoppingBag size={18}/>{msg('Your selection')}</h2>
         {selected.length ? <ul>{selected.map(row => <li key={row.id}>
-          <img src={row.card.art} alt=""/><span><strong>{localizedCard(row.card).name}</strong><small>{selection[row.id]} × <CrownIcon/>{row.price}</small></span><b>{selection[row.id] * row.price}</b>
+          <img src={row.card.art} alt=""/><span><strong>{localizedCard(row.card).name}</strong><small>{selection[row.id]} × <SilverIcon/>{row.price}</small></span><b>{selection[row.id] * row.price}</b>
           <button className="builder-icon-button" aria-label={msg('Remove a copy of {v0}', { v0: localizedCard(row.card).name })} onClick={() => toggleCopy(row.id, selectedCopies[row.id].at(-1)!)}><X size={13}/></button>
         </li>)}</ul> : <div className="quest-rewards-empty"><ShoppingBag size={28}/><p>{msg('Select cards from your final deck.')}</p></div>}
       </div>
       {notice && <p className="quest-notice" role="status">{notice}</p>}
       {error && <p className="quest-error" role="alert">{msg(error)}</p>}
       {!receipt && error && <button className="outline-button" onClick={openRewards}>{msg('Try again')}</button>}
-      <div className="quest-rewards-total"><span>{msg('Total')}</span><span className="quest-purse"><CrownIcon/><b>{cost}</b></span></div>
-      <div className="quest-rewards-remaining"><span>{msg('After purchase')}</span><span className="quest-purse"><CrownIcon/>{Math.max(0, (receipt?.coins ?? run.gold) - cost)}</span></div>
+      <div className="quest-rewards-total"><span>{msg('Total')}</span><span className="quest-purse"><SilverIcon/><b>{cost}</b></span></div>
+      <div className="quest-rewards-remaining"><span>{msg('After purchase')}</span><span className="quest-purse"><SilverIcon/>{Math.max(0, (receipt?.coins ?? run.silver) - cost)}</span></div>
       <button className="outline-button quest-rewards-primary" disabled={!valid} onClick={buy}>{count === 1 ? msg('Keep 1 card') : msg('Keep {v0} cards', { v0: count })}</button>
       <button className="outline-button" disabled={!receipt} onClick={() => receipt?.closed || !receipt?.coins && !count ? finish() : setConfirm(true)}>{msg('Finish run')}</button>
     </aside>
     {confirm && <div className="modal-backdrop"><section className="choice-dialog" role="alertdialog" aria-modal="true" aria-label={msg('Finish this run?')}>
-      <h2>{msg('Finish this run?')}</h2><p>{msg('Unbought cards and unspent run coins will be left behind. Cards already kept are in your collection.')}</p>
+      <h2>{msg('Finish this run?')}</h2><p>{msg('Unbought cards and unspent silver will be left behind. Cards already kept are in your collection.')}</p>
       <div className="quest-actions"><button className="outline-button quest-rewards-primary" onClick={finish}>{msg('Finish run')}</button><button className="outline-button" onClick={() => setConfirm(false)}>{msg('Keep choosing')}</button></div>
     </section></div>}
   </main>;

@@ -529,7 +529,7 @@ select option{background:#161512}
 .own.player-banner{height:55px;margin-top:0}
 .energy-meter{padding:7px 12px;min-width:115px;border-color:#aeaba330;background:#12110ea6;box-shadow:none}
 .energy-meter .pool-icon{filter:none}
-.board-status{position:absolute;top:7px;right:7px;display:flex;align-items:center;gap:3px;border-radius:50%;padding:4px;background:#0e0d0be8;font:600 11px 'Manrope',sans-serif;min-height:25px;min-width:25px;justify-content:center}
+.board-status{position:absolute;top:7px;right:7px;display:flex;align-items:center;gap:3px;border-radius:50%;padding:4px;background:#0e0d0be8;font:600 11px 'Source Serif 4',Georgia,serif;min-height:25px;min-width:25px;justify-content:center}
 .board-status svg{width:12px;height:12px}
 .exhausted-status{color:#aba8a3}
 .undo-status{color:#ebcb8a}
@@ -725,9 +725,9 @@ input,select,select option{background:#292824;color:#f0edde;border-color:#bab5ac
 .deck-card-list{max-height:calc(100dvh - 465px);min-height:200px;overflow:auto}
 .deck-card-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #d6d2b328}
 .deck-card-info{display:flex;align-items:center;gap:11px;min-width:0;flex:1;text-align:left;padding:0;font:500 18px/1.1 var(--serif);color:#f1e6c9}
-.deck-quantity{font:600 12px 'Manrope',sans-serif;color:#e0c58f;flex-shrink:0;width:24px}
+.deck-quantity{font:600 12px 'Source Serif 4',Georgia,serif;color:#e0c58f;flex-shrink:0;width:24px}
 .deck-card-info small{display:block;margin-top:5px}
-.deck-card-info .cost-bundle{font:500 10px 'Manrope',sans-serif}
+.deck-card-info .cost-bundle{font:500 10px 'Source Serif 4',Georgia,serif}
 .deck-remove{display:grid;place-items:center;width:29px;height:29px;border:1px solid #c3bfb730;border-radius:3px;color:#d1cfca;flex-shrink:0}
 .deck-save-area{border-top:1px solid #d6d2b328;padding-top:17px;margin-top:18px}
 .deck-save-area .full{justify-content:space-between}
@@ -991,7 +991,7 @@ input,textarea,[contenteditable="true"]{-webkit-user-select:text;user-select:tex
 .choice-dialog.choice-dialog{border:0;border-radius:0;background:none;box-shadow:none}
 .choice-dialog.choice-dialog:before{display:none}
 .choice-dialog.choice-dialog h2{color:#f0e6cc;text-shadow:0 2px 14px #000}
-.choice-dialog.choice-dialog .outline-button,.choice-dialog.choice-dialog .text-button{border:1px solid;border-color:#0b0a0999 #e5d29f1a #e5d29f22 #0b0a0999;border-radius:6px;box-shadow:inset 0 3px 16px #06060599;background:linear-gradient(#cfae6a88,#cfae6a88) top left/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top left/1px 10px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top right/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top right/1px 10px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom left/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom left/1px 10px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom right/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom right/1px 10px no-repeat,#040303cc;color:#f0e6cc;font:500 15px var(--serif)}
+.choice-dialog.choice-dialog .outline-button,.choice-dialog.choice-dialog .text-button{border:1px solid;border-color:#0b0a0999 #e5d29f1a #e5d29f22 #0b0a0999;border-radius:6px;box-shadow:inset 0 3px 16px #06060599;background:var(--corners-button),#040303cc;color:#f0e6cc;font:500 15px var(--serif)}
 .choice-dialog.choice-dialog .outline-button:hover:not(:disabled),.choice-dialog.choice-dialog .text-button:hover:not(:disabled){border-color:#cfae6a99}
 .choice-dialog.choice-dialog .outline-button.danger{border-color:#c25a4c99;color:#f0b5a6}
 .choice-dialog.choice-dialog .outline-button svg{color:#cfae6a}

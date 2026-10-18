@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { factionInfo } from '../../../../packages/content/src';
-import { questRules, territory, type MapNode, type Role, type RunState } from '../../../../packages/quest/src';
+import { allNodes, pickStart, questRules, territory, type MapNode, type Role, type RunState } from '../../../../packages/quest/src';
 import { siteShape } from '../../../../packages/ui/src/siteIcons';
 import type { LoadedMap } from './questStore';
 
@@ -10,7 +10,7 @@ const clamp = (value: number, low: number, high: number) => Math.min(high, Math.
 const colorOf = (affiliation: string) => factionInfo[affiliation]?.color ?? '#c6c3b5';
 
 /** Which silhouette a revealed node wears. Places that are not permanent stay a question mark until they are visited. */
-const iconFor = (role: Role): Parameters<typeof siteShape>[0] => role === 'fight' || role === 'boss' ? 'arena' : role === 'refuge' || role === 'trader' ? 'market' : role === 'cache' ? 'ruin' : role;
+const iconFor = (role: Role): Parameters<typeof siteShape>[0] => role === 'encounter' || role === 'boss' ? 'arena' : role === 'camp' || role === 'merchant' ? 'village' : role === 'cache' || role === 'unknown' ? 'ruin' : role;
 
 /** The painted map as tiles: a low-resolution underlay that is always there, plus sharper tiles for what is on screen. */
 function Tiles({ map, zoom, view, size }: { map: LoadedMap; zoom: number; view: { x: number; y: number }; size: { w: number; h: number } }) {
@@ -53,7 +53,7 @@ export function MapView({ map, run, onNode, focusKey, walk, onArrived, reduced }
     return () => watch.disconnect();
   }, [frame]);
   const fitZoom = size.w ? Math.min(size.w / WORLD_W, size.h / worldH) : 0.3;
-  const nodeById = useMemo(() => new Map(map.nodes.map(node => [node.id, node])), [map]);
+  const nodeById = useMemo(() => new Map(allNodes(map, run.extra).map(node => [node.id, node])), [map, run.extra]);
   const at = useCallback((id: string) => { const node = nodeById.get(id); return node ? { x: node.x * WORLD_W, y: node.y * worldH } : null; }, [nodeById, worldH]);
 
   const centre = useCallback((id: string, zoom: number) => {
@@ -136,12 +136,13 @@ export function MapView({ map, run, onNode, focusKey, walk, onArrived, reduced }
   const iso = (node: { x: number; y: number }) => ({ x: node.x, y: node.y / map.aspect });
   const unit = 1 / (WORLD_W * view.zoom);
   const nodes = run.revealed.map(id => nodeById.get(id)).filter((node): node is MapNode => !!node);
-  const sources = [...new Set([run.quest.starts[run.faction], run.position, ...run.visited])].map(id => id && nodeById.get(id)).filter((node): node is MapNode => !!node);
+  const startId = pickStart(map, run.faction, run.seed)?.id;
+  const sources = [...new Set([startId, run.position, ...run.visited])].map(id => id && nodeById.get(id)).filter((node): node is MapNode => !!node);
   const beacons = run.beacons.map(id => nodeById.get(id)).filter((node): node is MapNode => !!node);
   const reach = map.settings.reveal, soft = reach * 0.22;
-  const trail = [run.quest.starts[run.faction], ...run.visited].map(id => id && nodeById.get(id)).filter((node): node is MapNode => !!node).map(node => iso(node));
+  // The last five legs walked, always: the line does not depend on having used a place.
+  const trail = (run.route ?? [startId, ...run.visited]).slice(-6).map(id => id && nodeById.get(id)).filter((node): node is MapNode => !!node).map(node => iso(node));
   const here = run.encounter?.node ?? run.position;
-  const hint = run.targetFound ? null : run.quest.hint;
   const path = (points: { x: number; y: number }[]) => points.map((point, index) => `${index ? 'L' : 'M'}${point.x} ${point.y}`).join('');
   const borders = geometry.borders.map(border => `M${border.a[0]} ${border.a[1] / map.aspect}L${border.b[0]} ${border.b[1] / map.aspect}`).join('');
 
@@ -169,10 +170,9 @@ export function MapView({ map, run, onNode, focusKey, walk, onArrived, reduced }
         <rect className="quest-fog" width="1" height={1 / map.aspect} mask="url(#quest-fog)"/>
         <g mask="url(#quest-seen)"><path d={borders} className="quest-border-shade"/><path d={borders} className="quest-border"/></g>
         {trail.length > 1 && <path d={path(trail)} className="quest-trail"/>}
-        {hint && <g className="quest-hint"><circle cx={hint.x} cy={hint.y / map.aspect} r={hint.r}/><text x={hint.x} y={hint.y / map.aspect} style={{ fontSize: 30 * unit }} dy="0.35em">?</text></g>}
         {nodes.map(node => {
-          const role = run.world[node.id]!, visited = run.visited.includes(node.id), permanent = node.kind === 'permanent' || role === 'boss';
-          const known = permanent || visited, radius = role === 'capital' ? 19 : role === 'city' ? 16 : permanent ? 14 : 12, { x, y } = iso(node), color = colorOf(node.affiliation);
+          const role = run.world[node.id]!, visited = run.visited.includes(node.id), asked = run.quests.some(quest => quest.destination === node.id && quest.status === 'active'), permanent = node.kind === 'permanent' || role === 'boss' || asked;
+          const known = permanent || visited || node.id === run.position, radius = role === 'capital' ? 19 : role === 'city' ? 16 : permanent ? 14 : 12, { x, y } = iso(node), color = colorOf(node.affiliation);
           return <g key={node.id} data-node={node.id} transform={`translate(${x} ${y}) scale(${unit})`} className={`quest-node ${visited ? 'done' : ''} ${node.id === here ? 'here' : ''} ${role === 'boss' ? 'boss' : ''}`}>
             <title>{node.name || (known ? role : '?')}</title>
             <circle r={24} className="hit"/>
@@ -180,7 +180,7 @@ export function MapView({ map, run, onNode, focusKey, walk, onArrived, reduced }
             {role === 'capital' && <circle r={radius + 4} className="crown"/>}
             {known ? <><circle r={radius} fill={color} className="body"/><g className="icon" transform={`scale(${radius / 12 * 0.78})`} fill="currentColor">{siteShape(iconFor(role))}</g></>
               : <><circle r={radius} className="body unknown" stroke={color}/><text className="mark" dy="0.36em">?</text></>}
-            {run.bounties[node.id] && !visited && <circle className="bounty" cx={radius} cy={-radius} r={5}/>}
+            {asked && !visited && <circle className="bounty" cx={radius} cy={-radius} r={5}/>}
             {node.name && known && <text className="label" y={radius + 14}>{node.name}</text>}
           </g>;
         })}

@@ -36,11 +36,21 @@
 .quest-purse{display:inline-flex;align-items:center;gap:5px;color:var(--gold-bright);font-weight:700}
 .quest-hint-line{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);margin:0;display:flex;gap:6px;align-items:center;padding:6px 12px;border-radius:99px;background:#0f0e0dd9;color:var(--muted);font-size:13px;pointer-events:none}
 
+.quest-rising{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:6;max-width:min(640px,calc(100% - 32px));margin:0;display:flex;gap:8px;align-items:center;padding:8px 14px;border:1px solid var(--line);border-radius:12px;background:#0f0e0df2;color:var(--gold);font-size:14px;pointer-events:none}
+
 /* Dialogs */
 .quest-dialog-backdrop{position:absolute;inset:0;display:grid;place-items:center;padding:16px;background:#0706058c;z-index:5}
 .quest-dialog{width:min(460px,100%);max-height:100%;overflow:hidden;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;background:#100f0d;box-shadow:0 20px 60px #000a}
 .quest-art{flex:none;height:min(32vh,210px);display:grid;place-items:center;background:linear-gradient(160deg,#1a1916,#0e0d0c);color:var(--gold);overflow:hidden}
 .quest-art img{width:100%;height:100%;object-fit:cover}
+/* Places with a painting get a wide dialog that shows it at its own shape (about 2.4:1); it gives way to the height of a short screen. */
+.quest-dialog:has(.quest-art){width:min(820px,100%)}
+.quest-dialog:has(.quest-art) .quest-art{height:auto;aspect-ratio:1600/672;max-height:48vh}
+.quest-dialog:has(.quest-art) .quest-dialog-body{padding:20px 26px 24px;gap:12px}
+.quest-dialog:has(.quest-art) .quest-dialog-body h2{font-size:30px}
+.quest-dialog:has(.quest-art) .quest-dialog-body p{font-size:16px;line-height:1.5}
+.quest-dialog:has(.quest-art) .quest-notice{font-size:16px}
+.quest-dialog:has(.quest-art) .quest-actions>button{padding:11px 16px;font-size:15px}
 .quest-dialog-body{padding:16px 18px 18px;display:grid;gap:10px;overflow:auto}
 .quest-dialog-body h2{margin:0;font:700 24px var(--serif);color:var(--gold-bright)}
 .quest-dialog-body p{margin:0;color:#d4d3d0;line-height:1.45}
@@ -64,8 +74,9 @@
 
 
 /* Pick packs and shops: real card sizes */
-.quest-offer-cards{align-items:flex-start}
-.quest-offer-card{width:clamp(140px,min(17vw,30vh),240px)}
+.quest-offer-cards{align-items:center;align-content:center;justify-content:space-evenly;flex:1 1 auto;width:100%;max-width:1500px;gap:18px}
+.quest-offer-cards.deck{align-items:flex-start;align-content:flex-start;justify-content:center;flex:none}
+.quest-offer-card{width:clamp(150px,min(20vw,34vh),340px)}
 .quest-offer-card .art-card{width:100%}
 .quest-offer-cards.deck .quest-offer-card{width:clamp(100px,min(10vw,18vh),150px)}
 .quest-offer-card small{color:var(--muted)}
@@ -190,7 +201,7 @@
 .quest-pile{height:150px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:22px;padding:0 16px}
 .quest-deck{position:relative;padding:0;border:0;background:none;cursor:pointer}
 .quest-deck .card-back-face{height:126px;width:auto;aspect-ratio:2/3;border-radius:5px;box-shadow:2px 3px 0 -1px #0f0e0c,4px 6px 8px #0009}
-.quest-deck strong{position:absolute;right:-12px;bottom:-9px;display:grid;place-items:center;min-width:26px;height:26px;padding:0 5px;border:1px solid var(--brass);border-radius:999px;background:var(--fir);font:700 14px/1 'Manrope',sans-serif;color:#f6ebce}
+.quest-deck strong{position:absolute;right:-12px;bottom:-9px;display:grid;place-items:center;min-width:26px;height:26px;padding:0 5px;border:1px solid var(--brass);border-radius:999px;background:var(--fir);font:700 14px/1 'Source Serif 4',Georgia,serif;color:#f6ebce}
 .quest-crowns{display:inline-flex;align-items:center;gap:8px;color:var(--brass-hi);font:600 22px/1 var(--serif)}
 .quest-crowns svg,.quest-crowns .crown-icon{width:24px;height:24px}
 .quest-map-mode .quest-pile .quest-crowns{font:600 22px/1 var(--serif);color:var(--brass-hi)}
@@ -309,3 +320,17 @@
 @media(prefers-reduced-motion:reduce){.quest-victory{animation:none}}
 @media(max-height:700px){.quest-victory{gap:14px;padding:16px}.quest-victory-heading h1{font-size:44px}.quest-victory-crest{width:26px;height:26px}.quest-victory-loot{padding:0}.quest-victory-coin,.quest-victory-packs{height:150px}.quest-victory-coin .crown-icon{width:115px;height:115px}.quest-victory-loot strong{font-size:30px;margin-top:8px}}
 @media(max-width:600px){.quest-victory{padding:16px 8px;gap:16px}.quest-victory-heading h1{font-size:40px}.quest-victory-heading>span{max-width:36ch;font-size:12px}.quest-victory-loot{gap:10px;width:100%}.quest-victory-packs{width:100%;min-width:0}.quest-victory-loot p{font-size:10px;max-width:19ch}.quest-victory-saved{max-width:34ch;font-size:10px}.quest-victory-back{left:8px;top:8px}}
+
+/* The outcome of a search, a heal or an offering: what you got, large, before the place's actions come back. */
+.quest-result header{display:grid;gap:2px}
+.quest-result header small{color:#a9a496;font-size:13px}
+.quest-result-gains{display:flex;gap:26px;align-items:center;justify-content:center;padding:14px 0 6px}
+.quest-gain{display:inline-flex;align-items:center;gap:10px;color:var(--gold-bright)}
+.quest-gain b{font:700 44px/1 var(--serif);font-variant-numeric:tabular-nums}
+.quest-gain small{font-size:15px;color:#c9c4b9}
+.quest-gain .crown-icon{width:44px;height:44px}
+.quest-gain.life{color:#e0755c}.quest-gain.cost{color:#c9c4b9}.quest-gain.empty{color:#8f8a7e}
+.quest-result p{text-align:center}
+.quest-result .quest-actions{justify-content:center}
+
+.quest-offer-art{display:block;width:min(100%,760px);aspect-ratio:1942/809;max-height:24vh;object-fit:cover;border-radius:10px;flex:none}

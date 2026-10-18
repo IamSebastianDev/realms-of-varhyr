@@ -3,37 +3,45 @@ import { Check, Heart, Layers, Skull, Sparkles, X } from 'lucide-react';
 import { t as msg, useLanguage } from '../../../../packages/ui/src/i18n';
 import { ArtCard, CardHoverButton } from '../../../../packages/ui/src/CardPresentation';
 import { cardCost } from '../deckTools';
-import { CrownIcon } from '../Crowns';
+import { SilverIcon } from '../Crowns';
 import { SiteIcon } from '../../../../packages/ui/src/siteIcons';
 import { factionInfo } from '../../../../packages/content/src';
-import { actionsFor, questRules, type Action, type MapNode, type Offer, type Role, type RunState } from '../../../../packages/quest/src';
+import { actionsFor, bossName, questRules, smithValue, templateOf, type Action, type MapNode, type Offer, type Role, type RunState } from '../../../../packages/quest/src';
 import { questContent } from './questStore';
+import type { ActionResult } from './results';
 
 export const roleInfo: Record<Role, { name: string; text: string; icon: Parameters<typeof SiteIcon>[0]['site'] }> = {
   city: { name: 'City', icon: 'city', text: 'Smoke, noise and open stalls. Someone here is always selling, and someone always knows something.' },
-  market: { name: 'Market', icon: 'market', text: 'A crossroads market. Honest weights, mostly.' },
+  village: { name: 'Village', icon: 'village', text: 'Smoke from a few chimneys, and neighbours who talk. Someone here always knows who needs a hand.' },
   shrine: { name: 'Shrine', icon: 'shrine', text: 'A shrine that accepts offerings. What you leave behind, it answers in kind.' },
   ruin: { name: 'Ruin', icon: 'ruin', text: 'Broken columns and older stones. Others have searched here, but not everywhere.' },
   waymark: { name: 'Waymark', icon: 'waymark', text: 'A signpost carved by travellers who walked this road before you.' },
   arena: { name: 'Arena', icon: 'arena', text: 'A walled ring where champions settle disputes for coin. The stakes are real, and so is the prize.' },
   capital: { name: 'Capital', icon: 'capital', text: 'The seat of a faction. The best of what it makes is for sale here, at a price.' },
   landmark: { name: 'Landmark', icon: 'landmark', text: 'A place the old songs still name.' },
-  fight: { name: 'The wilds', icon: 'arena', text: 'Something has made its camp here, and it has seen you coming.' },
-  refuge: { name: 'Refuge', icon: 'market', text: 'A hidden camp with a fire still warm. Nobody will trouble you here.' },
-  cache: { name: 'A hidden cache', icon: 'ruin', text: 'Someone buried a stash here and never came back for it.' },
-  trader: { name: 'Roadside trader', icon: 'market', text: 'A cart pulled off the road, and a trader who has not asked your name.' },
-  boss: { name: 'The stronghold', icon: 'arena', text: 'The end of the road. Whoever you came to find is waiting inside.' },
+  encounter: { name: 'The wilds', icon: 'arena', text: 'Something has made its camp here, and it has seen you coming.' },
+  camp: { name: 'Roadside camp', icon: 'village', text: 'A camp by the road with a fire still warm. The people here will tend your wounds for a fee.' },
+  cache: { name: 'A hidden cache', icon: 'ruin', text: 'Someone buried a stash here and never came back for it. It may be empty.' },
+  merchant: { name: 'Traveling merchant', icon: 'village', text: 'A cart pulled off the road, and a trader who has not asked your name.' },
+  boss: { name: 'The stronghold', icon: 'arena', text: 'A stronghold that nobody has taken. Whoever holds it will not give it up.' },
+  unknown: { name: 'A place on the road', icon: 'ruin', text: 'You cannot tell yet what is here.' },
 };
 const actionLabels: Record<Action['type'], string> = {
-  fight: 'Fight', rest: 'Rest at the fire', heal: 'Pay for healing', shop: 'Browse the wares', buy: 'Buy', rumor: 'Ask for rumors',
-  search: 'Search the place', read: 'Read the waymark', sacrifice: 'Make an offering',
+  fight: 'Fight', heal: 'Pay for healing', shop: 'Browse the wares', buy: 'Buy', rumors: 'Ask for rumors', accept: 'Accept',
+  search: 'Search the place', read: 'Read the waymark', exchange: 'Make an offering', smith: 'Visit the smith',
 };
 
+/** A painting above a pick screen (cards found, an offering made). It is simply left out when the file is missing. */
+function OfferArt({ name }: { name: string }) {
+  const [missing, setMissing] = useState(false);
+  useEffect(() => setMissing(false), [name]);
+  return missing ? null : <img className="quest-offer-art" src={`/quest/art/${name}.webp`} alt="" onError={() => setMissing(true)}/>;
+}
 /** Location art: faction-specific if there is any, then the generic piece, then a painted placeholder. */
-function LocationArt({ role, affiliation }: { role: Role; affiliation: string }) {
-  const sources = [`/quest/art/${role}-${affiliation}.webp`, `/quest/art/${role}.webp`];
+function LocationArt({ role, affiliation, art }: { role: Role; affiliation: string; art?: string }) {
+  const sources = [...(art ? [`/quest/art/${art}.webp`] : []), `/quest/art/${role}-${affiliation}.webp`, `/quest/art/${role}.webp`];
   const [index, setIndex] = useState(0);
-  useEffect(() => setIndex(0), [role, affiliation]);
+  useEffect(() => setIndex(0), [role, affiliation, art]);
   const color = factionInfo[affiliation]?.color ?? '#a9c0ad';
   return <div className="quest-art" style={{ ['--tint' as string]: color }}>
     {index < sources.length ? <img src={sources[index]} alt="" onError={() => setIndex(index + 1)}/> : <SiteIcon site={roleInfo[role].icon} size={72}/>}
@@ -47,73 +55,102 @@ export function Hearts({ life }: { life: number }) {
   </span>;
 }
 
+export type Sublist = 'exchange' | 'smith' | null;
 type DialogProps = {
   run: RunState; node: MapNode; notice: string; error: string;
-  act: (action: Action) => void; leave: () => void; openOffer: (offer: Offer) => void; offering: boolean; setOffering: (value: boolean) => void;
+  result?: ActionResult | null; dismiss?: () => void;
+  act: (action: Action) => void; leave: () => void; openOffer: (offer: Offer) => void; offering: Sublist; setOffering: (value: Sublist) => void;
 };
 /** The one dialog every place opens: its picture, a line about it, and what you can do there. */
-export function LocationDialog({ run, node, notice, error, act, leave, offering, setOffering }: DialogProps) {
+export function LocationDialog({ run, node, notice, error, act, leave, offering, setOffering, result, dismiss }: DialogProps) {
   useLanguage();
   const encounter = run.encounter!, role = encounter.role, info = roleInfo[role];
   const faction = factionInfo[node.affiliation]?.name ?? '';
   const used = (type: string) => encounter.used.includes(type);
   const visited = run.visited.includes(node.id);
-  const missing = questRules.maxLife - run.life, canHeal = missing > 0 && run.gold >= questRules.healGoldPerLife;
-  const title = node.name || (role === 'boss' ? run.quest.bossName : info.name);
+  const rate = role === 'camp' ? questRules.campHealSilverPerLife : questRules.cityHealSilverPerLife;
+  const missing = questRules.maxLife - run.life, canHeal = missing > 0 && run.silver >= rate;
+  const boss = role === 'boss' ? bossName(node.affiliation, run.seed, node.id) : '';
+  const title = node.name || (role === 'boss' ? boss : info.name);
   const actions = actionsFor(role).filter(type => !(type === 'fight' && visited));
-  const disabled = (type: Action['type']) => used(type) || (type === 'heal' && !canHeal) || (type === 'rumor' && used('rumor'));
+  const repeatable = ['shop', 'rumors', 'smith'], disabled = (type: Action['type']) => (used(type) && !repeatable.includes(type)) || (visited && ['search', 'read', 'exchange'].includes(type)) || (type === 'heal' && !canHeal) || (type === 'smith' && run.deck.length <= questRules.minDeck);
   return <div className="quest-dialog-backdrop" role="presentation">
     <section className="quest-dialog" role="dialog" aria-modal="true" aria-label={title}>
-      <LocationArt role={role} affiliation={node.affiliation}/>
-      <div className="quest-dialog-body">
+      <LocationArt role={role} affiliation={node.affiliation} art={result?.art}/>
+      {result ? <div className={`quest-dialog-body quest-result ${result.kind}`} role="status">
+        <header><h2>{msg(result.title)}</h2><small>{msg(title)}</small></header>
+        <div className="quest-result-gains">
+          {!!result.silver && <span className={`quest-gain ${result.silver < 0 ? 'cost' : ''}`}><SilverIcon/><b>{result.silver > 0 ? '+' : '−'}{Math.abs(result.silver)}</b><small>{msg("silver")}</small></span>}
+          {!!result.life && <span className="quest-gain life"><Heart size={26}/><b>{result.life > 0 ? '+' : '−'}{Math.abs(result.life)}</b><small>{msg("life")}</small></span>}
+          {result.kind === 'nothing' && <span className="quest-gain empty"><X size={26}/><b>{msg("Empty")}</b></span>}
+          {result.kind === 'info' && <span className="quest-gain"><Sparkles size={26}/></span>}
+        </div>
+        {result.detail && <p>{msg(result.detail)}</p>}
+        <div className="quest-actions"><button className="gold-button" autoFocus onClick={dismiss}>{msg("Continue")}</button><button className="outline-button" onClick={leave}>{msg("Leave")}</button></div>
+      </div> : <div className="quest-dialog-body">
         <header><h2>{msg(title)}</h2>{faction && node.affiliation !== 'neutral' && <small>{msg(faction)}</small>}</header>
-        <p>{role === 'boss' ? msg("{v0} waits here. Everything you have gathered on this road decides how this ends.", { v0: run.quest.bossName }) : msg(info.text)}</p>
+        <p>{role === 'boss' ? msg("{v0} waits here. Everything you have gathered on this road decides how this ends.", { v0: boss }) : msg(info.text)}</p>
         {notice && <p className="quest-notice" role="status">{notice}</p>}
         {error && <p className="quest-error" role="alert">{error}</p>}
         <div className="quest-actions">
-          {actions.map(type => <button key={type} className={type === 'fight' ? 'gold-button' : 'outline-button'} disabled={disabled(type)} onClick={() => type === 'sacrifice' ? setOffering(true) : act({ type } as Action)}>
-            {type === 'fight' && <Skull size={15}/>}{type === 'rest' && <Heart size={15}/>}{type === 'heal' && <Heart size={15}/>}{type === 'search' && <Sparkles size={15}/>}{type === 'shop' && <CrownIcon/>}
-            {role === 'boss' && type === 'fight' ? msg("Face {v0}", { v0: run.quest.bossName }) : type === 'rest' ? msg("Rest at the fire (+{v0} life)", { v0: questRules.refugeHeal }) : type === 'heal' ? msg("Pay for healing ({v0} crowns per life)", { v0: questRules.healGoldPerLife }) : msg(actionLabels[type])}
-            {used(type) && <Check size={14}/>}
+          {actions.map(type => <button key={type} className={type === 'fight' ? 'gold-button' : 'outline-button'} disabled={disabled(type)} onClick={() => type === 'exchange' || type === 'smith' ? setOffering(type) : act({ type } as Action)}>
+            {type === 'fight' && <Skull size={15}/>}{type === 'heal' && <Heart size={15}/>}{type === 'search' && <Sparkles size={15}/>}{type === 'shop' && <SilverIcon/>}
+            {role === 'boss' && type === 'fight' ? msg("Face {v0}", { v0: boss }) : type === 'heal' ? msg("Pay for healing ({v0} silver per life)", { v0: rate }) : msg(actionLabels[type])}
+            {used(type) && !repeatable.includes(type) && <Check size={14}/>}
           </button>)}
           {visited && role !== 'city' && role !== 'capital' && actionsFor(role).includes('fight') && <p className="quest-notice">{msg("This place has been cleared.")}</p>}
           <button className="outline-button" onClick={leave}>{msg("Leave")}</button>
         </div>
-        {offering && <SacrificeList run={run} close={() => setOffering(false)} choose={index => { setOffering(false); act({ type: 'sacrifice', index }); }}/>}
-      </div>
+        {offering === 'exchange' && <CardList run={run} mode="exchange" close={() => setOffering(null)} choose={index => { setOffering(null); act({ type: 'exchange', index }); }}/>}
+        {offering === 'smith' && <CardList run={run} mode="smith" close={() => setOffering(null)} choose={index => act({ type: 'smith', index })}/>}
+      </div>}
     </section>
   </div>;
 }
 
-/** Pick a card from the run deck to give up. Duplicates are shown once with a count. */
-function SacrificeList({ run, choose, close }: { run: RunState; choose: (index: number) => void; close: () => void }) {
+/** Pick a card from the run deck: to exchange at a shrine, or to destroy at a smith for silver. Duplicates are shown once with a count. */
+function CardList({ run, mode, choose, close }: { run: RunState; mode: 'exchange' | 'smith'; choose: (index: number) => void; close: () => void }) {
   useLanguage();
-  const seen = new Set<string>();
-  return <div className="quest-sacrifice" role="group" aria-label={msg("Choose a card to give up")}>
-    <h3>{msg("Choose a card to give up")}</h3>
+  const seen = new Set<string>(), locked = mode === 'smith' && run.deck.length <= questRules.minDeck;
+  return <div className="quest-sacrifice" role="group" aria-label={mode === 'smith' ? msg("Choose a card to destroy") : msg("Choose a card to give up")}>
+    <h3>{mode === 'smith' ? msg("Choose a card to destroy") : msg("Choose a card to give up")}</h3>
+    {mode === 'smith' && <p className="quest-notice">{locked ? msg("Your deck is down to {v0} cards. Add a card before destroying another.", { v0: questRules.minDeck }) : msg("The smith pays half of what a card is worth.")}</p>}
     <ul>{run.deck.map((id, index) => {
       if (seen.has(id)) return null;
       seen.add(id);
       const card = questContent.cards[id]!, count = run.deck.filter(other => other === id).length;
-      return <li key={id}><button className="outline-button" onClick={() => choose(index)}>{msg(card.name)}{count > 1 && ` ×${count}`} <small>{msg(card.rarity)}</small></button></li>;
+      return <li key={id}><button className="outline-button" disabled={locked} onClick={() => choose(index)}>{msg(card.name)}{count > 1 && ` ×${count}`} <small>{mode === 'smith' ? msg("+{v0} silver", { v0: smithValue(questContent, id) }) : msg(card.rarity)}</small></button></li>;
     })}</ul>
     <button className="outline-button" onClick={close}>{msg("Never mind")}</button>
   </div>;
 }
 
 /** Pick packs (the draft, spoils, finds, exchanges) and the shop, shown over everything else. */
-export function OfferView({ run, reduced, take, skip, buy, close, showDeck }: { run: RunState; reduced: boolean; showDeck?: () => void; take: (id: string) => void; skip: () => void; buy: (index: number) => void; close: () => void }) {
+export function OfferView({ run, reduced, take, skip, buy, accept, close, showDeck }: { run: RunState; reduced: boolean; showDeck?: () => void; take: (id: string) => void; skip: () => void; buy: (index: number) => void; accept: (rumor: string) => void; close: () => void }) {
   useLanguage();
   const offer = run.offer!;
   const deckSize = run.deck.length;
+  if (offer.kind === 'rumors') {
+    const rumors = run.rumors[offer.origin] ?? [];
+    return <div className="quest-offer quest-rumors" role="dialog" aria-modal="true" aria-label={msg("Rumors")}>
+      <header><h2>{msg("Rumors")}</h2></header>
+      <ul className="quest-rumor-list">{rumors.map(rumor => {
+        const template = templateOf(rumor.template);
+        const reward = [rumor.reward.packs ? msg("{v0} boosters", { v0: rumor.reward.packs }) : '', rumor.reward.silver ? msg("{v0} silver", { v0: rumor.reward.silver }) : ''].filter(Boolean).join(' · ');
+        return <li key={rumor.id}><div><strong>{msg(template.title)}</strong><p>{msg(template.text)}</p><small>{msg("Reward")}: {reward}</small></div>
+          <button className={rumor.accepted ? 'outline-button' : 'gold-button'} disabled={rumor.accepted} onClick={() => accept(rumor.id)}>{rumor.accepted ? msg("Accepted") : msg("Accept")}</button></li>;
+      })}</ul>
+      <footer><button className="outline-button" onClick={close}>{msg("Done")}</button></footer>
+    </div>;
+  }
   if (offer.kind === 'shop') {
     return <div className="quest-offer" role="dialog" aria-modal="true" aria-label={msg("Shop")}>
-      <header><h2>{offer.premium ? msg("The capital's best") : msg("Wares")}</h2><span className="quest-purse"><CrownIcon/><b>{run.gold}</b></span></header>
+      <header><h2>{offer.premium ? msg("The capital's best") : msg("Wares")}</h2><span className="quest-purse" title={msg("Silver carried on this expedition")}><SilverIcon/><b>{run.silver}</b></span></header>
       <div className="quest-offer-cards">{offer.items.map((item, index) => {
         const card = questContent.cards[item.card]!;
         return <div key={`${item.card}${index}`} className={`quest-offer-card ${item.sold ? 'sold' : ''}`}>
           <ArtCard card={card} reduced={reduced}/>
-          <button className="gold-button" disabled={item.sold || run.gold < item.price} onClick={() => buy(index)}>{item.sold ? msg("Sold") : msg("Buy for {v0} crowns", { v0: item.price })}</button>
+          <button className="gold-button" disabled={item.sold || run.silver < item.price} onClick={() => buy(index)}>{item.sold ? msg("Sold") : msg("Buy for {v0} silver", { v0: item.price })}</button>
         </div>;
       })}</div>
       <footer>{showDeck && <button className="outline-button" onClick={showDeck}><Layers size={15}/>{msg("Your deck")}</button>}<button className="outline-button" onClick={close}>{msg("Done")}</button></footer>
@@ -121,7 +158,9 @@ export function OfferView({ run, reduced, take, skip, buy, close, showDeck }: { 
   }
   const draft = offer.source === 'draft';
   const left = offer.pick - offer.taken.length;
+  const painting = offer.source === 'found' ? 'found-cards' : offer.source === 'exchange' ? 'offering' : '';
   return <div className="quest-offer" role="dialog" aria-modal="true" aria-label={msg(offer.title)}>
+    {painting && <OfferArt name={painting}/>}
     <header>
       <h2>{draft ? msg("Draft your deck") : msg(offer.title)}</h2>
       <span>{draft ? msg("Pick {v0} of {v1}. Card {v2} of {v3}.", { v0: 1, v1: offer.size, v2: run.drafted + 1, v3: questRules.draftPicks }) : msg("Pick {v0} of {v1}", { v0: left, v1: offer.size })}</span>
@@ -192,7 +231,7 @@ export function DraftPage({ run, reduced, take, leave, giveUp }: { run: RunState
           <small>{copies > 0 ? msg("{v0} in deck", { v0: copies }) : '\u00a0'}</small>
         </button>;
       })}</div>
-      <footer className="quest-draft-exit">{confirm ? <><span>{msg("Give up? The entry fee is lost.")}</span><button className="outline-button danger" onClick={giveUp}>{msg("Give up")}</button><button className="outline-button" onClick={() => setConfirm(false)}>{msg("Keep drafting")}</button></> : <><button className="outline-button" onClick={leave}>{msg("Leave for now")}</button><button className="outline-button" onClick={() => setConfirm(true)}>{msg("Give up")}</button></>}</footer>
+      <footer className="quest-draft-exit">{confirm ? <><span>{msg("Give up this expedition?")}</span><button className="outline-button danger" onClick={giveUp}>{msg("Give up")}</button><button className="outline-button" onClick={() => setConfirm(false)}>{msg("Keep drafting")}</button></> : <><button className="outline-button" onClick={leave}>{msg("Leave for now")}</button><button className="outline-button" onClick={() => setConfirm(true)}>{msg("Give up")}</button></>}</footer>
     </section>
     <aside className="builder-deck quest-draft-deck" aria-label={msg("Your deck")}>
       <div className="dk-progress incomplete"><span><b>{run.deck.length}</b> / {total} {msg("cards")}</span><i aria-hidden><u style={{ width: `${Math.min(100, run.deck.length / total * 100)}%` }}/></i></div>

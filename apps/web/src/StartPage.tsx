@@ -48,8 +48,8 @@ export function StartPage({ inert, options, selected, collection, canResume, res
           <Users size={26}/><b>{msg("Play a friend")}</b><small>{msg("Online or on one device")}</small><ArrowRight className="go" size={22}/>
         </button>
         <button className="home-mode quest" style={art('the-lonely-wanderer')} onClick={canResume ? resume : newQuest}>
-          {canResume ? <Play size={26}/> : <Scroll size={26}/>}<b>{canResume ? msg("Continue match") : run && run.stage !== 'over' ? msg("Continue quest") : msg("Daily quests")}</b>
-          <small>{canResume ? msg(resumeLabel) : run && run.stage !== 'over' ? msg("Defeat {v0}", { v0: run.quest.bossName }) : msg("Three new quests every day")}</small>
+          {canResume ? <Play size={26}/> : <Scroll size={26}/>}<b>{canResume ? msg("Continue match") : run && run.stage !== 'over' ? msg("Continue expedition") : msg("Quest")}</b>
+          <small>{canResume ? msg(resumeLabel) : run && run.stage !== 'over' ? msg("{v0} life · {v1} silver", { v0: run.life, v1: run.silver }) : msg("Explore the map, fight and trade")}</small>
           <ArrowRight className="go" size={22}/>
         </button>
       </div>

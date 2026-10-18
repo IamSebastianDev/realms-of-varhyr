@@ -3,7 +3,7 @@
 .ob-backdrop{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 20%,color-mix(in srgb,var(--ob-color,#f2d183) 28%,transparent),transparent 62%),linear-gradient(160deg,#1b1916,#0c0b0a);transition:background .6s}
 .ob-stage{position:relative;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:34px 22px;text-align:center}
 .ob-stage header{max-width:640px}
-.ob-stage header small{display:block;font:600 11px/1 'Manrope',sans-serif;letter-spacing:.22em;text-transform:uppercase;color:color-mix(in srgb,var(--ob-color,#f2d183) 80%,#fff)}
+.ob-stage header small{display:block;font:600 11px/1 'Source Serif 4',Georgia,serif;letter-spacing:.22em;text-transform:uppercase;color:color-mix(in srgb,var(--ob-color,#f2d183) 80%,#fff)}
 .ob-stage h1{margin:12px 0 10px;font:500 clamp(34px,5vw,54px)/1.05 var(--serif);color:#fff0c9}
 .ob-stage header p{margin:0;font-size:14px;line-height:1.6;color:#cbc9c5}
 .ob-offers{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;width:min(980px,100%)}

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { emptyMap, parseMap, serializeMap, territory, validateMap, type MapNode, type QuestMap } from '../packages/quest/src';
 
-const node = (id: string, x: number, y: number, affiliation: string, extra: Partial<MapNode> = {}): MapNode => ({ id, x, y, kind: 'transient', affiliation, ...extra });
+const node = (id: string, x: number, y: number, affiliation: string, extra: Partial<MapNode> = {}): MapNode => ({ id, x, y, kind: 'permanent', site: 'village', affiliation, ...extra });
 const mapOf = (...nodes: MapNode[]): QuestMap => ({ ...emptyMap('map.jpg', 1.5), nodes });
 
 describe('quest map', () => {
@@ -33,9 +33,11 @@ describe('quest map', () => {
     expect(parseMap(text)).toEqual({ ...original, nodes: [{ ...original.nodes[0], x: 0.12346 }, original.nodes[1]] });
     expect(serializeMap(parseMap(text))).toBe(text);
     const repaired = parseMap({ version: 1, image: 'x.jpg', aspect: 1.4, nodes: [
-      { id: 'n1', x: 2, y: -1, kind: 'transient', affiliation: 'horde', start: true, target: true },
+      { id: 'old', x: 0.2, y: 0.2, kind: 'transient', affiliation: 'horde' }, // Travel locations are never hand-placed.
+      { id: 'n1', x: 2, y: -1, kind: 'permanent', site: 'city', affiliation: 'horde', start: true, target: true },
       { id: 'n1', x: 0.5, y: 0.5, kind: 'permanent', site: 'nonsense' }] });
-    expect(repaired.nodes[0]).toEqual({ id: 'n1', x: 1, y: 0, kind: 'transient', affiliation: 'horde' });
+    expect(repaired.nodes).toHaveLength(2);
+    expect(repaired.nodes[0]).toEqual({ id: 'n1', x: 1, y: 0, kind: 'permanent', site: 'city', affiliation: 'horde', start: true, target: true });
     expect(repaired.nodes[1].id).not.toBe('n1');
     expect(repaired.nodes[1].site).toBe('landmark');
   });

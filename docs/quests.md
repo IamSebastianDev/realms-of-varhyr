@@ -1,6 +1,6 @@
 # Quest mode: expeditions through Varhyr
 
-Design updated 18 October 2026.
+Design updated 18 October 2026. Transient locations settled the same day: encounter, roadside camp, traveling merchant and cache.
 
 ## Status and scope
 
@@ -12,7 +12,7 @@ Quest mode becomes a free single-player expedition through Varhyr. There is no e
 
 1. Start a free expedition and build its starting deck using the existing base-deck and draft approach.
 2. Explore fixed landmarks and generated travel locations.
-3. Fight enemies, recover at refugee camps, buy cards from merchants, and use settlement services.
+3. Fight enemies, heal at roadside camps, buy cards from traveling merchants, search caches, and use settlement services.
 4. Accept optional quests from rumors. Acceptance creates a destination; clearing it automatically grants its rewards.
 5. Collect rewards from individual quests and bosses while continuing the expedition.
 6. Retire or die, then spend remaining silver to keep selected cards from the final deck in the permanent collection.
@@ -69,15 +69,20 @@ Villages do not offer healing or a market.
 
 Additional travel locations are generated upfront between fixed landmarks, within valid placement areas. Their positions persist for the expedition. Their encounter type is rolled on first visit, then saved; leaving, revisiting, or reloading does not reroll it.
 
-These transient locations have exactly three possible types:
+These transient locations have exactly four possible types:
 
 | Type | Purpose |
 |---|---|
-| Encounter | Combat |
-| Refugee camp | Healing |
+| Encounter | A random fight against an enemy |
+| Roadside camp | Healing for a silver fee. Replaces the earlier free refugee camp |
 | Traveling merchant | Buying expedition cards |
+| Cache | A small find: 1 life, a small amount of silver, or nothing |
 
-Random generation must not turn these locations into villages, cities, shrines, caches, or other legacy random node types. Quest acceptance can create an additional destination after the initial world generation.
+A cache is a gamble, not a service: it has no price and can come up empty. Its outcome is rolled on first visit and saved with the location, like its type, so reloading or revisiting never rerolls it.
+
+Random generation must not turn these locations into villages, cities, shrines, or other fixed-landmark types. Quest acceptance can create an additional destination after the initial world generation.
+
+The share of each transient type, the roadside camp's price per life, and the cache's outcome odds and amounts are tuning values.
 
 ### Valid placement areas
 
@@ -106,7 +111,7 @@ Each accepted quest needs a saved identity, origin, destination, objective, rewa
 
 ## Combat and difficulty
 
-Existing combat rules remain in place. Life persists between fights; deck changes persist through the expedition. Healing is available through city services and refugee camps.
+Existing combat rules remain in place. Life persists between fights; deck changes persist through the expedition. Healing is available through city services and roadside camps, both for a fee, and a cache can occasionally give 1 life.
 
 Difficulty scales with expedition progression, based on **wins and card grade**. There is no mandatory final boss or required number of fights. Bosses remain optional encounters with their own rewards.
 
@@ -151,7 +156,7 @@ The implementation must preserve already earned account rewards and purchase rec
 
 ## Remaining implementation and tuning decisions
 
-- Starting silver, encounter rewards, service prices, and smith rounding.
+- Starting silver, encounter rewards, service prices (including the roadside camp's healing fee), cache odds and amounts, the mix of transient types, and smith rounding.
 - Placement data format, spacing, reachability, and destination placement when a valid site is unavailable.
 - Affiliation distance calculation and border behavior.
 - Quest template eligibility, rewards, and how many rumors a settlement offers.

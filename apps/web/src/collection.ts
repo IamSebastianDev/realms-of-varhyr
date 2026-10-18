@@ -44,6 +44,8 @@ export type Collection = {
   boostersOpened: number;
   rewardedMatches: string[];
   questSettlements?: Record<string, QuestSettlement>;
+  /** Boss and quest payouts already granted, keyed by run and payout, so each is applied exactly once. */
+  questPayouts?: Record<string, true>;
 };
 export type CollectionCardReward = { id: string; isNew: boolean; copies: number; crowns: number };
 export const emptyCollection = (): Collection => ({ version: 1, counts: {}, crowns: 0, packs: {}, boostersOpened: 0, rewardedMatches: [] });
@@ -138,6 +140,11 @@ export function parseCollection(raw: string | null, content: Registry): Collecti
       if (!data.questSettlements || typeof data.questSettlements !== 'object' || Array.isArray(data.questSettlements)
         || !Object.entries(data.questSettlements).every(([id, value]) => id.length > 0 && validSettlement(value))) return null;
       collection.questSettlements = data.questSettlements;
+    }
+    if (data.questPayouts !== undefined) {
+      if (!data.questPayouts || typeof data.questPayouts !== 'object' || Array.isArray(data.questPayouts)
+        || !Object.entries(data.questPayouts).every(([id, value]) => id.length > 0 && value === true)) return null;
+      collection.questPayouts = data.questPayouts;
     }
     // Packs that are no longer sold are shared out across the current ones, so saved rewards stay usable.
     // Removing their keys makes migration idempotent on subsequent reads/saves.

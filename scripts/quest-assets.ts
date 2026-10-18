@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { cp, mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import sharp from 'sharp';
 import { parseMap } from '../packages/quest/src/map';
@@ -24,6 +24,8 @@ export async function importQuestAssets(root: string): Promise<{ tiles: number }
   const tiles: TileInfo = { size: tileSize, maxZoom, width, height };
   await mkdir(out, { recursive: true });
   await writeFile(join(out, 'map.json'), JSON.stringify({ ...map, tiles }) + '\n');
+  // Painted location pieces (assets/quest/art/<role>[-<faction>].webp) are committed with the sources and published next to the map.
+  if (existsSync(join(root, 'assets/quest/art'))) await cp(join(root, 'assets/quest/art'), join(out, 'art'), { recursive: true });
   if (existsSync(stampFile) && (await readFile(stampFile, 'utf8')) === stamp) return { tiles: 0 };
   await rm(join(out, 'tiles'), { recursive: true, force: true });
   let count = 0;

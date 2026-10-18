@@ -1,31 +1,25 @@
-/* Black and bronze: one plate for every panel, dialog and sheet. Loaded last so it replaces the older green surfaces. */
-:root{
-  --plate-bg:#0d0c0af2;
-  --plate-edge:#04040499 #e5d29f26 #e5d29f33 #04040499;
-  --plate-shadow:inset 0 3px 16px #06060599,0 24px 80px #000b;
-  --plate-bracket:#cfae6acc;
-}
+/* Black and bronze: one plate for every panel, dialog and sheet. Tokens and the corner brackets live in packages/ui/src/bronze.css, shared with the card studio. Loaded last so it replaces the older green surfaces. */
 .profile-stage,.builder-dialog,.quest-dialog,.privacy-card,.result-dialog,.side-panel,.game-setup-pane,.hover-preview,.creature-actions{
   border:1px solid;border-color:var(--plate-edge);border-radius:6px;box-shadow:var(--plate-shadow);
-  background:linear-gradient(var(--plate-bracket),var(--plate-bracket)) top left/14px 1px no-repeat,linear-gradient(var(--plate-bracket),var(--plate-bracket)) top left/1px 14px no-repeat,linear-gradient(var(--plate-bracket),var(--plate-bracket)) top right/14px 1px no-repeat,linear-gradient(var(--plate-bracket),var(--plate-bracket)) top right/1px 14px no-repeat,linear-gradient(var(--plate-bracket),var(--plate-bracket)) bottom left/14px 1px no-repeat,linear-gradient(var(--plate-bracket),var(--plate-bracket)) bottom left/1px 14px no-repeat,linear-gradient(var(--plate-bracket),var(--plate-bracket)) bottom right/14px 1px no-repeat,linear-gradient(var(--plate-bracket),var(--plate-bracket)) bottom right/1px 14px no-repeat,var(--plate-bg)}
+  background:var(--corners-plate),var(--plate-bg)}
 .privacy-card:before,.result-dialog:before{display:none}
 .side-panel,.game-setup-pane{border-radius:0}
 .builder-dialog h2,.privacy-card h2,.result-dialog h2,.quest-dialog h2{color:#f0e6cc}
 /* Buttons on a plate: bronze chrome, serif. */
 :is(.builder-dialog,.quest-dialog,.privacy-card,.result-dialog,.side-panel,.game-setup-pane,.profile-stage) .outline-button{
   border:1px solid;border-color:#04040499 #e5d29f1a #e5d29f22 #04040499;border-radius:6px;box-shadow:inset 0 3px 16px #06060599;
-  background:linear-gradient(#cfae6a88,#cfae6a88) top left/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top left/1px 10px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top right/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top right/1px 10px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom left/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom left/1px 10px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom right/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom right/1px 10px no-repeat,#0b0a08cc;color:#f0e6cc;font:500 15px var(--serif)}
+  background:var(--corners-button),#0b0a08cc;color:#f0e6cc;font:500 15px var(--serif)}
 :is(.builder-dialog,.quest-dialog,.privacy-card,.result-dialog,.side-panel,.game-setup-pane,.profile-stage) .outline-button:hover:not(:disabled){border-color:#cfae6a99}
 :is(.builder-dialog,.quest-dialog,.privacy-card,.result-dialog,.side-panel,.game-setup-pane,.profile-stage) .outline-button svg{color:#cfae6a}
 .builder-dialog textarea{background:#0a090788}
-.profile-stage{background:radial-gradient(ellipse 38% 55% at 22% 50%,color-mix(in srgb,var(--avatar) 18%,transparent),transparent 70%),linear-gradient(#cfae6acc,#cfae6acc) top left/14px 1px no-repeat,linear-gradient(#cfae6acc,#cfae6acc) top left/1px 14px no-repeat,linear-gradient(#cfae6acc,#cfae6acc) top right/14px 1px no-repeat,linear-gradient(#cfae6acc,#cfae6acc) top right/1px 14px no-repeat,linear-gradient(#cfae6acc,#cfae6acc) bottom left/14px 1px no-repeat,linear-gradient(#cfae6acc,#cfae6acc) bottom left/1px 14px no-repeat,linear-gradient(#cfae6acc,#cfae6acc) bottom right/14px 1px no-repeat,linear-gradient(#cfae6acc,#cfae6acc) bottom right/1px 14px no-repeat,var(--plate-bg)}
+.profile-stage{background:radial-gradient(ellipse 38% 55% at 22% 50%,color-mix(in srgb,var(--avatar) 18%,transparent),transparent 70%),var(--corners-plate),var(--plate-bg)}
 /* No green page: near-black ground, the painted valley is only a faint warm trace. */
 :root{background:#0c0b09;color:#e0dccf;--muted:#8d8a82;--line:#cfae6a1f}
 .lobby .world-bg,.world-bg:not(.app>.world-bg){opacity:.16;filter:grayscale(.85) sepia(.35)}
 .lobby .world-vignette,.world-vignette:not(.app>.world-vignette){background:radial-gradient(ellipse at 50% 40%,#100f0cc0 0,#0a0908f0 85%)}
 
 /* Every button except Play gets the bronze chrome. Square buttons carry the bracket corners; pills and round buttons a bronze edge. */
-:is(.outline-button,.text-button,.builder-icon-button,.builder-small-button,.filter-trigger,.setup-change,.reset-button,.store-crown-buy,.coach-secondary,.lobby-resume,.packs-store,.deck-strip-new):not(.gold-button){border:1px solid;border-color:#0b0a0999 #e5d29f1f #e5d29f2e #0b0a0999;border-radius:6px;box-shadow:inset 0 3px 16px #06060599;background:linear-gradient(#cfae6a88,#cfae6a88) top left/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top left/1px 10px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top right/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top right/1px 10px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom left/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom left/1px 10px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom right/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom right/1px 10px no-repeat,#0b0a08cc;color:#f0e6cc}
+:is(.outline-button,.text-button,.builder-icon-button,.builder-small-button,.filter-trigger,.setup-change,.reset-button,.store-crown-buy,.coach-secondary,.lobby-resume,.packs-store,.deck-strip-new):not(.gold-button){border:1px solid;border-color:#0b0a0999 #e5d29f1f #e5d29f2e #0b0a0999;border-radius:6px;box-shadow:inset 0 3px 16px #06060599;background:var(--corners-button),#0b0a08cc;color:#f0e6cc}
 :is(.outline-button,.text-button,.builder-icon-button,.builder-small-button,.filter-trigger,.setup-change,.reset-button,.store-crown-buy,.coach-secondary,.lobby-resume,.packs-store,.deck-strip-new):not(.gold-button):hover:not(:disabled){border-color:#cfae6a99;color:#fff4d6}
 :is(.outline-button,.text-button,.builder-icon-button,.builder-small-button,.filter-trigger,.setup-change,.reset-button,.store-crown-buy,.coach-secondary,.lobby-resume,.packs-store,.deck-strip-new):not(.gold-button) svg{color:#cfae6a}
 .outline-button.danger{border-color:#c25a4c99;color:#f0b5a6}

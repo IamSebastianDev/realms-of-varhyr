@@ -122,7 +122,7 @@
 
 .app .portrait .life-counter strong,.app .library-count strong,.app .discard-count strong{font-variant-numeric:lining-nums;font-feature-settings:'lnum' 1}
 .app .battlefield .board-scene{margin-top:6px;margin-bottom:6px}
-.app .portrait .life-counter strong,.app .library-count strong,.app .discard-count strong{font-family:'Manrope',sans-serif;font-weight:700;font-feature-settings:normal;font-variant-numeric:normal;letter-spacing:-.02em}
+.app .portrait .life-counter strong,.app .library-count strong,.app .discard-count strong{font-family:'Source Serif 4',Georgia,serif;font-weight:700;font-feature-settings:normal;font-variant-numeric:normal;letter-spacing:-.02em}
 .app .portrait .life-counter strong{font-size:14px}
 .hand-scroll .hand-card:first-child{margin-left:auto}
 .hand-scroll .hand-card:last-child{margin-right:auto}
@@ -175,7 +175,7 @@ html,body,#root{overscroll-behavior:none}
 .portrait .life-counter{width:34px;height:40px;border:0;border-radius:0;background:linear-gradient(160deg,#f6dfa0,#b48d4c);clip-path:polygon(24% 0,76% 0,100% 34%,50% 100%,0 34%);box-shadow:none;display:grid;place-items:center;padding:0}
 .portrait .life-counter::before{content:'';position:absolute;inset:2px;clip-path:polygon(24% 0,76% 0,100% 34%,50% 100%,0 34%);background:linear-gradient(155deg,#f4a08c 0%,#cf5f50 38%,#7f2a27 100%)}
 .portrait .life-counter::after{content:'';position:absolute;inset:2px;clip-path:polygon(24% 0,76% 0,100% 34%,50% 100%,0 34%);background:linear-gradient(118deg,#ffffff4d 0 28%,transparent 28% 100%),linear-gradient(0deg,transparent 60%,#ffffff22 60%)}
-.portrait .life-counter strong{position:relative;z-index:1;margin-top:-5px;font:700 14px/1 'Manrope',sans-serif;color:#fff6e6;text-shadow:0 1px 2px #3a0d0b;letter-spacing:-.02em}
+.portrait .life-counter strong{position:relative;z-index:1;margin-top:-5px;font:700 14px/1 'Source Serif 4',Georgia,serif;color:#fff6e6;text-shadow:0 1px 2px #3a0d0b;letter-spacing:-.02em}
 .portrait .life-counter small{display:none}
 /* ═════ Desktop landscape: fixed command sidebar (left quarter) + playmat (2/3) over hand (1/3) ═════ */
 @media(min-width:951px) and (min-aspect-ratio:1/1){.app{--side:clamp(250px,22vw,320px);display:block;position:relative;height:100dvh;min-height:0;overflow:hidden}
@@ -269,23 +269,24 @@ html,body,#root{overscroll-behavior:none}
 .floating-action{z-index:6;left:auto;top:auto;right:34px;bottom:16.667%;width:112px;height:112px;transform:translateY(50%);display:block}
 .floating-action .action-guidance{position:absolute;right:0;bottom:calc(100% + 22px);width:200px;max-width:none;text-align:right}
 .floating-action .combat-forecast{display:block;font-size:10px;line-height:1.45;color:#b4ebeb;text-shadow:0 1px 6px #000}
-.floating-action .primary-action{position:relative;overflow:visible;width:112px;height:112px;padding:0 8px;border:0;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;
-    font:600 15px/1.1 var(--serif);color:#2b1e08;text-shadow:0 1px 0 #ffeab4;
-    background:radial-gradient(circle at 34% 26%,#fff3c8 0%,#e6c577 36%,#b08840 74%,#8a6527 100%);
-    box-shadow:0 0 0 5px #0c0b0a,0 0 0 6px #ecd292,0 0 0 12px #0c0b0a,0 0 0 13px #cfae6a66,0 16px 30px #000b,inset 0 2px 3px #fffa,inset 0 -7px 12px #7a581f99;
+.floating-action .primary-action{position:relative;overflow:visible;width:112px;height:112px;padding:0 8px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;
+    font:600 15px/1.1 var(--serif);color:var(--bronze-text,#f0e6cc);text-shadow:0 1px 6px #000;
+    border:3px solid transparent;
+    background:radial-gradient(circle at 38% 28%,#2b2924 0%,#14130f 62%,#090807 100%) padding-box,conic-gradient(from 20deg,#f8e7b0,#8f6a28,#f1d59a,#6b5527,#fff3c8,#8f6a28,#f8e7b0) border-box;
+    box-shadow:0 0 0 5px #0c0b0a,0 0 0 6px #cfae6aa8,0 0 0 12px #0c0b0a,0 0 0 13px #cfae6a33,0 16px 30px #000b,inset 0 3px 14px #000c,inset 0 1px 0 #f8e7b033;
     transition:transform .16s cubic-bezier(.2,.8,.3,1),filter .16s}
-.floating-action .primary-action svg{width:22px;height:22px;stroke-width:2.2;filter:drop-shadow(0 1px 0 #ffeab4)}
-.floating-action .primary-action::before{content:'';position:absolute;inset:-26px;border-radius:50%;pointer-events:none;opacity:.6;
-    background:repeating-conic-gradient(from 0deg,#e9cf8f 0 1.6deg,transparent 1.6deg 10deg);
+.floating-action .primary-action svg{width:22px;height:22px;stroke-width:1.8;color:#e3c780;filter:drop-shadow(0 0 6px #e3c78066)}
+.floating-action .primary-action::before{content:'';position:absolute;inset:-26px;border-radius:50%;pointer-events:none;opacity:.4;
+    background:repeating-conic-gradient(from 0deg,#cfae6a 0 1deg,transparent 1deg 10deg);
     -webkit-mask:radial-gradient(circle,transparent 63%,#000 64% 69%,transparent 70%);mask:radial-gradient(circle,transparent 63%,#000 64% 69%,transparent 70%);
     animation:action-ring 48s linear infinite}
-.floating-action .primary-action::after{content:'';position:absolute;inset:-4px;border-radius:50%;pointer-events:none;box-shadow:0 0 30px 6px #f1d89a66;animation:action-pulse 2.8s ease-in-out infinite}
-.floating-action .primary-action:not(:disabled):hover{transform:scale(1.06);filter:brightness(1.08) saturate(1.1)}
+.floating-action .primary-action::after{content:'';position:absolute;inset:-4px;border-radius:50%;pointer-events:none;box-shadow:0 0 26px 2px #cfae6a2e;animation:action-pulse 3.6s ease-in-out infinite}
+.floating-action .primary-action:not(:disabled):hover{transform:scale(1.04);color:#fff4d6;background:radial-gradient(circle at 38% 28%,#36332c 0%,#1a1813 62%,#0c0b09 100%) padding-box,conic-gradient(from 20deg,#fff3c8,#a77f32,#f8e7b0,#8f6a28,#fffbe6,#a77f32,#fff3c8) border-box;box-shadow:0 0 0 5px #0c0b0a,0 0 0 6px #e3c780,0 0 0 12px #0c0b0a,0 0 0 13px #cfae6a55,0 16px 30px #000b,inset 0 3px 14px #000c,inset 0 1px 0 #f8e7b055}
 .floating-action .primary-action:not(:disabled):active{transform:scale(.96)}
-.floating-action .primary-action:disabled{background:radial-gradient(circle at 34% 26%,#32302d,#181715 80%);color:#9c9a96;text-shadow:none;box-shadow:0 0 0 5px #0c0b0a,0 0 0 6px #3f3e3c,0 0 0 12px #0c0b0a,0 0 0 13px #cfae6a22,0 12px 24px #000a,inset 0 2px 3px #ffffff22;cursor:default}
+.floating-action .primary-action:disabled{background:radial-gradient(circle at 38% 28%,#1d1c19,#0d0c0a 80%) padding-box,linear-gradient(135deg,#5c4a22,#2a2214,#5c4a22) border-box;color:#8d8a82;text-shadow:none;box-shadow:0 0 0 5px #0c0b0a,0 0 0 6px #cfae6a33,0 0 0 12px #0c0b0a,0 0 0 13px #cfae6a14,0 12px 24px #000a,inset 0 3px 14px #000c;cursor:default}
 .floating-action .primary-action:disabled::before{opacity:.18;animation:none}
 .floating-action .primary-action:disabled::after{animation:none;box-shadow:none}
-.floating-action .primary-action:disabled svg{filter:none}
+.floating-action .primary-action:disabled svg{filter:none;color:#7b6b43}
 .floating-action .primary-action .thinking-dots{font-size:20px;letter-spacing:2px;line-height:1}}
 @keyframes action-ring{to{transform:rotate(360deg)}}
 @keyframes action-pulse{0%,100%{opacity:.35}50%{opacity:1}}
@@ -301,20 +302,20 @@ html,body,#root{overscroll-behavior:none}
     transition:background .3s,border-color .3s,box-shadow .3s,transform .3s,color .3s}
   .phase-bauble svg{width:13px;height:13px;filter:none}
   .phase-bauble.is-done{background:radial-gradient(circle at 35% 30%,#23221f,#11100e);color:#c9ae6d;border-color:#8d7a4d}
-  .phase-bauble.is-now{background:radial-gradient(circle at 35% 30%,#fff3c4,#f0cf7e 55%,#b88a34);color:#2a1d07;border-color:#ffe9a8;
-    box-shadow:0 0 0 2px #0c0b0a,0 0 14px 4px #f1d89acc;transform:rotate(var(--a)) translateX(78px) rotate(calc(var(--a) * -1)) scale(1.2)}
+  .phase-bauble.is-now{background:radial-gradient(circle at 35% 30%,#2b2924,#0c0b0a);color:#f1d59a;border-color:#e3c780;
+    box-shadow:0 0 0 2px #0c0b0a,0 0 12px 2px #cfae6a88;transform:rotate(var(--a)) translateX(78px) rotate(calc(var(--a) * -1)) scale(1.2)}
 }
 
 /* Opponent phases: same dial, in red */
-.floating-action .primary-action.is-enemy{color:#fde9e4;text-shadow:0 1px 0 #3a0806;
-  background:radial-gradient(circle at 34% 26%,#ff9a86 0%,#d2493a 38%,#8f1f19 76%,#5e1210 100%);
-  box-shadow:0 0 0 5px #0c0b0a,0 0 0 6px #e0705f,0 0 0 12px #0c0b0a,0 0 0 13px #e0705f66,0 16px 30px #000b,inset 0 2px 3px #ffc8bd88,inset 0 -7px 12px #4a0c0acc}
-.floating-action .primary-action.is-enemy svg{filter:drop-shadow(0 1px 0 #3a0806)}
-.floating-action .primary-action.is-enemy::before{background:repeating-conic-gradient(from 0deg,#e8806f 0 1.6deg,transparent 1.6deg 10deg)}
-.floating-action .primary-action.is-enemy::after{box-shadow:0 0 30px 6px #e0503f66}
-.floating-action .primary-action.is-enemy:disabled{color:#d9a9a2;text-shadow:none;
-  background:radial-gradient(circle at 34% 26%,#5a2a27,#2a1210 80%);
-  box-shadow:0 0 0 5px #0c0b0a,0 0 0 6px #7a403a,0 0 0 12px #0c0b0a,0 0 0 13px #e0705f22,0 12px 24px #000a,inset 0 2px 3px #ffffff18}
+.floating-action .primary-action.is-enemy{color:#f6dcd6;text-shadow:0 1px 6px #000;
+  background:radial-gradient(circle at 38% 28%,#3a1c19 0%,#1a0d0b 62%,#0a0504 100%) padding-box,conic-gradient(from 20deg,#f0a291,#7a2a22,#e0705f,#5a1d18,#f6c0b3,#7a2a22,#f0a291) border-box;
+  box-shadow:0 0 0 5px #0c0b0a,0 0 0 6px #e0705fa8,0 0 0 12px #0c0b0a,0 0 0 13px #e0705f33,0 16px 30px #000b,inset 0 3px 14px #000c,inset 0 1px 0 #ffc8bd33}
+.floating-action .primary-action.is-enemy svg{color:#f0a291;filter:drop-shadow(0 0 6px #e0705f66)}
+.floating-action .primary-action.is-enemy::before{background:repeating-conic-gradient(from 0deg,#e8806f 0 1deg,transparent 1deg 10deg)}
+.floating-action .primary-action.is-enemy::after{box-shadow:0 0 26px 2px #e0503f2e}
+.floating-action .primary-action.is-enemy:disabled{color:#b98d87;text-shadow:none;
+  background:radial-gradient(circle at 38% 28%,#25100e,#0d0605 80%) padding-box,linear-gradient(135deg,#5a2a25,#27100d,#5a2a25) border-box;
+  box-shadow:0 0 0 5px #0c0b0a,0 0 0 6px #7a403a88,0 0 0 12px #0c0b0a,0 0 0 13px #e0705f14,0 12px 24px #000a,inset 0 3px 14px #000c}
 .floating-action .primary-action.is-enemy:disabled::before{opacity:.22}
 @media(min-width:951px) and (min-aspect-ratio:1/1){
   .is-enemy .phase-bauble.is-done{background:radial-gradient(circle at 35% 30%,#4a2420,#1d0d0b);color:#e0705f;border-color:#9a463d}
@@ -342,7 +343,7 @@ html,body,#root{overscroll-behavior:none}
 
 /* Give each phase a short transition before another advance can be accepted. */
 .floating-action .phase-button-label {display:flex;flex-direction:column;gap:3px;align-items:center}
-.floating-action .phase-button-label small {font:500 8px/1.25 'Manrope',sans-serif;letter-spacing:.2px;opacity:.8}
+.floating-action .phase-button-label small {font:500 8px/1.25 'Source Serif 4',Georgia,serif;letter-spacing:.2px;opacity:.8}
 .floating-action .phase-transition-track {position:absolute;inset-inline:16%;bottom:8px;height:3px;border-radius:3px;overflow:hidden;background:#523b234d;pointer-events:none}
 .floating-action .phase-transition-track>span {display:block;width:100%;height:100%;transform-origin:left;background:#fff5cf;box-shadow:0 0 5px #fff0bc}
 .floating-action .primary-action.is-transitioning {opacity:.85}
@@ -370,7 +371,7 @@ html,body,#root{overscroll-behavior:none}
    and a ribbon that names the state. They can still block, so the ribbon stays calm rather than alarming. */
 .board-card-label.is-exhausted::before{content:"";position:absolute;inset:0;border-radius:3px;pointer-events:none;background:repeating-linear-gradient(135deg,#0a141c3a 0 5px,#0a141c00 5px 10px),linear-gradient(#0a141c66,#0a141c00 42%);box-shadow:inset 0 0 20px #050b10b0}
 .board-card-label.is-exhausted .card-face-overlay{filter:saturate(.55) brightness(.86)}
-.board-status.exhausted-status{top:0;left:0;right:0;width:auto;min-width:0;min-height:0;border-radius:3px 3px 0 0;padding:4px 6px;gap:5px;border:0;border-bottom:1px solid #9bb0c066;background:linear-gradient(#0a1620f5,#0a1620c4);color:#dcdad6;font:600 10px/1 'Manrope',sans-serif;letter-spacing:.04em}
+.board-status.exhausted-status{top:0;left:0;right:0;width:auto;min-width:0;min-height:0;border-radius:3px 3px 0 0;padding:4px 6px;gap:5px;border:0;border-bottom:1px solid #9bb0c066;background:linear-gradient(#0a1620f5,#0a1620c4);color:#dcdad6;font:600 10px/1 'Source Serif 4',Georgia,serif;letter-spacing:.04em}
 .board-status.exhausted-status svg{width:11px;height:11px;flex:none}
 @media(max-width:700px){.board-status.exhausted-status{padding:3px 4px}.board-status.exhausted-status span{display:none}}
 

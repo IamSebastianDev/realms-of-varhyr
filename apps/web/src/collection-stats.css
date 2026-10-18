@@ -1,12 +1,14 @@
 /* Collection statistics: a progress ring, breakdown meters, a cost curve and the cards still missing. */
 .stats-page{position:relative;z-index:1;width:min(1040px,100%);margin:0 auto;padding:clamp(12px,3vh,30px) 24px 56px}
 .stats-hero{display:grid;grid-template-columns:auto 1fr;gap:clamp(20px,4vw,44px);align-items:center;margin-top:18px;padding:26px 34px;border:1px solid #d8c68a3d;border-radius:10px;background:radial-gradient(ellipse 50% 130% at 0 50%,#e2c98c20,transparent 70%),linear-gradient(135deg,#242320f2,#1a1916f2)}
-.stats-ring{position:relative;width:168px;height:168px;flex:none}
-.stats-ring svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 14px #e2c98c33)}
-.stats-ring circle{fill:none;stroke-width:9}
-.stats-ring .ring-track{stroke:#0c0b096b}
-.stats-ring .ring-fill{stroke:#e6cf94;stroke-linecap:round;transition:stroke-dashoffset 1.1s cubic-bezier(.2,.8,.2,1)}
-.stats-ring>div{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.stats-ring{position:relative;width:176px;height:176px;flex:none;border-radius:50%}
+/* Drawn like the buttons: a recessed dark track between two thin bronze edges, filled with bronze. */
+.stats-ring svg{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible}
+.stats-ring circle{fill:none}
+.stats-ring .ring-track{stroke:#cfae6a1f;stroke-width:8}
+.stats-ring .ring-fill{stroke:url(#stats-ring-bronze);stroke-width:8;transition:stroke-dashoffset 1.1s cubic-bezier(.2,.8,.2,1)}
+.stats-ring .ring-edge{stroke:url(#stats-ring-chrome);stroke-width:1;opacity:.75}
+.stats-ring>div{position:absolute;inset:0;z-index:2;display:grid;place-content:center;text-align:center}
 .stats-ring strong{font:500 44px/1 var(--serif);color:#f6e8bd;font-variant-numeric:lining-nums tabular-nums}
 .stats-ring strong small{font-size:.45em;margin-left:2px;color:#d6c48e}
 .stats-ring span{margin-top:4px;font-size:11px;letter-spacing:.06em;color:#b6b4b0}
@@ -48,7 +50,7 @@
 .stats-missing button small{color:#9d9b97;font-variant-numeric:tabular-nums}
 @media(max-width:760px){.stats-hero{grid-template-columns:1fr;justify-items:center;padding:22px 18px;text-align:center}.stats-grid{grid-template-columns:1fr}.stats-curve ol{height:160px}}
 @media(prefers-reduced-motion:reduce){.stats-ring .ring-fill,.stat-bar i,.curve-column i{transition:none}}
-.reduce-motion .stats-ring .ring-fill,.reduce-motion .stat-bar i,.reduce-motion .curve-column i{transition:none}
+.reduce-motion .reduce-motion .stats-ring .ring-fill,.reduce-motion .stat-bar i,.reduce-motion .curve-column i{transition:none}
 
 /* Inset like the deck screens, and the full window width. */
 .stats-page{width:100%;max-width:none;padding:14px 20px 40px}

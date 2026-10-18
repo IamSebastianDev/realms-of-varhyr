@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import { factionInfo, registry } from '../../../../packages/content/src';
 import { boosterPacks } from '../../../../packages/content/src/boosters';
-import { parseMap, type QuestContent, type QuestMap, type RunState } from '../../../../packages/quest/src';
+import { loadRun, parseMap, type QuestContent, type QuestMap, type RunState } from '../../../../packages/quest/src';
 
 /** The game's real cards and the three booster alignments, in the shape the quest engine wants. */
 export const questContent: QuestContent = {
@@ -10,14 +10,14 @@ export const questContent: QuestContent = {
   factionNames: Object.fromEntries(Object.entries(factionInfo).map(([id, info]) => [id, info.name])),
 };
 
-const runKey = 'varhyr-quest-run-v1', resultKey = 'varhyr-quest-result-v1', paidKey = 'varhyr-quest-paid-v1', returnKey = 'varhyr-quest-return-v1';
+const runKey = 'varhyr-quest-run-v1', resultKey = 'varhyr-quest-result-v1', returnKey = 'varhyr-quest-return-v1';
 const read = (key: string) => { try { return localStorage.getItem(key); } catch { return null; } };
 const write = (key: string, value: string | null) => { try { if (value === null) localStorage.removeItem(key); else localStorage.setItem(key, value); return true; } catch { return false; /* The run stays in memory. */ } };
 
 let current: RunState | null | undefined;
 const listeners = new Set<() => void>();
 function parseRun(raw: string | null): RunState | null {
-  try { const run = JSON.parse(raw ?? 'null'); return run && run.version === 1 && Array.isArray(run.deck) && run.quest ? run as RunState : null; } catch { return null; }
+  try { return loadRun(JSON.parse(raw ?? 'null')); } catch { return null; }
 }
 const snapshot = () => current === undefined ? (current = parseRun(read(runKey))) : current;
 export const readRun = snapshot;
@@ -44,15 +44,9 @@ export function readFightReport(run: RunState): FightReport | null {
 export function clearFightReport(report: FightReport) {
   try { const current = JSON.parse(read(resultKey) ?? 'null'); if (current?.run === report.run && current?.node === report.node) write(resultKey, null); } catch { /* Nothing to acknowledge. */ }
 }
-/** A fight that was started and never reported is a fight the player walked away from. */
 
 export const wantsQuestScreen = () => read(returnKey) === '1';
 export const setWantsQuestScreen = (value: boolean) => write(returnKey, value ? '1' : null);
-
-type Paid = { day: string; packs: string[] };
-export function paidToday(day: string): string[] {
-  try { const paid = JSON.parse(read(paidKey) ?? 'null') as Paid | null; return paid?.day === day && Array.isArray(paid.packs) ? paid.packs : []; } catch { return []; }
-}
 
 export type LoadedMap = QuestMap & { tiles: { size: number; maxZoom: number; width: number; height: number } };
 let mapPromise: Promise<LoadedMap | null> | undefined;

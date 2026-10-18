@@ -5,7 +5,7 @@ import type { CardDefinition } from '../../../packages/contracts/src';
 import { serialize, type Draft } from './model';
 
 /** Shown until art is chosen: a plain dusk gradient, so the empty card still reads as a card. */
-const placeholder = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="840"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a4636"/><stop offset="1" stop-color="#0f1f17"/></linearGradient></defs><rect width="600" height="840" fill="url(#g)"/></svg>')}`;
+const placeholder = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="840"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b2823"/><stop offset="1" stop-color="#12110f"/></linearGradient></defs><rect width="600" height="840" fill="url(#g)"/></svg>')}`;
 
 class Guard extends Component<{ children: ReactNode }, { failed: boolean }> {
   state = { failed: false };
