@@ -8,7 +8,9 @@
   "factions": [
     "black-host"
   ],
-  "subtypes": [],
+  "subtypes": [
+    "curse"
+  ],
   "legendary": true,
   "rarity": "legendary",
   "cost": {

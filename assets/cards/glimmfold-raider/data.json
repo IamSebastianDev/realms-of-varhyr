@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "glimmfold-raider",
+  "revision": 1,
+  "name": "Glimmfold Raider",
+  "deckLimitKey": "glimmfold-raider",
+  "type": "creature",
+  "factions": [
+    "ember-fields"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "ember-fields": 1
+    }
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 1,
+    "energyOutputs": [
+      {
+        "ember-fields": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "scorch",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "lore": "She arrives with a torch and leaves with whatever the fire uncovered.",
+  "set": "foundations"
+}

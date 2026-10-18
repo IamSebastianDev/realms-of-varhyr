@@ -182,7 +182,8 @@ function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSessi
   },[match,attackers,draftLanes,view.revision,view.combat?.stage]);
   const forecast=view.combat?.stage==='declare'?draftForecast:sessionSnapshot.forecast;
   const selectedActivation=view.legal.activations.find(a=>a.cardId===draft?.cardId&&a.ability===draft?.activation);
-  const targets=stage==='target'?(selectedActivation?.targets??selectedLegal?.targets??[]):stage==='consume'?selectedLegal?.consumes??[]:[];
+  const slotTargets=draft?.slot!==undefined?selectedLegal?.slotTargets?.[draft.slot]:undefined;
+  const targets=stage==='target'?(selectedActivation?.targets??slotTargets??selectedLegal?.targets??[]):stage==='consume'?selectedLegal?.consumes??[]:[];
   /** Every session supplies review frames; a single step forward also presents that exchange. */
   const stepTo=useCallback((target:number)=>{
     const next=Math.max(0,Math.min(target,historyLength)),from=Math.min(historyIndex??historyLength,historyLength);

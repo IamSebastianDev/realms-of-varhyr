@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Alpakabergsteiger",
+  "lore": "Pferde verweigern die Hochpässe. Die Clans haben aufgehört, sie zu fragen."
+}

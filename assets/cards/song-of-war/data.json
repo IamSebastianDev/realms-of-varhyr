@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "song-of-war",
+  "revision": 1,
+  "name": "Song of War",
+  "deckLimitKey": "song-of-war",
+  "type": "spell",
+  "factions": [
+    "ember-fields"
+  ],
+  "subtypes": [],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "ember-fields": 1
+    }
+  },
+  "abilities": [
+    {
+      "id": "consume",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "timing": [
+    "play"
+  ],
+  "cast": [
+    {
+      "id": "rage",
+      "params": {
+        "amount": 3
+      }
+    }
+  ],
+  "lore": "The first verse costs a soldier. The chorus costs the enemy.",
+  "set": "foundations"
+}

@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "emberfield-battlemage",
+  "revision": 1,
+  "name": "Emberfield Battlemage",
+  "deckLimitKey": "emberfield-battlemage",
+  "type": "creature",
+  "factions": [
+    "ember-fields"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "ember-fields": 2
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 4,
+    "energyOutputs": [
+      {
+        "ember-fields": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "scorch",
+      "params": {
+        "amount": 2
+      }
+    }
+  ],
+  "lore": "Fire is patient. The battlemage only tells it where to wait.",
+  "set": "foundations"
+}

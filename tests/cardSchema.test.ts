@@ -60,7 +60,7 @@ describe('card authoring JSON Schema',()=>{
   it('checks type-specific fields and spell operations without coupling rarity to legendary status',()=>{
     expect(validate(card('ancient-unicorn'))).toBe(true);
     expect(validate({...card('crown-holding'),stats:{attack:1,defense:4,energyOutputs:[{crownlands:1}]}})).toBe(false);
-    expect(validate({...card('crown-holding'),abilities:[{id:'primal',params:{amount:1}}]})).toBe(false);
+    expect(validate({...card('crown-holding'),abilities:[{id:'primal',params:{amount:1}}]})).toBe(true);
     expect(validate({...card(),timing:['play']})).toBe(false);
     const spell=card('cleansing-light');expect(validate(spell)).toBe(true);
     expect(validate({...spell,stats:{attack:0,defense:1}})).toBe(false);

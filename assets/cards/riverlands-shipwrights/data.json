@@ -3,7 +3,7 @@
   "id": "riverlands-shipwrights",
   "revision": 4,
   "name": "Riverlands Shipwrights",
-  "deckLimitKey": "riverland-shipwrights",
+  "deckLimitKey": "riverlands-shipwrights",
   "type": "creature",
   "factions": [
     "bright-marches"

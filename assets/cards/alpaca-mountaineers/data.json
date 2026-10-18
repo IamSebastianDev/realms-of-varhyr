@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "alpaca-mountaineers",
-  "revision": 1,
+  "revision": 2,
   "name": "Alpaca Mountaineers",
   "deckLimitKey": "alpaca-mountaineers",
   "type": "creature",
@@ -9,7 +9,8 @@
     "mountain-clans"
   ],
   "subtypes": [
-    "human"
+    "human",
+    "alpaca"
   ],
   "legendary": false,
   "rarity": "rare",
@@ -21,7 +22,7 @@
   },
   "stats": {
     "attack": 3,
-    "defense": 4,
+    "defense": 2,
     "energyOutputs": [
       {
         "mountain-clans": 3
@@ -42,5 +43,6 @@
       }
     }
   ],
+  "lore": "Horses refuse the high passes. The clans stopped asking them.",
   "set": "foundations"
 }

@@ -21,11 +21,11 @@ export function CardLore({card,className=''}:{card:CardDefinition;className?:str
   return card.lore?.trim() ? <blockquote className={`card-lore ${className}`} aria-label={msg("Lore")}>{card.lore}</blockquote> : null;
 }
 export function cardClassification(card:CardDefinition) {
-  const subtypes=card.subtypes.map(subtype=>subtype.trim()).filter(Boolean);
-  if(card.type==='creature'&&subtypes.length) {
-    return subtypes.map(subtype=>subtype.replace(/\b[a-z]/g,letter=>letter.toUpperCase())).map(subtype=>msg(subtype)).join(' · ');
-  }
-  return msg(card.type.charAt(0).toUpperCase()+card.type.slice(1));
+  const subtypes=card.subtypes.map(subtype=>subtype.trim()).filter(Boolean).map(subtype=>msg(subtype.replace(/\b[a-z]/g,letter=>letter.toUpperCase())));
+  // Creatures lead with their subtypes. Spells and holdings keep their type first and add the subtype ("Spell · Divination", "Holding · Fortification").
+  if(card.type==='creature'&&subtypes.length) return subtypes.join(' · ');
+  const label=msg(card.type.charAt(0).toUpperCase()+card.type.slice(1));
+  return subtypes.length?[label,...subtypes].join(' · '):label;
 }
 export function cardIdentity(card:CardDefinition) {
   const faction=card.factions.map(f=>msg(factionInfo[f].short)).join(' / ')||msg("Neutral");
@@ -71,7 +71,7 @@ export function CardFace({card,stats,showCost=true}:{card:CardDefinition;stats?:
   useLanguage();
   card=localizedCard(card);
   const nameRef=useSingleLineName<HTMLHeadingElement>(card.name);
-  const typeLine=card.type==='creature'?msg("{v0} · {v1}",{v0:msg("Creature"),v1:cardClassification(card)}):cardClassification(card),typeRef=useSingleLineName<HTMLSpanElement>(typeLine);
+  const typeLine=card.type==='creature'&&card.subtypes.some(subtype=>subtype.trim())?msg("{v0} · {v1}",{v0:msg("Creature"),v1:cardClassification(card)}):cardClassification(card),typeRef=useSingleLineName<HTMLSpanElement>(typeLine);
   const tint=factionInfo[card.factions.find(f=>f!=='neutral')??card.factions[0]]?.color,tone={'--faction':tint??'var(--ink)'} as React.CSSProperties;
   return <>
     <div className="card-box">
@@ -88,6 +88,7 @@ export function CardFace({card,stats,showCost=true}:{card:CardDefinition;stats?:
       </div>
       {card.type==='creature'&&card.stats!.energyOutputs.length>0&&<div className="card-energy-output"><EnergyOutput outputs={card.stats!.energyOutputs}/></div>}
     </div>}
+    {card.type==='spell'&&<div className="card-title is-spacer" aria-hidden="true"><div className="card-statline"><span><Swords/>0</span></div></div>}
     </div>
     <span className={`card-corners type-${card.type}`} style={tone}/>
     </div>

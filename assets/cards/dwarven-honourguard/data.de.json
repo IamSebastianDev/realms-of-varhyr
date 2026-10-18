@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Zwergische Ehrengarde",
+  "lore": "Sie schworen, das Tor zu halten, bis der Berg fällt. Der Berg wurde davon in Kenntnis gesetzt."
+}

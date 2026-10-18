@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Königlicher Poet",
+  "lore": "Sie besingt Siege, bevor sie geschehen. Die Soldaten fühlen sich verpflichtet, ihr den Gefallen zu tun."
+}

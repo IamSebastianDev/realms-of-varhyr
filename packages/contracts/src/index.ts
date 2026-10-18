@@ -104,10 +104,10 @@ export type AbilityExtension = {
   activationEnergy?: (params: Record<string, unknown>, registry: Registry) => Pool[];
   /** Target a field card (in hand, or in your discard pile) and choose a free friendly position before activating or casting. */
   placement?: boolean;
-  target?: 'energy-type' | 'friendly-hand-field' | 'friendly-discard-creature' | 'enemy-any' | 'friendly-creature' | 'enemy-creature' | 'friendly-field' | 'enemy-field';
+  target?: 'energy-type' | 'friendly-hand-field' | 'friendly-discard-creature' | 'enemy-any' | 'enemy-reach' | 'friendly-creature' | 'enemy-creature' | 'friendly-field' | 'enemy-field';
 };
 export type Registry = { version: string; energyTypes: EnergyType[]; cards: Record<string, CardDefinition>; abilities: Record<string, AbilityExtension> };
-export type LegalActions = { actor: PlayerId; playable: { cardId: string; slots: number[]; targets: string[]; consumes: string[]; requiresTarget: boolean }[]; energy: { cardId: string; options: Pool[] }[]; activations: { cardId: string; ability: number; targets: string[]; requiresTarget: boolean; slots?: number[]; energyOptions?: Pool[] }[]; attackers: string[]; /** Positions each legal attacker may target: its own lane and adjacent lanes. */ lanes: Record<string, number[]>; canEnd: boolean };
+export type LegalActions = { actor: PlayerId; playable: { cardId: string; slots: number[]; targets: string[]; consumes: string[]; requiresTarget: boolean; /** Legal targets by deployment position, when they depend on it (ranged deployment effects). */ slotTargets?: Record<string, string[]> }[]; energy: { cardId: string; options: Pool[] }[]; activations: { cardId: string; ability: number; targets: string[]; requiresTarget: boolean; slots?: number[]; energyOptions?: Pool[] }[]; attackers: string[]; /** Positions each legal attacker may target: its own lane and adjacent lanes. */ lanes: Record<string, number[]>; canEnd: boolean };
 export type PlayerView = {
   rulesVersion: string; contentVersion: string; revision: number; turn: number; active: PlayerId; phase: Phase;
   players: Record<PlayerId, Omit<Player, 'deck' | 'hand'> & { deckCount: number; handCount: number }>;

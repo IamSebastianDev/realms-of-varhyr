@@ -1,0 +1,42 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "jaina-mistress-of-the-herd",
+  "revision": 1,
+  "name": "Jaina, Mistress of the Herd",
+  "deckLimitKey": "jaina-mistress-of-the-herd",
+  "type": "creature",
+  "factions": [
+    "mountain-clans"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "mountain-clans": 2
+    }
+  },
+  "stats": {
+    "attack": 3,
+    "defense": 5,
+    "energyOutputs": [
+      {
+        "mountain-clans": 3
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "drillmaster",
+      "params": {
+        "amount": 2,
+        "subtype": "alpaca"
+      }
+    }
+  ],
+  "lore": "The herd follows no one. It simply happens to walk wherever she is going.",
+  "set": "foundations"
+}

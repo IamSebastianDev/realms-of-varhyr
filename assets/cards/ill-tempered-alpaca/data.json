@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "ill-tempered-alpaca",
+  "revision": 1,
+  "name": "Ill-Tempered Alpaca",
+  "deckLimitKey": "ill-tempered-alpaca",
+  "type": "creature",
+  "factions": [
+    "mountain-clans"
+  ],
+  "subtypes": [
+    "alpaca"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "mountain-clans": 1
+    }
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "mountain-clans": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "charge",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "lore": "It judges a man's worth on sight. Most are found wanting, usually in the face.",
+  "set": "foundations"
+}

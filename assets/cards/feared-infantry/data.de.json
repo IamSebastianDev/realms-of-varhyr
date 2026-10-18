@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Gefürchtete Infanterie",
+  "lore": "Niemand fürchtet die erste Reihe. Man fürchtet, dass es nicht die letzte ist."
+}

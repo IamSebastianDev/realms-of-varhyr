@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Die Alten Hallen",
+  "lore": "Niemand erinnert sich, die Fackeln entzündet zu haben. Niemand hat gewagt, sie erlöschen zu lassen."
+}

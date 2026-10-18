@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "royal-poet",
+  "revision": 2,
+  "name": "Royal Poet",
+  "deckLimitKey": "royal-poet",
+  "type": "creature",
+  "factions": [
+    "bright-marches"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "bright-marches": 1
+    }
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "bright-marches": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "banner",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "lore": "She sings of victories before they happen. The soldiers feel obliged to oblige her.",
+  "set": "foundations"
+}

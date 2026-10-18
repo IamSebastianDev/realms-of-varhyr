@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Banner der Flusslande",
+  "lore": "Blau wie der Fluss wird es dort gehisst, wo die Flusslande bleiben wollen."
+}

@@ -1,0 +1,45 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "dwarven-honourguard",
+  "revision": 1,
+  "name": "Dwarven Honourguard",
+  "deckLimitKey": "dwarven-honourguard",
+  "type": "creature",
+  "factions": [
+    "mountain-clans"
+  ],
+  "subtypes": [
+    "dwarf"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "mountain-clans": 2
+    }
+  },
+  "stats": {
+    "attack": 3,
+    "defense": 4,
+    "energyOutputs": [
+      {
+        "mountain-clans": 3
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "guard",
+      "params": {}
+    },
+    {
+      "id": "armor",
+      "params": {
+        "amount": 2
+      }
+    }
+  ],
+  "lore": "They swore to hold the gate until the mountain falls. The mountain has been informed.",
+  "set": "foundations"
+}

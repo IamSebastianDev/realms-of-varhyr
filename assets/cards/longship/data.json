@@ -30,10 +30,10 @@
   },
   "abilities": [
     {
-      "id": "trade",
+      "id": "raid",
       "params": {}
     }
   ],
-  "set": "foundations",
-  "lore": "The rivers of the Marches run to every coast. The longships run faster."
+  "lore": "The rivers of the Marches run to every coast. The longships run faster.",
+  "set": "foundations"
 }

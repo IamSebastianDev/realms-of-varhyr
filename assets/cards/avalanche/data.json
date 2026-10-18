@@ -1,0 +1,36 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "avalanche",
+  "revision": 1,
+  "name": "Avalanche",
+  "deckLimitKey": "avalanche",
+  "type": "spell",
+  "factions": [
+    "mountain-clans"
+  ],
+  "subtypes": [
+    "barrage"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "mountain-clans": 3
+    }
+  },
+  "abilities": [],
+  "timing": [
+    "play"
+  ],
+  "cast": [
+    {
+      "id": "barrage",
+      "params": {
+        "amount": 5
+      }
+    }
+  ],
+  "lore": "It starts with one stone and a clan that stopped to argue about whose it was.",
+  "set": "foundations"
+}

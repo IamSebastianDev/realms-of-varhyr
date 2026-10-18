@@ -107,7 +107,6 @@ export function allowedAbilities(draft: Draft, slot: 'field' | 'cast' | 'cost'):
     // Spells can only carry abilities that change how they are played.
     if (slot === 'cost') return !!ability.before?.['card.play.before'];
     if (isSpellOnly(ability)) return false;
-    if (draft.type === 'holding' && ability.activationEnergy) return false;
     return true;
   }).map(ability => ability.id).sort();
 }

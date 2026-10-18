@@ -1,4 +1,5 @@
 {
   "$schema": "../../schemas/card-translation.schema.json",
-  "name": "Wegweiser"
+  "name": "Wegweiser",
+  "lore": "Eine Bank, ein Trog und ein Pfeil in die falsche Richtung. Reisende rasten trotzdem hier."
 }

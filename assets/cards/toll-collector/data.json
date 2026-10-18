@@ -1,0 +1,35 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "toll-collector",
+  "revision": 1,
+  "name": "Toll Collector",
+  "deckLimitKey": "toll-collector",
+  "type": "creature",
+  "factions": [
+    "ember-fields",
+    "mountain-clans"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "mountain-clans": 1
+      },
+      {
+        "ember-fields": 1
+      }
+    ]
+  },
+  "abilities": [],
+  "lore": "A tenth for the warlord, a tenth for the clans. Travellers admire the fairness. Nobody checks the maths.",
+  "set": "foundations"
+}

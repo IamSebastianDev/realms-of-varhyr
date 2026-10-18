@@ -19,19 +19,16 @@
       "bright-marches": 2
     }
   },
+  "stats": {
+    "attack": 2,
+    "defense": 5
+  },
   "abilities": [
     {
-      "id": "shield-wall",
-      "params": {
-        "amount": 1
-      }
+      "id": "guard",
+      "params": {}
     }
   ],
   "lore": "Timber today, a stronghold by dusk.",
-  "stats": {
-    "attack": 2,
-    "defense": 5,
-    "energyOutputs": []
-  },
   "set": "foundations"
 }

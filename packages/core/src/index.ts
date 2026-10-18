@@ -439,14 +439,19 @@ class Transaction {
     else { this.state.phase = 'end'; this.state.combat = null; this.emit('phase.started','End phase. Ready your surviving field cards and pass the turn.'); }
   }
 }
+/** Targets of a ranged deployment effect for a card entering `slot`: enemy creatures in its own and the two neighbouring lanes, plus the enemy player. */
+export function reachTargets(state: Pick<GameState,'cards'|'players'>, actor: PlayerId, slot: number, registry: Registry): string[] {
+  const foe = other(actor);
+  return [...reachableLanes(slot).flatMap(lane => { const id = state.players[foe].board[lane]; return id && definition(state,id,registry).type === 'creature' ? [id] : []; }),foe];
+}
 function targetOptions(state: GameState, actor: PlayerId, bindings: AbilityBinding[], registry: Registry): { targets: string[]; required: boolean } {
   let targets: string[] | null = null;
   for (const b of bindings) {
     const kind = registry.abilities[b.id].target; if (!kind) continue;
     const side = kind === 'friendly-creature' || kind === 'friendly-discard-creature' || kind === 'friendly-field' || kind === 'friendly-hand-field' ? actor : other(actor);
     const options = kind === 'friendly-discard-creature' ? state.players[actor].discard.filter(id => { const def = definition(state,id,registry); return def.type === 'creature' && (typeof b.params?.subtype !== 'string' || def.subtypes.includes(b.params.subtype)); }) : kind === 'energy-type' ? registry.energyTypes.filter(color=>color!=='neutral') : kind === 'friendly-hand-field' ? state.players[actor].hand.filter(id => definition(state,id,registry).type !== 'spell') : state.players[side].board.filter((id): id is string => !!id &&
-      (!(kind === 'friendly-creature' || kind === 'enemy-creature') || definition(state,id,registry).type === 'creature'));
-    if (kind === 'enemy-any') options.push(other(actor));
+      (!(kind === 'friendly-creature' || kind === 'enemy-creature' || kind === 'enemy-reach') || definition(state,id,registry).type === 'creature'));
+    if (kind === 'enemy-any' || kind === 'enemy-reach') options.push(other(actor));
     targets = targets === null ? options : targets.filter(id => options.includes(id));
   }
   return { targets: targets ?? [], required: targets !== null && targets.length > 0 };
@@ -476,7 +481,8 @@ export function legalActions(state: GameState, registry: Registry): LegalActions
       // Required spell targets cannot disappear into an illegal target-free cast.
       if (def.type === 'spell' && def.cast?.some(b => registry.abilities[b.id].target) && !targeting.targets.length) continue;
       if (def.type === 'spell' && def.cast?.some(b => registry.abilities[b.id].placement) && !slots.length) continue;
-      legal.playable.push({cardId:id,slots,targets:targeting.targets,requiresTarget:targeting.required,consumes});
+      const reach = def.type !== 'spell' && def.abilities.some(b => registry.abilities[b.id].target === 'enemy-reach');
+      legal.playable.push({cardId:id,slots,targets:targeting.targets,requiresTarget:targeting.required,consumes,...(reach ? {slotTargets:Object.fromEntries(p.board.map((_,position) => [position,reachTargets(state,actor,position,registry)]))} : {})});
     }
     if (!inResponse) for (const id of p.board) {
       if (!id || state.cards[id].exhausted) continue;
@@ -565,6 +571,7 @@ export function apply(state: GameState, envelope: CommandEnvelope, registry: Reg
       if (placed) requireRule(command.slot !== undefined && legal!.slots.includes(command.slot),'Choose a free battlefield position.');
       else if (def.type === 'spell') requireRule(command.slot === undefined,'This spell does not use a battlefield position.');
       if (def.type !== 'spell') requireRule(Number.isInteger(slot) && slot >= 0 && slot < battlefieldPositions.length && (legal!.slots.includes(slot) || (payload.consume && next.cards[command.consume!].slot === slot)),'Choose a free battlefield position.');
+      if (legal!.slotTargets && command.target) requireRule(legal!.slotTargets[slot]?.includes(command.target),'That target is out of range from this position.');
       const pool = inResponseStep(next) ? p.responseEnergy : p.energy;
       const payment = command.payment ?? autoPayment(pool,payload.cost!)!;
       requireRule(validPayment(pool,payload.cost!,payment,registry.energyTypes),'The payment does not satisfy this cost.');

@@ -98,7 +98,6 @@ export function compileContent(
     for (const binding of [...card.abilities, ...(card.cast ?? [])]) {
       const extension = extensions[binding.id];
       if (!extension) throw new Error(`Unknown ability ${binding.id} on ${card.id}`);
-      if (card.type === 'holding' && extension.activationEnergy) throw new Error(`Holding ${card.id} cannot produce energy`);
       extension.validate(binding.params);
       if (typeof binding.params.energy === 'string' && ![...factionIds, 'neutral'].includes(binding.params.energy)) throw new Error(`Unknown energy type ${binding.params.energy} on ${card.id}`);
       describeAbility(binding, extension);
@@ -108,7 +107,7 @@ export function compileContent(
       }
       if (card.cast?.includes(binding) && !extension.cast) throw new Error(`Ability ${binding.id} is not a spell operation`);
       if (card.type !== 'spell' && card.abilities.includes(binding) && extension.cast && !extension.activate && !extension.hooks && !extension.before && !extension.static && !extension.canBlock && !extension.intercepts) throw new Error(`Ability ${binding.id} is spell-only and cannot be on field card ${card.id}`);
-      if (card.type === 'spell' && extension.activate) throw new Error(`Spell ${card.id} cannot have an activated field ability`);
+      if (card.type === 'spell' && card.abilities.includes(binding) && extension.activate) throw new Error(`Spell ${card.id} cannot have an activated field ability`);
     }
     cards[card.id] = card;
   }

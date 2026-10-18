@@ -1,0 +1,29 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "furnace-stoker",
+  "revision": 1,
+  "name": "Furnace Stoker",
+  "deckLimitKey": "furnace-stoker",
+  "type": "creature",
+  "factions": [
+    "ember-fields"
+  ],
+  "subtypes": [],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0
+  },
+  "stats": {
+    "attack": 0,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "ember-fields": 1
+      }
+    ]
+  },
+  "abilities": [],
+  "lore": "The forges have not gone cold in forty years. He has been there for thirty-nine.",
+  "set": "foundations"
+}

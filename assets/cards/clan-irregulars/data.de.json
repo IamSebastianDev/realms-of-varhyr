@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Clan-Freischärler",
+  "lore": "Keine zwei tragen dasselbe Banner. Einig sind sie sich über die Flanke und sonst über nichts."
+}

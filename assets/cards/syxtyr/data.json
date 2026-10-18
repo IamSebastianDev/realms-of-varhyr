@@ -1,0 +1,44 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "syxtyr",
+  "revision": 1,
+  "name": "Syxtyr",
+  "deckLimitKey": "syxtyr",
+  "type": "creature",
+  "factions": [
+    "neutral"
+  ],
+  "subtypes": [
+    "dragon"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 3
+  },
+  "stats": {
+    "attack": 5,
+    "defense": 4,
+    "energyOutputs": [
+      {
+        "neutral": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "scorch",
+      "params": {
+        "amount": 3
+      }
+    },
+    {
+      "id": "consume",
+      "params": {
+        "amount": 3
+      }
+    }
+  ],
+  "lore": "It accepts tribute from every realm and thanks none of them. The ashes are the receipt.",
+  "set": "foundations"
+}

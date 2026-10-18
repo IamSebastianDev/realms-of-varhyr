@@ -184,6 +184,24 @@ describe('simultaneous combat and response energy',()=>{
    expect(legalActions(s,destroyRegistry).playable.some(a=>a.cardId===spell)).toBe(false);
   });
  });
+ describe('mines',()=>{
+  const mineRegistry=compileContent([...raw,
+   {...registry.cards['wayfarer'],id:'test-mine',deckLimitKey:'test-mine',type:'holding',abilities:[{id:'channel',params:{amount:2,energy:'crownlands'}}],stats:{attack:0,defense:3,energyOutputs:[]}},
+   {...registry.cards['wayfarer'],id:'test-adit',deckLimitKey:'test-adit',type:'holding',abilities:[{id:'primal',params:{amount:1}}],stats:{attack:0,defense:3,energyOutputs:[]}}]);
+  const minePair=()=>{const s=setup(mineRegistry);const mine=fixture(s,'crown-recruit','p1','board',0),adit=fixture(s,'crown-recruit','p1','board',1);
+   s.cards[mine].definitionId='test-mine';s.cards[adit].definitionId='test-adit';return {s,mine,adit};};
+  it('lets a ready holding use Channel and exhausts it',()=>{
+   let {s,mine}=minePair();expect(legalActions(s,mineRegistry).activations.some(a=>a.cardId===mine)).toBe(true);
+   s=step(s,{type:'activate',cardId:mine,ability:0},'p1',mineRegistry);expect(s.players.p1.energy.crownlands).toBe(2);expect(s.cards[mine].exhausted).toBe(true);
+   expect(legalActions(s,mineRegistry).activations.some(a=>a.cardId===mine)).toBe(false);assertInvariants(s);
+  });
+  it('lets a holding use Primal, still cannot print energy outputs and leaves no response energy when destroyed',()=>{
+   let {s,mine,adit}=minePair();const action=legalActions(s,mineRegistry).activations.find(a=>a.cardId===adit)!;expect(action.energyOptions?.length).toBeGreaterThan(0);
+   s=step(s,{type:'activate',cardId:adit,ability:0,target:'crownlands'} as Command,'p1',mineRegistry);expect(s.players.p1.energy.crownlands).toBe(1);
+   expect(()=>compileContent([...raw,{...registry.cards['wayfarer'],id:'bad-mine',deckLimitKey:'bad-mine',type:'holding',abilities:[],stats:{attack:0,defense:3,energyOutputs:[{crownlands:1}]}}])).toThrow(/cannot produce energy/);
+   s.cards[mine].damage=3;s.phase='end';const r=step(s,{type:'end'},'p1',mineRegistry);expect(r.cards[mine].zone).toBe('discard');expect(r.players.p1.responseEnergy).toEqual({});
+  });
+ });
  describe('plague',()=>{
   const plagueRegistry=compileContent([...raw,{...registry.cards['cleansing-light'],id:'plague-test',deckLimitKey:'plague-test',cast:[{id:'plague',params:{}}]},{...registry.cards['wayfarer'],id:'plague-holding',deckLimitKey:'plague-holding',type:'holding',abilities:[],stats:{attack:0,defense:3,energyOutputs:[]}}]);
   const plagueSetup=()=>{const s=setup(plagueRegistry);const spell=fixture(s,'cleansing-light','p1','hand');s.cards[spell].definitionId='plague-test';s.players.p1.energy={crownlands:1,neutral:1};return {s,spell};};
@@ -248,6 +266,54 @@ describe('simultaneous combat and response energy',()=>{
   it('blocks in its own lane before it intercepts, leaving the neighbouring lane card to block',()=>{
    const {s,guard}=guardSetup(2);const scout=fixture(s,'clan-scout','p2','board',1),a=fixture(s,'wild-guardian','p1','board',1),b=fixture(s,'crown-recruit','p1','board',2);
    expect(attack(s,{[a]:1,[b]:2})).toEqual([{attacker:a,blocker:scout},{attacker:b,blocker:guard}]);
+  });
+ });
+ describe('scorch',()=>{
+  const scorchRegistry=compileContent([...raw,{...registry.cards['wayfarer'],id:'scorch-test',deckLimitKey:'scorch-test',cost:{generic:0,factions:{}},abilities:[{id:'scorch',params:{amount:2}}]}]);
+  const board=()=>{
+   const s=setup(scorchRegistry);
+   const left=fixture(s,'wayfarer','p2','board',0),middle=fixture(s,'clan-scout','p2','board',2),right=fixture(s,'ashen-initiate','p2','board',4);
+   const card=fixture(s,'wayfarer','p1','hand');s.cards[card].definitionId='scorch-test';
+   return {s,left,middle,right,card};
+  };
+  const play=(s:GameState,command:Omit<Extract<Command,{type:'play'}>,'type'>)=>apply(s,{actor:'p1',expectedRevision:s.revision,command:{type:'play',...command}},scorchRegistry);
+  it('offers enemy creatures in the entered lane and the two beside it, plus the player',()=>{
+   const {s,left,middle,right,card}=board();
+   const legal=legalActions(s,scorchRegistry).playable.find(a=>a.cardId===card)!;
+   expect(legal.requiresTarget).toBe(true);
+   expect(legal.slotTargets![1]).toEqual([left,middle,'p2']);
+   expect(legal.slotTargets![3]).toEqual([middle,right,'p2']);
+   expect(legal.slotTargets![4]).toEqual([right,'p2']);
+  });
+  it('damages the chosen creature or the player',()=>{
+   const {s,left,card}=board();
+   const hit=play(s,{cardId:card,slot:1,target:left});expect(hit.error).toBeUndefined();
+   expect(hit.state.events.some(e=>e.type==='damage.dealt'&&e.target===left&&e.amount===2)).toBe(true);
+   const face=play(s,{cardId:card,slot:1,target:'p2'});expect(face.error).toBeUndefined();
+   expect(face.state.players.p2.life).toBe(s.players.p2.life-2);
+  });
+  it('rejects a creature out of range from the chosen position, and a missing target',()=>{
+   const {s,right,card}=board();
+   expect(play(s,{cardId:card,slot:1,target:right}).error).toBeTruthy();
+   expect(play(s,{cardId:card,slot:3,target:right}).error).toBeUndefined();
+   expect(play(s,{cardId:card,slot:1}).error).toBeTruthy();
+  });
+ });
+ describe('sneaky',()=>{
+  const sneakyRegistry=compileContent([...raw,{...registry.cards['wayfarer'],id:'guard-test',deckLimitKey:'guard-test',abilities:[{id:'guard',params:{}}]},{...registry.cards['wild-guardian'],id:'sneaky-test',deckLimitKey:'sneaky-test',abilities:[{id:'sneaky',params:{}}]}]);
+  const open=()=>{const s=setup(sneakyRegistry);s.phase='attack';s.combat={stage:'declare',attackers:[],lanes:{},blocks:[],dead:[]};return s;};
+  it('cannot be blocked by the card in its lane or by an adjacent Guard, so it hits the player',()=>{
+   const s=open();const sneak=fixture(s,'wild-guardian','p1','board',1);s.cards[sneak].definitionId='sneaky-test';
+   const lane=fixture(s,'wayfarer','p2','board',1),guard=fixture(s,'wayfarer','p2','board',2);s.cards[guard].definitionId='guard-test';
+   const attack=effectiveStats(s,sneak,sneakyRegistry).attack,life=s.players.p2.life;
+   let next=step(s,{type:'attack',attackers:[sneak],lanes:{[sneak]:1}},'p1',sneakyRegistry);
+   expect(next.combat!.blocks).toEqual([]);
+   next=step(next,{type:'confirm-combat'},'p1',sneakyRegistry);
+   expect(next.players.p2.life).toBe(life-attack);expect(next.cards[lane].damage).toBe(0);expect(next.cards[guard].damage).toBe(0);expect(next.cards[sneak].damage).toBe(0);
+  });
+  it('still blocks other attackers normally',()=>{
+   const s=open();const attacker=fixture(s,'wild-guardian','p1','board',1),sneak=fixture(s,'wayfarer','p2','board',1);s.cards[sneak].definitionId='sneaky-test';
+   expect(step(s,{type:'attack',attackers:[attacker],lanes:{[attacker]:1}},'p1',sneakyRegistry).combat!.blocks).toEqual([{attacker,blocker:sneak}]);
   });
  });
  it('unblocked attacks damage the player, with victory after resolution',()=>{let s=attackState();const a=fixture(s,'wild-guardian','p1','board'),b=fixture(s,'grove-keeper','p1','board',1);s.players.p2.life=4;s=step(s,{type:'attack',attackers:[b,a]});expect(s.combat?.attackers).toEqual([a,b]);s=step(s,{type:'confirm-combat'});expect(s.players.p2.life).toBe(-1);expect(s.outcome).toBe('p1');});

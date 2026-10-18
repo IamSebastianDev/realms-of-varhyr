@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Kampfmagier der Glutfelder",
+  "lore": "Feuer ist geduldig. Der Kampfmagier sagt ihm nur, wo es warten soll."
+}

@@ -1,0 +1,43 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "rockslide",
+  "revision": 1,
+  "name": "Rockslide",
+  "deckLimitKey": "rockslide",
+  "type": "spell",
+  "factions": [
+    "mountain-clans"
+  ],
+  "subtypes": [
+    "strike"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "mountain-clans": 1
+    }
+  },
+  "abilities": [
+    {
+      "id": "consume",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "timing": [
+    "play"
+  ],
+  "cast": [
+    {
+      "id": "damage",
+      "params": {
+        "amount": 3
+      }
+    }
+  ],
+  "lore": "The mountain has been waiting. Someone only has to stand below it.",
+  "set": "foundations"
+}

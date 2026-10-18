@@ -1,0 +1,31 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "charcoal-burner",
+  "revision": 1,
+  "name": "Charcoal Burner",
+  "deckLimitKey": "charcoal-burner",
+  "type": "creature",
+  "factions": [
+    "ember-fields"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "ember-fields": 1
+      }
+    ]
+  },
+  "abilities": [],
+  "lore": "The warlords change. The charcoal does not, and neither does the price.",
+  "set": "foundations"
+}

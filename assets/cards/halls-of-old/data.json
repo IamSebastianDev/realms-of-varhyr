@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "halls-of-old",
+  "revision": 1,
+  "name": "Halls of Old",
+  "deckLimitKey": "halls-of-old",
+  "type": "holding",
+  "factions": [
+    "mountain-clans"
+  ],
+  "subtypes": [
+    "landmark"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "mountain-clans": 3
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 4
+  },
+  "abilities": [
+    {
+      "id": "channel",
+      "params": {
+        "amount": 2,
+        "energy": "mountain-clans"
+      }
+    },
+    {
+      "id": "guard",
+      "params": {}
+    }
+  ],
+  "lore": "No one remembers lighting the torches. No one has dared to let them go out.",
+  "set": "foundations"
+}

@@ -1,15 +1,15 @@
 {
   "$schema": "../../schemas/card.schema.json",
-  "id": "shrine-to-the-river-gods",
+  "id": "banner-of-the-riverlands",
   "revision": 2,
-  "name": "Shrine to the River Gods",
-  "deckLimitKey": "shrine-to-the-river-gods",
+  "name": "Banner of the Riverlands",
+  "deckLimitKey": "banner-of-the-riverlands",
   "type": "holding",
   "factions": [
     "bright-marches"
   ],
   "subtypes": [
-    "shrine"
+    "banner"
   ],
   "legendary": false,
   "rarity": "rare",
@@ -19,18 +19,18 @@
       "bright-marches": 2
     }
   },
-  "lore": "The rivers ask for little, and the Riverlands give it gladly.",
   "stats": {
     "attack": 0,
-    "defense": 3
+    "defense": 4
   },
   "abilities": [
     {
-      "id": "rest",
+      "id": "banner",
       "params": {
         "amount": 2
       }
     }
   ],
+  "lore": "Blue as the river, it is raised wherever the Riverlands mean to stay.",
   "set": "foundations"
 }

@@ -395,7 +395,7 @@
     "ability-channel": {
       "type": "object",
       "title": "Channel {amount} {energy}",
-      "description": "Gain {amount} {energy} energy for this casting phase.",
+      "description": "Gain {amount} {energy} energy for this casting phase. On a field card, exhaust to use it.",
       "properties": {
         "id": {
           "const": "channel"
@@ -947,16 +947,23 @@
     },
     "ability-scorch": {
       "type": "object",
-      "title": "Scorch",
-      "description": "When played, deal 3 damage to the enemy creature or holding opposite.",
+      "title": "Scorch {amount}",
+      "description": "When played, deal {amount} damage to an enemy creature in range (opposite or in a neighbouring lane) or to the enemy player.",
       "properties": {
         "id": {
           "const": "scorch"
         },
         "params": {
           "type": "object",
-          "properties": {},
-          "required": [],
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "amount"
+          ],
           "additionalProperties": false
         }
       },
@@ -985,6 +992,27 @@
           "required": [
             "amount"
           ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-sneaky": {
+      "type": "object",
+      "title": "Sneaky",
+      "description": "Cannot be blocked. Its attack always hits the opposing player.",
+      "properties": {
+        "id": {
+          "const": "sneaky"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
           "additionalProperties": false
         }
       },
@@ -1147,6 +1175,7 @@
             "sanctuary",
             "scorch",
             "shield-wall",
+            "sneaky",
             "soul-harvest",
             "steadfast",
             "trade",
@@ -1248,6 +1277,9 @@
           "$ref": "#/definitions/ability-shield-wall"
         },
         {
+          "$ref": "#/definitions/ability-sneaky"
+        },
+        {
           "$ref": "#/definitions/ability-soul-harvest"
         },
         {
@@ -1275,7 +1307,6 @@
             "banner",
             "barrage",
             "bind",
-            "channel",
             "charge",
             "consume",
             "damage",
@@ -1293,6 +1324,7 @@
             "sanctuary",
             "scorch",
             "shield-wall",
+            "sneaky",
             "soul-harvest",
             "steadfast",
             "trade",
@@ -1322,9 +1354,6 @@
         },
         {
           "$ref": "#/definitions/ability-bind"
-        },
-        {
-          "$ref": "#/definitions/ability-channel"
         },
         {
           "$ref": "#/definitions/ability-charge"
@@ -1376,6 +1405,9 @@
         },
         {
           "$ref": "#/definitions/ability-shield-wall"
+        },
+        {
+          "$ref": "#/definitions/ability-sneaky"
         },
         {
           "$ref": "#/definitions/ability-soul-harvest"
@@ -1449,153 +1481,6 @@
           "$ref": "#/definitions/ability-steadfast"
         }
       ]
-    },
-    "holding-ability": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "enum": [
-            "accord",
-            "armor",
-            "banner",
-            "barrage",
-            "bind",
-            "channel",
-            "charge",
-            "consume",
-            "damage",
-            "dark-harvest",
-            "destroy",
-            "draw",
-            "drillmaster",
-            "fealty",
-            "guard",
-            "heal",
-            "longshot",
-            "marches-rally",
-            "outflank",
-            "plague",
-            "rage",
-            "raid",
-            "raise",
-            "rest",
-            "sanctuary",
-            "scorch",
-            "shield-wall",
-            "soul-harvest",
-            "steadfast",
-            "trade",
-            "wayfarer",
-            "weaken"
-          ]
-        },
-        "params": {
-          "type": "object"
-        }
-      },
-      "required": [
-        "id",
-        "params"
-      ],
-      "oneOf": [
-        {
-          "$ref": "#/definitions/ability-accord"
-        },
-        {
-          "$ref": "#/definitions/ability-armor"
-        },
-        {
-          "$ref": "#/definitions/ability-banner"
-        },
-        {
-          "$ref": "#/definitions/ability-barrage"
-        },
-        {
-          "$ref": "#/definitions/ability-bind"
-        },
-        {
-          "$ref": "#/definitions/ability-channel"
-        },
-        {
-          "$ref": "#/definitions/ability-charge"
-        },
-        {
-          "$ref": "#/definitions/ability-consume"
-        },
-        {
-          "$ref": "#/definitions/ability-damage"
-        },
-        {
-          "$ref": "#/definitions/ability-dark-harvest"
-        },
-        {
-          "$ref": "#/definitions/ability-destroy"
-        },
-        {
-          "$ref": "#/definitions/ability-draw"
-        },
-        {
-          "$ref": "#/definitions/ability-drillmaster"
-        },
-        {
-          "$ref": "#/definitions/ability-fealty"
-        },
-        {
-          "$ref": "#/definitions/ability-guard"
-        },
-        {
-          "$ref": "#/definitions/ability-heal"
-        },
-        {
-          "$ref": "#/definitions/ability-longshot"
-        },
-        {
-          "$ref": "#/definitions/ability-marches-rally"
-        },
-        {
-          "$ref": "#/definitions/ability-outflank"
-        },
-        {
-          "$ref": "#/definitions/ability-plague"
-        },
-        {
-          "$ref": "#/definitions/ability-rage"
-        },
-        {
-          "$ref": "#/definitions/ability-raid"
-        },
-        {
-          "$ref": "#/definitions/ability-raise"
-        },
-        {
-          "$ref": "#/definitions/ability-rest"
-        },
-        {
-          "$ref": "#/definitions/ability-sanctuary"
-        },
-        {
-          "$ref": "#/definitions/ability-scorch"
-        },
-        {
-          "$ref": "#/definitions/ability-shield-wall"
-        },
-        {
-          "$ref": "#/definitions/ability-soul-harvest"
-        },
-        {
-          "$ref": "#/definitions/ability-steadfast"
-        },
-        {
-          "$ref": "#/definitions/ability-trade"
-        },
-        {
-          "$ref": "#/definitions/ability-wayfarer"
-        },
-        {
-          "$ref": "#/definitions/ability-weaken"
-        }
-      ]
     }
   },
   "allOf": [
@@ -1652,11 +1537,6 @@
               "energyOutputs": {
                 "maxItems": 0
               }
-            }
-          },
-          "abilities": {
-            "items": {
-              "$ref": "#/definitions/holding-ability"
             }
           }
         }

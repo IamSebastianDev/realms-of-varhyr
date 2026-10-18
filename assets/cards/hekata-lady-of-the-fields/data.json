@@ -34,7 +34,9 @@
   "abilities": [
     {
       "id": "scorch",
-      "params": {}
+      "params": {
+        "amount": 3
+      }
     },
     {
       "id": "charge",

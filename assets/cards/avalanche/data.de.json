@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Lawine",
+  "lore": "Es beginnt mit einem Stein und einem Clan, der stehen blieb, um zu streiten, wem er gehört."
+}

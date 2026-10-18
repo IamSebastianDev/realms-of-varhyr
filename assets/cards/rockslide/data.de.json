@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Felssturz",
+  "lore": "Der Berg hat nur gewartet. Jemand muss sich darunterstellen."
+}

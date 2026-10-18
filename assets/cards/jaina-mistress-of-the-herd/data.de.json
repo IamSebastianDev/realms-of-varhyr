@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Jaina, Herrin der Herde",
+  "lore": "Die Herde folgt niemandem. Sie geht nur zufällig überallhin, wohin Jaina geht."
+}

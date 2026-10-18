@@ -8,7 +8,9 @@
   "factions": [
     "bright-marches"
   ],
-  "subtypes": [],
+  "subtypes": [
+    "barrage"
+  ],
   "legendary": false,
   "rarity": "rare",
   "cost": {

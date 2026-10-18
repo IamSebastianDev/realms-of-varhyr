@@ -313,3 +313,9 @@
 
 /* Battlefield faces sit above the 3D hit targets; no decoration may intercept their pointer events. */
 .card-face-overlay,.card-face-overlay *{pointer-events:none!important}
+
+/* ---- Alignment: names and stat plates sit at the same height on every card type. ----
+   A spell has no stat plate, so it keeps an invisible one to hold its name where creatures and holdings put theirs.
+   A holding's plate has no border, so its padding stands in for the creature plate's 1px top and 2px bottom border. */
+.art-card .card-title.is-spacer{visibility:hidden;pointer-events:none}
+.art-card.holding-card .card-title{padding-top:calc(3cqw + 1px);padding-bottom:calc(3cqw + 2px)}

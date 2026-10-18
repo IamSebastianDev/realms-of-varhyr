@@ -1,0 +1,34 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "log-palisade",
+  "revision": 1,
+  "name": "Log Palisade",
+  "deckLimitKey": "log-palisade",
+  "type": "holding",
+  "factions": [
+    "mountain-clans"
+  ],
+  "subtypes": [
+    "fortification"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "mountain-clans": 2
+    }
+  },
+  "stats": {
+    "attack": 0,
+    "defense": 5
+  },
+  "abilities": [
+    {
+      "id": "guard",
+      "params": {}
+    }
+  ],
+  "lore": "Built in a week by everyone, and argued over for a decade.",
+  "set": "foundations"
+}

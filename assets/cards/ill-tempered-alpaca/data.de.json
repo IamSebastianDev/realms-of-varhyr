@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Launisches Alpaka",
+  "lore": "Es schätzt den Wert eines Mannes auf einen Blick. Die meisten werden für zu leicht befunden, meist mitten ins Gesicht."
+}

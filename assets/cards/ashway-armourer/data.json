@@ -1,0 +1,38 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "ashway-armourer",
+  "revision": 1,
+  "name": "Ashway Armourer",
+  "deckLimitKey": "ashway-armourer",
+  "type": "creature",
+  "factions": [
+    "ember-fields"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 1,
+    "energyOutputs": [
+      {
+        "ember-fields": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "banner",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "lore": "Every blade of the warband passed over this anvil. About half were paid for.",
+  "set": "foundations"
+}

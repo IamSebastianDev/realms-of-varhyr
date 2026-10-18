@@ -8,7 +8,9 @@
   "factions": [
     "neutral"
   ],
-  "subtypes": [],
+  "subtypes": [
+    "landmark"
+  ],
   "legendary": false,
   "rarity": "common",
   "cost": {
@@ -26,5 +28,6 @@
       }
     }
   ],
+  "lore": "A bench, a trough and an arrow pointing the wrong way. Travellers rest here anyway.",
   "set": "foundations"
 }

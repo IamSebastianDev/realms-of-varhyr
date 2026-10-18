@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Lied des Krieges",
+  "lore": "Die erste Strophe kostet einen Soldaten. Der Refrain kostet den Feind."
+}

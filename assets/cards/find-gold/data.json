@@ -8,7 +8,9 @@
   "factions": [
     "mountain-clans"
   ],
-  "subtypes": [],
+  "subtypes": [
+    "divination"
+  ],
   "legendary": false,
   "rarity": "rare",
   "cost": {
@@ -28,14 +30,8 @@
         "amount": 3,
         "energy": "mountain-clans"
       }
-    },
-    {
-      "id": "draw",
-      "params": {
-        "amount": 1
-      }
     }
   ],
-  "set": "foundations",
-  "lore": "The dwarves do not dig for gold. Gold is only what is left when they are done."
+  "lore": "The dwarves do not dig for gold. Gold is only what is left when they are done.",
+  "set": "foundations"
 }

@@ -19,21 +19,6 @@
       "bright-marches": 1
     }
   },
-  "abilities": [
-    {
-      "id": "armor",
-      "params": {
-        "amount": 1
-      }
-    },
-    {
-      "id": "charge",
-      "params": {
-        "amount": 2
-      }
-    }
-  ],
-  "lore": "He never learned to guard. He never needed to.",
   "stats": {
     "attack": 5,
     "defense": 3,
@@ -43,5 +28,14 @@
       }
     ]
   },
+  "abilities": [
+    {
+      "id": "charge",
+      "params": {
+        "amount": 3
+      }
+    }
+  ],
+  "lore": "He never learned to guard. He never needed to.",
   "set": "foundations"
 }

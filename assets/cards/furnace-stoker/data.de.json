@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Ofenschürer",
+  "lore": "Die Schmieden sind seit vierzig Jahren nicht kalt geworden. Er ist seit neununddreißig dabei."
+}

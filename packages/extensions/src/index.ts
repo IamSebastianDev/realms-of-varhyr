@@ -6,8 +6,6 @@ import { areAdjacent, battlefieldPositions, type AbilityExtension, type Battlefi
 import { positive } from "./schemas";
 /** `subtype` is a freeform creature subtype such as archer; it is matched against each card's subtypes. */
 const empty = v.object({});
-const enemy = (source: CardInstance) => (source.controller === "p1" ? "p2" : "p1");
-const opposite = (source: CardInstance, state: BattlefieldState) => (source.slot === null ? undefined : state.players[enemy(source)].board[source.slot]);
 /** Fixed-rule keywords without parameters, mostly carried by faction leaders. Resolved effects are announced on the triggering event. */
 function leaderAbility(id: string, impl: Omit<AbilityExtension, "id" | "version" | "validate">, version = 2): AbilityExtension {
     return extension(id, empty, { ...impl, announce: true }, version);
@@ -98,6 +96,14 @@ export const evergreenAbilities: AbilityExtension[] = [
         intercepts: (source, _attacker, lane) => source.slot !== null && Math.abs(source.slot - lane) === 1,
     }),
 
+    extension("sneaky", empty, {
+        translations: { de: {"name": "Heimlich", "description": "Kann nicht geblockt werden. Sein Angriff trifft immer den Spieler."} },
+        name: "Sneaky",
+        description: "Cannot be blocked. Its attack always hits the opposing player.",
+        // Only restricts the carrier as an attacker; a Sneaky card still blocks normally.
+        canBlock: (source, attacker) => source.id !== attacker.id,
+    }),
+
     extension("charge", v.strictObject({ amount: positive }), {
         translations: { de: {"name": "Ansturm {amount}", "description": "Beim Ausspielen: Füge der gegenüberliegenden gegnerischen Kreatur {amount} Schaden zu."} },
         name: "Charge {amount}",
@@ -176,16 +182,18 @@ export const evergreenAbilities: AbilityExtension[] = [
       return areAdjacent(source, target) && card.type === 'creature' ? { defense: card.subtypes.includes('elf') ? 2 : 1 } : {};
     },
   }, 3),
-  leaderAbility('scorch', {
-    name: 'Scorch',
-    description: 'When played, deal 3 damage to the enemy creature or holding opposite.',
-    translations: { de: { name: 'Versengen', description: 'Beim Ausspielen: Füge der gegenüberliegenden gegnerischen Kreatur oder Besitzung 3 Schaden zu.' } },
-    hooks: { 'card.played': ctx => {
-      if (ctx.event.cardId !== ctx.source.id) return;
-      const id = opposite(ctx.source, ctx.state);
-      if (id) ctx.issue({ type: 'damage', target: id, amount: 3, source: ctx.source.id });
+  extension('scorch', amountSchema, {
+    name: 'Scorch {amount}',
+    description: 'When played, deal {amount} damage to an enemy creature in range (opposite or in a neighbouring lane) or to the enemy player.',
+    translations: { de: { name: 'Versengen {amount}', description: 'Beim Ausspielen: Füge einer gegnerischen Kreatur in Reichweite (gegenüber oder in einer Nachbarbahn) oder dem gegnerischen Spieler {amount} Schaden zu.' } },
+    announce: true,
+    target: 'enemy-reach',
+    hooks: { 'card.played': (ctx, p) => {
+      // Entering by other means (Rally, Raise) has no chosen target, so nothing is burned.
+      if (ctx.event.cardId !== ctx.source.id || !ctx.target) return;
+      ctx.issue({ type: 'damage', target: ctx.target, amount: amount(p), source: ctx.source.id });
     } },
-  }),
+  }, 3),
   leaderAbility('raid', {
     name: 'Raid',
     description: 'This card has +1 Attack for each adjacent friendly creature.',

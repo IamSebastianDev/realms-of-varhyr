@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Köhler",
+  "lore": "Die Kriegsherren wechseln. Die Holzkohle nicht, und der Preis auch nicht."
+}

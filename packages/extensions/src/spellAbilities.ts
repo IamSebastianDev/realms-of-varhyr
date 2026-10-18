@@ -82,9 +82,10 @@ export const spellAbilities: AbilityExtension[] = [
 
     extension("channel", channelSchema, {
         name: "Channel {amount} {energy}",
-        description: "Gain {amount} {energy} energy for this casting phase.",
-        translations: { de: { name: "Kanalisieren: {amount} {energy}", description: "Erhalte {amount} Energie ({energy}) für diese Zauberphase." } },
+        description: "Gain {amount} {energy} energy for this casting phase. On a field card, exhaust to use it.",
+        translations: { de: { name: "Kanalisieren: {amount} {energy}", description: "Erhalte {amount} Energie ({energy}) für diese Zauberphase. Auf einer Feldkarte: Erschöpfe, um sie zu nutzen." } },
         cast: (ctx, p) => ctx.issue({ type: "gain-energy", player: ctx.source.controller, output: { [p.energy as string]: amount(p) }, source: ctx.source.id }),
+        activate: (ctx, p) => ctx.issue({ type: "gain-energy", player: ctx.source.controller, output: { [p.energy as string]: amount(p) }, source: ctx.source.id }),
     }),
 
     extension("raise", raiseSchema, {

@@ -8,7 +8,9 @@
   "factions": [
     "black-host"
   ],
-  "subtypes": [],
+  "subtypes": [
+    "altar"
+  ],
   "legendary": false,
   "rarity": "rare",
   "cost": {

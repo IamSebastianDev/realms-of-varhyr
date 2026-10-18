@@ -106,7 +106,7 @@ Normal spells are played before combat. `"death"` timing supports the defender's
 
 ## Holdings and activated abilities
 
-Use `type: "holding"` for persistent defensive field cards: landmarks, buildings, relics, banners, shrines, and similar enduring presences. They share the five field slots with creatures, enter exhausted, and ready at the end of their controller's turn. A holding cannot attack or generate energy, including death energy. It can block even while exhausted and deals its `stats.attack` as **defensive damage** simultaneously with the attacker. Omit `energyOutputs`; the importer normalizes it to `[]` and rejects nonempty outputs. Use `subtypes` to state what it is, such as `"relic"`, `"landmark"`, or `"building"`.
+Use `type: "holding"` for persistent defensive field cards: landmarks, buildings, relics, banners, shrines, and similar enduring presences. They share the five field slots with creatures, enter exhausted, and ready at the end of their controller's turn. A holding cannot attack or generate energy through `energyOutputs`, including death energy, but it can carry activated abilities, including the energy abilities `primal` and `channel` (a mine). It can block even while exhausted and deals its `stats.attack` as **defensive damage** simultaneously with the attacker. Omit `energyOutputs`; the importer normalizes it to `[]` and rejects nonempty outputs. Use `subtypes` to state what it is, such as `"relic"`, `"landmark"`, or `"building"`.
 
 Crown Holding is a complete example in `assets/cards/crown-holding/`: its artwork temporarily reuses Runeguard's still. Its stats and effects are:
 
@@ -137,7 +137,7 @@ extension("rest", amountSchema, {
 
 Rally (`marches-rally`) is the Marches leader keyword, usable on any card. The healing keyword is called `rest` (**Rast** in German), so it cannot be confused with the Marches deployment action.
 
-An extension's `target` can be `enemy-any` (enemy player or any enemy field card), `friendly-field`, `enemy-field`, `friendly-creature`, or `enemy-creature`, or `friendly-discard-creature` (a creature in your own discard pile, filtered by the binding's `subtype` param). Targeted activations select their own target at activation, not deployment. They are unavailable when no valid target exists. Creature-only effects and Consume exclude holdings. Holding entry, blocking and death events are `holding.enter.before`, `holding.entered`, `holding.blocked`, and `holding.destroyed`; creature events retain the `creature` prefix. Activation emits `ability.activated`. For hand-to-field activations, use `target: "friendly-hand-field"` with `placement: true`: legal actions provide private hand targets and free `slots`, and an `activate` command includes both `target` and `slot`. The handler issues a `deploy` order; deployment reuses normal entry events without energy payment. The client selects a hand card first, then a free position. No valid field card or free position means no activation is offered.
+An extension's `target` can be `enemy-any` (enemy player or any enemy field card), `enemy-reach` (the enemy player or an enemy creature in the chosen position's lane or the two beside it; deployment effects only), `friendly-field`, `enemy-field`, `friendly-creature`, or `enemy-creature`, or `friendly-discard-creature` (a creature in your own discard pile, filtered by the binding's `subtype` param). Targeted activations select their own target at activation, not deployment. They are unavailable when no valid target exists. Creature-only effects and Consume exclude holdings. Holding entry, blocking and death events are `holding.enter.before`, `holding.entered`, `holding.blocked`, and `holding.destroyed`; creature events retain the `creature` prefix. Activation emits `ability.activated`. For hand-to-field activations, use `target: "friendly-hand-field"` with `placement: true`: legal actions provide private hand targets and free `slots`, and an `activate` command includes both `target` and `slot`. The handler issues a `deploy` order; deployment reuses normal entry events without energy payment. The client selects a hand card first, then a free position. No valid field card or free position means no activation is offered.
 
 `legendary: true` gives a one-copy limit and the gilded frame; also set `rarity: "legendary"`. Keep `id` and `deckLimitKey` stable for the logical card. Future artwork choices will be separate from ownership and do not create additional card copies.
 
@@ -236,6 +236,8 @@ Evergreen:
 | `consume` | `{ "amount": 1 }` | Additional cost of playing the card (creature, holding or spell): sacrifice one of your creatures whose total cost is at least that much. A creature enters the sacrificed creature's position |
 | `shield-wall` | `{ "amount": 1 }` | Immediately neighboring friendly creatures and holdings gain Defense |
 | `guard` | `{}` | Attacks aimed at a lane adjacent to this card are blocked by it instead, even if that lane is empty. A Guard in a targeted lane blocks there first; each Guard stops one attacker per combat |
+| `sneaky` | `{}` | The creature cannot be blocked, neither by the card in its lane nor by a Guard, so its attack always damages the opposing player. It still blocks normally itself |
+| `scorch` | `{ "amount": 3 }` | On play, choose an enemy creature in range (the lane opposite or one beside the position it enters) or the enemy player, and deal that much damage. Holdings cannot be chosen. Entering by Rally or Raise has no chosen target, so nothing is burned |
 | `charge` | `{ "amount": 4 }` | On play, damage the enemy creature directly opposite |
 | `rest` | `{ "amount": 1 }` | Exhaust: restore life |
 | `weaken` | `{ "amount": 1 }` | The opposing field card in the same slot loses Attack while the source remains |
@@ -362,7 +364,6 @@ A card binds a keyword with an explicit entry in `abilities`. Abilities are not 
 | Bright Marches | `marches-rally` | `{}` | Rally: exhaust to deploy a creature or holding from hand into a free position without paying energy; normal entry effects apply |
 | Mountain Clans | `trade` | `{}` | Channeling adds 1 neutral energy; death energy remains the printed output |
 | Conclave | `sanctuary` | `{}` | Adjacent friendly creatures gain +1 Defense, or +2 if they are elves; always continuous |
-| Ember Fields | `scorch` | `{}` | On deployment, deal 3 damage to the opposite creature **or holding**; never a player |
 | Horde | `raid` | `{}` | Self gains +1 Attack per adjacent friendly creature; holdings do not count |
 | Black Host | `soul-harvest` | `{}` | Another friendly creature's death draws one card; excludes holdings and the source itself |
 | Neutral | `wayfarer` | `{}` | Exhaust to return a friendly creature, including itself, to hand; clears damage, refunds no costs |

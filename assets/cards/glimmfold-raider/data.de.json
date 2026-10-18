@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Plünderin von Glimmfold",
+  "lore": "Sie kommt mit einer Fackel und geht mit allem, was das Feuer freigelegt hat."
+}

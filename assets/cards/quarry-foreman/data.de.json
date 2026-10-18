@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Steinbruch-Vorarbeiter",
+  "lore": "Er zählt die Steine. Die Stunden sind das Problem eines anderen."
+}

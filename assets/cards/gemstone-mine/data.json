@@ -1,0 +1,33 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "gemstone-mine",
+  "revision": 1,
+  "name": "Gemstone Mine",
+  "deckLimitKey": "gemstone-mine",
+  "type": "holding",
+  "factions": [
+    "mountain-clans"
+  ],
+  "subtypes": [
+    "mine"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 0
+  },
+  "stats": {
+    "attack": 0,
+    "defense": 2
+  },
+  "abilities": [
+    {
+      "id": "primal",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "lore": "Its seam is bright enough to read by. The clans keep it off every map.",
+  "set": "foundations"
+}

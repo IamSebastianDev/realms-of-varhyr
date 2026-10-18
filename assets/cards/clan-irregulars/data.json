@@ -1,0 +1,36 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "clan-irregulars",
+  "revision": 1,
+  "name": "Clan Irregulars",
+  "deckLimitKey": "clan-irregulars",
+  "type": "creature",
+  "factions": [
+    "mountain-clans"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "mountain-clans": 1
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 2
+  },
+  "abilities": [
+    {
+      "id": "outflank",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "lore": "No two carry the same banner. They agree on the flank, and on nothing else.",
+  "set": "foundations"
+}

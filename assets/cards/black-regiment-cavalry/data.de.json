@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Kavallerie des Schwarzen Regiments",
+  "lore": "Ein einzelner Reiter ist ein Ziel. Zu viert nebeneinander sind sie ein Urteil."
+}

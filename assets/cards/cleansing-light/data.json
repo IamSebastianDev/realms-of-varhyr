@@ -8,7 +8,9 @@
   "factions": [
     "crownlands"
   ],
-  "subtypes": [],
+  "subtypes": [
+    "rite"
+  ],
   "legendary": false,
   "rarity": "rare",
   "cost": {

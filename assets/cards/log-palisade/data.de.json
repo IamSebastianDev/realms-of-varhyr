@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Holzpalisade",
+  "lore": "In einer Woche von allen errichtet und ein Jahrzehnt lang darüber gestritten."
+}

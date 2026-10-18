@@ -1,0 +1,45 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "feared-infantry",
+  "revision": 1,
+  "name": "Feared Infantry",
+  "deckLimitKey": "feared-infantry",
+  "type": "creature",
+  "factions": [
+    "ember-fields"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "ember-fields": 1
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "ember-fields": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "raid",
+      "params": {}
+    },
+    {
+      "id": "armor",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "lore": "Nobody fears the first rank. They fear that it is not the last.",
+  "set": "foundations"
+}

@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Edelsteinmine",
+  "lore": "Ihre Ader ist hell genug, um dabei zu lesen. Die Clans halten sie von jeder Karte fern."
+}

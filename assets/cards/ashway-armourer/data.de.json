@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Waffenschmied von Ashway",
+  "lore": "Jede Klinge der Kriegsschar lief über diesen Amboss. Etwa die Hälfte wurde bezahlt."
+}

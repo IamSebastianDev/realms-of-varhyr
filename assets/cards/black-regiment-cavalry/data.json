@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "black-regiment-cavalry",
+  "revision": 1,
+  "name": "Black Regiment Cavalry",
+  "deckLimitKey": "black-regiment-cavalry",
+  "type": "creature",
+  "factions": [
+    "ember-fields"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "ember-fields": 1
+    }
+  },
+  "stats": {
+    "attack": 3,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "ember-fields": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "raid",
+      "params": {}
+    }
+  ],
+  "lore": "A lone rider is a target. Four abreast, they are a verdict.",
+  "set": "foundations"
+}

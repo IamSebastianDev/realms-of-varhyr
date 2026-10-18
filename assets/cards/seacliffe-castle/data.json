@@ -19,22 +19,22 @@
       "bright-marches": 3
     }
   },
+  "stats": {
+    "attack": 2,
+    "defense": 6
+  },
   "abilities": [
     {
       "id": "guard",
       "params": {}
     },
     {
-      "id": "shield-wall",
+      "id": "banner",
       "params": {
         "amount": 2
       }
     }
   ],
   "lore": "Every ship that rounds the headland learns whose coast it is.",
-  "stats": {
-    "attack": 2,
-    "defense": 6
-  },
   "set": "foundations"
 }

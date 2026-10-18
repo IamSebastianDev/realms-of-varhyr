@@ -1,0 +1,34 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "mountain-outpost",
+  "revision": 1,
+  "name": "Mountain Outpost",
+  "deckLimitKey": "mountain-outpost",
+  "type": "holding",
+  "factions": [
+    "mountain-clans"
+  ],
+  "subtypes": [
+    "fortification"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "mountain-clans": 1
+    }
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 4
+  },
+  "abilities": [
+    {
+      "id": "guard",
+      "params": {}
+    }
+  ],
+  "lore": "Two banners fly over it. Only one of them is paid for.",
+  "set": "foundations"
+}

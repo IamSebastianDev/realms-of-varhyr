@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Tieftunnel Schmuggler",
+  "lore": "Die Zölle des Kriegsherrn enden am Tunneleingang. Dort beginnen die Preise der Schmuggler."
+}

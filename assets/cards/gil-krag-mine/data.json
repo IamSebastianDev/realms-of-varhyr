@@ -1,0 +1,34 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "gil-krag-mine",
+  "revision": 1,
+  "name": "Gil Krag Mine",
+  "deckLimitKey": "gil-krag-mine",
+  "type": "holding",
+  "factions": [
+    "mountain-clans"
+  ],
+  "subtypes": [
+    "mine"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1
+  },
+  "stats": {
+    "attack": 0,
+    "defense": 3
+  },
+  "abilities": [
+    {
+      "id": "channel",
+      "params": {
+        "amount": 2,
+        "energy": "mountain-clans"
+      }
+    }
+  ],
+  "lore": "The vein is thin. The clans have never once let it go to waste.",
+  "set": "foundations"
+}

@@ -1,0 +1,44 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "deeptunnel-smugglers",
+  "revision": 1,
+  "name": "Deeptunnel Smugglers",
+  "deckLimitKey": "deeptunnel-smugglers",
+  "type": "creature",
+  "factions": [
+    "ember-fields",
+    "mountain-clans"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "ember-fields": 1,
+      "mountain-clans": 1
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "ember-fields": 1
+      },
+      {
+        "mountain-clans": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "sneaky",
+      "params": {}
+    }
+  ],
+  "lore": "The warlord's tolls stop at the tunnel mouth. The smugglers' prices start there.",
+  "set": "foundations"
+}

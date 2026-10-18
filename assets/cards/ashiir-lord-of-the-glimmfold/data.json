@@ -1,0 +1,45 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "ashiir-lord-of-the-glimmfold",
+  "revision": 1,
+  "name": "Ashiir, Lord of the Glimmfold",
+  "deckLimitKey": "ashiir-lord-of-the-glimmfold",
+  "type": "creature",
+  "factions": [
+    "ember-fields"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "ember-fields": 3
+    }
+  },
+  "stats": {
+    "attack": 5,
+    "defense": 4,
+    "energyOutputs": [
+      {
+        "ember-fields": 3
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "armor",
+      "params": {
+        "amount": 2
+      }
+    },
+    {
+      "id": "raid",
+      "params": {}
+    }
+  ],
+  "lore": "Hekata decides what shall burn. Ashiir decides what shall be left standing to witness it.",
+  "set": "foundations"
+}
