@@ -119,13 +119,6 @@
 .quest-deckview-list .dk-group ul{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
 .quest-offer footer{display:flex;gap:10px;align-items:center;justify-content:center;color:var(--muted)}
 
-/* End screen */
-.quest-stats{display:grid;grid-template-columns:repeat(4,minmax(80px,1fr));gap:8px;margin:0;width:min(480px,100%)}
-.quest-stats div{padding:10px 8px;border-radius:8px;background:#0c0b0aaa;border:1px solid var(--line);text-align:center}
-.quest-stats dt{color:var(--muted);font-size:12px}
-.quest-stats dd{margin:2px 0 0;font:700 24px var(--serif);color:var(--gold-bright)}
-.quest-over .quest-draft-picks p{margin:0}
-
 /* Text used by the picker and the end screen */
 .quest-goal{margin:0;color:#e7e6e4}
 .quest-sub{margin:0;color:var(--muted);font-size:13px}
@@ -215,3 +208,104 @@
 .quest-map-mode .quest-pile .quest-crowns{align-self:stretch;justify-content:center;width:100%;border-left:1px solid #cfae6a33}
 .quest-map-mode .quest-pile .quest-crowns svg,.quest-map-mode .quest-pile .quest-crowns .crown-icon{width:64px;height:64px}
 .quest-map-mode.has-offer .quest-log,.quest-map-mode.has-offer .quest-me,.quest-map-mode.has-offer .quest-menu-button{visibility:hidden}
+
+/* Quest rewards keep the adventure frame, with the collection's grid and ownership markers inside it. */
+.quest-reward-mode{--side:0px;background:radial-gradient(ellipse at 45% 15%,#14120e 0, #080706 70%)}
+.app.quest-reward-mode::before{display:none}
+.quest-reward-mode .quest-stage{position:absolute;inset:14px 20px;margin:0}
+.quest-stage>.quest-rewards{border:0;border-radius:0;box-shadow:none;background:none}
+.quest-rewards{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 265px;grid-template-rows:auto minmax(0,1fr);gap:14px;padding:18px;box-sizing:border-box;width:100%;height:100%}
+.quest-rewards-heading{grid-column:1/-1;display:flex;align-items:center;gap:14px;margin:0;padding:0 4px 4px;min-height:66px}
+.quest-rewards-heading>.builder-icon-button{width:40px;height:40px;flex:none}
+.quest-rewards-title h1{margin:0;font:600 34px/1 var(--serif);color:#f6e8bd}
+.quest-rewards-title p{display:flex;align-items:center;gap:8px;margin:8px 0 0;color:var(--muted);font-size:12px}
+.quest-rewards-title p svg{width:15px;height:15px;color:#cfae6a}
+.quest-rewards-bonus{display:flex;align-items:center;gap:10px;margin-left:auto;max-width:300px;color:var(--gold-bright);font-size:11px;line-height:1.5}
+.quest-rewards-bonus:empty{display:none}
+.quest-rewards-bonus strong{display:block;font-size:13px}
+.quest-rewards-wallet{display:flex;align-items:center;gap:10px;margin-left:auto;padding-left:24px;border-left:1px solid var(--line);flex:none}
+.quest-rewards-bonus:not(:empty)+.quest-rewards-wallet{margin-left:8px}
+.quest-rewards-wallet>.crown-icon{width:36px;height:36px}
+.quest-rewards-wallet>strong{font:500 34px/1 var(--serif);font-variant-numeric:lining-nums;color:#f6e8bd}
+.quest-rewards-wallet>span:last-child{font-size:12px;color:#e2d5b4}
+.quest-rewards-wallet small{display:block;margin-top:4px;color:var(--muted);font-size:10px}
+.quest-rewards-deck{display:flex;flex-direction:column;min-height:0;overflow:hidden;padding:18px 20px;border:0;border-radius:0;background:none;box-shadow:none}
+.quest-rewards-deck-heading{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
+.quest-rewards h2{margin:0;font:500 22px var(--serif);color:#ede1c3}
+.quest-rewards-deck-heading>span{font-size:11px;color:var(--muted)}
+.quest-rewards-tools{gap:14px;flex:none;margin-bottom:20px}
+.quest-rewards-tools .collection-search{max-width:none;flex:1}
+.quest-rewards-tools>span{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.quest-rewards-grid{flex:1;min-height:0;overflow:auto;scrollbar-gutter:stable;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));align-content:start;align-items:start;gap:22px 18px;padding:4px 8px 12px 0}
+.quest-rewards-card{position:relative;display:grid;gap:6px;min-width:0}
+.quest-rewards-card .art-card{width:100%;justify-self:center}
+.quest-rewards-grid .quest-rewards-card.collection-full .art-card{filter:grayscale(1) brightness(.45);cursor:default}
+.quest-rewards-grid .quest-rewards-card.kept .art-card{filter:saturate(.35) brightness(.65);cursor:default}
+.quest-rewards-card .art-card[aria-disabled=true]{cursor:default}
+.quest-rewards-card .collection-card-meta{padding:2px 2px 0;min-height:18px}
+.quest-rewards-card-controls{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.quest-rewards-card-controls button{display:flex;align-items:center;justify-content:center;gap:4px;min-width:68px;height:28px;padding:0 7px;font-size:10px}
+.quest-rewards-card-controls button[aria-pressed=true]{border-color:#cfae6a99;color:#f6e6b4}
+.quest-rewards-kept{display:flex;align-items:center;gap:4px;font-size:11px;color:#cfae6a}
+.quest-rewards-card.collection-full .quest-rewards-card-controls>.quest-purse{color:var(--muted)}
+.quest-rewards-card>small{display:flex;align-items:center;justify-content:center;gap:4px;color:var(--muted);font-size:10px;min-height:14px}
+.quest-rewards-checkout{display:flex;flex-direction:column;gap:12px;min-height:0;padding:20px;overflow:auto}
+.quest-rewards-checkout>header p{margin:8px 0 6px;color:var(--muted);font-size:12px;line-height:1.6}
+.quest-rewards-basket{flex:1;min-height:75px;overflow:auto;border-top:1px solid var(--line);padding-top:16px}
+.quest-rewards-basket h2{display:flex;align-items:center;gap:8px;font-size:18px}
+.quest-rewards-basket h2 svg{width:16px;color:#cfae6a}
+.quest-rewards-basket ul{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:10px}
+.quest-rewards-basket li{display:grid;grid-template-columns:36px minmax(0,1fr) auto 24px;align-items:center;gap:9px;font-size:12px;color:#cdc7bb}
+.quest-rewards-basket li>img{width:36px;height:48px;object-fit:cover;object-position:50% 25%;border:1px solid #cfae6a33}
+.quest-rewards-basket li strong{display:block;font-weight:500;line-height:1.4}
+.quest-rewards-basket li small{display:flex;align-items:center;gap:4px;margin-top:4px;color:var(--muted);font-size:10px}
+.quest-rewards-basket li .crown-icon{width:14px;height:14px}
+.quest-rewards-basket li>b{color:var(--gold-bright);font-variant-numeric:tabular-nums;font-size:11px}
+.quest-rewards-basket li>button{width:24px;height:28px;padding:0}
+.quest-rewards-empty{display:grid;place-content:center;justify-items:center;min-height:150px;gap:10px;color:#cfae6a66;text-align:center}
+.quest-rewards-empty p{margin:0;max-width:22ch;font-size:12px;line-height:1.6;color:var(--muted)}
+.quest-rewards-total{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:12px;font-size:13px}
+.quest-rewards-remaining{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:11px}
+.quest-rewards-remaining .quest-purse{font-size:12px}
+.quest-rewards-remaining .crown-icon{width:16px;height:16px}
+.quest-rewards-checkout>button{flex-shrink:0;justify-content:center;width:100%;min-height:44px}
+.quest-rewards-checkout>.quest-error,.quest-rewards-checkout>.quest-notice{font-size:12px;line-height:1.5;margin:0}
+/* Use the shared plate chrome, with square edges throughout the reward screen. */
+.quest-rewards .outline-button.outline-button,.quest-rewards .builder-icon-button.builder-icon-button{border-radius:0}
+.quest-rewards-checkout>button,.quest-rewards .quest-actions>button{font:500 14px var(--serif)}
+.quest-rewards .quest-rewards-primary:not(:disabled){border-color:#cfae6a99;color:#f6e6b4;box-shadow:inset 0 3px 16px #06060599,inset 0 0 0 3px #cfae6a0d}
+@media(max-width:1000px){.quest-rewards{grid-template-columns:minmax(0,1fr) 265px;gap:12px;padding:12px}.quest-rewards-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:20px 14px}.quest-rewards-deck,.quest-rewards-checkout{padding:16px}.quest-rewards-title h1{font-size:30px}.quest-rewards-wallet{padding-left:16px}.quest-rewards-wallet small{display:none}}
+@media(max-width:700px){.quest-rewards{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;padding:10px;gap:10px}.quest-rewards-heading{flex-wrap:wrap;gap:10px;min-height:52px}.quest-rewards-title h1{font-size:26px}.quest-rewards-title p{font-size:10px;gap:5px}.quest-rewards-title p svg{width:12px;height:12px}.quest-rewards-wallet{gap:5px;padding-left:10px}.quest-rewards-wallet>strong{font-size:28px}.quest-rewards-wallet>.crown-icon{width:25px;height:25px}.quest-rewards-wallet>span:last-child{font-size:10px}.quest-rewards-bonus:not(:empty){order:3;max-width:none;width:100%;margin:0}.quest-rewards-bonus:not(:empty)+.quest-rewards-wallet{margin-left:auto}.quest-rewards-deck{padding:12px}.quest-rewards-deck-heading{margin-bottom:10px}.quest-rewards-deck-heading h2{font-size:19px}.quest-rewards-tools{margin-bottom:12px}.quest-rewards-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:16px 12px}.quest-rewards-checkout{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;padding:12px;overflow:visible}.quest-rewards-checkout>header,.quest-rewards-basket{display:none}.quest-rewards-checkout>.quest-error,.quest-rewards-checkout>.quest-notice{grid-column:1/-1}.quest-rewards-total{padding:0;border:0}.quest-rewards-checkout>button{font-size:12px}}
+
+/* The boss bonus comes first on victories. Rewards float on the same dark ground as the card shop. */
+.quest-stage>.quest-victory{border:0;border-radius:0;background:none;box-shadow:none}
+.quest-victory{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;width:100%;height:100%;box-sizing:border-box;padding:24px;overflow:auto;text-align:center;animation:quest-victory-arrive .45s ease-out both}
+.quest-victory-back{position:absolute;left:22px;top:22px;width:40px;height:40px;border-radius:0!important}
+.quest-victory-heading,.quest-victory-loot,.quest-victory-actions{flex:none}
+.quest-victory-crest{width:32px;height:32px;color:#cfae6a99}
+.quest-victory-heading>p{margin:6px 0;color:#cfae6a;font-size:10px;letter-spacing:.25em;text-transform:uppercase}
+.quest-victory-heading h1{margin:0;color:#f6e8bd;font:500 54px/1.05 var(--serif);text-shadow:0 2px 24px #cfae6a22}
+.quest-victory-heading>span{display:block;margin-top:12px;color:#aaa69c;font-size:13px}
+.quest-victory-loot{display:grid;grid-template-columns:repeat(2,minmax(0,270px));gap:70px;padding:8px 0}
+.quest-victory-loot>section{display:flex;flex-direction:column;align-items:center;min-width:0}
+.quest-victory-coin{position:relative;width:150px;height:180px;display:grid;place-items:center}
+.quest-victory-coin::before{content:'';position:absolute;inset:-25px;background:radial-gradient(ellipse,#cfae6a26,transparent 70%);pointer-events:none}
+.quest-victory-coin .crown-icon{width:138px;height:138px;filter:drop-shadow(0 8px 14px #000c)}
+.quest-victory-loot strong{margin-top:12px;color:#f6e8bd;font:500 38px/1 var(--serif);font-variant-numeric:lining-nums}
+.quest-victory-loot h2{margin:5px 0 0;color:#e8dcb8;font:500 22px/1.1 var(--serif)}
+.quest-victory-loot p{margin:7px 0 0;color:#8d8a82;font-size:12px;line-height:1.5}
+.quest-victory-packs{position:relative;display:grid;place-items:center;width:300px;height:180px}
+.quest-victory-packs canvas{display:block;width:100%;height:100%}
+.quest-victory-pack-fallback{width:48px;height:48px;color:#cfae6a}
+.quest-victory-saved{display:flex;align-items:center;justify-content:center;gap:7px;color:#aaa18b;font-size:11px;margin:0}
+.quest-victory-saved svg{color:#cfae6a}
+.quest-victory-actions{display:flex;flex-direction:column;align-items:center;gap:12px}
+.quest-victory-actions .outline-button{min-width:240px;min-height:46px;font:500 16px var(--serif);border-radius:0}
+.quest-victory-actions small{color:#8d8a82;font-size:11px;line-height:1.5}
+.quest-victory-actions .quest-error{font-size:12px;max-width:45ch;margin:0}
+.quest-victory-claimed{display:grid;place-items:center;min-height:170px;max-width:45ch;color:#b5ab91;font-size:14px;line-height:1.6}
+@keyframes quest-victory-arrive{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.quest-victory.reduce-motion{animation:none}
+@media(prefers-reduced-motion:reduce){.quest-victory{animation:none}}
+@media(max-height:700px){.quest-victory{gap:14px;padding:16px}.quest-victory-heading h1{font-size:44px}.quest-victory-crest{width:26px;height:26px}.quest-victory-loot{padding:0}.quest-victory-coin,.quest-victory-packs{height:150px}.quest-victory-coin .crown-icon{width:115px;height:115px}.quest-victory-loot strong{font-size:30px;margin-top:8px}}
+@media(max-width:600px){.quest-victory{padding:16px 8px;gap:16px}.quest-victory-heading h1{font-size:40px}.quest-victory-heading>span{max-width:36ch;font-size:12px}.quest-victory-loot{gap:10px;width:100%}.quest-victory-packs{width:100%;min-width:0}.quest-victory-loot p{font-size:10px;max-width:19ch}.quest-victory-saved{max-width:34ch;font-size:10px}.quest-victory-back{left:8px;top:8px}}

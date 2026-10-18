@@ -9,7 +9,8 @@ import { localDay } from '../goals';
 import { randomSeed } from '../session';
 import { rarest } from '../DeckShelf';
 import '../game-setup.css';
-import { loadMap, paidToday, questContent, saveRun, type LoadedMap } from './questStore';
+import { loadMap, paidToday, questContent, saveRun, useQuestRun, type LoadedMap } from './questStore';
+import { paidQuestPacks } from './rewards';
 
 /** The three quest alignments are the three booster packs, in this order. */
 const alignments = [
@@ -24,6 +25,7 @@ const placeName = (map: LoadedMap, id: string) => { const node = map.nodes.find(
 export function QuestPicker({ onStarted }: { onStarted: () => void }) {
   useLanguage();
   const { collection } = useCollection();
+  const run = useQuestRun();
   const [map, setMap] = useState<LoadedMap | null | undefined>(undefined);
   useEffect(() => { void loadMap().then(setMap); }, []);
   const day = localDay();
@@ -31,9 +33,11 @@ export function QuestPicker({ onStarted }: { onStarted: () => void }) {
   const byPack = new Map(quests.map(quest => [quest.pack, quest]));
   const [tab, setTab] = useState<string>(() => alignments.find(entry => byPack.has(entry.pack))?.pack ?? alignments[0].pack);
   useEffect(() => { if (!byPack.has(tab)) { const first = alignments.find(entry => byPack.has(entry.pack)); if (first) setTab(first.pack); } }, [quests]); // eslint-disable-line react-hooks/exhaustive-deps
+  if (run) return <div className="quest-picker"><p className="quest-goal">{run.stage === 'over' ? msg('Choose cards to keep from your last run before setting out again.') : msg('Your current run is saved.')}</p>
+    <button className="gold-button" onClick={onStarted}>{run.stage === 'over' ? msg('Choose cards to keep') : msg('Continue your run')}</button></div>;
   if (map === undefined) return <p className="quest-sub">{msg("Loading the map…")}</p>;
   if (!map) return <p className="quest-notice">{msg("The quest map has not been made yet. Place the nodes in the card studio's Map tab, save, and restart the dev server.")}</p>;
-  const quest: Quest | undefined = byPack.get(tab), claimed = paidToday(day).includes(tab), poor = collection.crowns < questRules.entryCrowns;
+  const quest: Quest | undefined = byPack.get(tab), claimed = paidQuestPacks(collection, day, paidToday(day)).includes(tab), poor = collection.crowns < questRules.entryCrowns;
   function start(chosen: Quest, faction: string) {
     if (poor) return;
     updateCollection(current => ({ ...current, crowns: current.crowns - questRules.entryCrowns }));

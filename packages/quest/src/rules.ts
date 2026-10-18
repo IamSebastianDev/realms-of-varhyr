@@ -27,6 +27,8 @@ export const questRules = {
   healGoldPerLife: 6,
   shopSize: 5,
   shopPrice: { common: 15, rare: 35, legendary: 80 } as const,
+  /** After any run, spend the remaining run coins to keep copies from its final deck. */
+  keepPrice: { common: 15, rare: 35, legendary: 80 } as const,
   /** The capital's market sells only the faction's best. */
   capitalPrices: { common: 25, rare: 55, legendary: 120 } as const,
   rarityWeights: { common: 70, rare: 25, legendary: 5 } as const,

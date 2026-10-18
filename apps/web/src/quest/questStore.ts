@@ -12,7 +12,7 @@ export const questContent: QuestContent = {
 
 const runKey = 'varhyr-quest-run-v1', resultKey = 'varhyr-quest-result-v1', paidKey = 'varhyr-quest-paid-v1', returnKey = 'varhyr-quest-return-v1';
 const read = (key: string) => { try { return localStorage.getItem(key); } catch { return null; } };
-const write = (key: string, value: string | null) => { try { if (value === null) localStorage.removeItem(key); else localStorage.setItem(key, value); } catch { /* Storage is best-effort; the run stays in memory. */ } };
+const write = (key: string, value: string | null) => { try { if (value === null) localStorage.removeItem(key); else localStorage.setItem(key, value); return true; } catch { return false; /* The run stays in memory. */ } };
 
 let current: RunState | null | undefined;
 const listeners = new Set<() => void>();
@@ -23,23 +23,26 @@ const snapshot = () => current === undefined ? (current = parseRun(read(runKey))
 export const readRun = snapshot;
 export function saveRun(run: RunState | null) {
   current = run;
-  write(runKey, run ? JSON.stringify(run) : null);
+  const saved = write(runKey, run ? JSON.stringify(run) : null);
   for (const listener of listeners) listener();
+  return saved;
 }
 export function useQuestRun(): RunState | null {
   return useSyncExternalStore(listener => { listeners.add(listener); return () => { listeners.delete(listener); }; }, snapshot, snapshot);
 }
 
 /** The match screen reports how a quest fight ended; the quest screen applies it when it next opens. */
-export type FightReport = { run: string; node: string; won: boolean; life: number };
-export function reportFight(report: FightReport) { write(resultKey, JSON.stringify(report)); }
-export function takeFightReport(run: RunState): FightReport | null {
+export type FightReport = { run: string; node: string; won: boolean; life: number; finishedAt?: number };
+export function reportFight(report: FightReport) { write(resultKey, JSON.stringify({ ...report, finishedAt: report.finishedAt ?? Date.now() })); }
+export function readFightReport(run: RunState): FightReport | null {
   try {
     const report = JSON.parse(read(resultKey) ?? 'null') as FightReport | null;
-    if (!report || report.run !== run.id) return null;
-    write(resultKey, null);
+    if (!report || report.run !== run.id || report.node !== run.fight?.node) return null;
     return report;
   } catch { return null; }
+}
+export function clearFightReport(report: FightReport) {
+  try { const current = JSON.parse(read(resultKey) ?? 'null'); if (current?.run === report.run && current?.node === report.node) write(resultKey, null); } catch { /* Nothing to acknowledge. */ }
 }
 /** A fight that was started and never reported is a fight the player walked away from. */
 
@@ -50,7 +53,6 @@ type Paid = { day: string; packs: string[] };
 export function paidToday(day: string): string[] {
   try { const paid = JSON.parse(read(paidKey) ?? 'null') as Paid | null; return paid?.day === day && Array.isArray(paid.packs) ? paid.packs : []; } catch { return []; }
 }
-export const markPaid = (day: string, pack: string) => write(paidKey, JSON.stringify({ day, packs: [...new Set([...paidToday(day), pack])] } satisfies Paid));
 
 export type LoadedMap = QuestMap & { tiles: { size: number; maxZoom: number; width: number; height: number } };
 let mapPromise: Promise<LoadedMap | null> | undefined;

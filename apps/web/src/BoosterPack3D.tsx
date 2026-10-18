@@ -144,6 +144,7 @@ export function loadArt(src: string) {
 
 /** One painted face per pack; slots of the same pack share it. */
 export function usePackArt(packs: CarouselPack[], tagline: string) {
+  const invalidate = useThree(state => state.invalidate);
   const key = packs.map(pack => `${pack.id}${pack.color}${pack.name}${pack.art ?? ''}${pack.variant.seal}`).join('|') + tagline;
   const art = useMemo(() => packs.map(pack => {
     const face = document.createElement('canvas'); face.width = FACE.w; face.height = FACE.h;
@@ -153,12 +154,12 @@ export function usePackArt(packs: CarouselPack[], tagline: string) {
   }), [packs.length]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     let live = true;
-    const paint = () => packs.forEach((pack, index) => { drawFace(art[index].face, pack.color, pack.name, tagline, pack.symbol, pack.art ? artImages.get(pack.art) ?? null : null, pack.variant.seal); art[index].map.needsUpdate = true; });
+    const paint = () => { packs.forEach((pack, index) => { drawFace(art[index].face, pack.color, pack.name, tagline, pack.symbol, pack.art ? artImages.get(pack.art) ?? null : null, pack.variant.seal); art[index].map.needsUpdate = true; }); invalidate(); };
     paint();
     void document.fonts?.ready.then(() => { if (live) paint(); });
     for (const src of new Set(packs.flatMap(pack => pack.art && !artImages.has(pack.art) ? [pack.art] : []))) void loadArt(src).then(() => { if (live) paint(); });
     return () => { live = false; };
-  }, [art, key]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [art, key, invalidate]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => () => art.forEach(item => item.map.dispose()), [art]);
   return art;
 }
@@ -213,10 +214,42 @@ function Row({ packs, tagline, position, pick, reduced }: { packs: CarouselPack[
 /** An endless row of lit foil boosters; the one at `position` faces front and the rest recede. */
 export default function BoosterCarousel3D({ packs, tagline, position, pick, reduced }: { packs: CarouselPack[]; tagline: string; position: number; pick: (offset: number) => void; reduced: boolean }) {
   return <Canvas flat dpr={[1, 2]} camera={{ position: [0, 0, 5.8], fov: 28 }} gl={{ antialias: true, alpha: true }} style={{ touchAction: 'pan-y' }}>
-    <Environment/>
-    <ambientLight intensity={.3}/>
-    <directionalLight position={[3, 4, 5]} intensity={1.1}/>
-    <pointLight position={[-3, -2, 3]} intensity={8} color={packs[mod(position, packs.length)].color}/>
+    <PackLighting color={packs[mod(position, packs.length)].color}/>
     <Row packs={packs} tagline={tagline} position={position} pick={pick} reduced={reduced}/>
+  </Canvas>;
+}
+
+function PackLighting({ color }: { color: string }) {
+  return <><Environment/><ambientLight intensity={.3}/><directionalLight position={[3, 4, 5]} intensity={1.1}/><pointLight position={[-3, -2, 3]} intensity={8} color={color}/></>;
+}
+
+/** A reward bundle uses exactly the store's authored geometry, printed textures, materials and lighting. */
+function RewardBundle({ pack, count, tagline, reduced }: { pack: CarouselPack; count: number; tagline: string; reduced: boolean }) {
+  const art = usePackArt([pack], tagline)[0];
+  const loaded = useLoader(GLTFLoader, pack.model);
+  const model = useMemo(() => prepare((loaded.scene.children.find(child => (child as THREE.Mesh).isMesh) as THREE.Mesh).geometry), [loaded]);
+  const materials = useMemo(() => packMaterials(art.map, pack.color, pack.variant.finish), [art, pack.color, pack.variant.finish]);
+  const root = useRef<THREE.Group>(null);
+  useEffect(() => () => model.geometry.dispose(), [model]);
+  useEffect(() => () => materials.forEach(material => material.dispose()), [materials]);
+  useFrame((state, delta) => {
+    if (!root.current || reduced) return;
+    root.current.rotation.y = THREE.MathUtils.damp(root.current.rotation.y, Math.sin(state.clock.elapsedTime * .55) * .1 + state.pointer.x * .2, 5, delta);
+    root.current.rotation.x = THREE.MathUtils.damp(root.current.rotation.x, -state.pointer.y * .1, 5, delta);
+  });
+  const copies = Math.min(3, Math.max(1, count)), { width, height, thin } = pack.variant;
+  return <group ref={root}>{Array.from({ length: copies }, (_, index) => {
+    const offset = index - (copies - 1) / 2;
+    return <mesh key={index} geometry={model.geometry} material={materials}
+      position={[offset * .83, -Math.abs(offset) * .08, -Math.abs(offset) * .35]}
+      rotation={[.05, offset * -.2, offset * -.14]}
+      scale={[SIZE * width, SIZE * height, SIZE * THIN * thin]}/>;
+  })}</group>;
+}
+
+export function BoosterReward3D({ pack, count, tagline, reduced }: { pack: CarouselPack; count: number; tagline: string; reduced: boolean }) {
+  return <Canvas flat frameloop={reduced ? 'demand' : 'always'} dpr={[1, 2]} camera={{ position: [0, 0, 5.8], fov: 28 }} gl={{ antialias: true, alpha: true }}>
+    <PackLighting color={pack.color}/>
+    <RewardBundle pack={pack} count={count} tagline={tagline} reduced={reduced}/>
   </Canvas>;
 }

@@ -25,6 +25,17 @@ export const collectionRules = {
   cardCrowns: { common: 50, rare: 150, legendary: 400 },
 } as const;
 export const collectionKey = 'varhyr-collection-v1';
+/** Stored with ownership and the wallet so quest rewards and purchases commit in one write. */
+export type QuestSettlement = {
+  day: string; pack: string; coins: number; revision: number;
+  cards: Record<string, number>; purchased: Record<string, number>;
+  /** Exact positions within each card's run copies, so individually selected cards stay marked after reload. */
+  purchasedCopies?: Record<string, number[]>;
+  /** Victory presentation was dismissed; reopening goes straight to the card shop. */
+  rewardPresented?: boolean;
+  reward: { crowns: number; packs: number } | 'claimed' | null;
+  closed: boolean;
+};
 export type Collection = {
   version: 1;
   counts: Record<string, number>;
@@ -32,6 +43,7 @@ export type Collection = {
   packs: Record<string, number>;
   boostersOpened: number;
   rewardedMatches: string[];
+  questSettlements?: Record<string, QuestSettlement>;
 };
 export type CollectionCardReward = { id: string; isNew: boolean; copies: number; crowns: number };
 export const emptyCollection = (): Collection => ({ version: 1, counts: {}, crowns: 0, packs: {}, boostersOpened: 0, rewardedMatches: [] });
@@ -99,6 +111,18 @@ export function createCollection(content: Registry, starter: string[], legacy?: 
 const validCount = (n: unknown): n is number => typeof n === 'number' && Number.isSafeInteger(n) && n >= 0;
 const validCounts = (value: unknown): value is Record<string, number> => !!value && typeof value === 'object' && !Array.isArray(value)
   && Object.entries(value).every(([id, count]) => id.length > 0 && validCount(count));
+function validSettlement(value: unknown): value is QuestSettlement {
+  if (!value || typeof value !== 'object') return false;
+  const s = value as QuestSettlement;
+  return typeof s.day === 'string' && typeof s.pack === 'string' && validCount(s.coins) && validCount(s.revision)
+    && validCounts(s.cards) && validCounts(s.purchased) && typeof s.closed === 'boolean'
+    && Object.entries(s.purchased).every(([id, n]) => n <= (s.cards[id] ?? 0))
+    && (s.rewardPresented === undefined || typeof s.rewardPresented === 'boolean')
+    && (s.purchasedCopies === undefined || !!s.purchasedCopies && typeof s.purchasedCopies === 'object' && !Array.isArray(s.purchasedCopies)
+      && Object.entries(s.purchasedCopies).every(([id, copies]) => Array.isArray(copies) && copies.length === (s.purchased[id] ?? 0)
+        && new Set(copies).size === copies.length && copies.every(index => validCount(index) && index < (s.cards[id] ?? 0))))
+    && (s.reward === null || s.reward === 'claimed' || !!s.reward && validCount(s.reward.crowns) && validCount(s.reward.packs));
+}
 
 export function parseCollection(raw: string | null, content: Registry): Collection | null {
   try {
@@ -110,6 +134,11 @@ export function parseCollection(raw: string | null, content: Registry): Collecti
       || !data.rewardedMatches.every((id: unknown) => typeof id === 'string' && id.length > 0)) return null;
     const collection: Collection = { version: 1, counts: {}, packs: { ...data.packs }, crowns: data.crowns,
       boostersOpened: data.boostersOpened, rewardedMatches: [...new Set<string>(data.rewardedMatches)] };
+    if (data.questSettlements !== undefined) {
+      if (!data.questSettlements || typeof data.questSettlements !== 'object' || Array.isArray(data.questSettlements)
+        || !Object.entries(data.questSettlements).every(([id, value]) => id.length > 0 && validSettlement(value))) return null;
+      collection.questSettlements = data.questSettlements;
+    }
     // Packs that are no longer sold are shared out across the current ones, so saved rewards stay usable.
     // Removing their keys makes migration idempotent on subsequent reads/saves.
     const retired = Object.entries(collection.packs).filter(([id]) => !boosterPacks.some(pack => pack.id === id));

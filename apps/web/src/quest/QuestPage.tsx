@@ -3,10 +3,9 @@ import { Heart, Layers, LogOut, Map as MapIcon, Play, Skull, X } from 'lucide-re
 import { t as msg, useLanguage } from '../../../../packages/ui/src/i18n';
 import { defaultDeckId } from '../../../../packages/content/src';
 import {
-  abandon, act as engineAct, expire, finishFight, leave as engineLeave, payout, questRules, skipOffer, takeCard, timeLeft, travel,
+  abandon, act as engineAct, expire, finishFight, leave as engineLeave, skipOffer, takeCard, timeLeft, travel,
   type Action, type MapNode, type RunState,
 } from '../../../../packages/quest/src';
-import { updateCollection } from '../collectionStore';
 import { CrownIcon } from '../Crowns';
 import { Avatar } from '../Avatar';
 import { useProfile } from '../profile';
@@ -16,8 +15,9 @@ import { getProfile } from '../profile';
 import { startMatch, type MatchSetup } from '../session';
 import type { CustomDeck } from '../decks';
 import { MapView } from './MapView';
-import { DeckList, DeckView, DraftPage, Hearts, LocationDialog, OfferView, roleInfo } from './Dialogs';
-import { loadMap, markPaid, paidToday, questContent, readRun, saveRun, takeFightReport, useQuestRun, type LoadedMap } from './questStore';
+import { DeckView, DraftPage, Hearts, LocationDialog, OfferView, roleInfo } from './Dialogs';
+import { QuestRewards } from './QuestRewards';
+import { clearFightReport, loadMap, questContent, readRun, readFightReport, saveRun, useQuestRun, type LoadedMap } from './questStore';
 import './quest.css';
 
 type Props = { reduced: boolean; /** Back to the main menu; the run stays saved. */ leave: () => void; /** A match is open in the background and can be returned to. */ liveMatch: boolean; resume: () => void; beginFight: (setup: MatchSetup) => void };
@@ -39,31 +39,23 @@ export function QuestPage(props: Props) {
     if (!map) return;
     let current = readRun();
     if (!current || current.stage === 'over') return;
-    const report = current.fight ? takeFightReport(current) : null;
-    if (report && current.fight && report.node === current.fight.node) current = finishFight(current, questContent, map, { won: report.won, life: report.life });
-    else if (current.fight && !props.liveMatch) current = { ...current, stage: 'over', result: 'dead', fight: null, encounter: null, offer: null, life: 0 };
+    const report = current.fight ? readFightReport(current) : null;
+    // A fight completed on time can be collected later; a late report cannot bypass expiry.
+    current = expire(current, report?.finishedAt ?? Date.now());
+    if (current.stage !== 'over') {
+      if (report && current.fight && report.node === current.fight.node) current = finishFight(current, questContent, map, { won: report.won, life: report.life });
+      else if (current.fight && !props.liveMatch) current = { ...current, stage: 'over', result: 'dead', fight: null, encounter: null, offer: null, life: 0 };
+    }
     current = expire(current, now);
-    if (current !== readRun()) saveRun(current);
+    if (current !== readRun() && saveRun(current) && report) clearFightReport(report);
   }, [map, now, props.liveMatch, run?.fight]);
-
-  // A won quest pays out once per kind and day, and at most three times a day. The outcome is kept on the run.
-  useEffect(() => {
-    if (!run || run.stage !== 'over' || run.result !== 'won' || run.reward || readRun()?.reward) return;
-    const pay = payout(run), paid = paidToday(run.day);
-    if (!pay) return;
-    if (paid.includes(run.pack) || paid.length >= questRules.dailyCap) { saveRun({ ...run, reward: 'claimed' }); return; }
-    const packs = Object.values(pay.packs).reduce((sum, count) => sum + count, 0);
-    markPaid(run.day, run.pack);
-    updateCollection(current => ({ ...current, crowns: current.crowns + pay.crowns, packs: { ...current.packs, ...Object.fromEntries(Object.entries(pay.packs).map(([id, count]) => [id, (current.packs[id] ?? 0) + count])) } }));
-    saveRun({ ...run, reward: { crowns: pay.crowns, packs } });
-  }, [run?.stage, run?.result, run?.id, run?.reward]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [deck, setDeck] = useState(false), [confirmQuit, setConfirmQuit] = useState(false);
   const active = !!map && !!run && run.stage !== 'over';
-  const body = map === undefined ? <main className="quest-page quest-message"><p>{msg("Loading the map…")}</p></main>
+  const body = run?.stage === 'over' ? <QuestRewards key={run.id} run={run} place={map ? placeName(map, run.quest.target) : 'the stronghold'} reduced={props.reduced} leave={props.leave}/>
+    : map === undefined ? <main className="quest-page quest-message"><p>{msg("Loading the map…")}</p></main>
     : !map ? <main className="quest-page quest-message"><div><h1>{msg("Quests")}</h1><p>{msg("The quest map has not been made yet. Place the nodes in the card studio's Map tab, save, and restart the dev server.")}</p></div></main>
     : !run ? <Leave leave={props.leave}/>
-    : run.stage === 'over' ? <RunOver run={run} map={map} reward={run.reward ?? null} reduced={props.reduced} leave={props.leave}/>
     : <RunScreen {...props} run={run} map={map} now={now} openDeck={() => setDeck(true)}/>;
   const objective = run && map ? (run.offer?.kind === 'pick' && run.offer.source === 'draft' ? msg("Draft your deck") : run.targetFound ? msg("{v0} is at {v1}", { v0: run.quest.bossName, v1: msg(placeName(map, run.quest.target)) }) : msg("{v0} is somewhere in the marked area", { v0: run.quest.bossName })) : '';
   const profile = useProfile(), sleeve = useStandardBack();
@@ -77,9 +69,13 @@ export function QuestPage(props: Props) {
         <button className="outline-button full" onClick={props.leave}><LogOut size={15}/>{msg("Main menu")}</button>
         <button className="outline-button full danger" onClick={() => { setMenu(false); setConfirmQuit(true); }}><X size={15}/>{msg("Give up this run")}</button>
       </div></section></div>}
-    {confirmQuit && run && <div className="modal-backdrop" onClick={() => setConfirmQuit(false)}><section className="choice-dialog" role="alertdialog" aria-label={msg("Give up this run")} onClick={event => event.stopPropagation()}><h2>{msg("Give up this run?")}</h2><p>{msg("You pay again to set out. Nothing from the road comes with you.")}</p>
+    {confirmQuit && run && <div className="modal-backdrop" onClick={() => setConfirmQuit(false)}><section className="choice-dialog" role="alertdialog" aria-label={msg("Give up this run")} onClick={event => event.stopPropagation()}><h2>{msg("Give up this run?")}</h2><p>{msg("The entry fee is lost. You can spend your remaining run coins to keep cards before leaving.")}</p>
       <div className="quest-actions"><button className="outline-button danger" onClick={() => { setConfirmQuit(false); saveRun(abandon(run)); }}>{msg("Give up")}</button><button className="outline-button" onClick={() => setConfirmQuit(false)}>{msg("Keep going")}</button></div></section></div>}
   </>;
+
+  if (run?.stage === 'over') return <div className={`app quest-app quest-reward-mode ${props.reduced ? 'reduce-motion' : ''}`}>
+    <div className="quest-stage">{body}</div>
+  </div>;
 
   // The map is the whole screen. The quest log sits top left, you bottom left, the menu top right.
   if (active && run && map && !drafting) {
@@ -111,7 +107,7 @@ export function QuestPage(props: Props) {
     <div className="world-bg"/><div className="world-vignette"/>
     <aside className="quest-side">
       <button className="brand" aria-label={msg("Back to the menu")} title={msg("Back to the menu. Your run is saved.")} onClick={props.leave}><span className="brand-mark">V<span/></span><span><small>REALMS OF</small><strong>VARHYR</strong></span></button>
-      {run && map && <section className="quest-info"><strong>{msg("Defeat {v0}", { v0: run.quest.bossName })}</strong><span>{objective}</span>{run.stage !== 'over' && <span className="quest-timer">{hoursLeft(timeLeft(run, now))}</span>}</section>}
+      {run && map && <section className="quest-info"><strong>{msg("Defeat {v0}", { v0: run.quest.bossName })}</strong><span>{objective}</span><span className="quest-timer">{hoursLeft(timeLeft(run, now))}</span></section>}
       {active && run && <section className="quest-info quest-vitals"><Hearts life={run.life}/><span className="quest-purse" title={msg("Crowns carried on this run")}><CrownIcon/><b>{run.gold}</b></span></section>}
       <div className="quest-actions-column">
         {active && run && <button className="outline-button" onClick={() => setDeck(true)}><Layers size={15}/>{msg("Deck")} · {run.deck.length}</button>}
@@ -128,25 +124,6 @@ export function QuestPage(props: Props) {
 
 /** There is no quest overview page: with no run, the quest screen has nothing to show and returns to the menu. */
 function Leave({ leave }: { leave: () => void }) { useEffect(() => { leave(); }, []); return null; } // eslint-disable-line react-hooks/exhaustive-deps
-
-function RunOver({ run, map, reward, leave }: { leave: () => void; run: RunState; map: LoadedMap; reward: { crowns: number; packs: number } | 'claimed' | null; reduced: boolean }) {
-  useLanguage();
-  const won = run.result === 'won';
-  const title = won ? msg("Quest complete") : run.result === 'expired' ? msg("The day has run out") : run.result === 'abandoned' ? msg("You turned back") : msg("You have fallen");
-  const text = won ? msg("{v0} is defeated at {v1}.", { v0: run.quest.bossName, v1: msg(placeName(map, run.quest.target)) }) : run.result === 'expired' ? msg("No reward for this quest.") : msg("The road ends here. Come back tomorrow, or set out again.");
-  return <main className="quest-page quest-draft quest-over" aria-label={title}>
-    <section className="quest-draft-picks">
-      <header><h1>{title}</h1><p>{text}</p></header>
-      {won && reward && <p className={reward === 'claimed' ? 'quest-sub' : 'quest-reward'}>{reward === 'claimed' ? msg("Today's reward for this quest was already claimed.") : msg("Rewards: {v0} crowns and {v1} boosters.", { v0: reward.crowns, v1: reward.packs })}</p>}
-      <dl className="quest-stats"><div><dt>{msg("Fights won")}</dt><dd>{run.stats.fights}</dd></div><div><dt>{msg("Crowns earned")}</dt><dd>{run.stats.goldEarned}</dd></div><div><dt>{msg("Crowns left")}</dt><dd>{run.gold}</dd></div><div><dt>{msg("Cards")}</dt><dd>{run.deck.length}</dd></div></dl>
-      <button className="gold-button" onClick={() => { saveRun(null); leave(); }}>{msg("Back to the menu")}</button>
-    </section>
-    <aside className="builder-deck quest-draft-deck" aria-label={msg("Your deck")}>
-      <div className="dk-progress valid"><span><b>{run.deck.length}</b> {msg("cards in your deck")}</span></div>
-      <DeckList run={run}/>
-    </aside>
-  </main>;
-}
 
 function RunScreen({ run, map, reduced, leave, liveMatch, resume, beginFight, openDeck }: Props & { run: RunState; map: LoadedMap; now: number; openDeck: () => void }) {
   useLanguage();

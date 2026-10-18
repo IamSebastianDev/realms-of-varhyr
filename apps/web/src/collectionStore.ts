@@ -34,14 +34,17 @@ function subscribe(listener: () => void) {
 }
 
 /** Shared by lobby and match: always mutate the latest state, never a captured render's wallet. */
-export function updateCollection(update: (current: Collection) => Collection): Snapshot {
+export function updateCollection(update: (current: Collection) => Collection, options?: { requireSave: boolean }): Snapshot {
   const current = readSnapshot();
   // Pull changes from another tab before spending or claiming; local POC storage is the authority.
   let latest = current.collection;
   if (current.saved) try { latest = parseCollection(localStorage.getItem(collectionKey), registry) ?? latest; } catch { /* Session state remains usable. */ }
   const next = update(latest);
   // A losing/ongoing match is a no-op. Never rewrite its possibly stale tab cache over another tab's reward.
-  snapshot = next === latest ? latest === current.collection ? current : { collection: latest, saved: current.saved } : persist(next);
+  const candidate = next === latest ? options?.requireSave && !current.saved ? persist(next)
+    : latest === current.collection ? current : { collection: latest, saved: current.saved } : persist(next);
+  if (options?.requireSave && !candidate.saved) throw new Error('Could not save. This browser’s storage is full or unavailable.');
+  snapshot = candidate;
   for (const listener of listeners) listener();
   return snapshot;
 }
