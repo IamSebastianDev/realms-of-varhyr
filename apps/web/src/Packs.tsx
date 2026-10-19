@@ -1,4 +1,4 @@
-import { lazy, Suspense, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react';
+import { lazy, Suspense, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react';
 import { ChevronLeft, ChevronRight, Gift, Store as StoreIcon } from 'lucide-react';
 import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 import { boosterPacks, type BoosterPack } from '../../../packages/content/src/boosters';
@@ -24,9 +24,11 @@ export function Packs({ collection, reduced, open, goToStore }: { collection: Co
   const step = (delta: number) => setPosition(value => value + delta);
   const drag = useRef<number | null>(null);
   const pack = count ? mine[mod(position, count)] : undefined;
-  const onKey = (event: KeyboardEvent) => { if (event.key === 'ArrowLeft') { event.preventDefault(); step(-1); } else if (event.key === 'ArrowRight') { event.preventDefault(); step(1); } };
+  const onKey = (event: KeyboardEvent) => { if (event.key === 'Enter' && event.target === event.currentTarget && pack) { event.preventDefault(); open(pack); } else if (event.key === 'ArrowLeft') { event.preventDefault(); step(-1); } else if (event.key === 'ArrowRight') { event.preventDefault(); step(1); } };
   const onDown = (event: PointerEvent) => { drag.current = event.clientX; };
   const onUp = (event: PointerEvent) => { if (drag.current !== null && Math.abs(event.clientX - drag.current) > 60) step(event.clientX < drag.current ? 1 : -1); drag.current = null; };
+  /** Double-clicking the pack opens it. The arrows keep their own meaning, and a side pack first slides to the middle. */
+  const onDouble = (event: MouseEvent) => { if (pack && !(event.target as Element).closest('.store-arrow')) open(pack); };
   const bar = <header className="store-bar">
     <h1>{msg("Packs")}</h1>
     <span className="store-waiting"><Gift size={17}/><b>{waiting}</b>{waiting === 1 ? msg("booster waiting") : msg("boosters waiting")}</span>
@@ -41,7 +43,7 @@ export function Packs({ collection, reduced, open, goToStore }: { collection: Co
   return <main className="store-page store-hall packs-page" aria-label={msg("Packs")}>
     <section className="store-stage" style={{ '--pack-color': pack.color } as CSSProperties}>
       {bar}
-      <div className="store-carousel packs-carousel" role="group" aria-roledescription="carousel" aria-label={msg("Boosters")} tabIndex={0} onKeyDown={onKey} onPointerDown={onDown} onPointerUp={onUp}>
+      <div className="store-carousel packs-carousel" role="group" aria-roledescription="carousel" aria-label={msg("Boosters")} tabIndex={0} onKeyDown={onKey} onPointerDown={onDown} onPointerUp={onUp} onDoubleClick={onDouble}>
         <div className="store-pack-view" aria-hidden="true">
           {hasWebGL
             ? <SceneBoundary fallback={<FlatPack pack={pack}/>}><Suspense fallback={<FlatPack pack={pack}/>}><BoosterCarousel3D packs={mine.map(carouselPack)} tagline={msg("FIVE CARDS")} position={position} pick={offset => setPosition(offset)} reduced={reduced}/></Suspense></SceneBoundary>

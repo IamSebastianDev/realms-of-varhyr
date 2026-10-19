@@ -10,6 +10,7 @@
   --white:#fff;
   /* Channel triplets for translucent use: rgb(var(--bronze-rgb) / .5) */
   --shade-rgb:8 7 6;
+  --scene-black-rgb:0 0 0;
   --white-rgb:255 255 255;
   --bronze-rgb:207 174 106;
   --gilt-rgb:227 199 128;

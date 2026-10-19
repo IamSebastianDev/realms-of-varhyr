@@ -1,3 +1,4 @@
+import { soundOrder, spellEffect } from '../audio/catalog';
 import { factionBursts, type FactionEffect } from '../factionEffects';
 import { useAudio } from '../AudioExperience';
 import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from 'react';
@@ -17,7 +18,7 @@ type Options = {
 };
 /** Presentation follows accepted transitions. It never applies commands or changes a session's state. */
 export function useMatchPresentation({sound,reduced,covered,slotLayout,viewer,hotseat,initial,screen,historyIndex,boardRef,poolRef,enemyPoolRef}: Options) {
-  const {playEffect}=useAudio();
+  const {playEffect}=useAudio(),spellStep=useRef(false);
   const [energyFlights,setEnergyFlights]=useState<EnergyFlight[]>([]),[spellCasts,setSpellCasts]=useState<SpellFx[]>([]);
   const [factionEffects,setFactionEffects]=useState<FactionEffect[]>([]);
   const [clash,setClash]=useState<{steps:ClashStep[];i:number}|null>(null),posesRef=useRef<Poses>({}),stepping=useRef(false);
@@ -25,7 +26,8 @@ export function useMatchPresentation({sound,reduced,covered,slotLayout,viewer,ho
   useCardMotion(clash?clash.steps[clash.i]:null,slotLayout,viewer,posesRef);
   /** Everything that plays when the game moves on, for a local move or an opponent's: sound, energy and spell flights, and the fight replay. */
   const present=useCallback((before:GameState,after:GameState,events:GameEvent[],key:string)=>{
-    const tone=events.find(e=>['damage.dealt','energy.generated','card.played','spell.cast'].includes(e.type));if(tone&&sound)playEffect(tone.type);
+    if(sound){const tone=soundOrder.find(type=>events.some(e=>e.type===type));if(tone==='spell.cast'){const cast=events.find(e=>e.type==='spell.cast'),card=cast?.cardId?after.cards[cast.cardId]??before.cards[cast.cardId]:undefined;playEffect(card?spellEffect(registry.cards[card.definitionId]):'spell.cast');}else if(tone)playEffect(tone);}
+    spellStep.current=events.some(e=>e.type==='spell.cast');
     if(reduced||covered)return;
     const bursts=factionBursts(before,after,events,registry,key);
     if(bursts.length)setFactionEffects(list=>[...list,...bursts].slice(-20));
@@ -57,6 +59,13 @@ export function useMatchPresentation({sound,reduced,covered,slotLayout,viewer,ho
     if(!steps.length&&played&&playedDef?.type==='creature')steps=buildArrival(after,played.cardId!);
     setClash(steps.length?{steps,i:0}:null);
   },[playEffect,sound,reduced,covered,slotLayout,viewer,hotseat,boardRef,poolRef,enemyPoolRef]);
+  // Each exchange of a fight is heard as it is shown: the lunge, the blow and the fall. A spell's own damage already has its sound.
+  useEffect(()=>{
+    const step=clash?.steps[clash.i];if(!step||!sound)return;
+    if(step.poses.some(p=>p.mode==='lunge'))playEffect('combat.attack');
+    if(!spellStep.current&&step.pops.some(p=>p.tone==='damage'||p.tone==='lethal'))playEffect('combat.hit');
+    if(step.poses.some(p=>p.mode==='die'))playEffect('creature.die');
+  },[clash,sound,playEffect]);
   useEffect(()=>{if(!clash)return;const timer=setTimeout(()=>setClash(c=>c&&(c.i+1<c.steps.length?{...c,i:c.i+1}:null)),clash.steps[clash.i].ms);return()=>clearTimeout(timer);},[clash]);
   useEffect(()=>{setClash(null);},[viewer,initial,reduced,covered,screen]);
   // Stepping through a replay plays each step's fight; jumping around clears whatever was playing.

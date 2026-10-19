@@ -1,16 +1,17 @@
 import { useSyncExternalStore } from 'react';
 export type Language = 'en' | 'de';
 export type Motion = 'system' | 'full' | 'reduced';
-export type Preferences = { language: Language; motion: Motion; sound: boolean; music: boolean; musicVolume: number; soundVolume: number; skipEmptyWindows: boolean };
+export type Preferences = { language: Language; motion: Motion; sound: boolean; music: boolean; musicVolume: number; soundVolume: number; ambience: boolean; ambienceVolume: number; skipEmptyWindows: boolean };
 export type PreferenceSnapshot = Preferences & { reduced: boolean };
 export const preferencesKey = 'varhyr-preferences-v1';
-export const defaultPreferences: Preferences = { language: 'en', motion: 'system', sound: true, music: true, musicVolume: .35, soundVolume: .65, skipEmptyWindows: true };
+export const defaultPreferences: Preferences = { language: 'en', motion: 'system', sound: true, music: true, musicVolume: .35, soundVolume: .65, ambience: true, ambienceVolume: .5, skipEmptyWindows: true };
 const volume = (value: unknown, fallback: number) => typeof value === 'number' && Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : fallback;
 export function parsePreferences(value: unknown): Preferences {
   const input = value && typeof value === 'object' ? value as Partial<Preferences> : {};
   return { language: input.language === 'de' ? 'de' : 'en',
     motion: input.motion === 'full' || input.motion === 'reduced' ? input.motion : 'system', sound: typeof input.sound === 'boolean' ? input.sound : defaultPreferences.sound,
     music: typeof input.music === 'boolean' ? input.music : defaultPreferences.music,
+    ambience: typeof input.ambience === 'boolean' ? input.ambience : defaultPreferences.ambience, ambienceVolume: volume(input.ambienceVolume, defaultPreferences.ambienceVolume),
     musicVolume: volume(input.musicVolume, defaultPreferences.musicVolume), soundVolume: volume(input.soundVolume, defaultPreferences.soundVolume),
     skipEmptyWindows: typeof input.skipEmptyWindows === 'boolean' ? input.skipEmptyWindows : defaultPreferences.skipEmptyWindows };
 }

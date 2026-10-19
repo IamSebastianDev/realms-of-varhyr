@@ -1,3 +1,4 @@
+import { useAudio } from './AudioExperience';
 import { FactionIcon } from '../../../packages/renderer/src/FactionIcon';
 import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 import { lazy, Suspense, useEffect, useRef, useState, type KeyboardEvent } from 'react';
@@ -32,7 +33,7 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, c
   useLanguage();
   const [opened, setOpened] = useState(reduced);
   const [revealed, setRevealed] = useState(reduced ? pack.cards.length : 0);
-  const [skip, setSkip] = useState(false), [broken, setBroken] = useState(false), [armed, setArmed] = useState(reduced);
+  const [skip, setSkip] = useState(false), [broken, setBroken] = useState(false), [armed] = useState(true);
   const scene3d = hasWebGL && !reduced && !broken;
   const dialogRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -41,6 +42,20 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, c
   const kept = pack.cards.filter(card => !card.crowns).length;
 
   useEffect(() => { closeRef.current?.focus(); }, []);
+  const { playEffect } = useAudio();
+  // The pack is heard as it is seen: a tearing build-up from the click, then the burst when the shards fly (BURST in BoosterBurst3D is 1.5 s).
+  useEffect(() => {
+    if (!armed) return;
+    if (reduced) { playEffect('pack.burst'); return; }
+    playEffect('pack.open');
+    const timer = window.setTimeout(() => playEffect('pack.burst'), scene3d ? 1500 : 850);
+    return () => window.clearTimeout(timer);
+  }, [armed, reduced, scene3d, playEffect]);
+  useEffect(() => {
+    const shown = pack.cards[revealed - 1];
+    if (!shown || revealed > pack.cards.length) return;
+    playEffect(registry.cards[shown.id].rarity === 'common' ? 'card.flip' : 'pack.rare');
+  }, [revealed, pack, playEffect]);
   useEffect(() => {
     if (complete && !suspended && document.activeElement === document.body) closeRef.current?.focus();
   }, [complete, suspended]);
@@ -75,8 +90,8 @@ export function BoosterOpening({ pack, reduced, suspended, close, openAnother, c
         <p role="status" aria-live="polite">{complete ? msg("{v0} {v1} added{v2}", {v0: kept, v1: kept===1?'card':'cards', v2: crowns ? ` · ${crowns} crowns from extra copies` : ''}) : opened ? msg("Revealing cards · {v0} / 5", {v0: revealed}) : (armed ? msg("Breaking the seal…") : msg("Ready to open"))}</p>
       </header>
       {!opened ? (scene3d
-        ? <div className="booster-burst-stage"><div className="booster-burst-canvas" aria-hidden="true"><SceneBoundary onError={() => setBroken(true)} fallback={null}><Suspense fallback={null}><BoosterBurst3D pack={carouselPack(pack.pack)} tagline={msg("FIVE CARDS")} go={armed} done={() => setOpened(true)}/></Suspense></SceneBoundary></div>{!armed && <button className="booster-pack-hit" autoFocus aria-label={msg("Open the booster")} onClick={() => setArmed(true)}><span>{msg("Click the pack to open it")}</span></button>}</div>
-        : <div className={`booster-pack-stage ${armed ? '' : 'waiting'}`} onClick={() => setArmed(true)}>
+        ? <div className="booster-burst-stage"><div className="booster-burst-canvas" aria-hidden="true"><SceneBoundary onError={() => setBroken(true)} fallback={null}><Suspense fallback={null}><BoosterBurst3D pack={carouselPack(pack.pack)} tagline={msg("FIVE CARDS")} go={armed} done={() => setOpened(true)}/></Suspense></SceneBoundary></div></div>
+        : <div className={`booster-pack-stage ${armed ? '' : 'waiting'}`}>
         <div className="booster-pack-glow"/><div className="booster-pack"><span>REALMS OF VARHYR</span>{packSymbol(pack.pack) ? <b className="pack-symbol">{packSymbol(pack.pack)}</b> : <Crown size={55}/>}<strong>{packLines(msg(pack.pack.name))}</strong><small>{msg("FIVE CARDS")}</small></div>
         <div className="booster-sparks">{Array.from({length:12}, (_,index)=><i key={index} style={{'--spark-angle':`${index*30}deg`} as React.CSSProperties}/>)}</div>
       </div>) : <div className="booster-grid">

@@ -48,8 +48,12 @@ export function PreferenceControls({ part }: { part?: 'general' | 'audio' }) {
       <div className="settings-audio-controls"><button className={`toggle ${preferences.music ? 'on' : ''}`} role="switch" aria-checked={preferences.music} aria-label={msg('Background music')} onClick={() => updatePreferences({ music: !preferences.music })}><span/></button>
         <label className="settings-volume"><input aria-label={msg('Music volume')} type="range" min="0" max="100" step="1" disabled={!preferences.music} value={Math.round(preferences.musicVolume * 100)} onChange={event => updatePreferences({ musicVolume: Number(event.target.value) / 100 })}/><output>{Math.round(preferences.musicVolume * 100)}%</output></label></div>
     </section>
-    <section className="settings-group" aria-label={msg('Interaction sounds')}><div><h2>{msg('Interaction sounds')}</h2><p>{msg('Subtle sounds for cards, energy and combat.')}</p></div>
-      <div className="settings-audio-controls"><button className={`toggle ${preferences.sound ? 'on' : ''}`} role="switch" aria-checked={preferences.sound} aria-label={msg('Interaction sounds')} onClick={() => updatePreferences({ sound: !preferences.sound })}><span/></button>
+    <section className="settings-group" aria-label={msg('Ambience')} aria-disabled="true"><div><h2>{msg('Ambience')}</h2><p>{msg('Coming later.')}</p></div>
+      <div className="settings-audio-controls"><button className="toggle" role="switch" aria-checked={false} aria-label={msg('Ambience')} disabled><span/></button>
+        <label className="settings-volume"><input aria-label={msg('Ambience volume')} type="range" min="0" max="100" step="1" disabled value={Math.round(preferences.ambienceVolume * 100)} readOnly/><output>{Math.round(preferences.ambienceVolume * 100)}%</output></label></div>
+    </section>
+    <section className="settings-group" aria-label={msg('Sound effects')}><div><h2>{msg('Sound effects')}</h2><p>{msg('Spells, played cards, drafting and booster opening.')}</p></div>
+      <div className="settings-audio-controls"><button className={`toggle ${preferences.sound ? 'on' : ''}`} role="switch" aria-checked={preferences.sound} aria-label={msg('Sound effects')} onClick={() => updatePreferences({ sound: !preferences.sound })}><span/></button>
         <label className="settings-volume"><input aria-label={msg('Effects volume')} type="range" min="0" max="100" step="1" disabled={!preferences.sound} value={Math.round(preferences.soundVolume * 100)} onChange={event => updatePreferences({ soundVolume: Number(event.target.value) / 100 })}/><output>{Math.round(preferences.soundVolume * 100)}%</output></label></div>
     </section>
     {audio.blocked && <p className="settings-audio-error" role="status">{msg('Music could not start.')}<button onClick={audio.retry}>{msg('Try again')}</button></p>}

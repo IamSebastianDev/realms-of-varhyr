@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
+import { useAudio } from '../AudioExperience';
 import { t as msg, useLanguage } from '../../../../packages/ui/src/i18n';
 import { registry } from '../../../../packages/content/src';
 import type { CardDefinition } from '../../../../packages/contracts/src';
@@ -27,7 +28,8 @@ export function DraftPicker({ run, preset, reduced, pick, back, inspect, status 
   const seconds = useSecondsLeft(status?.deadline ?? null), chosenAlready = !!status && !status.mine;
   useEffect(() => { setChosen(null); }, [state.round, state.step]);
   const total = preset.rounds * preset.packSize;
-  const take = (index: number) => { if (chosenAlready || !status?.connected && status) return; setChosen(null); pick(pack[index]!); };
+  const { playEffect } = useAudio();
+  const take = (index: number) => { if (chosenAlready || !status?.connected && status) return; setChosen(null); playEffect('draft.pick'); pick(pack[index]!); };
   return <Workshop label={msg("Draft picks")} className="draft-workshop" style={{ ['--pack-color' as string]: preset.color }} backdrop={<DraftBackdrop preset={preset}/>}
     panelLabel={msg("Cards in your pack")} back={{ label: msg("Back to the draft overview"), onClick: back }}
     title={msg("Pick a card")} subtitle={msg("Round {v0} of {v1} · {v2} cards in this pack", { v0: state.round + 1, v1: preset.rounds, v2: pack.length })}

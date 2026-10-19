@@ -1,3 +1,4 @@
+import { sceneTransition } from './sceneTransition';
 import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 import { usePreferences, updatePreferences } from '../../../packages/ui/src/preferences';
 import { ResetControls } from './ResetControls';
@@ -10,6 +11,8 @@ import { PhaseTransitionProgress } from './PhaseTransitionProgress';
 import { PeekBackdrop } from './Peek';
 import { EnergyChoiceArc, type EnergyAction } from './EnergyChoiceArc';
 import { BattleLog } from './BattleLog';
+import { useAudio } from './AudioExperience';
+import { ambienceAvailable, screenBeds } from './audio/catalog';
 import { lazy, type CSSProperties, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRight, ChevronLeft, ChevronRight, Pause, SkipBack, Heart, CircleHelp, Download, Eye, Leaf, RotateCcw, ScrollText, Settings2, Menu, Shield, Sparkles, Swords, X, Zap, Moon, Check, Play, SkipForward, BookOpen, Terminal, Skull, Hand, Maximize, Minimize } from 'lucide-react';
 import { deckRules, positionName } from '../../../packages/contracts/src';
@@ -77,7 +80,7 @@ export function App() {
   const [onboarded,setOnboarded]=useState(hasAccount);
   const [live,setLive]=useState<LiveMatch|null>(null);
   const liveRef=useRef(live);liveRef.current=live;
-  const replace=(next:LiveMatch|null)=>{liveRef.current?.match.leave();setLive(next);};
+  const replace=(next:LiveMatch|null)=>{liveRef.current?.match.leave();sceneTransition(()=>setLive(next));};
   const begin=(setup:MatchSetup)=>{const {session,script}=createLocalMatch(setup,reduced);replace({match:session,setup,script});};
   const attach=(session:MatchSession,setup?:MatchSetup)=>replace({match:session,setup});
   if(!onboarded)return <Onboarding onDone={()=>setOnboarded(true)}/>;
@@ -98,6 +101,8 @@ function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSessi
   useMatchOutcome({setup,snapshot:sessionSnapshot,watching,online,rewardId,rewardEligible,customDeck,deck});
   const ownBack=useCardBack(!watching&&!hotseat?customDeck?.back:undefined);
   const [screen,setScreen]=useState<Screen>('match');
+  const {setAmbience}=useAudio();
+  useEffect(()=>{setAmbience(ambienceAvailable?screenBeds[screen]??null:null);},[screen,setAmbience]);
   useEffect(()=>{preloadPacks();},[]);
   const {savedDecks,setSavedDecks,deckOptions,setupMode,setSetupMode,setupDeck,setSetupDeck,setupOpponent,setSetupOpponent}=useSetupPreferences({local,mode,deck,customDeck,opponentDeck});
   const [viewer,setViewer]=useState<PlayerId>(sessionSnapshot.seat??decisionPlayer(state)),[covered,setCovered]=useState(false);
@@ -183,7 +188,8 @@ function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSessi
   useEffect(()=>{const handler=(event:KeyboardEvent)=>{if(event.key===msg("Escape")){setSelected(null);setDraft(null);setStage('none');setPanel(null);setActionCard(null);} };window.addEventListener('keydown',handler);return()=>window.removeEventListener('keydown',handler);},[]);
   function navigate(next:Screen) {
     if(!local&&next!=='match'){leave();return;}
-    setScreen(next);setPanel(null);setActionCard(null);setSelected(null);setHovered(null);setPreviewRequest(null);setPreview(null);setDraft(null);setStage('none');setEnergyFlights([]);
+    const apply=(fn:()=>void)=>next===screen?fn():sceneTransition(fn);
+    apply(()=>{setScreen(next);setPanel(null);setActionCard(null);setSelected(null);setHovered(null);setPreviewRequest(null);setPreview(null);setDraft(null);setStage('none');setEnergyFlights([]);});
   }
   function saveDeck(next:CustomDeck):string|null {
     const decks=[...savedDecks.filter(d=>d.id!==next.id),structuredClone(next)];

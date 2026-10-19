@@ -1,3 +1,4 @@
+import { sceneTransition } from './sceneTransition';
 import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
 import { usePreferences } from '../../../packages/ui/src/preferences';
 import { useEffect, useState } from 'react';
@@ -61,7 +62,7 @@ export function AuthoringLobby({ onStart, onSessionStart }: { onStart: (session:
 
   return <>
     <Lobby reduced={reduced}
-      screen={screen} navigate={next => { if (next !== 'match') setScreen(next); }}
+      screen={screen} navigate={next => { if (next !== 'match' && next !== screen) sceneTransition(() => setScreen(next)); }}
       canResume={false} resumeLabel="" decks={decks} options={options} saveDeck={saveDeck} deleteDeck={deleteDeck}
       mode={mode} setMode={setMode} selected={selected} setSelected={setSelected} opponentId={opponentId} setOpponentId={setOpponentId}
       start={start} startSession={onSessionStart} learn={() => onStart(startTutorial())} beginMatch={onStart} questFight={false}/>

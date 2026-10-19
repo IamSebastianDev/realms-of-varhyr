@@ -23,6 +23,7 @@ import './form-controls.css';
 import './onboarding.css';
 import './touch.css';
 import './plate.css';
+import './scene-transition.css';
 import './select-picker';
 import './ui-scale.css';
 import { watchUiScale } from './uiScale';
