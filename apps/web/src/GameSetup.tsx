@@ -1,5 +1,5 @@
 import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
-import { ArrowRight, Check, ChevronDown, Scroll, Swords, Users, X } from 'lucide-react';
+import { Check, ChevronDown, Cpu, Globe, Swords, Users, X } from 'lucide-react';
 import { BurnEmbers } from './BurnEmbers';
 import { useEffect, useRef, useState } from 'react';
 import { BuilderDialog } from './BuilderDialog';
@@ -12,16 +12,17 @@ import { missingDeckCopies } from './collection';
 import { rarest } from './DeckShelf';
 import './game-setup.css';
 import { QuestPicker } from './quest/QuestPicker';
+import { DraftBlade } from './draft/DraftBlade';
 import { MultiplayerLobby } from './multiplayer/MultiplayerLobby';
 import type { MatchSession } from './match/MatchSession';
 
-export type SetupMode = 'practice' | 'hotseat' | 'online' | 'quest';
+export type SetupMode = 'practice' | 'hotseat' | 'online' | 'quest' | 'draft';
 type Props = {
   mode: SetupMode; setMode: (mode: SetupMode) => void; close: () => void;
   options: { id: string; name: string; cards: string[]; back?: string }[];
   selected: string; setSelected: (id: string) => void;
   ownedCopies: Record<string, number>; opponentId: string; setOpponentId: (id: string) => void;
-  start: (skirmish: boolean) => void; startQuest: () => void; startSession: (session: MatchSession) => void;
+  start: (skirmish: boolean) => void; startQuest: () => void; openDraft: (preset: string) => void; startSession: (session: MatchSession) => void;
 };
 
 /** One deck as a tile: art, name, state and sleeve. Used for the chosen deck and in the deck dialog. */
@@ -43,7 +44,8 @@ export function GameSetup(props: Props) {
   const missing = chosen ? missingDeckCopies(chosen.cards, props.ownedCopies) : [];
   const issues = chosen ? validateDeck(chosen.cards, registry) : [msg("Choose a deck.")];
   const playable = !!chosen && !issues.length && !missing.length;
-  const friend = props.mode === 'online' || props.mode === 'hotseat';
+  const playing = props.mode !== 'quest' && props.mode !== 'draft';
+  const title = props.mode === 'quest' ? msg("Quest") : props.mode === 'draft' ? msg("Faction draft") : msg("Play a match");
   useEffect(() => {
     pane.current?.querySelector<HTMLButtonElement>('button')?.focus();
   }, []);
@@ -65,11 +67,14 @@ export function GameSetup(props: Props) {
   }
   return <div className="setup-backdrop" onClick={props.close}>
     <section ref={pane} className="game-setup-pane" role="dialog" aria-modal="true" aria-labelledby="game-setup-title" onClick={event => event.stopPropagation()} onKeyDown={onKeyDown}>
-      <header className="setup-heading"><h2 id="game-setup-title">{msg("Play")}</h2><button className="setup-close" aria-label={msg("Close game setup")} onClick={props.close}><X size={20}/></button></header>
+      <header className="setup-heading"><h2 id="game-setup-title">{title}</h2><button className="setup-close" aria-label={msg("Close game setup")} onClick={props.close}><X size={20}/></button></header>
       <div className="setup-scroll">
-        <div className="setup-modes" aria-label={msg("Game mode")}><button aria-pressed={props.mode === 'practice'} onClick={() => props.setMode('practice')}><Swords size={26}/><b>{msg("Practice")}</b><small>{msg("Play against the computer")}</small></button><button aria-pressed={friend} onClick={() => props.setMode('online')}><Users size={26}/><b>{msg("Play a friend")}</b><small>{msg("Online or on one device")}</small></button><button aria-pressed={props.mode === 'quest'} onClick={() => props.setMode('quest')}><Scroll size={26}/><b>{msg("Quest")}</b><small>{msg("A free expedition across the map")}</small></button></div>
-        {friend && <div className="setup-friend-modes" aria-label={msg("Friend connection")}><button aria-pressed={props.mode === 'online'} onClick={() => props.setMode('online')}>{msg("Online room")}</button><button aria-pressed={props.mode === 'hotseat'} onClick={() => props.setMode('hotseat')}>{msg("Same device")}</button></div>}
-        {props.mode === 'quest' ? <QuestPicker onStarted={props.startQuest}/> : props.mode === 'online' ? <MultiplayerLobby compact decks={props.options} selected={props.selected} onSelectDeck={props.setSelected} onStart={props.startSession}/> : <div className="local-game-setup">
+        {playing && <div className="setup-modes setup-opponents" role="group" aria-label={msg("Opponent")}>
+          <button aria-pressed={props.mode === 'practice'} onClick={() => props.setMode('practice')}><Cpu size={26}/><b>{msg("Computer")}</b><small>{msg("Play against the computer")}</small></button>
+          <button aria-pressed={props.mode === 'online'} onClick={() => props.setMode('online')}><Globe size={26}/><b>{msg("Friend online")}</b><small>{msg("Share a room code")}</small></button>
+          <button aria-pressed={props.mode === 'hotseat'} onClick={() => props.setMode('hotseat')}><Users size={26}/><b>{msg("Same device")}</b><small>{msg("Take turns on one screen")}</small></button>
+        </div>}
+        {props.mode === 'quest' ? <QuestPicker onStarted={props.startQuest}/> : props.mode === 'draft' ? <DraftBlade open={props.openDraft}/> : props.mode === 'online' ? <MultiplayerLobby compact decks={props.options} selected={props.selected} onSelectDeck={props.setSelected} onStart={props.startSession}/> : <div className="local-game-setup">
           <h3 className="setup-label" id="setup-decks">{msg("Your deck")}</h3>
           {chosen ? <div className="setup-chosen" aria-labelledby="setup-decks">
             <DeckTile deck={chosen} ownedCopies={props.ownedCopies} selected={false} onPick={() => setPicking(true)}/>

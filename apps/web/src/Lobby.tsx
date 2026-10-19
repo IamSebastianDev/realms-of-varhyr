@@ -37,8 +37,10 @@ import { builderCards, compareCards, initialBuilderFilters } from './deckTools';
 
 import { QuestPage } from './quest/QuestPage';
 import { readRun } from './quest/questStore';
+import { DraftPage } from './draft/DraftPage';
+import { setActiveDraft } from './draft/draftStore';
 import type { MatchSetup } from './session';
-export type Screen='menu'|'cards'|'builder'|'stats'|'store'|'packs'|'profile'|'settings'|'multiplayer'|'quest'|'match';
+export type Screen='menu'|'cards'|'builder'|'stats'|'store'|'packs'|'profile'|'settings'|'multiplayer'|'quest'|'draft'|'match';
 type Mode='practice'|'hotseat';
 type Props={
   reduced:boolean; screen:Exclude<Screen,'match'>; navigate:(screen:Screen)=>void; canResume:boolean; resumeLabel:string;
@@ -53,6 +55,8 @@ type Props={
   beginMatch:(setup:MatchSetup)=>void;
   /** A quest fight is open in the background and can be returned to. */
   questFight:boolean;
+  /** A draft match is open in the background and can be returned to. */
+  draftFight?:boolean;
 };
 function emptyDeck():CustomDeck{return {id:`custom-${crypto.randomUUID()}`,name:msg("New deck"),cards:[]};}
 function readDraft():CustomDeck {
@@ -105,7 +109,7 @@ export function Lobby(props:Props){
   function trapDetailFocus(event:React.KeyboardEvent){if(event.key!==msg("Tab"))return;const buttons=Array.from(detailRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled)')??[]);const first=buttons[0],last=buttons[buttons.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}}
   useEffect(()=>{try{localStorage.setItem(draftKey,JSON.stringify(draft));}catch{/* Explicit saves report storage failures. */}},[draft]);
   useEffect(()=>{setInspected(null);setFilters(initialBuilderFilters);setOwnership(defaultOwnership);},[screen]);
-  useEffect(()=>{const close=(event:KeyboardEvent)=>{if(event.key===msg("Escape")){if(inspected)setInspected(null);else if(booster)setBooster(null);else if(setup)setSetup(null);else if(screen!=='menu'&&screen!=='quest')navigate('menu');}};window.addEventListener('keydown',close);return()=>window.removeEventListener('keydown',close);},[inspected,booster,setup,screen,navigate]);
+  useEffect(()=>{const close=(event:KeyboardEvent)=>{if(event.key===msg("Escape")){if(inspected)setInspected(null);else if(booster)setBooster(null);else if(setup)setSetup(null);else if(screen!=='menu'&&screen!=='quest'&&screen!=='draft')navigate('menu');}};window.addEventListener('keydown',close);return()=>window.removeEventListener('keydown',close);},[inspected,booster,setup,screen,navigate]);
   const matches=useMemo(()=>builderCards(registry,[],filters),[filters]);
   const cards=useMemo(()=>byOwnership(matches,ownedCopies,ownership),[matches,ownedCopies,ownership]);
   const change=(next:CustomDeck)=>{if(JSON.stringify(next)===JSON.stringify(draft))return;const nameOnly=next.id===draft.id&&next.cards===draft.cards;if(!nameOnly||!editingName.current)setPast(list=>[...list.slice(-49),structuredClone(draft)]);editingName.current=nameOnly;setDraft(next);setMessage('');};
@@ -133,6 +137,7 @@ export function Lobby(props:Props){
   function renameSaved(id:string,name:string){const deck=props.decks.find(d=>d.id===id);if(!deck)return null;const error=props.saveDeck({...deck,name});if(!error&&draft.id===id)setDraft(current=>({...current,name}));return error;}
   function deleteSaved(id:string){const error=props.deleteDeck(id);if(!error&&draft.id===id){setPast([]);setDraft(emptyDeck());}return error;}
   function deleteDraft(){const error=props.deleteDeck(draft.id);if(error){setMessage(error);return;}editingName.current=false;setPast([]);setDraft(emptyDeck());setMessage(msg("Deck deleted."));}
+  if(screen==='draft')return <DraftPage reduced={props.reduced} leave={()=>navigate('menu')} liveMatch={!!props.draftFight} resume={()=>navigate('match')} beginFight={props.beginMatch}/>;
   if(screen==='quest')return <QuestPage reduced={props.reduced} leave={()=>navigate('menu')} liveMatch={props.questFight} resume={()=>navigate('match')} beginFight={props.beginMatch}/>;
   return <div className={`lobby ${isHome?'menu-screen':''}`}>
     <div className="world-bg"/><div className="world-vignette"/>
@@ -149,8 +154,8 @@ export function Lobby(props:Props){
       <button className={`lobby-settings ${screen==='settings'?'active':''}`} aria-label={msg("Settings")} title={msg("Settings")} onClick={()=>navigate('settings')}><Settings size={17}/></button>
       {canResume&&<button className="lobby-resume" aria-label={msg("Return to match")} onClick={()=>navigate('match')}><ArrowLeft size={15}/>{msg("Return to match")}</button>}
     </header>
-    {isHome?<StartPage inert={setup!==null} options={props.options} selected={props.selected} collection={collection}
-      canResume={canResume} resumeLabel={props.resumeLabel} play={()=>openSetup('practice')} friend={()=>openSetup('online')}
+    {isHome?<StartPage inert={setup!==null} collection={collection}
+      canResume={canResume} resumeLabel={props.resumeLabel} play={()=>openSetup('practice')} draft={()=>openSetup('draft')}
       resume={()=>navigate('match')} newQuest={()=>{const run=readRun();if(run)navigate('quest');else openSetup('quest');}}/>:screen==='profile'?<ProfilePage/>:screen==='packs'?<Packs collection={collection} reduced={props.reduced} open={openBooster} goToStore={()=>navigate('store')}/>:screen==='settings'?<SettingsPage learn={props.learn} watch={props.startSession}/>:screen==='store'?<Store collection={collection} saved={collectionSaved} message={msg(collectionMessage)} reduced={props.reduced} open={openBooster} buy={buyBooster}/>:screen==='stats'?<CollectionStats collection={collection} inspect={inspect} back={()=>navigate('cards')}/>:screen==='builder'?<DeckBuilder openCollection={()=>navigate('cards')} draft={draft} decks={props.decks} ownedCopies={ownedCopies} crowns={collection.crowns} message={msg(message)} canUndo={!!past.length} reduced={props.reduced} change={change} add={add} remove={remove} load={load} save={save} renameDeck={renameSaved} deleteSaved={deleteSaved} removeDeck={deleteDraft} undo={undo} buyMissing={buyMissingCards} inspect={inspect}/>:<main className="collection-page collection-wide">
       <div className="collection-heading collection-subhead"><button className="builder-icon-button" aria-label={msg("Back to decks")} title={msg("Back to decks")} onClick={()=>navigate('builder')}><ArrowLeft size={16}/></button><h1>{msg("Collection")}</h1><button className="outline-button" onClick={()=>navigate('stats')}><BarChart3 size={15}/>{msg("Statistics")}</button></div>
       <div className="collection-columns"><section className="all-cards-panel" aria-label={msg("All cards")}>{cards.length!==Object.keys(registry.cards).length&&<div className="collection-panel-heading"><span>{cards.length} / {Object.keys(registry.cards).length}</span></div>}
@@ -163,7 +168,7 @@ export function Lobby(props:Props){
     {setup&&<GameSetup mode={setup} setMode={setSetupMode} close={()=>{setSetup(null);if(screen==='multiplayer')navigate('menu');}}
       options={props.options} selected={props.selected} setSelected={props.setSelected} ownedCopies={ownedCopies}
       opponentId={props.opponentId} setOpponentId={props.setOpponentId}
-      start={props.start} startQuest={()=>{setSetup(null);navigate('quest');}} startSession={props.startSession}/>}
+      start={props.start} startQuest={()=>{setSetup(null);navigate('quest');}} openDraft={preset=>{setActiveDraft(preset);setSetup(null);navigate('draft');}} startSession={props.startSession}/>}
     {booster&&<BoosterOpening key={booster.id} pack={booster} reduced={props.reduced} suspended={!!inspected}
       close={()=>setBooster(null)} openAnother={()=>openBooster(booster.pack)} canOpenAnother={packCount(collection,booster.pack.id)>0} inspect={inspect}
       browse={()=>{setBooster(null);navigate('cards');}}/>}

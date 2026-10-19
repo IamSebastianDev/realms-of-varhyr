@@ -1,17 +1,15 @@
 import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';
-import { ArrowRight, Check, Play, RefreshCw, Scroll, Swords, Users } from 'lucide-react';
-import { registry } from '../../../packages/content/src';
-import { validateDeck } from '../../../packages/core/src';
-import { missingDeckCopies, type Collection } from './collection';
+import { ArrowRight, Check, Layers, Play, RefreshCw, Scroll, Swords } from 'lucide-react';
+import type { Collection } from './collection';
 import { achievementText, closestAchievement, dailyDef, type Reward } from './goals';
 import { claimAchievementTier, externalOf, rerollGoal, useGoals } from './goalsStore';
 import { useQuestRun } from './quest/questStore';
+import { useDraftInProgress } from './draft/draftStore';
 import './start-hall.css';
 
-type Option = { id: string; name: string; cards: string[] };
 type Props = {
-  inert: boolean; options: Option[]; selected: string; collection: Collection;
-  canResume: boolean; resumeLabel: string; play: (ready: boolean) => void; friend: () => void; resume: () => void; newQuest: () => void;
+  inert: boolean; collection: Collection;
+  canResume: boolean; resumeLabel: string; play: () => void; draft: () => void; resume: () => void; newQuest: () => void;
 };
 
 const rewardText = (reward: Reward) => [reward.crowns ? msg('{v0} crowns', { v0: reward.crowns }) : '', reward.boosters ? msg('{v0} booster', { v0: reward.boosters }) : ''].filter(Boolean).join(' + ');
@@ -30,22 +28,20 @@ function Ring({ progress, goal, onSwap }: { progress: number; goal: number; onSw
 }
 
 /** Home: three big art cards to start playing, with daily goals and quest progress along the bottom. */
-export function StartPage({ inert, options, selected, collection, canResume, resumeLabel, play, friend, resume, newQuest }: Props) {
+export function StartPage({ inert, collection, canResume, resumeLabel, play, draft, resume, newQuest }: Props) {
   useLanguage();
   const goals = useGoals();
   const run = useQuestRun();
+  const drafting = useDraftInProgress();
   const closest = closestAchievement(goals, externalOf(collection));
-  const deck = options.find(option => option.id === selected);
-  const missing = deck ? missingDeckCopies(deck.cards, collection.counts).length : 0;
-  const ready = !!deck && !validateDeck(deck.cards, registry).length && !missing;
   return <main className="start-hall" inert={inert} aria-label={msg("Menu")}>
     <section className="home-stage">
       <div className="home-modes">
-        <button className="home-mode" style={art('tower-of-the-first-morning')} aria-haspopup={ready ? undefined : 'dialog'} onClick={() => play(ready)}>
-          <Swords size={26}/><b>{msg("Quick match")}</b><small>{msg("Jump into a game against the computer")}</small><ArrowRight className="go" size={22}/>
+        <button className="home-mode" style={art('tower-of-the-first-morning')} aria-haspopup="dialog" onClick={play}>
+          <Swords size={26}/><b>{msg("Play a match")}</b><small>{msg("Against the computer, a friend or on one device")}</small><ArrowRight className="go" size={22}/>
         </button>
-        <button className="home-mode" style={art('merchant-of-tris-vale')} aria-haspopup="dialog" onClick={friend}>
-          <Users size={26}/><b>{msg("Play a friend")}</b><small>{msg("Online or on one device")}</small><ArrowRight className="go" size={22}/>
+        <button className="home-mode" style={art('merchant-of-tris-vale')} aria-haspopup="dialog" onClick={draft}>
+          <Layers size={26}/><b>{msg("Faction draft")}</b><small>{drafting ? msg("A run is waiting for you") : msg("Draft a deck, play two bots, win packs")}</small><ArrowRight className="go" size={22}/>
         </button>
         <button className="home-mode quest" style={art('the-lonely-wanderer')} onClick={canResume ? resume : newQuest}>
           {canResume ? <Play size={26}/> : <Scroll size={26}/>}<b>{canResume ? msg("Continue match") : run && run.stage !== 'over' ? msg("Continue expedition") : msg("Quest")}</b>

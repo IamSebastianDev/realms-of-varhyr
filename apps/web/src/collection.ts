@@ -46,6 +46,8 @@ export type Collection = {
   questSettlements?: Record<string, QuestSettlement>;
   /** Boss and quest payouts already granted, keyed by run and payout, so each is applied exactly once. */
   questPayouts?: Record<string, true>;
+  /** Faction draft runs already paid out, so a run is settled exactly once. */
+  draftPayouts?: Record<string, true>;
 };
 export type CollectionCardReward = { id: string; isNew: boolean; copies: number; crowns: number };
 export const emptyCollection = (): Collection => ({ version: 1, counts: {}, crowns: 0, packs: {}, boostersOpened: 0, rewardedMatches: [] });
@@ -84,7 +86,7 @@ export function missingDeckPurchase(cards: string[], owned: OwnedCopies, content
 }
 
 function addNumber(a: number, b: number) { return Math.min(Number.MAX_SAFE_INTEGER, a + b); }
-function grantCopies(collection: Collection, id: string, amount: number, content: Registry) {
+export function grantCopies(collection: Collection, id: string, amount: number, content: Registry) {
   const previous = ownedCopyCount(collection.counts, id), card = content.cards[id];
   // Preserve retired card IDs for later content restoration; they are not in booster pools.
   const limit = card ? ownershipLimit(card) : deckRules.copiesPerCard;
@@ -145,6 +147,11 @@ export function parseCollection(raw: string | null, content: Registry): Collecti
       if (!data.questPayouts || typeof data.questPayouts !== 'object' || Array.isArray(data.questPayouts)
         || !Object.entries(data.questPayouts).every(([id, value]) => id.length > 0 && value === true)) return null;
       collection.questPayouts = data.questPayouts;
+    }
+    if (data.draftPayouts !== undefined) {
+      if (!data.draftPayouts || typeof data.draftPayouts !== 'object' || Array.isArray(data.draftPayouts)
+        || !Object.entries(data.draftPayouts).every(([id, value]) => id.length > 0 && value === true)) return null;
+      collection.draftPayouts = data.draftPayouts;
     }
     // Packs that are no longer sold are shared out across the current ones, so saved rewards stay usable.
     // Removing their keys makes migration idempotent on subsequent reads/saves.

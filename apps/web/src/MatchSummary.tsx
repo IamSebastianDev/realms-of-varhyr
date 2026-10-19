@@ -10,7 +10,7 @@ import { matchStats, type SideStats } from './matchStats';
 type Reward = { crowns: number; boosters: number; saved: boolean } | null;
 type Props = {
   state: GameState; viewer: PlayerId; registry: Registry; reduced: boolean; symbol: ReactNode; reward: Reward;
-  onMenu: () => void; onAgain?: () => void; onExport?: () => void; onReview?: () => void; reviewLabel?: string;
+  onMenu: () => void; onAgain?: () => void; onExport?: () => void; onReview?: () => void; reviewLabel?: string; menuLabel?: string;
 };
 
 /** A number that climbs to its value, so a total reads as something that was earned. */
@@ -44,7 +44,7 @@ const rows: Row[] = [
   { key: 'healed', label: 'Life restored', icon: <Heart size={14}/>, pick: s => s.healed },
 ];
 
-export function MatchSummary({ state, viewer, registry, reduced, symbol, reward, onMenu, onAgain, onExport, onReview, reviewLabel = msg("Review this match") }: Props) {
+export function MatchSummary({ state, viewer, registry, reduced, symbol, reward, onMenu, onAgain, onExport, onReview, reviewLabel = msg("Review this match"), menuLabel }: Props) {
   useLanguage();
   const stats = matchStats(state, registry), foe = other(viewer), outcome = state.outcome;
   const won = outcome === viewer, drew = outcome === 'draw', tone = drew ? 'draw' : won ? 'won' : 'lost';
@@ -101,7 +101,7 @@ export function MatchSummary({ state, viewer, registry, reduced, symbol, reward,
         <small>{reward.saved ? msg("Added to your collection.") : msg("Available this session; browser storage could not save the reward.")}</small>
       </div>}
       <div className="ms-actions">
-        <button className="outline-button" onClick={onMenu}>{msg("Main menu")}</button>
+        <button className="outline-button" onClick={onMenu}>{menuLabel ?? msg("Main menu")}</button>
         {onAgain && <button className="gold-button" onClick={onAgain}>{msg("Play again")}<ArrowRight size={16}/></button>}
         {onExport && <button className="outline-button" onClick={onExport}>{msg("Save replay")}<Download size={15}/></button>}
         {onReview && <button className="text-button" onClick={onReview}>{reviewLabel}</button>}

@@ -21,7 +21,9 @@ export const parseCommand = (input: unknown): Command => v.parse(commandSchema, 
 
 export const other = (p: PlayerId): PlayerId => p === 'p1' ? 'p2' : 'p1';
 const requireRule = (condition: unknown, message: string): void => { if (!condition) throw new Error(message); };
-export function validateDeck(deck: string[], registry: Registry): string[] {
+/** Draft decks are built from what was picked, so only the legendary limit applies; every other copy count is allowed. */
+export type DeckCheck = { draft?: boolean };
+export function validateDeck(deck: string[], registry: Registry, check: DeckCheck = {}): string[] {
   const errors: string[] = [];
   if (deck.length < deckRules.minimumCards) errors.push(`A deck needs at least ${deckRules.minimumCards} cards.`);
   const counts: Record<string, number> = {};
@@ -29,7 +31,7 @@ export function validateDeck(deck: string[], registry: Registry): string[] {
     const card = registry.cards[id];
     if (!card) { errors.push(`Unknown card: ${id}`); continue; }
     const count = counts[card.deckLimitKey] = (counts[card.deckLimitKey] ?? 0) + 1;
-    if (count > (card.legendary ? deckRules.copiesPerLegendary : deckRules.copiesPerCard)) errors.push(`Too many copies of ${card.name}.`);
+    if (count > (card.legendary ? deckRules.copiesPerLegendary : check.draft ? Infinity : deckRules.copiesPerCard)) errors.push(`Too many copies of ${card.name}.`);
   }
   return errors;
 }
@@ -166,8 +168,8 @@ export function decisionPlayer(state: GameState): PlayerId {
 function blankPlayer(id: PlayerId, name: string): Player { return { id, name, life: 10, deck: [], hand: [], board: [null,null,null,null,null], discard: [], energy: {}, responseEnergy: {} }; }
 export const MULLIGAN_MAX = 2;
 /** `mulligan` lets each player replace up to two opening cards, player one first. */
-export function createMatch(registry: Registry, decks: [string[], string[]], seed = 731, options: { mulligan?: boolean; /** Fixed card order per library, applied after the shuffle. Used by the tutorial. */ stack?: [string[], string[]] } = {}): GameState {
-  for (const deck of decks) requireRule(!validateDeck(deck, registry).length, validateDeck(deck, registry).join(' '));
+export function createMatch(registry: Registry, decks: [string[], string[]], seed = 731, options: { mulligan?: boolean; /** Decks come from a draft: copy limits other than the legendary one are waived. */ draft?: boolean; /** Fixed card order per library, applied after the shuffle. Used by the tutorial. */ stack?: [string[], string[]] } = {}): GameState {
+  for (const deck of decks) requireRule(!validateDeck(deck, registry, { draft: options.draft }).length, validateDeck(deck, registry, { draft: options.draft }).join(' '));
   const state: GameState = { rulesVersion: RULES_VERSION, contentVersion: registry.version, seed: seed >>> 0, rng: (seed >>> 0) || 1, revision: 0, sequence: 0, turn: 1, active: 'p1', phase: 'play', players: { p1: blankPlayer('p1','Player one'), p2: blankPlayer('p2','Player two') }, cards: {}, combat: null, responseStep: null, pending: null, outcome: null, outcomeReason: null, events: [] };
   decks.forEach((deck, index) => {
     const player: PlayerId = index === 0 ? 'p1' : 'p2';

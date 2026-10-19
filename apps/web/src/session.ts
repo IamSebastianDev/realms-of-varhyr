@@ -17,15 +17,15 @@ export function opponentDeck(deckId: string, custom: CustomDeck | undefined, con
   return playable.find(deck => deck.id !== deckId) ?? playable[0] ?? custom;
 }
 
-export function startMatch(seed: number, deck: DeckName = defaultDeckId, skirmish = false, customDeck?: CustomDeck, content = matchContent, opponentChoice?: StarterDeck | CustomDeck, playerName?: string, playerAvatar?: string): GameState {
+export function startMatch(seed: number, deck: DeckName = defaultDeckId, skirmish = false, customDeck?: CustomDeck, content = matchContent, opponentChoice?: StarterDeck | CustomDeck, playerName?: string, playerAvatar?: string, draft = false): GameState {
   const chosen = customDeck ?? content.starters.find(starter => starter.id === deck);
   if (!chosen) throw new Error(`Unknown starter deck: ${deck}`);
-  const errors = validateDeck(chosen.cards, content.registry);
+  const errors = validateDeck(chosen.cards, content.registry, { draft });
   if (errors.length) throw new Error(errors.join(' '));
-  const requested = opponentChoice && !validateDeck(opponentChoice.cards, content.registry).length ? opponentChoice : undefined;
+  const requested = opponentChoice && !validateDeck(opponentChoice.cards, content.registry, { draft }).length ? opponentChoice : undefined;
   const opponent = requested ?? opponentDeck(deck, customDeck, content);
   if (!opponent) throw new Error('Add a complete starter deck before playing.');
-  let state = createMatch(content.registry, [chosen.cards, opponent.cards], seed, { mulligan: true });
+  let state = createMatch(content.registry, [chosen.cards, opponent.cards], seed, { mulligan: true, draft });
   state.players.p1.name = playerName?.trim() || chosen.name;
   state.players.p2.name = opponent.id === chosen.id ? `${opponent.name} · opponent` : opponent.name;
   if (playerAvatar) {
@@ -57,6 +57,8 @@ export type MatchSetup = {
   rewardEligible?: boolean;
   /** A fight on the quest map; the result is reported back to the run. */
   quest?: { run: string; node: string };
+  /** A match of a faction draft run; the result is recorded in the run. */
+  draft?: { preset: string; run: string; match: number };
   /** The guided first match: scripted opponent, no rewards. */
   tutorial?: boolean;
 };

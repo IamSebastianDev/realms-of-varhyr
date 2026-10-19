@@ -138,7 +138,7 @@
 .start-destinations .menu-destination h2{margin-bottom:0}
 .start-destinations .menu-destination div>span{margin-top:6px}
 .local-game-setup{margin-top:22px}
-@media(min-width:701px){.lobby-header,.menu-screen .lobby-header{box-sizing:border-box;height:68px;min-height:68px;padding-block:0;background:#1a1917e6}}
+@media(min-width:701px){.lobby-header,.menu-screen .lobby-header{box-sizing:border-box;height:70px;min-height:70px;padding-block:0;background:#1a1917e6}}
 
 /* Splash entry button: same plate as Play, hover burn. */
 .splash-play.start-play{width:fit-content;min-width:300px;margin:6px auto 0;gap:16px;padding:16px 36px}
