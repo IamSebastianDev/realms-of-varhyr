@@ -6,6 +6,7 @@ import { claimAchievementTier, externalOf, rerollGoal, useGoals } from './goalsS
 import { useQuestRun } from './quest/questStore';
 import { useDraftInProgress } from './draft/draftStore';
 import './start-hall.css';
+import { cardArtUrl } from './cardArtUrl';
 
 type Props = {
   inert: boolean; collection: Collection;
@@ -14,7 +15,7 @@ type Props = {
 
 const rewardText = (reward: Reward) => [reward.crowns ? msg('{v0} crowns', { v0: reward.crowns }) : '', reward.boosters ? msg('{v0} booster', { v0: reward.boosters }) : ''].filter(Boolean).join(' + ');
 
-const art = (id: string) => ({ backgroundImage: `url(/cards/${id}/data.png)` });
+const art = (id: string) => ({ backgroundImage: `url(${cardArtUrl(id)})` });
 
 /** A small progress ring: the number inside is how far along the goal is. */
 function Ring({ progress, goal, onSwap }: { progress: number; goal: number; onSwap?: () => void }) {

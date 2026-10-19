@@ -6,6 +6,7 @@ import { randomSeed } from '../session';
 import { rarest } from '../DeckShelf';
 import '../game-setup.css';
 import { loadMap, questContent, saveRun, useQuestRun, type LoadedMap } from './questStore';
+import { cardArtUrl } from '../cardArtUrl';
 
 /** The three quest alignments are the three booster packs, in this order. */
 const alignments = [
@@ -37,7 +38,7 @@ export function QuestPicker({ onStarted }: { onStarted: () => void }) {
       const ready = isPlayable(questContent, faction) && !!pickStart(map, faction, 0);
       const art = rarest(Object.values(questContent.cards).filter(card => card.factions?.includes(faction)).map(card => card.id))[0];
       return <button key={faction} className="setup-deck quest-stripe" disabled={!ready} style={{ ['--tint' as string]: factionInfo[faction]?.color }} onClick={() => start(faction)}>
-        <span className="setup-deck-art" style={art ? { backgroundImage: `url(/cards/${art.id}/data.png)` } : undefined}/>
+        <span className="setup-deck-art" style={art ? { backgroundImage: `url(${cardArtUrl(art.id)})` } : undefined}/>
         <span className="setup-deck-text"><b>{msg(factionInfo[faction]?.name ?? faction)}</b><small>{ready ? msg("Set out") : msg("Not playable yet")}</small></span>
       </button>;
     })}</div>

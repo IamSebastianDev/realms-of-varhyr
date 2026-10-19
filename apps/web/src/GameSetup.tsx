@@ -15,6 +15,7 @@ import { QuestPicker } from './quest/QuestPicker';
 import { DraftBlade } from './draft/DraftBlade';
 import { MultiplayerLobby } from './multiplayer/MultiplayerLobby';
 import type { MatchSession } from './match/MatchSession';
+import { cardArtUrl } from './cardArtUrl';
 
 export type SetupMode = 'practice' | 'hotseat' | 'online' | 'quest' | 'draft';
 type Props = {
@@ -29,7 +30,7 @@ type Props = {
 function DeckTile({ deck, ownedCopies, selected, onPick, disabledWhenUnready = false }: { deck: Props['options'][number]; ownedCopies: Record<string, number>; selected: boolean; onPick: () => void; disabledWhenUnready?: boolean }) {
   const unfinished = validateDeck(deck.cards, registry).length, lacking = missingDeckCopies(deck.cards, ownedCopies).length, art = rarest(deck.cards)[0], back = useCardBack(deck.back);
   return <button role="radio" aria-checked={selected} disabled={disabledWhenUnready && !!(unfinished || lacking) && !selected} className={`setup-deck ${unfinished || lacking ? 'warn' : ''}`} onClick={onPick}>
-    <span className="setup-deck-art" style={art ? { backgroundImage: `url(/cards/${art.id}/data.png)` } : undefined}/>
+    <span className="setup-deck-art" style={art ? { backgroundImage: `url(${cardArtUrl(art.id)})` } : undefined}/>
     <span className="setup-deck-text"><b>{msg(deck.name)}</b><small>{deck.cards.length} {msg("cards")}{unfinished ? ` · ${msg("unfinished")}` : lacking ? ` · ${msg("missing copies")}` : ` · ${msg("Ready to play")}`}</small></span>
     <CardBackFace id={back} className="setup-deck-sleeve"/>
     {selected && <Check size={18}/>}

@@ -9,13 +9,14 @@ import type { DraftMatch, DraftPreset } from '../../../../packages/draft/src';
 import { packColor, packLines } from '../BoosterOpening';
 import { CrownIcon } from '../Crowns';
 import { rarest } from '../DeckShelf';
+import { cardArtUrl } from '../cardArtUrl';
 
 const packOf = (preset: DraftPreset) => boosterPacks.find(entry => entry.id === preset.packs[0])!;
 /** The same artwork as the draft's stripe in the blade: the best card of the booster, full bleed, shaded for reading. */
 export function DraftBackdrop({ preset }: { preset: DraftPreset }) {
   const art = rarest(packCards(Object.values(registry.cards), packOf(preset)).map(card => card.id))[0];
   return <div className="draft-backdrop" aria-hidden>
-    <div className="draft-world" style={art ? { backgroundImage: `url(/cards/${art.id}/data.png)` } : undefined}/>
+    <div className="draft-world" style={art ? { backgroundImage: `url(${cardArtUrl(art.id)})` } : undefined}/>
     <div className="draft-shade"/>
   </div>;
 }
