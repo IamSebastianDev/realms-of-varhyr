@@ -37,14 +37,15 @@ export class SceneBoundary extends Component<{ fallback: ReactNode; onError?: ()
 }
 
 /** Loads the 3D code, the booster model and the pack artwork once the app starts, so no pack pops in later. */
-export function preloadPacks() {
-  if (!hasWebGL) return;
-  window.setTimeout(() => {
-    void Promise.all([import('./BoosterPack3D'), import('./BoosterBurst3D'), import('three/examples/jsm/loaders/GLTFLoader.js'), import('@react-three/fiber')])
-      .then(([pack, , { GLTFLoader }, { useLoader }]) => {
-        for (const look of Object.values(packLook)) if (look.art) void pack.loadArt(look.art);
-        useLoader.preload(GLTFLoader, model);
-      })
-      .catch(() => { /* The packs still load on demand. */ });
-  }, 300);
+let packsLoading: Promise<void> | null = null;
+export function preloadPacks(): Promise<void> {
+  if (!hasWebGL) return Promise.resolve();
+  packsLoading ??= Promise.all([import('./BoosterPack3D'), import('./BoosterBurst3D'), import('three/examples/jsm/loaders/GLTFLoader.js'), import('@react-three/fiber')])
+    .then(async ([pack, , { GLTFLoader }, { useLoader }]) => {
+      await Promise.all(Object.values(packLook).filter(look => look.art).map(look => pack.loadArt(look.art!)));
+      useLoader.preload(GLTFLoader, model);
+      await fetch(model).then(response => response.blob()).catch(() => {});
+    })
+    .catch(() => { /* The packs still load on demand. */ });
+  return packsLoading;
 }

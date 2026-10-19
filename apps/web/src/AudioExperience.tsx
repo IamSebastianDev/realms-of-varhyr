@@ -13,6 +13,7 @@ const byName = (files: Record<string, string>) => {
   return named;
 };
 const recordedEffects = byName(import.meta.glob<string>('../../../assets/sfx/*.{mp3,ogg,wav}', { eager: true, query: '?url', import: 'default' }));
+export const audioUrls = { effects: recordedEffects, music: soundtrack };
 const recordedBeds = byName(import.meta.glob<string>('../../../assets/ambience/*.{mp3,ogg,wav}', { eager: true, query: '?url', import: 'default' }));
 import { getPreferences, subscribePreferences, usePreferences } from '../../../packages/ui/src/preferences';
 import { t as msg, useLanguage } from '../../../packages/ui/src/i18n';

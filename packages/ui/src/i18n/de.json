@@ -1354,5 +1354,14 @@
   "SIX CARDS": "SECHS KARTEN",
   "You keep every card you draft.": "Du behältst jede gedraftete Karte.",
   "Drag a card here to take it. Right-click a card for details.": "Zieh eine Karte hierher, um sie zu nehmen. Rechtsklick auf eine Karte zeigt Details.",
-  "Play next match": "Nächstes Spiel spielen"
+  "Play next match": "Nächstes Spiel spielen",
+  "Loading the valley": "Das Tal wird geladen",
+  "Loading cards": "Karten werden geladen",
+  "Loading card backs": "Kartenrücken werden geladen",
+  "Loading battlefields": "Schlachtfelder werden geladen",
+  "Ready": "Bereit",
+  "Loading": "Lädt",
+  "Loading sound": "Klänge werden geladen",
+  "Loading booster packs": "Booster werden geladen",
+  "Loading music": "Musik wird geladen"
 }

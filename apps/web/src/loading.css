@@ -1,0 +1,16 @@
+/* Loading screen: opaque until the art is ready, then a fade. Duration follows the scene transition token. */
+.loading-screen{position:fixed;inset:0;z-index:var(--z-loading);display:grid;place-items:center;background:radial-gradient(ellipse 60% 50% at 50% 45%,rgb(var(--gilt-rgb) / .1),transparent 70%),rgb(var(--shade-rgb));opacity:1;transition:opacity calc(var(--scene-duration) * 1.5) ease-in-out}
+.loading-screen[data-phase=leaving]{opacity:0;pointer-events:none}
+.loading-center{display:flex;flex-direction:column;align-items:center;gap:18px;width:min(320px,70vw)}
+.loading-mark{width:112px;height:112px;overflow:visible}
+.loading-mark *{fill:none;stroke:var(--gilt);stroke-linecap:round;stroke-linejoin:round}
+.loading-ring{stroke-width:1.2;stroke-dasharray:18 7;transform-origin:60px 60px;animation:loading-spin 14s linear infinite;opacity:.55}
+.loading-v{stroke-width:5;stroke:var(--gilt-bright);stroke-dasharray:100;stroke-dashoffset:100;animation:loading-draw 1.4s ease-out .15s forwards}
+.loading-v-inner{stroke-width:2;stroke-dasharray:100;stroke-dashoffset:100;opacity:.7;animation:loading-draw 1.2s ease-out .55s forwards}
+.loading-center h1{margin:4px 0 0;font:500 clamp(26px,3.4vw,38px)/1.1 var(--serif);color:var(--gilt-white);letter-spacing:.04em;text-align:center}
+.loading-bar{width:100%;height:2px;background:rgb(var(--gilt-rgb) / .18);overflow:hidden;border-radius:2px}
+.loading-bar i{display:block;height:100%;background:var(--gilt);transform-origin:0 50%;transition:transform .25s ease-out}
+.loading-center p{margin:0;font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+@keyframes loading-spin{to{transform:rotate(360deg)}}
+@keyframes loading-draw{to{stroke-dashoffset:0}}
+@media(prefers-reduced-motion:reduce){.loading-ring{animation:none}.loading-v,.loading-v-inner{animation:none;stroke-dashoffset:0}.loading-screen{transition-duration:.01s}}
