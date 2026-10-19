@@ -11,6 +11,7 @@
     "test:watch": "vitest",
     "simulate": "node --import tsx scripts/simulate.ts",
     "assets": "node --import tsx scripts/import-cards.ts",
+    "check:css": "node scripts/check-css.mjs",
     "check:engine": "tsc --project tsconfig.engine.json",
     "audit:bot": "node --import tsx scripts/audit-bot.ts",
     "audit:balance": "node --import tsx scripts/audit-first-player.ts",

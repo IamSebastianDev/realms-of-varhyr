@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Check, Heart, Layers, Skull, Sparkles, X } from 'lucide-react';
+import type { CardDefinition } from '../../../../packages/contracts/src';
+import { DraftPane } from '../draft/DraftPane';
+import { Inspector } from '../draft/Inspector';
+import { Rail, Workshop } from '../layout/Workshop';
+import '../draft/draft.css';
 import { t as msg, useLanguage } from '../../../../packages/ui/src/i18n';
 import { ArtCard, CardHoverButton } from '../../../../packages/ui/src/CardPresentation';
 import { cardCost } from '../deckTools';
@@ -214,28 +219,39 @@ export function DeckList({ run }: { run: RunState }) {
   })}</div>;
 }
 
-/** The draft: an actual page, picks on the left and the growing deck on the right. */
+/**
+ * The draft of an expedition: the pack in an inset panel and the growing deck in the same pane the deckbuilder and the
+ * faction draft use. Choose a card, or drag it over. The run deck is not editable here; it only grows.
+ */
 export function DraftPage({ run, reduced, take, leave, giveUp }: { run: RunState; reduced: boolean; take: (id: string) => void; leave: () => void; giveUp: () => void }) {
   useLanguage();
-  const [confirm, setConfirm] = useState(false);
+  const [confirm, setConfirm] = useState(false), [chosen, setChosen] = useState<number | null>(null), [over, setOver] = useState(false);
+  const [inspected, setInspected] = useState<CardDefinition | null>(null);
   const offer = run.offer;
+  useEffect(() => { setChosen(null); }, [run.drafted]);
   if (!offer || offer.kind !== 'pick') return null;
   const total = questRules.baseDeck + questRules.draftPicks;
-  return <main className="quest-page quest-draft" aria-label={msg("Draft your deck")}>
-    <section className="quest-draft-picks">
-      <header><h1>{msg("Draft your deck")}</h1><p>{msg("Pick {v0} of {v1}. Card {v2} of {v3}.", { v0: 1, v1: offer.size, v2: run.drafted + 1, v3: questRules.draftPicks })}</p></header>
-      <div className="quest-offer-cards">{offer.cards.map(id => {
-        const card = questContent.cards[id]!, copies = run.deck.filter(other => other === id).length;
-        return <button key={id} className="quest-offer-card pick" onClick={() => take(id)} aria-label={msg("Take {v0}", { v0: card.name })}>
-          <ArtCard card={card} reduced={reduced}/>
-          <small>{copies > 0 ? msg("{v0} in deck", { v0: copies }) : '\u00a0'}</small>
-        </button>;
-      })}</div>
-      <footer className="quest-draft-exit">{confirm ? <><span>{msg("Give up this expedition?")}</span><button className="outline-button danger" onClick={giveUp}>{msg("Give up")}</button><button className="outline-button" onClick={() => setConfirm(false)}>{msg("Keep drafting")}</button></> : <><button className="outline-button" onClick={leave}>{msg("Leave for now")}</button><button className="outline-button" onClick={() => setConfirm(true)}>{msg("Give up")}</button></>}</footer>
-    </section>
-    <aside className="builder-deck quest-draft-deck" aria-label={msg("Your deck")}>
-      <div className="dk-progress incomplete"><span><b>{run.deck.length}</b> / {total} {msg("cards")}</span><i aria-hidden><u style={{ width: `${Math.min(100, run.deck.length / total * 100)}%` }}/></i></div>
-      <DeckList run={run}/>
-    </aside>
-  </main>;
+  const grab = (index: number) => { setChosen(null); take(offer.cards[index]!); };
+  return <Workshop label={msg("Draft your deck")} className="draft-workshop quest-workshop" backdrop={<div className="draft-backdrop"><div className="world-bg"/><div className="world-vignette"/></div>} panelLabel={msg("Cards in this pack")} back={{ label: msg("Back to the menu. Your run is saved."), onClick: leave }}
+    title={msg("Draft your deck")} subtitle={msg("Pick {v0} of {v1}. Card {v2} of {v3}.", { v0: 1, v1: offer.size, v2: run.drafted + 1, v3: questRules.draftPicks })}
+    actions={confirm
+      ? <div className="quest-draft-exit"><span>{msg("Give up this expedition?")}</span><button className="outline-button danger" onClick={giveUp}>{msg("Give up")}</button><button className="outline-button" onClick={() => setConfirm(false)}>{msg("Keep going")}</button></div>
+      : <button className="outline-button" onClick={() => setConfirm(true)}>{msg("Give up")}</button>}
+    rail={<Rail className="draft-rail">
+      <span>{msg("Take one card. The rest of the pack is gone.")}</span>
+      <button className="gold-button builder-save" disabled={chosen === null} onClick={() => chosen !== null && grab(chosen)}>{chosen === null ? msg("Choose a card") : msg("Take card")}<Check size={14}/></button>
+    </Rail>}
+    pane={<DraftPane cards={run.deck} target={total} unit={msg("cards")} inspect={setInspected} footer={msg("Drag a card here to take it.")}
+      drop={{ over, onDragOver: event => { event.preventDefault(); setOver(true); }, onDragLeave: () => setOver(false),
+        onDrop: event => { event.preventDefault(); setOver(false); const index = Number(event.dataTransfer.getData('text/plain')); if (event.dataTransfer.getData('text/plain') !== '' && Number.isInteger(index) && offer.cards[index]) grab(index); } }}/>}
+    overlays={inspected && <Inspector card={inspected} reduced={reduced} close={() => setInspected(null)}/>}>
+    <div className="draft-gallery"><div className="draft-gallery-grid">{offer.cards.map((id, index) => {
+      const card = questContent.cards[id]!;
+      return <article key={`${id}-${index}`} className={`builder-card-tile ${chosen === index ? 'has-copies' : ''}`} draggable
+        onDragStart={event => { setChosen(index); event.dataTransfer.setData('text/plain', String(index)); event.dataTransfer.effectAllowed = 'move'; }} onDragEnd={() => setOver(false)} onDoubleClick={() => grab(index)}>
+        <ArtCard card={card} reduced={reduced} detail={false} selected={chosen === index} onClick={() => setChosen(chosen === index ? null : index)}
+          interaction={{ 'aria-label': msg("Choose {v0}", { v0: card.name }), title: msg("Click to choose · double-click or drag to take · right-click to inspect"), onContextMenu: event => { event.preventDefault(); setInspected(card); } }}/>
+      </article>;
+    })}</div></div>
+  </Workshop>;
 }

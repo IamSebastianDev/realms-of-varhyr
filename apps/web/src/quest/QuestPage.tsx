@@ -79,6 +79,9 @@ export function QuestPage(props: Props) {
   </div>;
 
   // The map is the whole screen. The quest log sits top left, you bottom left, the menu top right.
+  // The draft is a full screen of its own, like the faction draft: no side column, its own back button.
+  if (active && run && map && drafting && run.offer?.kind === 'pick' && run.offer.source === 'draft' && !run.fight) return <div className={`quest-draft-mode ${props.reduced ? 'reduce-motion' : ''}`}>{body}</div>;
+
   if (active && run && map && !drafting) {
     const nodes = new Map(allNodes(map, run.extra).map(node => [node.id, node]));
     const reward = (quest: RunState['quests'][number]) => [quest.reward.packs ? msg("{v0} boosters", { v0: quest.reward.packs }) : '', quest.reward.silver ? msg("{v0} silver", { v0: quest.reward.silver }) : ''].filter(Boolean).join(' · ');
@@ -106,15 +109,6 @@ export function QuestPage(props: Props) {
 
   return <div className={`app quest-app ${props.reduced ? 'reduce-motion' : ''}`}>
     <div className="world-bg"/><div className="world-vignette"/>
-    <aside className="quest-side">
-      <button className="brand" aria-label={msg("Back to the menu")} title={msg("Back to the menu. Your run is saved.")} onClick={props.leave}><span className="brand-mark">V<span/></span><span><small>REALMS OF</small><strong>VARHYR</strong></span></button>
-      {active && run && <section className="quest-info quest-vitals"><Hearts life={run.life}/><span className="quest-purse" title={msg("Silver carried on this expedition")}><SilverIcon/><b>{run.silver}</b></span></section>}
-      <div className="quest-actions-column">
-        {active && run && <button className="outline-button" onClick={() => setDeck(true)}><Layers size={15}/>{msg("Deck")} · {run.deck.length}</button>}
-        <button className="outline-button" onClick={props.leave} title={msg("Back to the menu. Your run is saved.")}><LogOut size={15}/>{msg("Menu")}</button>
-        {active && run && <button className="outline-button danger" onClick={() => setConfirmQuit(true)}><X size={15}/>{msg("Retire")}</button>}
-      </div>
-    </aside>
     <div className="quest-stage">
       {body}
     </div>

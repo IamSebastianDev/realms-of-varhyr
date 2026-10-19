@@ -14,7 +14,7 @@ import { useCollection } from './collectionStore';
 import type { MatchSession } from './match/MatchSession';
 
 /** Browsing/editing content must work even when no legal match can be created. */
-export function AuthoringLobby({ onStart, onSessionStart }: { onStart: (session: MatchSetup) => void; onSessionStart:(session:MatchSession)=>void }) {
+export function AuthoringLobby({ onStart, onSessionStart }: { onStart: (session: MatchSetup) => void; onSessionStart:(session:MatchSession,setup?:MatchSetup)=>void }) {
   useLanguage();
   const { collection } = useCollection();
   const { reduced } = usePreferences();

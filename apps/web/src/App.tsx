@@ -60,33 +60,16 @@ import { createLocalMatch, type TutorialScript } from './match/localMatch';
 import type { Forecast } from '../../../packages/multiplayer/src/protocol';
 import { useMatchSession } from './match/useMatchSession';
 import { useFullscreen } from './useFullscreen';
+import { playerName, phaseButtonLabel, phaseStatusLabel, turnPrompt, type MatchSituation } from './match/matchText';
+import { useDraftForecast } from './match/useDraftForecast';
+import { useTurnBanner } from './match/useTurnBanner';
+import { useSetupPreferences } from './match/useSetupPreferences';
+import { useMatchOutcome } from './match/useMatchOutcome';
+import { DiscardCount, FitName, HandCount, LayersIcon, LibraryCount } from './match/MatchParts';
+import { DebugPanel, DiscardPanel, JournalPanel, MatchMenuDialog, RulesContent, SidePanel } from './match/MatchPanels';
 type Mode='practice'|'hotseat';
 type Draft=PlayDraft & {activation?:number;target?:string};
 type PreviewRequest={pinned?:boolean;cardId:string;left:number;top:number;right:number;bottom:number};
-/** A player name that always stays on one line: the type shrinks until it fits its box. */
-function FitName({name}:{name:string}) {
-  const ref=useRef<HTMLHeadingElement>(null);
-  useLayoutEffect(()=>{
-    const el=ref.current;if(!el)return;
-    const fit=()=>{el.style.fontSize='';let size=parseFloat(getComputedStyle(el).fontSize);while(el.scrollWidth>el.clientWidth+1&&size>13){size-=1;el.style.fontSize=`${size}px`;}};
-    fit();const observer=new ResizeObserver(fit);observer.observe(el);return()=>observer.disconnect();
-  },[name]);
-  return <h2 ref={ref}>{name}</h2>;
-}
-function LibraryCount({count,back}:{count:number;back?:string}) {
-  useLanguage();
-  return <div className={`library-count ${count<=6?'library-low':''} ${back?'has-back':''}`} title={msg("{v0} cards in library. Drawing the last card loses the game.", {v0: count})} aria-label={msg("{v0} cards in library", {v0: count})}>{back?<CardBackFace id={back}/>:<BookOpen size={15}/>}<strong>{count}</strong><small>{msg("LIBRARY")}</small></div>;
-}
-function HandCount({count}:{count:number}) {
-  useLanguage();
-  return <div className="library-count hand-count" title={msg("{v0} {v1} in hand", {v0: count, v1: count===1?'card':'cards'})} aria-label={msg("{v0} {v1} in hand", {v0: count, v1: count===1?'card':'cards'})}><Hand size={15}/><strong>{count}</strong><small>{msg("HAND")}</small></div>;
-}
-function DiscardCount({count,top,onOpen}:{count:number;top?:CardDefinition;onOpen:()=>void}) {
-  useLanguage();
-  return <button className="discard-count" onClick={onOpen} title={msg("{v0} {v1} in the discard pile. Click to view.", {v0: count, v1: count===1?'card':'cards'})} aria-label={msg("Open discard pile, {v0} cards", {v0: count})}>
-    <span className={`discard-top ${top?'':'empty'}`}>{top&&<img src={top.art} alt="" draggable={false}/>}</span><strong>{count}</strong><small>{msg("DISCARD")}</small>
-  </button>;
-}
 type LiveMatch={match:MatchSession;setup?:MatchSetup;script?:TutorialScript};
 export function App() {
   useLanguage();
@@ -96,12 +79,12 @@ export function App() {
   const liveRef=useRef(live);liveRef.current=live;
   const replace=(next:LiveMatch|null)=>{liveRef.current?.match.leave();setLive(next);};
   const begin=(setup:MatchSetup)=>{const {session,script}=createLocalMatch(setup,reduced);replace({match:session,setup,script});};
-  const attach=(session:MatchSession)=>replace({match:session});
+  const attach=(session:MatchSession,setup?:MatchSetup)=>replace({match:session,setup});
   if(!onboarded)return <Onboarding onDone={()=>setOnboarded(true)}/>;
   if(!live)return <AuthoringLobby onStart={begin} onSessionStart={attach}/>;
   return <MatchApp key={live.match.getSnapshot().matchId} {...live} leave={()=>replace(null)} onBegin={begin} onAttach={attach}/>;
 }
-function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSession;setup?:MatchSetup;script?:TutorialScript;leave:()=>void;onBegin:(setup:MatchSetup)=>void;onAttach:(session:MatchSession)=>void}) {
+function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSession;setup?:MatchSetup;script?:TutorialScript;leave:()=>void;onBegin:(setup:MatchSetup)=>void;onAttach:(session:MatchSession,setup?:MatchSetup)=>void}) {
   useLanguage();
   const {sound,reduced,skipEmptyWindows}=usePreferences();
   const sessionSnapshot=useMatchSession(match);
@@ -111,27 +94,17 @@ function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSessi
   const {collection,saved:collectionSaved}=useCollection();
   const rewardId=setup?setup.rewardId:online?sessionSnapshot.matchId:undefined,rewardEligible=setup?setup.rewardEligible!==false:online;
   const [tutorial,setTutorial]=useState(!!setup?.tutorial),[tutorialStep,setTutorialStep]=useState(()=>stepAfter(playerCommands(commands))),[coachNudge,setCoachNudge]=useState(0);
-  const collectionOutcome=sessionSnapshot.seat?(state.outcome===sessionSnapshot.seat?'p1':state.outcome==='draw'?'draw':state.outcome?'p2':null):state.outcome;
-  useEffect(()=>{updateCollection(current=>claimVictory(current,rewardId,collectionOutcome,rewardEligible));},[rewardId,collectionOutcome,rewardEligible]);
   const deck:DeckName=setup?.deck??defaultDeckId,customDeck=setup?.customDeck,opponentDeck=setup?.opponentDeck;
-  // Goals count finished matches you played yourself: not replays, not the tutorial, and in hot seat only the first player.
-  useEffect(()=>{if(!state.outcome||!setup?.quest||watching)return;reportFight({run:setup.quest.run,node:setup.quest.node,won:state.outcome==='p1',life:Math.max(0,state.players.p1.life)});},[state.outcome]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(()=>{if(!state.outcome||!setup?.draft||watching)return;reportDraftResult(setup.draft.preset,setup.draft.run,setup.draft.match,state.outcome==='p1'?'won':state.outcome==='draw'?'draw':'lost');},[state.outcome]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(()=>{if(!state.outcome||watching||setup?.tutorial)return;trackMatch(matchResult(initial,state,commands,sessionSnapshot.seat??'p1',{id:sessionSnapshot.matchId||String(initial.seed),online,deckId:customDeck?.id??deck,registry}));},[state.outcome]);
+  useMatchOutcome({setup,snapshot:sessionSnapshot,watching,online,rewardId,rewardEligible,customDeck,deck});
   const ownBack=useCardBack(!watching&&!hotseat?customDeck?.back:undefined);
   const [screen,setScreen]=useState<Screen>('match');
   useEffect(()=>{preloadPacks();},[]);
-  const [savedDecks,setSavedDecks]=useState<CustomDeck[]>(()=>{try{return parseDecks(localStorage.getItem(decksKey));}catch{return [];}});
-  const deckOptions=[...starterOptions,...savedDecks,...(customDeck&&!savedDecks.some(d=>d.id===customDeck.id)?[customDeck]:[])];
-  const setupPrefs=useMemo<{mode?:Mode;deckId?:string;opponentId?:string}>(()=>{try{const p=JSON.parse(localStorage.getItem('varhir-setup-v1')??'{}');return {mode:p.mode==='practice'||p.mode==='hotseat'?p.mode:undefined,deckId:typeof p.deckId==='string'?p.deckId:undefined,opponentId:typeof p.opponentId==='string'?p.opponentId:undefined};}catch{return {};}},[]);
-  const [setupMode,setSetupMode]=useState<Mode>(setupPrefs.mode??mode),[setupDeck,setSetupDeck]=useState<string>(deckOptions.some(d=>d.id===setupPrefs.deckId)?setupPrefs.deckId!:customDeck?.id??deck);
-  const [setupOpponent,setSetupOpponent]=useState<string>(()=>setupPrefs.opponentId&&(setupPrefs.opponentId==='auto'||deckOptions.some(d=>d.id===setupPrefs.opponentId))?setupPrefs.opponentId:opponentDeck?.id??'auto');
+  const {savedDecks,setSavedDecks,deckOptions,setupMode,setSetupMode,setupDeck,setSetupDeck,setupOpponent,setSetupOpponent}=useSetupPreferences({local,mode,deck,customDeck,opponentDeck});
   const [viewer,setViewer]=useState<PlayerId>(sessionSnapshot.seat??decisionPlayer(state)),[covered,setCovered]=useState(false);
   const [selected,setSelected]=useState<string|null>(null),[hovered,setHovered]=useState<string|null>(null),[draft,setDraft]=useState<Draft|null>(null),[stage,setStage]=useState<'none'|'consume'|'position'|'target'>('none');
   const [attackers,setAttackers]=useState<string[]>([]),[lanes,setLanes]=useState<Record<string,number>>({});
   const [mulliganPick,setMulliganPick]=useState<string[]>([]),[drawOther,setDrawOther]=useState<'discard'|'bottom'>('discard'),[logOpen,setLogOpen]=useState(false),[panel,setPanel]=useState<'rules'|'menu'|'settings'|'journal'|'debug'|'discard'|null>(null),[error,setError]=useState('');
   const [confirmConcede,setConfirmConcede]=useState(false);
-  useEffect(()=>{if(!local)return;try{localStorage.setItem('varhir-setup-v1',JSON.stringify({mode:setupMode,deckId:setupDeck,opponentId:setupOpponent}));}catch{/* Optional setup preferences. */}},[setupMode,setupDeck,setupOpponent,local]);
   const boardRef=useRef<HTMLDivElement>(null),enemyPlayerRef=useRef<HTMLDivElement>(null),ownPlayerRef=useRef<HTMLDivElement>(null);
   const poolRef=useRef<HTMLDivElement>(null),enemyPoolRef=useRef<HTMLDivElement>(null),previewRef=useRef<HTMLElement>(null);
   const actionPopoverRef=useRef<HTMLDivElement>(null);
@@ -153,17 +126,7 @@ function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSessi
   },[frame,displayedState,viewer,clash,match]);
   const ambient=useMemo(()=>{const tally:Record<string,number>={};for(const side of ['p1','p2'] as PlayerId[])for(const id of view.players[side].board)if(id)for(const f of registry.cards[view.cards[id].definitionId]?.factions??[])tally[f]=(tally[f]??0)+1;const top=Object.entries(tally).sort((a,b)=>b[1]-a[1])[0]?.[0];return factionInfo[top??'']?.color??'#d1bd86';},[view]);
   const arena=useMemo(()=>arenaForMatch(initial,registry),[initial]);
-  const [banner,setBanner]=useState<{id:number;text:string;tone:'own'|'enemy'|'combat'}|null>(null),bannerSeen=useRef<{turn:number;active:PlayerId;combat:boolean}|null>(null);
-  useEffect(()=>{
-    const now={turn:view.turn,active:view.active,combat:!!view.combat};
-    const before=bannerSeen.current;bannerSeen.current=now;
-    if(!before||screen!=='match'||historyIndex!==null||covered||tutorial||reduced||clash||view.outcome)return;
-    let next:{text:string;tone:'own'|'enemy'|'combat'}|null=null;
-    if(now.active!==before.active||now.turn!==before.turn)next=now.active===viewer?{text:msg("Your turn"),tone:'own'}:{text:msg("Opponent’s turn"),tone:'enemy'};
-    else if(now.combat&&!before.combat&&view.combat?.stage==='declare')next={text:msg("Combat"),tone:'combat'};
-    if(!next)return;
-    const id=Date.now();setBanner({id,...next});const t=setTimeout(()=>setBanner(b=>b?.id===id?null:b),1500);return()=>clearTimeout(t);
-  },[view.turn,view.active,view.combat?.stage]);
+  const banner=useTurnBanner({view,viewer,screen,historyIndex,covered,tutorial,reduced,clash});
   const actor=view.legal.actor,thinking=!!bot?.thinking,botGate=bot?.gate??null;
   const live=screen==='match'&&!watching&&historyIndex===null&&!clash&&!covered&&!thinking&&actor===viewer&&(!online||!!connection?.connected&&!connection.busy);
   // The opponent waits while the screen is busy showing the last move or the player is looking elsewhere.
@@ -174,14 +137,7 @@ function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSessi
   const undoable=live&&view.phase==='play'?match.undoable(viewer):[];
   const visibleAttacks=view.combat?.stage==='declare'?attackers:view.combat?.attackers??[];
   const draftLanes=useMemo(()=>Object.fromEntries(attackers.map(id=>[id,lanes[id]??displayedState.cards[id]?.slot??0])),[attackers,lanes,displayedState]);
-  // What a drafted attack would do is asked of whoever holds the real state, exactly as it is online.
-  const [draftForecast,setDraftForecast]=useState<Forecast>(null);
-  useEffect(()=>{
-    if(match.kind!=='live'||view.combat?.stage!=='declare'||!attackers.length){setDraftForecast(null);return;}
-    let stale=false;
-    match.forecast({attackers,lanes:draftLanes}).then(next=>{if(!stale)setDraftForecast(next);},()=>{if(!stale)setDraftForecast(null);});
-    return()=>{stale=true;};
-  },[match,attackers,draftLanes,view.revision,view.combat?.stage]);
+  const draftForecast=useDraftForecast({match,view,attackers,draftLanes});
   const forecast=view.combat?.stage==='declare'?draftForecast:sessionSnapshot.forecast;
   const selectedActivation=view.legal.activations.find(a=>a.cardId===draft?.cardId&&a.ability===draft?.activation);
   const slotTargets=draft?.slot!==undefined?selectedLegal?.slotTargets?.[draft.slot]:undefined;
@@ -406,12 +362,12 @@ function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSessi
   const actionPosition=actionSlot&&boardBounds?{left:Math.max(10,Math.min(window.innerWidth-234,boardBounds.left+actionSlot.x+actionSlot.width/2-112)),top:Math.max(10,Math.min(window.innerHeight-230,boardBounds.top+actionSlot.y+actionSlot.height+10))}:{left:10,top:100};
   const you=view.players[viewer],opponent=view.players[other(viewer)],responseStep=view.combat?.stage==='response'||!!view.responseStep;
   const discardTop=(pile:string[])=>pile.length?registry.cards[view.cards[pile[pile.length-1]]?.definitionId]:undefined;
-  const playerName=(name:string)=>name==='You'||name==='Sparring partner'?msg(name):name;
   const laneOccupant=(lane:number)=>{const id=view.players[other(viewer)].board[lane];return id?msg(registry.cards[view.cards[id].definitionId].name):msg("Open · hits player");};
-  let prompt=watching?msg("Watching a recorded match."):online&&!live?connection?.connected?connection?.busy?msg("Sending your move…"):msg("Opponent’s turn…"):connection?.message:thinking?botGate?(botGate.type==='confirm-combat'?msg("The opponent’s attack is set. Review the arrows, then resolve combat."):view.phase==='play'?msg("The opponent is ready to attack."):msg("The opponent is done. Begin your turn.")):view.combat?.stage==='review'?msg("Lanes are set. The opponent is reviewing the attack…"):msg("Opponent’s turn…"):stage==='consume'?msg("Choose a friendly creature to Consume."):stage==='position'?msg("Choose a highlighted position. Deployment is permanent."):stage==='target'?selectedActivation?.slots?msg("Choose a creature or holding from your hand to rally."):msg("Choose a highlighted target."):responseStep?msg("The fallen leave energy behind. Cast a spell or close the window."):view.phase==='draw'?msg("Draw two. Keep one."):view.phase==='play'?undoable.length?msg("Click a channelled creature to undo. Drag a card to play."):msg("Click a ready field card for actions. Drag a card to play."):view.combat?.stage==='declare'?attackers.length?msg("Gold arrows hit the player; cyan arrows meet a blocker. Drag an attacker to another lane to change it."):msg("Drag a ready creature onto a highlighted lane, or click it to choose one."):view.combat?.stage==='review'?msg("Defenders in the targeted lanes block automatically. Review the arrows, then confirm combat."):responseStep?msg("The fallen leave energy behind. Cast a spell or close the window."):msg("End your turn to ready your field cards.");
+  const situation:MatchSituation={view,viewer,watching,online,live,thinking,botGate,connection,stage,selectedActivation,undoable,attackers};
+  const prompt=turnPrompt(situation);
   const factionSymbol=(id:PlayerId)=>{const tally:Record<string,number>={};for(const c of Object.values(state.cards))if(c.owner===id)for(const f of registry.cards[c.definitionId]?.factions??[])tally[f]=(tally[f]??0)+1;const top=Object.entries(tally).sort((a,b)=>b[1]-a[1])[0]?.[0];return <FactionIcon faction={top??'neutral'}/>;};
   const enemyPhase=view.combat?1:view.phase==='play'?0:2;
-  const mainLabel=watching?msg("Replay"):online&&!live?connection?.connected?connection?.busy?msg("Sending…"):msg("Opponent’s turn"):msg("Disconnected"):thinking&&botGate?(botGate.type==='confirm-combat'?msg("Resolve combat"):view.phase==='play'?msg("Enemy combat"):msg("Your turn")):responseStep?msg("Close response step"):view.phase==='play'?msg("Enter combat"):view.combat?.stage==='declare'?attackers.length?msg("Attack with {v0}", {v0: attackers.length}):msg("Skip combat"):view.combat?.stage==='review'?msg("Confirm combat"):responseStep?msg("Close response step"):msg("End turn");
+  const mainLabel=phaseButtonLabel(situation);
   const phaseIndex=enemyPhase;
   function mainAction(){if(thinking&&botGate){if(match.kind==='live')match.advanceOpponent();return;}if(view.combat?.stage==='declare')send({type:'attack',attackers,lanes:draftLanes});else if(view.combat?.stage==='review')send({type:'confirm-combat'});else send({type:'end'});}
   const advanceEnabled=(live||thinking&&!!botGate&&!covered&&screen==='match')&&!clash&&!view.pending&&!view.outcome&&!panel&&!drag&&!actionCard&&stage==='none';
@@ -424,7 +380,7 @@ function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSessi
   if(screen!=='match')return <><Lobby reduced={reduced} screen={screen} navigate={navigate} canResume={!state.outcome} resumeLabel={msg("Turn {v0} · {v1}", {v0: state.turn, v1: state.players.p1.name})} decks={savedDecks} options={deckOptions} saveDeck={saveDeck} deleteDeck={deleteDeck} mode={setupMode} setMode={setSetupMode} selected={setupDeck} setSelected={setSetupDeck} opponentId={setupOpponent} setOpponentId={setSetupOpponent} start={isSkirmish=>reset(isSkirmish,setupMode,setupDeck)} startSession={onAttach} learn={startTutorialMatch} beginMatch={onBegin} questFight={!!setup?.quest&&!state.outcome} draftFight={!!setup?.draft&&!state.outcome}/>{error&&<div className="toast" role="alert">{msg(error)}</div>}</>;
   return <div className={`app ${drag?'is-dragging':''} ${reduced?'reduce-motion':''} ${tutorial?'tutorial-on':''} ${transitioning?'phase-transitioning':''}`} style={{'--arena-image':`url("${arena.art}")`} as CSSProperties}>
     <div className="world-bg"/><div className="world-vignette"/>
-    <header className="topbar"><button className="brand" aria-label={msg("Realms of Varhyr home")} onClick={()=>navigate('menu')}><span className="brand-mark">V<span/></span><span><small>REALMS OF</small><strong>VARHYR</strong></span></button><div className="match-status" aria-label={msg("Turn {v0}, {v1} initiative", {v0: view.turn, v1: view.active===viewer?'your':'opponent’s'})}><span>{msg("Turn")}{' '}{view.turn}</span><i/><strong>{online&&actor!==viewer?msg("Opponent’s turn"):thinking?msg("Opponent’s turn"):view.combat?.stage==='review'?msg("Review combat"):responseStep?msg("Response energy"):view.phase==='play'?msg("Play & channel"):view.phase==='attack'?msg("Select attackers"):view.phase==='draw'?msg("Choose a card"):msg("End turn")}</strong></div><div className="match-corner"><button aria-pressed={logOpen} onClick={()=>setLogOpen(open=>!open)} aria-label={logOpen?msg("Hide battle log"):msg("Show battle log")} title={logOpen?msg("Hide battle log"):msg("Show battle log")}><ScrollText size={17}/></button><button onClick={()=>setPanel('menu')} aria-label={msg("Match menu")}><Menu size={18}/></button></div></header>
+    <header className="topbar"><button className="brand" aria-label={msg("Realms of Varhyr home")} onClick={()=>navigate('menu')}><span className="brand-mark">V<span/></span><span><small>REALMS OF</small><strong>VARHYR</strong></span></button><div className="match-status" aria-label={msg("Turn {v0}, {v1} initiative", {v0: view.turn, v1: view.active===viewer?'your':'opponent’s'})}><span>{msg("Turn")}{' '}{view.turn}</span><i/><strong>{phaseStatusLabel(situation)}</strong></div><div className="match-corner"><button aria-pressed={logOpen} onClick={()=>setLogOpen(open=>!open)} aria-label={logOpen?msg("Hide battle log"):msg("Show battle log")} title={logOpen?msg("Hide battle log"):msg("Show battle log")}><ScrollText size={17}/></button><button onClick={()=>setPanel('menu')} aria-label={msg("Match menu")}><Menu size={18}/></button></div></header>
     {online&&!watching&&<div className={`online-connection-strip ${connection?.connected?'connected':'offline'}`} role="status"><span className="online-status-dot"/><span>{msg("Room")}{' '}{connection?.code} · {connection?.connected?connection?.busy?msg("Sending move…"):msg("Connected"):connection?.message}</span>{!connection?.connected&&<button onClick={()=>match.kind==='live'&&match.reconnect()}>{msg("Reconnect")}</button>}</div>}
     <main className={`arena-shell ${logOpen?'with-log':''}`}>
       <section className="battlefield">
@@ -513,23 +469,13 @@ function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSessi
     })()}
     {!covered&&!panel&&!view.outcome&&<FactionAbilityEffects auras={clash?[]:factionAuras(view,registry)} bursts={factionEffects} board={boardRef.current} slots={slotLayout} viewer={viewer} reduced={reduced}/>}
     <EnergyFlow flights={energyFlights}/><SpellCast casts={spellCasts}/><ClashLayer batches={clashBatches} board={boardRef.current} slots={slotLayout} viewer={viewer} onSkip={clash?()=>setClash(null):undefined}/>
-    {panel==='menu'&&<div className="modal-backdrop" onClick={()=>setPanel(null)}><section className="choice-dialog match-menu-dialog" role="dialog" aria-modal="true" aria-label={msg("Menu")} onClick={e=>e.stopPropagation()}><h2>{msg("Menu")}</h2><div className="match-menu">{online&&<><p>{msg(connection?.message??'')}</p>{(connection?.role==='guest'||!connection?.connected)&&<button className="outline-button full" onClick={()=>match.kind==='live'&&match.reconnect()}>{msg("Reconnect")}</button>}</>}{fullscreen.supported?<button className="outline-button full" onClick={()=>void fullscreen.toggle()}>{fullscreen.active?<Minimize size={15}/>:<Maximize size={15}/>}{fullscreen.active?msg("Exit fullscreen"):msg("Fullscreen")}</button>:!fullscreen.installed&&<p className="match-menu-hint">{msg("For fullscreen, add this page to your home screen: Share, then Add to Home Screen.")}</p>}<button className="outline-button full" onClick={()=>!local?setPanel('settings'):navigate('settings')}><Settings2 size={15}/>{msg("Settings")}</button><button className="outline-button full" onClick={()=>setPanel('rules')}><CircleHelp size={15}/>{msg("How to play")}</button><button className="outline-button full" onClick={()=>setPanel('journal')}><ScrollText size={15}/>{msg("Battle journal")}</button><button className="outline-button full" aria-pressed={logOpen} onClick={()=>{setLogOpen(open=>!open);setPanel(null);}}><ScrollText size={15}/>{logOpen?msg("Hide battle log"):msg("Show battle log")}</button><div className="match-skip"><span>{msg("Skip empty response steps")}</span><button className={`toggle ${skipEmptyWindows?'on':''}`} role="switch" aria-checked={skipEmptyWindows} aria-label={msg("Skip empty response steps")} onClick={()=>updatePreferences({skipEmptyWindows:!skipEmptyWindows})}><span/></button></div><button className="outline-button full" onClick={()=>{setPanel(null);navigate('menu');}}>{watching?msg("Close replay"):!local?msg("Leave online game"):msg("Main menu")}</button>{!watching&&!tutorial&&!state.outcome&&(confirmConcede?<div className="concede-confirm" role="alertdialog" aria-label={msg("Concede")}><p>{msg("Give up this match? Your opponent wins.")}</p><div><button className="outline-button danger" onClick={concede}>{msg("Concede")}</button><button className="outline-button" onClick={()=>setConfirmConcede(false)}>{msg("Keep playing")}</button></div></div>:<button className="outline-button full danger" onClick={()=>setConfirmConcede(true)}>{msg("Concede")}</button>)}</div></section></div>}
-    {panel&&panel!=='menu'&&<div className="panel-backdrop" onClick={()=>setPanel(null)}><section className={`side-panel `} onClick={e=>e.stopPropagation()} role="dialog" aria-modal="true" aria-label={panel==='rules'?msg("Rules"):panel==='settings'?msg("Settings"):panel==='journal'?msg("Battle journal"):panel==='discard'?msg("Discard piles"):msg("Match laboratory")}><div className="panel-header"><div><h2>{panel==='rules'?msg("Rules"):panel==='settings'?msg("Settings"):panel==='journal'?msg("Battle journal"):panel==='discard'?msg("Discard piles"):msg("Match laboratory")}</h2></div><button aria-label={msg("Close panel")} onClick={()=>setPanel(null)}><X size={20}/></button></div>
-      {panel==='rules'&&<div className="rules-content">{[
-        ['01',msg("Draw & choose"),msg("Begin with five cards. Each turn, draw two and keep one; the other goes to your discard pile or under your library, as you choose. The first player skips their first draw.")],
-        ['02',msg("Build your economy"),msg("Play zero-cost creatures first. Most enter exhausted. On later turns, exhaust a ready creature to generate its printed energy. Match faction symbols to colored costs; any energy pays generic costs.")],
-        ['03',msg("Commit your assault"),msg("Enter combat, select any ready creatures, and attack as a batch. A creature cannot channel and attack in the same readiness cycle. Attackers choose a lane in the next step; unblocked attacks damage the opponent.")],
-        ['04',msg("Choose a lane"),msg("Each attacker targets its own lane or an adjacent one, and no two attackers may target the same lane. The creature or holding in that lane blocks automatically, even when exhausted. A Guard next to the targeted lane steps in and blocks instead, even if the lane is empty. An empty lane lets the attack hit the player. Attacker and blocker deal their full Attack simultaneously; excess never hits the player.")],
-        ['05',msg("A final bargain"),msg("Whenever a creature with an energy output dies, on any turn and from any cause, its owner gets that energy for response spells. After combat the attacker's window opens first, then the defender's. Choose one output for dual producers. Creatures that die inside a window add to their owner's pool.")],
-        ['06',msg("Ready & pass"),msg("At the end of your turn, your surviving field cards ready. Damage clears from all field cards and all energy expires. Drawing the last card in your library immediately loses the game. Discards do not recycle.")]
-      ].map(([n,title,copy])=><article key={n}><span>{n}</span><div><h3>{title}</h3><p>{copy}</p></div></article>)}<div className="note-box">{msg("Left Flank · Left Wing · Center · Right Wing · Right Flank. Choose a position when deploying. Cards cannot move while on the battlefield. Adjacent means one slot away in the same row; empty slots do not close the gap. Position affects an ability only when its text says so.")}</div><div className="note-box">{msg("Holdings occupy a field slot and deal their printed damage when blocking. They cannot attack or produce energy, including on death. Continuous effects stay active while on the field; activated abilities exhaust a ready field card during its controller’s play phase.")}</div><div className="note-box">{msg("Consume is an ability on specific cards. It sacrifices a friendly creature as a play cost, freeing its slot. There is no free sacrifice action.")}</div></div>}
+    {panel==='menu'&&<MatchMenuDialog match={match} online={online} local={local} watching={watching} tutorial={!!tutorial} finished={!!state.outcome} connection={connection} fullscreen={fullscreen} logOpen={logOpen} skipEmptyWindows={skipEmptyWindows} confirmConcede={confirmConcede} setConfirmConcede={setConfirmConcede} concede={concede} setPanel={setPanel} setLogOpen={setLogOpen} goSettings={()=>navigate('settings')} goMenu={()=>navigate('menu')}/>}
+    {panel&&panel!=='menu'&&<SidePanel panel={panel} close={()=>setPanel(null)}>
+      {panel==='rules'&&<RulesContent/>}
       {panel==='settings'&&<div className="settings-content match-preferences"><PreferenceControls/><VersionLine/></div>}
-      
-      {panel==='discard'&&<div className="discard-content">{[viewer,other(viewer)].map(owner=><section key={owner}><h3>{playerName(view.players[owner].name)} <small>{view.players[owner].discard.length} {msg(view.players[owner].discard.length===1?'card':'cards')}</small></h3>{view.players[owner].discard.length?<div className="codex-grid">{[...view.players[owner].discard].reverse().map(id=><article key={id}><ArtCard reduced card={registry.cards[view.cards[id].definitionId]}/></article>)}</div>:<p className="empty-pile">{msg("Nothing here yet.")}</p>}</section>)}</div>}
-      {panel==='journal'&&<div className="journal-content"><div className="discard-summary">{(['p1','p2'] as PlayerId[]).map(p=><div key={p}><h3>{playerName(view.players[p].name)}</h3><p className="journal-counts">{view.players[p].handCount} {msg("in hand ·")}{' '}{view.players[p].deckCount} {msg("in deck")}</p><span className="eyebrow">{msg("DISCARD ·")}{' '}{view.players[p].discard.length}</span>{view.players[p].discard.map(id=><p key={id}>{msg(registry.cards[view.cards[id].definitionId].name)}</p>)}</div>)}</div><h3>{msg("Match events")}</h3><ol className="event-list">{[...view.events].reverse().map(e=><li key={e.seq}><span>{String(e.seq).padStart(3,'0')}</span><p>{msg(e.message)}</p></li>)}</ol></div>}
-      {panel==='debug'&&<div className="debug-content"><div className="debug-metrics"><span>{msg("Revision")}<b>{view.revision}</b></span><span>{msg("Steps")}<b>{historyLength}</b></span><span>{msg("Seed")}<b>{initial.seed}</b></span></div><label>{msg("TIME TRAVEL")}<input type="range" min={0} max={historyLength} value={historyIndex??historyLength} onChange={e=>{setHistoryIndex(Number(e.target.value));setSelected(null);}}/></label><div className="debug-actions"><button className="outline-button" onClick={()=>setHistoryIndex(null)}>{msg("Return to live")}</button>{local&&<button className="outline-button" onClick={exportReplay}>{msg("Export replay")}<Download size={14}/></button>}</div><details><summary>{msg("Player projection")}</summary><pre>{JSON.stringify(view,null,2)}</pre></details><h3>{!local?msg("What happened"):msg("Accepted commands")}</h3><ol className="command-list">{historySteps.map((e,i)=><li key={i}><button onClick={()=>setHistoryIndex(i+1)}><span>{i+1}</span><b>{e.who}</b>{msg(e.label)}<ChevronRight size={13}/></button></li>)}</ol></div>}
-    </section></div>}
+      {panel==='discard'&&<DiscardPanel view={view} viewer={viewer}/>}
+      {panel==='journal'&&<JournalPanel view={view}/>}
+      {panel==='debug'&&<DebugPanel view={view} initial={initial} historyLength={historyLength} historyIndex={historyIndex} historySteps={historySteps} local={local} setHistoryIndex={setHistoryIndex} setSelected={setSelected} exportReplay={exportReplay}/>}
+    </SidePanel>}
   </div>;
 }
-function LayersIcon(){
-  useLanguage();return <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M2 5l6-3 6 3-6 3Zm0 3l6 3 6-3M2 11l6 3 6-3"/></svg>;}

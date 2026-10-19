@@ -1,9 +1,11 @@
 /* Tokens and resets every Varhyr surface shares. */
-:root{font-family:'Source Serif 4',Georgia,serif;color:#dddcda;background:#0b0a09;font-synthesis:none;font-weight:400;--gold:#c6ae7c;--gold-bright:#e4ca91;--muted:#868480;--line:#b0aea91a;--serif:'Cormorant Garamond',Georgia,serif}
+:root{font-family:'Source Serif 4',Georgia,serif;color:#dddcda;background:var(--bg);font-synthesis:none;font-weight:400;--gold:#c6ae7c;--gold-bright:#e4ca91;--muted:#868480;--line:#b0aea91a;--serif:'Cormorant Garamond',Georgia,serif}
 *{box-sizing:border-box}
 body{margin:0}
+/* Everything is laid out inside the safe area; full-bleed artwork sits in position:fixed layers. */
+#root{min-height:100dvh;padding:var(--safe-t) var(--safe-r) var(--safe-b) var(--safe-l)}
 button,input,select{font:inherit}
 button{cursor:pointer;border:0;background:none;color:inherit}
 button:disabled{cursor:default;opacity:.4}
-button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid #e1c590;outline-offset:4px}
+button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--gilt);outline-offset:4px}
 button{transition:color .18s,background .18s,transform .2s,opacity .2s}

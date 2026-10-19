@@ -1,0 +1,6 @@
+/* Screen shells: the one place that says how a lobby screen fills the viewport.
+   Fixed-height screens scroll inside their panes; below 860px the page scrolls instead. */
+.lobby:is(.menu-screen,:has(.deck-workshop,.settings-page,.profile-hall,.store-hall)){height:var(--app-h);min-height:0;display:flex;flex-direction:column;overflow:hidden}
+@media(max-width:860px){
+  .lobby:is(.menu-screen,:has(.profile-hall,.store-hall)){height:auto;min-height:var(--app-h);overflow:visible}
+}

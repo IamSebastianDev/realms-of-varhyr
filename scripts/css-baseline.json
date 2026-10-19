@@ -1,0 +1,212 @@
+{
+ "apps/studio/src/studio.css": {
+  "hex": 42,
+  "important": 6,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/arena.css": {
+  "hex": 177,
+  "important": 11,
+  "zfixed": 1,
+  "vh": 0
+ },
+ "apps/web/src/audio.css": {
+  "hex": 21,
+  "important": 0,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/card-backs.css": {
+  "hex": 10,
+  "important": 0,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/card-layout.css": {
+  "hex": 88,
+  "important": 9,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/collection-stats.css": {
+  "hex": 27,
+  "important": 0,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/collection.css": {
+  "hex": 22,
+  "important": 0,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/combat-fx.css": {
+  "hex": 54,
+  "important": 0,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/deck-builder.css": {
+  "hex": 90,
+  "important": 1,
+  "zfixed": 2,
+  "vh": 0
+ },
+ "apps/web/src/deck-shelf.css": {
+  "hex": 23,
+  "important": 1,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/detail-chrome.css": {
+  "hex": 0,
+  "important": 0,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/draft/draft.css": {
+  "hex": 43,
+  "important": 2,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/energy-choice-arc.css": {
+  "hex": 12,
+  "important": 0,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/faction-effects.css": {
+  "hex": 27,
+  "important": 0,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/form-controls.css": {
+  "hex": 32,
+  "important": 0,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/game-setup.css": {
+  "hex": 12,
+  "important": 3,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/layout.css": {
+  "hex": 0,
+  "important": 0,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/match-summary.css": {
+  "hex": 64,
+  "important": 0,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/multiplayer/multiplayer.css": {
+  "hex": 36,
+  "important": 0,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/nav.css": {
+  "hex": 17,
+  "important": 0,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/onboarding.css": {
+  "hex": 19,
+  "important": 2,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/packs.css": {
+  "hex": 2,
+  "important": 0,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/plate.css": {
+  "hex": 17,
+  "important": 0,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/profile.css": {
+  "hex": 75,
+  "important": 6,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/quest/quest.css": {
+  "hex": 55,
+  "important": 3,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/start-hall.css": {
+  "hex": 16,
+  "important": 3,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/start-screen.css": {
+  "hex": 110,
+  "important": 0,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/store.css": {
+  "hex": 18,
+  "important": 1,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/styles.css": {
+  "hex": 457,
+  "important": 8,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/touch.css": {
+  "hex": 0,
+  "important": 0,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/tutorial.css": {
+  "hex": 21,
+  "important": 0,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "apps/web/src/ui-scale.css": {
+  "hex": 1,
+  "important": 0,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "packages/ui/src/base.css": {
+  "hex": 5,
+  "important": 0,
+  "zfixed": 0,
+  "vh": 1
+ },
+ "packages/ui/src/bronze.css": {
+  "hex": 40,
+  "important": 0,
+  "zfixed": 0,
+  "vh": 0
+ },
+ "packages/ui/src/card.css": {
+  "hex": 132,
+  "important": 1,
+  "zfixed": 1,
+  "vh": 0
+ }
+}

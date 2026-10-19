@@ -1,6 +1,7 @@
 import '../../../packages/ui/src/fonts';
 import './styles.css';
 import './card-layout.css';
+import './layout.css';
 import { ApplicationPreferences } from '../../../packages/ui/src/i18n';
 import React from 'react';
 import ReactDOM from 'react-dom/client';

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { ArrowRight, UserPlus } from 'lucide-react';
 import { t as msg, useLanguage } from '../../../../packages/ui/src/i18n';
 import { factionInfo, registry } from '../../../../packages/content/src';
 import { boosterPacks, packCards } from '../../../../packages/content/src/boosters';
@@ -8,6 +8,7 @@ import { rarest } from '../DeckShelf';
 import '../game-setup.css';
 import './draft.css';
 import { useDraftRun } from './draftStore';
+import { JoinTableDialog } from './online/TableDialogs';
 
 /** One named draft as a stripe: art of the booster's best card, its factions, and where the run stands. */
 function PresetStripe({ preset, selected, pick }: { preset: DraftPreset; selected: boolean; pick: () => void }) {
@@ -32,10 +33,14 @@ export function DraftBlade({ open }: { open: (preset: string) => void }) {
   const [chosen, setChosen] = useState(draftPresets[0]!.id);
   const run = useDraftRun(chosen);
   const resuming = !!run && run.stage !== 'finished';
+  const [joining, setJoining] = useState(false);
+  const origin = useRef<HTMLElement | null>(null);
   return <div className="draft-blade">
     <p className="quest-goal">{msg("Draft 48 cards with two bots, build a deck from them and play each bot twice. Your wins decide the payout, and you keep every card.")}</p>
     <h3 className="setup-label" id="draft-sets">{msg("Choose a draft")}</h3>
     <div className="quest-stripes" role="radiogroup" aria-labelledby="draft-sets">{draftPresets.map(preset => <PresetStripe key={preset.id} preset={preset} selected={preset.id === chosen} pick={() => setChosen(preset.id)}/>)}</div>
     <button className="gold-button start-play setup-start" onClick={() => open(chosen)}><span>{resuming ? msg("Continue run") : msg("View draft")}</span><ArrowRight size={22}/></button>
+    <button className="outline-button draft-join" onClick={event => { origin.current = event.currentTarget; setJoining(true); }}><UserPlus size={16}/>{msg("Join a friend's table")}</button>
+    {joining && <JoinTableDialog origin={origin.current} close={() => setJoining(false)} started={preset => { setJoining(false); open(preset); }}/>}
   </div>;
 }

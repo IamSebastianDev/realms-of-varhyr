@@ -69,3 +69,8 @@ export function presentationState(snapshot: MatchSnapshot): GameState {
     p2:{...p.players.p2,deck:Array.from({length:p.players.p2.deckCount},(_,i)=>`hidden-p2-${i}`),hand:snapshot.seat==='p2'?[...p.hand]:[]},
   }};
 }
+
+/** For rooms that carry several kinds of message: the fields every table member shares. */
+export const joinSchema = v.object({type:v.literal('join'),version:number,rules:text,content:text,token:text,name:v.pipe(v.string(),v.minLength(1),v.maxLength(40)),avatar:avatarId,cardBack:avatarId});
+export type Join = v.InferOutput<typeof joinSchema>;
+export {text as wireText, number as wireNumber, avatarId as wireAvatar};

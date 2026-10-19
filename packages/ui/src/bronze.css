@@ -14,6 +14,6 @@
 }
 .bronze-plate{border:1px solid;border-color:var(--plate-edge);border-radius:6px;box-shadow:var(--plate-shadow);background:var(--corners-plate),var(--plate-bg)}
 .bronze-button{border:1px solid;border-color:var(--button-edge);border-radius:6px;box-shadow:var(--button-shadow);background:var(--corners-button),var(--button-fill);color:var(--bronze-text);font:500 15px var(--serif)}
-.bronze-button:hover:not(:disabled){border-color:#cfae6a99;color:#fff4d6}
+.bronze-button:hover:not(:disabled){border-color:rgb(var(--bronze-rgb) / .6);color:var(--gilt-white)}
 .bronze-primary{border:1px solid #e2c88869;border-radius:3px;background:linear-gradient(110deg,#e5cd96,#c6ad73);color:var(--bronze-ink);box-shadow:0 3px 18px #cab6720a}
 .bronze-primary:hover:not(:disabled){background:linear-gradient(100deg,#e1cca0,#d3b983);box-shadow:0 0 18px #cab6721c}

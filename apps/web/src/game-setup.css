@@ -1,39 +1,39 @@
 /* The Play pane: an inset sheet sliding in from the right. Big mode tiles, deck rows with art, one large Start button pinned to the bottom. */
-.game-setup-pane{width:min(520px,100%);background:linear-gradient(180deg,#110f0df2,#0d0c0af7),#0d0c0a;border-left:1px solid #e5d29f33;box-shadow:-24px 0 80px #000a}
+.game-setup-pane{width:min(520px,100%);background:linear-gradient(180deg,#110f0df2,rgb(var(--shade-rgb) / .97)),var(--surface-raised);border-left:1px solid rgb(var(--edge-rgb) / .2);box-shadow:-24px 0 80px #000a}
 .game-setup-pane .setup-heading{padding:26px 30px 18px;border-bottom:0}
 .game-setup-pane .setup-heading h2{font-size:40px}
 .game-setup-pane .setup-scroll{display:flex;flex-direction:column;padding:4px 30px 28px}
 .game-setup-pane .setup-modes{gap:12px;padding:0;border:0;background:none}
-.game-setup-pane .setup-modes button{flex-direction:column;gap:6px;padding:18px 12px 16px;border-radius:6px;border:1px solid;border-color:#0b0a0999 #e5d29f1c #e5d29f22 #0b0a0999;background:#0d0c0a48;box-shadow:inset 0 3px 16px #06060599;color:#bbb8b3;transition:background .15s,color .15s,box-shadow .15s}
+.game-setup-pane .setup-modes button{flex-direction:column;gap:6px;padding:18px 12px 16px;border-radius:6px;border:1px solid;border-color:rgb(var(--shade-rgb) / .6) rgb(var(--edge-rgb) / .11) rgb(var(--edge-rgb) / .13) rgb(var(--shade-rgb) / .6);background:rgb(var(--shade-rgb) / .28);box-shadow:inset 0 3px 16px rgb(var(--shade-rgb) / .6);color:#bbb8b3;transition:background .15s,color .15s,box-shadow .15s}
 .game-setup-pane .setup-modes button b{font:600 20px/1.1 var(--serif);color:inherit}
 .game-setup-pane .setup-modes button small{font-size:11px;color:#a5a29c}
 .game-setup-pane .setup-modes button svg{color:#918e89}
 .game-setup-pane .setup-modes button:hover{color:#e8dcb4}
-.game-setup-pane .setup-modes button[aria-pressed=true]{color:#f6e8bd;background:linear-gradient(180deg,#e5d29f26,#e5d29f0c);box-shadow:inset 0 0 0 1px #e3c780aa,0 0 24px #e3c78025}
-.game-setup-pane .setup-modes button[aria-pressed=true] svg{color:#e3c780}
+.game-setup-pane .setup-modes button[aria-pressed=true]{color:var(--gilt-pale);background:linear-gradient(180deg,rgb(var(--edge-rgb) / .15),rgb(var(--edge-rgb) / .05));box-shadow:inset 0 0 0 1px rgb(var(--gilt-rgb) / .67),0 0 24px rgb(var(--gilt-rgb) / .15)}
+.game-setup-pane .setup-modes button[aria-pressed=true] svg{color:var(--gilt)}
 .game-setup-pane .setup-friend-modes{margin-top:18px}
 .local-game-setup{display:flex;flex-direction:column;margin-top:22px}
 .setup-label{margin:0 0 10px;font:600 13px/1 var(--sans,inherit);color:#c9ad6a}
 .setup-chosen{display:grid;gap:10px}
 .setup-chosen .setup-deck{min-height:132px;width:100%}
-.setup-change{display:inline-flex;align-items:center;justify-content:space-between;padding:0 14px;gap:8px;height:42px;border-radius:5px;border:1px solid #e5d29f44;background:#0d0c0a66;color:#e8e2c8;font-size:13px}
-.setup-change:hover{border-color:#e3c780;color:#f6e8bd}
+.setup-change{display:inline-flex;align-items:center;justify-content:space-between;padding:0 14px;gap:8px;height:42px;border-radius:5px;border:1px solid rgb(var(--edge-rgb) / .27);background:rgb(var(--shade-rgb) / .4);color:#e8e2c8;font-size:13px}
+.setup-change:hover{border-color:var(--gilt);color:var(--gilt-pale)}
 .setup-deck-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;max-height:min(62dvh,520px);overflow:auto;padding:3px}
 .setup-deck-sleeve{position:absolute;z-index:1;right:10px;bottom:10px;width:30px!important;border-radius:3px!important;box-shadow:0 2px 6px #000a,0 0 0 1px #0009!important}
-.setup-deck{position:relative;display:flex;flex-direction:column;justify-content:flex-end;min-height:128px;padding:0;text-align:left;border-radius:6px;overflow:hidden;border:1px solid #e5d29f2a;background:#0d0c0a;color:#f3ecd2;transition:border-color .15s,box-shadow .15s,transform .15s}
-.setup-deck-art{position:absolute;inset:0;background:#0d0c0a center 25%/cover;transition:transform .3s,filter .2s}
-.setup-deck::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,#08070600 25%,#080706ee 88%)}
-.setup-deck:hover:not(:disabled){border-color:#e5d29f88}
+.setup-deck{position:relative;display:flex;flex-direction:column;justify-content:flex-end;min-height:128px;padding:0;text-align:left;border-radius:6px;overflow:hidden;border:1px solid rgb(var(--edge-rgb) / .16);background:var(--surface-raised);color:#f3ecd2;transition:border-color .15s,box-shadow .15s,transform .15s}
+.setup-deck-art{position:absolute;inset:0;background:var(--surface-raised) center 25%/cover;transition:transform .3s,filter .2s}
+.setup-deck::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgb(var(--shade-rgb) / 0) 25%,rgb(var(--shade-rgb) / .93) 88%)}
+.setup-deck:hover:not(:disabled){border-color:rgb(var(--edge-rgb) / .53)}
 .setup-deck:hover:not(:disabled) .setup-deck-art{transform:scale(1.04)}
-.setup-deck[aria-checked=true]{border-color:#e3c780;box-shadow:0 0 0 1px #e3c780,0 0 22px #e3c78033}
+.setup-deck[aria-checked=true]{border-color:var(--gilt);box-shadow:0 0 0 1px var(--gilt),0 0 22px rgb(var(--gilt-rgb) / .2)}
 .setup-deck-text{position:relative;z-index:1;display:grid;gap:2px;padding:10px 12px 10px}
-.setup-deck-text b{font:600 17px/1.15 var(--serif);text-shadow:0 1px 4px #000;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.setup-deck-text small{font-size:11px;color:#c5c3bd;text-shadow:0 1px 3px #000}
+.setup-deck-text b{font:600 17px/1.15 var(--serif);text-shadow:0 1px 4px var(--black);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.setup-deck-text small{font-size:11px;color:#c5c3bd;text-shadow:0 1px 3px var(--black)}
 .setup-deck:disabled{cursor:not-allowed}
 .setup-deck:disabled .setup-deck-art{filter:grayscale(.9) brightness(.5)}
 .setup-deck:disabled .setup-deck-text b{color:#afada8}
 .setup-deck.warn .setup-deck-text small{color:#f0cf98}
-.setup-deck>svg:not(.card-back-face){position:absolute;z-index:2;top:8px;right:8px;box-sizing:content-box;padding:4px;border-radius:50%;background:#e3c780;color:#2b1e08}
+.setup-deck>svg:not(.card-back-face){position:absolute;z-index:2;top:8px;right:8px;box-sizing:content-box;padding:4px;border-radius:50%;background:var(--gilt);color:#2b1e08}
 .local-game-setup .deck-warning{margin:14px 0 0}
 .local-game-setup .setup-advanced{margin-top:18px}
 .local-game-setup .setup-start.start-play,.local-game-setup .setup-start.start-play:hover:not(:disabled){margin:22px 0 0 auto;width:fit-content;min-width:230px;height:68px;grid-template-columns:auto 28px;gap:20px;padding:0 22px 0 30px}

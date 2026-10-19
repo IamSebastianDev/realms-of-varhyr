@@ -96,15 +96,20 @@ export function botPick(pack: string[], picks: string[], registry: Registry, rng
   return best;
 }
 
-/** You take a card from your pack; both bots pick and the packs move on. The last card of a pack is picked like any other. */
-export function pickCard(state: DraftState, preset: DraftPreset, registry: Registry, cardId: string): DraftState {
+/**
+ * One step of the draft for the whole table. `choices` holds a card for each human seat and null for a seat a bot plays.
+ * Everyone picks from the pack in front of them, then the packs move on.
+ */
+export function pickRound(state: DraftState, preset: DraftPreset, registry: Registry, choices: (string | null)[]): DraftState {
   if (state.done) throw new Error('The draft is over.');
-  if (!state.held[0]!.includes(cardId)) throw new Error('That card is not in your pack.');
   const picks = state.picks.map(list => [...list]);
   let held = state.held.map(pack => [...pack]);
   const take = (drafter: number, id: string) => { held[drafter]!.splice(held[drafter]!.indexOf(id), 1); picks[drafter]!.push(id); };
-  take(0, cardId);
-  for (let drafter = 1; drafter < draftRules.drafters; drafter++) take(drafter, botPick(held[drafter]!, picks[drafter]!, registry, makeRng(`${state.seed}:${state.round}:${state.step}:${drafter}`)));
+  for (let drafter = 0; drafter < draftRules.drafters; drafter++) {
+    const choice = choices[drafter] ?? null;
+    if (choice !== null && !held[drafter]!.includes(choice)) throw new Error('That card is not in your pack.');
+    take(drafter, choice ?? botPick(held[drafter]!, picks[drafter]!, registry, makeRng(`${state.seed}:${state.round}:${state.step}:${drafter}`)));
+  }
   let { round, step } = state;
   const pass = () => { held = held.map((_, drafter) => held[(drafter + draftRules.drafters - 1) % draftRules.drafters]!); };
   pass(); step++;
@@ -115,6 +120,12 @@ export function pickCard(state: DraftState, preset: DraftPreset, registry: Regis
     else held = state.deal.slice(round * draftRules.drafters, (round + 1) * draftRules.drafters).map(pack => [...pack]);
   }
   return { ...state, round, step, held, picks, done };
+}
+
+/** You take a card from your pack; both bots pick and the packs move on. The last card of a pack is picked like any other. */
+export function pickCard(state: DraftState, preset: DraftPreset, registry: Registry, cardId: string): DraftState {
+  if (!state.done && !state.held[0]!.includes(cardId)) throw new Error('That card is not in your pack.');
+  return pickRound(state, preset, registry, [cardId, null, null]);
 }
 
 /** A bot's 30-card deck from its picks: its two best colours, about nine producers, the best of the rest. Legendaries once. */
@@ -136,7 +147,12 @@ export function buildBotDeck(pool: string[], registry: Registry): string[] {
 }
 
 export type DraftResult = 'won' | 'lost' | 'draw';
-export type DraftMatch = { /** Which bot: 1 or 2. */ opponent: 1 | 2; seed: number; result: DraftResult | null };
+export type DraftMatch = {
+  /** Which other drafter, counted from your seat: 1 is the one you pass to, 2 the one you receive from. */
+  opponent: 1 | 2; seed: number; result: DraftResult | null;
+  /** At a table with other people: the match's place in the table's schedule, whether the opponent is a person, and whether you are the first seat. */
+  table?: { index: number; human: boolean; first: boolean };
+};
 export type DraftStage = 'draft' | 'build' | 'matches' | 'finished';
 export type DraftRun = {
   id: string; preset: string; seed: number; startedAt: number; stage: DraftStage;
@@ -146,6 +162,8 @@ export type DraftRun = {
   /** Ended early: the wins so far are paid and the cards are kept. */
   dropped: boolean;
   fee: number;
+  /** A draft at a table with other people: the room, your seat there and the names around you (you first). */
+  table?: { code: string; seat: number; names: [string, string, string]; humans: [boolean, boolean, boolean]; host: boolean };
 };
 const botNames = ['Brannoch the Quartermaster', 'Isolde Vane', 'Old Hask', 'Maren of the Reach', 'Tolliver Grey', 'Sister Ysolde', 'Kell Ashmoor', 'The Pale Cartographer'];
 /** The two bots' names for a seed, known from the first pick so the table can be shown while drafting. */
@@ -194,8 +212,8 @@ export function recordResult(run: DraftRun, index: number, result: DraftResult):
   return { ...run, matches: run.matches.map((match, at) => at === index ? { ...match, result } : match) };
 }
 export const dropRun = (run: DraftRun): DraftRun => run.stage === 'finished' ? run : { ...run, dropped: true };
-/** All matches are played, or the run was ended early (even in the middle of the picks): ready to be paid out. */
-export const isRunComplete = (run: DraftRun) => !!run.dropped || (run.stage !== 'draft' && run.matches.length > 0 && run.matches.every(match => match.result));
+/** All matches are played, or the run was dropped: ready to be paid out. */
+export const isRunComplete = (run: DraftRun) => run.stage !== 'draft' && (run.dropped || (run.matches.length > 0 && run.matches.every(match => match.result)));
 export const payoutFor = (preset: DraftPreset, wins: number): PayoutTier => preset.payout[Math.max(0, Math.min(preset.payout.length - 1, wins))]!;
 /** The best payout still within reach: wins so far plus every match left. */
 export const bestPossible = (run: DraftRun) => winsOf(run) + run.matches.filter(match => !match.result).length;

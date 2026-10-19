@@ -48,7 +48,7 @@ type Props={
   mode:Mode; setMode:(mode:Mode)=>void; selected:string; setSelected:(id:string)=>void;
   opponentId:string; setOpponentId:(id:string)=>void;
   start:(skirmish:boolean)=>void;
-  startSession:(session:MatchSession)=>void;
+  startSession:(session:MatchSession,setup?:MatchSetup)=>void;
   /** Starts the guided first match. */
   learn:()=>void;
   /** Starts a prepared match (quest fights). */
@@ -137,9 +137,9 @@ export function Lobby(props:Props){
   function renameSaved(id:string,name:string){const deck=props.decks.find(d=>d.id===id);if(!deck)return null;const error=props.saveDeck({...deck,name});if(!error&&draft.id===id)setDraft(current=>({...current,name}));return error;}
   function deleteSaved(id:string){const error=props.deleteDeck(id);if(!error&&draft.id===id){setPast([]);setDraft(emptyDeck());}return error;}
   function deleteDraft(){const error=props.deleteDeck(draft.id);if(error){setMessage(error);return;}editingName.current=false;setPast([]);setDraft(emptyDeck());setMessage(msg("Deck deleted."));}
-  if(screen==='draft')return <DraftPage reduced={props.reduced} leave={()=>navigate('menu')} liveMatch={!!props.draftFight} resume={()=>navigate('match')} beginFight={props.beginMatch}/>;
+  if(screen==='draft')return <DraftPage reduced={props.reduced} leave={()=>navigate('menu')} liveMatch={!!props.draftFight} resume={()=>navigate('match')} beginFight={props.beginMatch} attachMatch={props.startSession}/>;
   if(screen==='quest')return <QuestPage reduced={props.reduced} leave={()=>navigate('menu')} liveMatch={props.questFight} resume={()=>navigate('match')} beginFight={props.beginMatch}/>;
-  return <div className={`lobby ${isHome?'menu-screen':''}`}>
+  return <div className={`lobby ${isHome?'menu-screen':''}`} data-screen={screen}>
     <div className="world-bg"/><div className="world-vignette"/>
     <header className="lobby-header" inert={setup!==null}>
       <button className="brand" onClick={()=>navigate('menu')} aria-label={msg("Main menu")}><span className="brand-mark">V<span/></span><span><small>REALMS OF</small><strong>VARHYR</strong></span></button>

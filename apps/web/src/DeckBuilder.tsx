@@ -1,4 +1,5 @@
 import { CardBackPicker } from './CardBackFace';
+import { Workshop } from './layout/Workshop';
 import { Checkbox } from './Checkbox';
 import { FactionSelect } from './FactionSelect';
 import { t as msg, useLanguage, formatNumber } from '../../../packages/ui/src/i18n';
@@ -152,17 +153,13 @@ export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUnd
   if (shelf) return <DeckShelf decks={decks} draft={draft} ownedCopies={ownedCopies}
     open={id => { if (id) load(id); setEditing(true); }}
     create={() => { change(newDeck()); setEditing(true); }} importDeck={importFromShelf} openCollection={openCollection} rename={renameDeck} remove={deleteSaved}/>;
-  return <main className="collection-page builder-page deck-workshop" aria-label={msg("Deck builder")}>
-    <input ref={fileRef} className="deck-file-input" type="file" accept=".json,application/json" aria-label={msg("Import deck file")} onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; if (file) void readFile(file); }}/>
-    <section className={`builder-collection ${drag?.from === 'deck' ? 'drop-ready' : ''} ${over === 'collection' ? 'drop-over' : ''}`} aria-label={msg("All cards")} {...dropZone('collection', 'deck', id => remove(id))}>
-      <div className="builder-collection-bar">
-        <h2>{msg("Your cards")}<span>{cards.length} {msg("cards")}</span></h2>
+  return <Workshop label={msg("Deck builder")} className="collection-page builder-page" panelLabel={msg("All cards")}
+    panel={{ className: `${drag?.from === 'deck' ? 'drop-ready' : ''} ${over === 'collection' ? 'drop-over' : ''}`, ...dropZone('collection', 'deck', id => remove(id)) }}
+    title={msg("Your cards")} subtitle={<>{cards.length} {msg("cards")}</>}
+    actions={
         <CardFilterBar filters={filters} setFilters={setFilters} ownership={ownership} setOwnership={setOwnership} count={cards.length} hidden={hiddenCount} deck/>
-      </div>
-      <div className="builder-collection-gallery" aria-label={msg("Browse collection cards")}>
-        {!cards.length ? <div className="collection-empty"><Search size={24}/><p>{allCards.length && !ownership.unowned ? msg("No owned cards match. Open boosters in the Store, or show cards you don’t own in Filters.") : msg("No cards match these filters.")}</p><button className="outline-button" onClick={() => { setFilters(initialBuilderFilters); setOwnership(defaultOwnership); }}>{msg("Reset filters")}</button></div> : cards.map(card => tile(card, false))}
-      </div>
-    </section>
+    }
+    pane={
     <aside className={`builder-deck ${drag?.from === 'collection' ? 'drop-ready' : ''} ${over === 'deck' ? 'drop-over' : ''}`} aria-label={msg("Cards in deck")} {...dropZone('deck', 'collection', id => add(id))}>
       <div className="dk-head">
         <h2 className="sr-only">{msg("Your deck")}{' '}{summary.total} {msg("cards")}</h2>
@@ -198,6 +195,8 @@ export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUnd
       </div>}
       <div className="builder-deck-footer"><span role="status" title={errors.map(issue=>msg(issue)).join(' ')}>{message || (errors.length ? errors[0] : isSaved ? msg("Saved on this device.") : msg("Draft saved automatically."))}</span><button onClick={() => openDialog('overview')} title={msg("Deck overview")}>{summary.freeProducers} {msg("free producers ·")}{' '}{formatNumber(summary.averageCost,{minimumFractionDigits:1,maximumFractionDigits:1})} {msg("avg. cost")}</button></div>
     </aside>
+    }
+    overlays={<>
     {dialog === 'deck' && <BuilderDialog title={msg("Deck actions")} origin={sharingOrigin.current} close={() => setDialog(null)}>
       <label>{msg("Load deck")}<select aria-label={msg("Load deck")} value={saved ? draft.id : 'draft'} onChange={event => { load(event.target.value); setDialog(null); }}><option value="draft">{msg("Current draft")}</option><optgroup label={msg("Starter decks")}>{starterOptions.map(deck => <option key={deck.id} value={deck.id}>{msg(deck.name)}</option>)}</optgroup>{decks.length > 0 && <optgroup label={msg("Your decks")}>{decks.map(deck => <option key={deck.id} value={deck.id}>{msg(deck.name)}</option>)}</optgroup>}</select></label>
       <div className="builder-manage-actions"><button className="outline-button" onClick={() => { change(newDeck()); setDialog(null); }}><Plus size={16}/>{msg("New deck")}</button><button className="outline-button" onClick={() => { change({ ...draft, id: newDeck().id, name: msg("{v0} (copy)", {v0: draft.name.slice(0, 53)}) }); setDialog(null); }}><Copy size={16}/>{msg("Duplicate deck")}</button><button className="outline-button" onClick={() => openSharing('import')}><Upload size={16}/>{msg("Import deck")}</button><button className="outline-button" disabled={!draft.cards.length} onClick={() => openSharing('export')}><Download size={16}/>{msg("Export deck")}</button></div>
@@ -219,5 +218,10 @@ export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUnd
       {importError && <p className="builder-dialog-error" role="alert">{msg(importError)}</p>}{copyMessage && <p role="status">{msg(copyMessage)}</p>}
       <div className="builder-dialog-actions">{sharing === 'export' ? <><button className="outline-button" onClick={download}><Download size={15}/>{msg("Download file")}</button><button className="gold-button" onClick={() => void copyCode()}><Copy size={15}/>{msg("Copy deck code")}</button></> : <><button className="outline-button" onClick={() => fileRef.current?.click()}><Upload size={15}/>{msg("Choose file")}</button><button className="gold-button" disabled={!deckCode.trim()} onClick={() => { try { importCode(deckCode); } catch (error) { setImportError(error instanceof Error ? error.message : msg("Could not read this deck.")); } }}>{msg("Import deck")}<Check size={15}/></button></>}</div>
     </BuilderDialog>}
-  </main>;
+    </>}>
+    <input ref={fileRef} className="deck-file-input" type="file" accept=".json,application/json" aria-label={msg("Import deck file")} onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; if (file) void readFile(file); }}/>
+      <div className="builder-collection-gallery" aria-label={msg("Browse collection cards")}>
+        {!cards.length ? <div className="collection-empty"><Search size={24}/><p>{allCards.length && !ownership.unowned ? msg("No owned cards match. Open boosters in the Store, or show cards you don’t own in Filters.") : msg("No cards match these filters.")}</p><button className="outline-button" onClick={() => { setFilters(initialBuilderFilters); setOwnership(defaultOwnership); }}>{msg("Reset filters")}</button></div> : cards.map(card => tile(card, false))}
+      </div>
+  </Workshop>;
 }

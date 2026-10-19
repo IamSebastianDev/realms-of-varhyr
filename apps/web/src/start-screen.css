@@ -1,30 +1,29 @@
 /* The home screen fills the window; only an open setup pane can scroll. */
-.lobby.menu-screen{height:100dvh;min-height:0;display:flex;flex-direction:column;overflow:hidden}
 .menu-screen .lobby-header{flex:none}
 .start-menu{position:relative;z-index:1;flex:1;min-height:0;width:100%;max-width:1200px;margin-inline:auto;padding:clamp(20px,4vh,48px) 40px 18px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:minmax(0,1fr) auto;gap:18px 70px;overflow:auto}
 .start-welcome{align-self:center;max-width:420px;padding-bottom:25px}
-.start-welcome h1{font-size:clamp(42px,5.4vw,70px);line-height:1.02;margin:17px 0 20px;text-shadow:0 3px 30px #06060555}
+.start-welcome h1{font-size:clamp(42px,5.4vw,70px);line-height:1.02;margin:17px 0 20px;text-shadow:0 3px 30px rgb(var(--shade-rgb) / .33)}
 .start-welcome p{font-size:13px;line-height:1.9;color:#cdcbc7}
 /* The turn dial's gold finish, on a wide home-screen button. */
 .start-play{position:relative;isolation:isolate;display:grid;grid-template-columns:30px 1fr 30px;align-items:center;gap:16px;width:100%;height:76px;min-height:0;max-width:340px;flex:none;margin:34px 0 0;padding:17px 25px;border:1px solid #f4dfaa;border-radius:4px;color:#2b1e08;text-shadow:0 1px 0 #ffeab4;
   background:radial-gradient(ellipse at 30% 0,#fff6d6aa,transparent 70%),linear-gradient(165deg,#f4e2af 0%,#e6c577 42%,#bf974d 100%);
-  box-shadow:0 0 0 3px #151411,0 0 0 4px #d6bd7b88,0 12px 26px #08070699,inset 0 2px 2px #fff8,inset 0 -5px 9px #7a581f77;
+  box-shadow:0 0 0 3px #151411,0 0 0 4px #d6bd7b88,0 12px 26px rgb(var(--shade-rgb) / .6),inset 0 2px 2px #fff8,inset 0 -5px 9px #7a581f77;
   transition:transform .18s cubic-bezier(.2,.8,.3,1),filter .18s}
-.start-play::before{content:'';position:absolute;inset:-9px;border:1px solid #d6bd7b55;border-radius:7px;pointer-events:none;background:linear-gradient(#f2d99a,#f2d99a) left top/24px 1px no-repeat,linear-gradient(#f2d99a,#f2d99a) right top/24px 1px no-repeat,linear-gradient(#f2d99a,#f2d99a) left bottom/24px 1px no-repeat,linear-gradient(#f2d99a,#f2d99a) right bottom/24px 1px no-repeat,linear-gradient(#f2d99a,#f2d99a) left top/1px 12px no-repeat,linear-gradient(#f2d99a,#f2d99a) right top/1px 12px no-repeat,linear-gradient(#f2d99a,#f2d99a) left bottom/1px 12px no-repeat,linear-gradient(#f2d99a,#f2d99a) right bottom/1px 12px no-repeat}
+.start-play::before{content:'';position:absolute;inset:-9px;border:1px solid #d6bd7b55;border-radius:7px;pointer-events:none;background:linear-gradient(var(--gilt-bright),var(--gilt-bright)) left top/24px 1px no-repeat,linear-gradient(var(--gilt-bright),var(--gilt-bright)) right top/24px 1px no-repeat,linear-gradient(var(--gilt-bright),var(--gilt-bright)) left bottom/24px 1px no-repeat,linear-gradient(var(--gilt-bright),var(--gilt-bright)) right bottom/24px 1px no-repeat,linear-gradient(var(--gilt-bright),var(--gilt-bright)) left top/1px 12px no-repeat,linear-gradient(var(--gilt-bright),var(--gilt-bright)) right top/1px 12px no-repeat,linear-gradient(var(--gilt-bright),var(--gilt-bright)) left bottom/1px 12px no-repeat,linear-gradient(var(--gilt-bright),var(--gilt-bright)) right bottom/1px 12px no-repeat}
 .start-play::after{content:'';position:absolute;inset:-3px;border-radius:6px;pointer-events:none;box-shadow:0 0 25px 4px #f1d89a44;animation:action-pulse 2.8s ease-in-out infinite}
 .start-play span{font:600 30px/1 var(--serif);letter-spacing:.5px;text-align:center}.start-play>svg{stroke-width:2.2;filter:drop-shadow(0 1px 0 #ffeab4);justify-self:center}.start-play>svg:nth-child(2){width:26px;height:26px}.start-play>svg:last-child{margin:0;width:21px;height:21px}
-.start-play:hover:not(:disabled){color:#2b1e08;background:radial-gradient(ellipse at 30% 0,#fff6d6aa,transparent 70%),linear-gradient(165deg,#f4e2af 0%,#e6c577 42%,#bf974d 100%);box-shadow:0 0 0 3px #151411,0 0 0 4px #e9d298bb,0 12px 26px #08070699,inset 0 2px 2px #fff8,inset 0 -5px 9px #7a581f77;transform:translateY(-2px);filter:brightness(1.08) saturate(1.1)}
+.start-play:hover:not(:disabled){color:#2b1e08;background:radial-gradient(ellipse at 30% 0,#fff6d6aa,transparent 70%),linear-gradient(165deg,#f4e2af 0%,#e6c577 42%,#bf974d 100%);box-shadow:0 0 0 3px #151411,0 0 0 4px #e9d298bb,0 12px 26px rgb(var(--shade-rgb) / .6),inset 0 2px 2px #fff8,inset 0 -5px 9px #7a581f77;transform:translateY(-2px);filter:brightness(1.08) saturate(1.1)}
 .start-play:active:not(:disabled){transform:translateY(1px) scale(.99)}
 .start-play:focus-visible{outline:2px solid #ffe3a0;outline-offset:12px}
 .start-resume{display:flex;justify-content:space-between;align-items:center;gap:18px;width:100%;max-width:340px;text-align:left;padding:16px 4px;color:#eed5a1}
 .start-resume b{font-size:12px;font-weight:600}.start-resume small{display:block;color:#c1bfba;font-size:10px;margin-top:5px}
 .start-destinations{display:grid;grid-template-rows:repeat(3,minmax(0,1fr));gap:14px;max-height:550px;align-self:stretch}
-.start-destinations .menu-destination{min-height:0;flex-direction:row;align-items:center;padding:clamp(16px,3vh,28px);gap:19px;background:linear-gradient(110deg,#282725ed,#1e1d1ae6);backdrop-filter:blur(8px);box-shadow:0 10px 30px #0c0b0930}
+.start-destinations .menu-destination{min-height:0;flex-direction:row;align-items:center;padding:clamp(16px,3vh,28px);gap:19px;background:linear-gradient(110deg,#282725ed,#1e1d1ae6);backdrop-filter:blur(8px);box-shadow:0 10px 30px rgb(var(--shade-rgb) / .19)}
 .start-destinations .menu-destination h2{font-size:32px;margin-bottom:7px}.start-destinations .menu-destination p{max-width:27ch;font-size:12px;line-height:1.65}.start-destinations .menu-destination div>span{margin-top:12px;font-size:10px;color:#c2bfb9}
 .start-destinations .menu-destination>svg:last-child{position:static}
 .start-destinations .menu-destination:hover{border-color:#ead29a8c;background:linear-gradient(110deg,#32302def,#262522eb)}
 .start-footnote{grid-column:1/-1;font-size:10px;line-height:1.5;color:#b7b4af}
-.setup-backdrop{position:fixed;inset:0;z-index:110;display:flex;justify-content:flex-end;background:#09080770;backdrop-filter:blur(3px)}
+.setup-backdrop{position:fixed;inset:0;z-index:var(--z-setup);display:flex;justify-content:flex-end;background:#09080770;backdrop-filter:blur(3px)}
 .game-setup-pane{display:flex;flex-direction:column;width:min(460px,100%);height:100%;min-height:0;border-left:1px solid #e2cc9366;background:radial-gradient(ellipse at 100% 0,#a4925222,transparent 55%),#201f1c;box-shadow:-20px 0 70px #09080780;animation:setup-enter .22s ease-out}
 .setup-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:27px 28px 20px;border-bottom:1px solid #d9c89730;flex:none}
 .setup-heading h2{font-size:38px;line-height:1.1;margin-top:5px}.setup-close{padding:10px;color:#d9d5b9;border:1px solid #d5cda330;border-radius:50%;display:grid;place-items:center}
@@ -77,9 +76,9 @@
 @property --glint{syntax:'<percentage>';inherits:false;initial-value:140%}
 .start-play{--glint:140%;grid-template-columns:40px 1fr 40px;gap:12px;padding:15px 20px 15px 18px;
   background:linear-gradient(106deg,transparent 38%,#fffbe6b3 50%,transparent 62%) var(--glint) 0/260% 100% no-repeat,
-    repeating-linear-gradient(90deg,#ffffff0d 0 1px,transparent 1px 3px),
+    repeating-linear-gradient(90deg,rgb(var(--white-rgb) / .05) 0 1px,transparent 1px 3px),
     radial-gradient(ellipse at 28% 0,#fff6d6bb,transparent 68%),linear-gradient(172deg,#f6e6b6 0%,#e7c97c 44%,#c39b52 78%,#a97f38 100%);
-  box-shadow:0 0 0 3px #151411,0 0 0 4px #d6bd7b88,0 14px 28px #08070699,inset 0 2px 2px #fff9,inset 0 -6px 10px #7a581f66,inset 0 0 0 6px #ecd290,inset 0 0 0 7px #8f6c2c80;
+  box-shadow:0 0 0 3px #151411,0 0 0 4px #d6bd7b88,0 14px 28px rgb(var(--shade-rgb) / .6),inset 0 2px 2px #fff9,inset 0 -6px 10px #7a581f66,inset 0 0 0 6px #ecd290,inset 0 0 0 7px #8f6c2c80;
   transition:transform .18s cubic-bezier(.2,.8,.3,1),filter .18s,--glint .75s ease-out}
 .start-play span{letter-spacing:1.5px;font-weight:600;text-shadow:0 1px 0 #fff0c4,0 -1px 0 #6f4f1a40}
 .start-play>svg{box-sizing:border-box;width:36px;height:36px;padding:8px;border-radius:50%;stroke:#f3dc9c;stroke-width:2;filter:none;
@@ -87,9 +86,9 @@
 .start-play>svg:nth-child(2),.start-play>svg:last-child{width:36px;height:36px;margin:0}
 .start-play:hover:not(:disabled){--glint:-60%;filter:brightness(1.06) saturate(1.1);
   background:linear-gradient(106deg,transparent 38%,#fffbe6b3 50%,transparent 62%) var(--glint) 0/260% 100% no-repeat,
-    repeating-linear-gradient(90deg,#ffffff0d 0 1px,transparent 1px 3px),
+    repeating-linear-gradient(90deg,rgb(var(--white-rgb) / .05) 0 1px,transparent 1px 3px),
     radial-gradient(ellipse at 28% 0,#fff6d6bb,transparent 68%),linear-gradient(172deg,#f6e6b6 0%,#e7c97c 44%,#c39b52 78%,#a97f38 100%);
-  box-shadow:0 0 0 3px #151411,0 0 0 4px #e9d298bb,0 14px 28px #08070699,inset 0 2px 2px #fff9,inset 0 -6px 10px #7a581f66,inset 0 0 0 6px #ecd290,inset 0 0 0 7px #8f6c2c80}
+  box-shadow:0 0 0 3px #151411,0 0 0 4px #e9d298bb,0 14px 28px rgb(var(--shade-rgb) / .6),inset 0 2px 2px #fff9,inset 0 -6px 10px #7a581f66,inset 0 0 0 6px #ecd290,inset 0 0 0 7px #8f6c2c80}
 .start-play:hover:not(:disabled)>svg:last-child{transform:translateX(2px)}
 .start-play>svg:last-child{transition:transform .18s}
 .start-play:disabled{filter:grayscale(.75) brightness(.8)}
@@ -102,7 +101,7 @@
 .start-play{grid-template-columns:40px 1fr 40px}
 .start-play::before{inset:-2px;border:0;padding:2px;border-radius:6px;opacity:0;transition:opacity .35s;
   background:conic-gradient(from var(--burn),transparent 0 50%,#c4410a 62%,#ff8a1f 76%,#ffe29a 88%,#fff6d6 92%,transparent 94% 100%);
-  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);
+  -webkit-mask:linear-gradient(var(--black) 0 0) content-box,linear-gradient(var(--black) 0 0);-webkit-mask-composite:xor;mask:linear-gradient(var(--black) 0 0) content-box exclude,linear-gradient(var(--black) 0 0);
   filter:drop-shadow(0 0 5px #ff8a1fcc)}
 .start-play::after{animation:none;box-shadow:0 0 0 0 #ff7a1a00;transition:box-shadow .4s}
 .start-play:hover:not(:disabled)::before,.start-play:focus-visible::before{opacity:1;animation:burn-spin 2.4s linear infinite}

@@ -8,6 +8,7 @@ import { buildBotDeck, deckProblems, isFreeProducer, poolOf, type DraftPreset, t
 import { compareCards } from '../deckTools';
 import { DraftBackdrop } from './DraftHubArt';
 import { DraftPane } from './DraftPane';
+import { Workshop } from '../layout/Workshop';
 
 type Filter = 'all' | 'producers' | 'creature' | 'spell' | 'holding';
 const filters: { id: Filter; label: string }[] = [{ id: 'all', label: 'All' }, { id: 'producers', label: 'Producers' }, { id: 'creature', label: 'Creatures' }, { id: 'spell', label: 'Spells' }, { id: 'holding', label: 'Holdings' }];
@@ -29,26 +30,16 @@ export function DraftDeckBuilder({ run, preset, reduced, save, back, inspect }: 
   const add = (card: CardDefinition) => { if (canAdd(card)) setDeck(current => [...current, card.id]); };
   const remove = (id: string) => setDeck(current => { const at = current.indexOf(id); return at < 0 ? current : [...current.slice(0, at), ...current.slice(at + 1)]; });
   const [over, setOver] = useState(false);
-  return <main className="deck-workshop draft-workshop" aria-label={msg("Draft deck builder")}>
-    <DraftBackdrop preset={preset}/>
-    <section className={`builder-collection ${over ? 'drop-over' : ''}`} aria-label={msg("Your picks")}
-      onDragOver={event => { if (event.dataTransfer.types.includes('application/x-deck-row')) { event.preventDefault(); setOver(true); } }} onDragLeave={() => setOver(false)}
-      onDrop={event => { const id = event.dataTransfer.getData('application/x-deck-row'); setOver(false); if (id) { event.preventDefault(); remove(id); } }}>
-      <div className="builder-collection-bar">
-        <h2>{msg("Your picks")}<span>{pool.length} {msg("cards")}</span></h2>
+  return <Workshop label={msg("Draft deck builder")} className="draft-workshop" backdrop={<DraftBackdrop preset={preset}/>} panelLabel={msg("Your picks")}
+    panel={{ className: over ? 'drop-over' : '',
+      onDragOver: event => { if (event.dataTransfer.types.includes('application/x-deck-row')) { event.preventDefault(); setOver(true); } }, onDragLeave: () => setOver(false),
+      onDrop: event => { const id = event.dataTransfer.getData('application/x-deck-row'); setOver(false); if (id) { event.preventDefault(); remove(id); } } }}
+    title={msg("Your picks")} subtitle={<>{pool.length} {msg("cards")}</>}
+    actions={
         <div className="draft-filters" role="group" aria-label={msg("Filter your picks")}>{filters.map(entry => <button key={entry.id} className="builder-small-button" aria-pressed={filter === entry.id} onClick={() => setFilter(entry.id)}>{msg(entry.label)}</button>)}</div>
-      </div>
-      <div className="builder-collection-gallery" aria-label={msg("Browse collection cards")}>{shown.map(card => {
-        const have = count(pool, card.id), used = count(deck, card.id), open = canAdd(card);
-        return <article key={card.id} draggable={open} onDragStart={event => { event.dataTransfer.setData('text/plain', card.id); event.dataTransfer.effectAllowed = 'move'; }}
-          className={`builder-card-tile ${used ? 'has-copies' : ''} ${open ? '' : 'unavailable'}`}>
-          <ArtCard card={card} reduced={reduced} disabled={!open} onClick={() => add(card)}
-            interaction={{ 'aria-label': msg("Add {v0} to deck", { v0: card.name }), 'aria-disabled': !open || undefined, title: msg("{v0} in deck · {v1} drafted · right-click to inspect", { v0: used, v1: have }), onContextMenu: event => { event.preventDefault(); inspect(card); } }}/>
-          <span className="draft-pool-count" title={msg("{v0} in deck of {v1} drafted", { v0: used, v1: have })}><b>{used}</b> / {have}</span>
-        </article>;
-      })}</div>
-    </section>
-    <DraftPane cards={deck} target={deckRules.minimumCards} unit={msg("cards")} problem={problems[0] ? msg(problems[0]) : undefined} inspect={inspect}
+    }
+    pane={
+      <DraftPane cards={deck} target={deckRules.minimumCards} unit={msg("cards")} problem={problems[0] ? msg(problems[0]) : undefined} inspect={inspect}
       edit={{ add, remove, canAdd }} footer={problems[0] ? msg(problems[0]) : msg("Ready to play.")}
       drop={{ over: false, onDragOver: event => { event.preventDefault(); }, onDragLeave: () => undefined, onDrop: event => { const id = event.dataTransfer.getData('text/plain'); if (id && registry.cards[id]) { event.preventDefault(); add(registry.cards[id]!); } } }}
       head={<>
@@ -60,5 +51,15 @@ export function DraftDeckBuilder({ run, preset, reduced, save, back, inspect }: 
           <button className="gold-button builder-save" disabled={!!problems.length} onClick={() => save(deck)}>{msg("Save deck")}<Check size={14}/></button>
         </div>
       </>}/>
-  </main>;
+    }>
+      <div className="builder-collection-gallery" aria-label={msg("Browse collection cards")}>{shown.map(card => {
+        const have = count(pool, card.id), used = count(deck, card.id), open = canAdd(card);
+        return <article key={card.id} draggable={open} onDragStart={event => { event.dataTransfer.setData('text/plain', card.id); event.dataTransfer.effectAllowed = 'move'; }}
+          className={`builder-card-tile ${used ? 'has-copies' : ''} ${open ? '' : 'unavailable'}`}>
+          <ArtCard card={card} reduced={reduced} disabled={!open} onClick={() => add(card)}
+            interaction={{ 'aria-label': msg("Add {v0} to deck", { v0: card.name }), 'aria-disabled': !open || undefined, title: msg("{v0} in deck · {v1} drafted · right-click to inspect", { v0: used, v1: have }), onContextMenu: event => { event.preventDefault(); inspect(card); } }}/>
+          <span className="draft-pool-count" title={msg("{v0} in deck of {v1} drafted", { v0: used, v1: have })}><b>{used}</b> / {have}</span>
+        </article>;
+      })}</div>
+  </Workshop>;
 }
