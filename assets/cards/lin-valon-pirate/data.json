@@ -1,0 +1,37 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "lin-valon-pirate",
+  "revision": 1,
+  "name": "Lin Valon, Pirate",
+  "deckLimitKey": "lin-valon-pirate",
+  "type": "creature",
+  "factions": [
+    "ember-fields"
+  ],
+  "subtypes": [],
+  "legendary": false,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "ember-fields": 1
+    }
+  },
+  "stats": {
+    "attack": 3,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "ember-fields": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "ransack",
+      "params": {}
+    }
+  ],
+  "lore": "Far from any sea, Lin Valon still keeps the one rule of the trade: learn what the other ship carries, then take the best of it.",
+  "set": "foundations"
+}

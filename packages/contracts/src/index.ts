@@ -31,7 +31,9 @@ export type PendingChoice =
   | { id: string; player: PlayerId; kind: 'draw'; options: string[] }
   /** Opening hand: the player may return up to `max` cards and draw the same number of new ones. */
   | { id: string; player: PlayerId; kind: 'mulligan'; options: string[]; max: number }
-  | { id: string; player: PlayerId; kind: 'response-energy'; options: Pool[]; sourceName: string; remaining: DeadSnapshot[] };
+  | { id: string; player: PlayerId; kind: 'response-energy'; options: Pool[]; sourceName: string; remaining: DeadSnapshot[] }
+  /** The player sees the opponent's hand (`options` are those card IDs) and picks one; the opponent discards it. */
+  | { id: string; player: PlayerId; kind: 'hand-discard'; options: string[]; sourceName: string };
 /** `lanes` maps each declared attacker to the enemy position it attacks; `blocks` is derived from it automatically. */
 export type Combat = { stage: 'declare' | 'review' | 'response'; attackers: string[]; lanes: Record<string, number>; blocks: { attacker: string; blocker: string }[]; dead: DeadSnapshot[] };
 export type GameEvent = { seq: number; type: string; message: string; abilityId?: string; effects?: { abilityId: string; cardId: string; target?: string }[]; player?: PlayerId; cardId?: string; target?: string; amount?: number; visibility: 'public' | PlayerId; snapshot?: CardInstance };
@@ -66,6 +68,10 @@ export type InternalOrder =
   /** Temporary stat bonus on a field creature; cleared when the turn ends. */
   | { type: 'boost'; target: string; attack?: number; defense?: number; source?: string }
   | { type: 'draw'; player: PlayerId; amount: number }
+  /** Moves every copy of a card definition from the player's library to their hand. Finding nothing is allowed. */
+  | { type: 'search'; player: PlayerId; card: string; source?: string }
+  /** Reveals the opponent's hand to `player`, who then chooses one card for the opponent to discard. */
+  | { type: 'ransack'; player: PlayerId; source?: string }
   /** Puts cards from the top of a library into its owner's discard pile. Never empties the library on its own. */
   | { type: 'mill'; player: PlayerId; amount: number }
   | { type: 'gain-energy'; player: PlayerId; output: Pool; source?: string }

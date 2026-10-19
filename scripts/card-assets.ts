@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { mkdtemp, mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import type { CardDefinition } from '../packages/contracts/src';
-import { compileContent, parseCardTranslation } from '../packages/content/src/compiler';
+import { compileContent, parseCardTranslation, unknownCardReferences } from '../packages/content/src/compiler';
 import { abilities } from '../packages/extensions/src';
 import { parseFactionDefinition, validateFactionSet, type FactionDefinition } from '../packages/content/src/factionDefinition';
 import { parseSetDefinition, validateSetDefinitions, type SetDefinition } from '../packages/content/src/setDefinition';
@@ -109,6 +109,8 @@ export async function readCardAssets(assetsDirectory:string):Promise<AssetCatalo
     if(webm)media.push({path:join(folder.name,'data.webm'),data:webm});
   }
   if(!cards.length)throw new Error(`${cardsDirectory}: no card folders found.`);
+  const unknown=unknownCardReferences(cards)[0];
+  if(unknown)throw new Error(`${owners.get(unknown.cardId)}: ${unknown.message}`);
   cards.sort((a,b)=>a.id<b.id?-1:1);
   return {cards,factions,sets,media};
 }

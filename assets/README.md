@@ -237,6 +237,9 @@ Evergreen:
 | `shield-wall` | `{ "amount": 1 }` | Immediately neighboring friendly creatures and holdings gain Defense |
 | `guard` | `{}` | Attacks aimed at a lane adjacent to this card are blocked by it instead, even if that lane is empty. A Guard in a targeted lane blocks there first; each Guard stops one attacker per combat |
 | `sneaky` | `{}` | The creature cannot be blocked, neither by the card in its lane nor by a Guard, so its attack always damages the opposing player. It still blocks normally itself |
+| `forced-march` | `{}` | The creature enters ready instead of exhausted, so it can attack or channel energy the turn it is played. Holdings are unaffected |
+| `muster` | `{ "card": "card-id" }` | When played, search your library for every copy of that card (by card ID) and put them all into your hand. Finding none is allowed and just logs it. Also works as a spell operation. The importer rejects unknown card IDs |
+| `ransack` | `{}` | When played (or cast, as a spell operation), look at your opponent's hand and choose one card; they discard it. Opens a private choice for you, so the match waits until you pick. An empty hand just logs it |
 | `scorch` | `{ "amount": 3 }` | On play, choose an enemy creature in range (the lane opposite or one beside the position it enters) or the enemy player, and deal that much damage. Holdings cannot be chosen. Entering by Rally or Raise has no chosen target, so nothing is burned |
 | `charge` | `{ "amount": 4 }` | On play, damage the enemy creature directly opposite |
 | `rest` | `{ "amount": 1 }` | Exhaust: restore life |

@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Turm der Dämmerung",
+  "lore": "Das Leuchtfeuer wird bei Einbruch der Nacht entzündet, und am Morgen weiß jedes Banner der Felder, wo es sich sammeln soll."
+}

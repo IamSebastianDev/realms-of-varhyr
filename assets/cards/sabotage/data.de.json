@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Sabotage",
+  "lore": "Ein Brief, der nie ankommt, ein Plan, der sich nicht finden lässt. Niemand hat etwas gesehen, und alle haben etwas verloren."
+}

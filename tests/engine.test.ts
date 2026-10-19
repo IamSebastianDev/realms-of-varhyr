@@ -6,7 +6,7 @@ import { apply, assertInvariants, autoPayment, createMatch, decisionPlayer, effe
 import { botCommand } from '../packages/core/src/bot';
 import raw, { abilities, compileContent, registry, starterDecks } from './fixtures/content';
 import { startMatch } from './fixtures/session';
-import { compileContent as compileContentFor } from '../packages/content/src/compiler';
+import { compileContent as compileContentFor, unknownCardReferences } from '../packages/content/src/compiler';
 const fresh=(seed=42,r=registry)=>createMatch(r,[starterDecks.verdant,starterDecks.hollow],seed);
 function step(s:GameState,command:Command,actor=decisionPlayer(s),r=registry){const result=apply(s,{actor,expectedRevision:s.revision,command},r);expect(result.error).toBeUndefined();return result.state;}
 function fixture(s:GameState,definitionId:string,owner:PlayerId,zone:'board'|'hand'|'discard',slot=0,exhausted=false){
@@ -297,6 +297,103 @@ describe('simultaneous combat and response energy',()=>{
    expect(play(s,{cardId:card,slot:1,target:right}).error).toBeTruthy();
    expect(play(s,{cardId:card,slot:3,target:right}).error).toBeUndefined();
    expect(play(s,{cardId:card,slot:1}).error).toBeTruthy();
+  });
+ });
+ describe('muster',()=>{
+  const musterRegistry=compileContent([...raw,
+   {...registry.cards['wild-guardian'],id:'muster-test',deckLimitKey:'muster-test',abilities:[{id:'muster',params:{card:'wayfarer'}}]},
+   {...registry.cards['cleansing-light'],id:'muster-spell',deckLimitKey:'muster-spell',cast:[{id:'muster',params:{card:'wayfarer'}}]}]);
+  const rich=(s:GameState)=>{s.players.p1.energy={neutral:9,elderwood:9,ironbound:9,crownlands:9,ashen:9,clans:9,conclave:9,abyssal:9,tidebound:9};};
+  it('puts every copy of the named card from the library into the hand when played',()=>{
+   let s=setup(musterRegistry);const id=fixture(s,'wild-guardian','p1','hand');s.cards[id].definitionId='muster-test';rich(s);
+   const deck=s.players.p1.deck.length,copies=s.players.p1.deck.filter(c=>s.cards[c].definitionId==='wayfarer').length;
+   expect(copies).toBeGreaterThan(1);
+   s=step(s,{type:'play',cardId:id,slot:0},'p1',musterRegistry);
+   expect(s.players.p1.hand.map(c=>s.cards[c].definitionId)).toEqual(Array(copies).fill('wayfarer'));
+   expect(s.players.p1.deck.some(c=>s.cards[c].definitionId==='wayfarer')).toBe(false);
+   expect(s.players.p1.deck.length).toBe(deck-copies);
+   expect(s.events.some(e=>e.type==='card.searched'&&e.message.includes('musters Lantern Wayfarer'))).toBe(true);
+   assertInvariants(s);
+  });
+  it('finds nothing quietly when no copy is left in the library',()=>{
+   let s=setup(musterRegistry);const id=fixture(s,'wild-guardian','p1','hand');s.cards[id].definitionId='muster-test';rich(s);
+   for(const c of s.players.p1.deck.filter(c=>s.cards[c].definitionId==='wayfarer')){s.cards[c].zone='discard';s.players.p1.discard.push(c);}
+   s.players.p1.deck=s.players.p1.deck.filter(c=>s.cards[c].zone==='deck');
+   s=step(s,{type:'play',cardId:id,slot:0},'p1',musterRegistry);
+   expect(s.players.p1.hand).toEqual([]);
+   expect(s.events.some(e=>e.type==='card.searched'&&e.message.includes('finds no Lantern Wayfarer'))).toBe(true);
+   assertInvariants(s);
+  });
+  it('works as a spell operation',()=>{
+   let s=setup(musterRegistry);const id=fixture(s,'cleansing-light','p1','hand');s.cards[id].definitionId='muster-spell';rich(s);
+   const copies=s.players.p1.deck.filter(c=>s.cards[c].definitionId==='wayfarer').length;
+   s=step(s,{type:'play',cardId:id},'p1',musterRegistry);
+   expect(s.players.p1.hand.map(c=>s.cards[c].definitionId)).toEqual(Array(copies).fill('wayfarer'));
+  });
+  it('flags a card ID that does not exist once the catalogue is loaded',()=>{
+   const bad=compileContent([{...registry.cards['wild-guardian'],id:'muster-bad',deckLimitKey:'muster-bad',abilities:[{id:'muster',params:{card:'no-such-card'}}]}]);
+   expect(unknownCardReferences(Object.values(bad.cards))).toEqual([{cardId:'muster-bad',message:"muster refers to unknown card 'no-such-card'."}]);
+   expect(unknownCardReferences(Object.values(musterRegistry.cards))).toEqual([]);
+  });
+ });
+ describe('ransack',()=>{
+  const ransackRegistry=compileContent([...raw,
+   {...registry.cards['wild-guardian'],id:'ransack-test',deckLimitKey:'ransack-test',abilities:[{id:'ransack',params:{}}]},
+   {...registry.cards['cleansing-light'],id:'ransack-spell',deckLimitKey:'ransack-spell',cast:[{id:'ransack',params:{}}]}]);
+  const rich=(s:GameState)=>{s.players.p1.energy={neutral:9,elderwood:9,ironbound:9,crownlands:9,ashen:9,clans:9,conclave:9,abyssal:9,tidebound:9};};
+  const played=()=>{
+   const s=setup(ransackRegistry);const id=fixture(s,'wild-guardian','p1','hand');s.cards[id].definitionId='ransack-test';rich(s);
+   const a=fixture(s,'wayfarer','p2','hand'),b=fixture(s,'clan-scout','p2','hand');
+   return {s:step(s,{type:'play',cardId:id,slot:0},'p1',ransackRegistry),a,b};
+  };
+  it('opens a private choice showing only the opponent hand to the player',()=>{
+   const {s,a,b}=played();
+   expect(s.pending).toMatchObject({kind:'hand-discard',player:'p1'});
+   expect([...(s.pending as {options:string[]}).options].sort()).toEqual([a,b].sort());
+   const mine=projectForPlayer(s,'p1',ransackRegistry),theirs=projectForPlayer(s,'p2',ransackRegistry);
+   expect(mine.cards[a]).toBeDefined();expect(mine.cards[b]).toBeDefined();expect(mine.pending).not.toBeNull();
+   expect(theirs.pending).toBeNull();
+   const after=step(s,{type:'choose',choiceId:s.pending!.id,option:a},'p1',ransackRegistry);
+   expect(projectForPlayer(after,'p1',ransackRegistry).cards[b]).toBeUndefined();
+   expect(legalActions(s,ransackRegistry).playable).toEqual([]);expect(decisionPlayer(s)).toBe('p1');
+  });
+  it('discards the chosen card from the opponent hand',()=>{
+   let {s,a,b}=played();
+   s=step(s,{type:'choose',choiceId:s.pending!.id,option:a},'p1',ransackRegistry);
+   expect(s.pending).toBeNull();expect(s.players.p2.hand).toEqual([b]);expect(s.players.p2.discard).toContain(a);expect(s.cards[a].zone).toBe('discard');
+   assertInvariants(s);
+  });
+  it('rejects cards outside the revealed hand and choices by the wrong player',()=>{
+   const {s,b}=played();const mine=Object.keys(s.cards).find(id=>s.cards[id].owner==='p1'&&s.cards[id].zone==='deck')!;
+   expect(apply(s,{actor:'p1',expectedRevision:s.revision,command:{type:'choose',choiceId:s.pending!.id,option:mine}},ransackRegistry).error).toBeTruthy();
+   expect(apply(s,{actor:'p2',expectedRevision:s.revision,command:{type:'choose',choiceId:s.pending!.id,option:b}},ransackRegistry).error).toBeTruthy();
+  });
+  it('does nothing against an empty hand',()=>{
+   const s=setup(ransackRegistry);const id=fixture(s,'wild-guardian','p1','hand');s.cards[id].definitionId='ransack-test';rich(s);
+   const next=step(s,{type:'play',cardId:id,slot:0},'p1',ransackRegistry);
+   expect(next.pending).toBeNull();expect(next.events.some(e=>e.type==='hand.inspected'&&e.message.includes('empty hand'))).toBe(true);
+  });
+  it('works as a spell operation, and the bot takes the most expensive card',()=>{
+   const s=setup(ransackRegistry);const id=fixture(s,'cleansing-light','p1','hand');s.cards[id].definitionId='ransack-spell';rich(s);
+   const cheap=fixture(s,'clan-scout','p2','hand'),dear=fixture(s,'hollow-devourer','p2','hand');
+   let next=step(s,{type:'play',cardId:id},'p1',ransackRegistry);
+   expect(next.pending?.kind).toBe('hand-discard');
+   const command=botCommand(next,ransackRegistry);expect(command).toMatchObject({type:'choose',option:dear});expect(cheap).not.toBe(dear);
+   next=step(next,command,'p1',ransackRegistry);expect(next.players.p2.hand).toEqual([cheap]);
+  });
+ });
+ describe('forced march',()=>{
+  const marchRegistry=compileContent([...raw,{...registry.cards['wild-guardian'],id:'march-test',deckLimitKey:'march-test',abilities:[{id:'forced-march',params:{}}]}]);
+  it('enters ready, so it can attack the turn it is played',()=>{
+   let s=setup(marchRegistry);const id=fixture(s,'wild-guardian','p1','hand');s.cards[id].definitionId='march-test';s.players.p1.energy={neutral:9,elderwood:9,ironbound:9,crownlands:9,ashen:9,clans:9,conclave:9,abyssal:9,tidebound:9};
+   s=step(s,{type:'play',cardId:id,slot:0},'p1',marchRegistry);
+   expect(s.cards[id].exhausted).toBe(false);
+   s.phase='attack';s.combat={stage:'declare',attackers:[],lanes:{},blocks:[],dead:[]};
+   expect(legalActions(s,marchRegistry).attackers).toContain(id);
+  });
+  it('does nothing for creatures without it',()=>{
+   let s=setup();const id=fixture(s,'wild-guardian','p1','hand');s.players.p1.energy={neutral:9,elderwood:9,ironbound:9,crownlands:9,ashen:9,clans:9,conclave:9,abyssal:9,tidebound:9};
+   s=step(s,{type:'play',cardId:id,slot:0});expect(s.cards[id].exhausted).toBe(true);
   });
  });
  describe('sneaky',()=>{

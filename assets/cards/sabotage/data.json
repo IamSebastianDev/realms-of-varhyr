@@ -1,0 +1,32 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "sabotage",
+  "revision": 1,
+  "name": "Sabotage",
+  "deckLimitKey": "sabotage",
+  "type": "spell",
+  "factions": [
+    "ember-fields"
+  ],
+  "subtypes": [],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "ember-fields": 1
+    }
+  },
+  "abilities": [],
+  "timing": [
+    "play"
+  ],
+  "cast": [
+    {
+      "id": "ransack",
+      "params": {}
+    }
+  ],
+  "lore": "A letter that never arrives, a plan that cannot be found. Nobody saw anything, and everybody lost something.",
+  "set": "foundations"
+}

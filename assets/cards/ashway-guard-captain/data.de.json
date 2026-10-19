@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Hauptmann der Ashway-Wache",
+  "lore": "Ein Pfiff vom Tor, und jeder Plünderer von Ashway erinnert sich, wessen Befehlen er untersteht."
+}

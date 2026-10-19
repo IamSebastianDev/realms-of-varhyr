@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Plünderer von Ashway",
+  "lore": "Sie sind immer als Erste durchs Tor und als Letzte mit einer Erklärung da."
+}

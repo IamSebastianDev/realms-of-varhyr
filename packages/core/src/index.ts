@@ -309,6 +309,28 @@ class Transaction {
       } else if (order.type === 'draw') {
         requireRule(Number.isInteger(order.amount) && order.amount >= 0 && order.amount <= 100,'Invalid draw amount.');
         this.draw(order.player,order.amount);
+      } else if (order.type === 'ransack') {
+        requireRule(order.player === 'p1' || order.player === 'p2','Invalid ransack player.');
+        const me = this.state.players[order.player], foe = this.state.players[other(order.player)];
+        const sourceName = order.source ? this.registry.cards[this.state.cards[order.source].definitionId].name : 'Ransack';
+        if (!foe.hand.length) this.emit('hand.inspected',`${me.name} looks at ${foe.name}'s empty hand.`,{player:order.player,cardId:order.source});
+        // A second choice cannot open while one is pending; it simply finds nothing to take.
+        else if (!this.state.pending) {
+          this.state.pending = { id:`ransack-${this.state.sequence}`, player:order.player, kind:'hand-discard', options:[...foe.hand], sourceName };
+          this.emit('hand.inspected',`${me.name} looks at ${foe.name}'s hand.`,{player:order.player,cardId:order.source});
+        }
+      } else if (order.type === 'search') {
+        requireRule(order.player === 'p1' || order.player === 'p2','Invalid search player.');
+        const wanted = this.registry.cards[order.card];
+        requireRule(!!wanted,'Unknown card to search for.');
+        const p = this.state.players[order.player];
+        const found = p.deck.filter(id => this.state.cards[id].definitionId === order.card);
+        if (!found.length) this.emit('card.searched',`${p.name} finds no ${wanted.name} in the library.`,{player:order.player,cardId:order.source});
+        p.deck = p.deck.filter(id => !found.includes(id));
+        for (const id of found) {
+          this.state.cards[id].zone = 'hand'; p.hand.push(id);
+          this.emit('card.searched',`${p.name} musters ${wanted.name} from the library.`,{player:order.player,cardId:id});
+        }
       } else if (order.type === 'mill') {
         requireRule(Number.isInteger(order.amount) && order.amount >= 0 && order.amount <= 100,'Invalid mill amount.');
         const p = this.state.players[order.player];
@@ -548,6 +570,12 @@ export function apply(state: GameState, envelope: CommandEnvelope, registry: Reg
           else { tx.discard(id); tx.emit('card.discarded',`${definition(next,id,registry).name} is discarded.`,{player:envelope.actor,cardId:id}); }
         }
         next.pending = null; next.phase = 'play'; tx.emit('phase.started','Play phase begins.');
+      } else if (choice!.kind === 'hand-discard') {
+        const id = command.option;
+        requireRule(typeof id === 'string' && (choice!.options as string[]).includes(id) && next.cards[id].zone === 'hand','Choose one of the revealed cards.');
+        const victim = next.cards[id as string], name = definition(next,victim.id,registry).name;
+        tx.discard(victim.id); next.pending = null;
+        tx.emit('card.discarded',`${name} is discarded from ${next.players[victim.owner].name}'s hand.`,{player:victim.owner,cardId:victim.id});
       } else {
         requireRule(typeof command.option === 'number' && Number.isInteger(command.option) && choice!.options[command.option],'Choose a legal response-energy output.');
         addEnergy(p.responseEnergy,(choice!.options as Pool[])[command.option as number]);
@@ -687,7 +715,7 @@ export function projectForPlayer(state: GameState, viewer: PlayerId | null, regi
   const publicIds = (['p1','p2'] as PlayerId[]).flatMap(p => [...state.players[p].board,...state.players[p].discard]).filter((id): id is string => !!id);
   const hand = viewer ? [...state.players[viewer].hand] : [];
   const pending = state.pending?.player === viewer ? structuredClone(state.pending) : null;
-  if (pending?.kind === 'draw') publicIds.push(...pending.options);
+  if (pending?.kind === 'draw' || pending?.kind === 'hand-discard') publicIds.push(...pending.options);
   const cards = Object.fromEntries([...publicIds,...hand].map(id => [id,structuredClone(state.cards[id])]));
   const players = Object.fromEntries((['p1','p2'] as PlayerId[]).map(id => {
     const {deck,hand,...p} = structuredClone(state.players[id]);

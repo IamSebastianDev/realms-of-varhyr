@@ -130,3 +130,11 @@ export function compileContent(
     abilities: extensions,
   };
 }
+
+/** Ability params named `card` hold card IDs. Cards are compiled one at a time, so this runs once the whole catalogue is loaded. Returns one message per unknown reference. */
+export function unknownCardReferences(cards: readonly CardDefinition[]): { cardId: string; message: string }[] {
+  const ids = new Set(cards.map(card => card.id));
+  return cards.flatMap(card => [...card.abilities, ...(card.cast ?? [])].flatMap(binding =>
+    typeof binding.params.card === 'string' && !ids.has(binding.params.card)
+      ? [{ cardId: card.id, message: `${binding.id} refers to unknown card '${binding.params.card}'.` }] : []));
+}

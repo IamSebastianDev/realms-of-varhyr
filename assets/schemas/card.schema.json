@@ -644,6 +644,27 @@
       ],
       "additionalProperties": false
     },
+    "ability-forced-march": {
+      "type": "object",
+      "title": "Forced March",
+      "description": "Enters the battlefield ready: it can attack or channel energy the turn it is played.",
+      "properties": {
+        "id": {
+          "const": "forced-march"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
     "ability-guard": {
       "type": "object",
       "title": "Guard",
@@ -733,6 +754,34 @@
           "type": "object",
           "properties": {},
           "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-muster": {
+      "type": "object",
+      "title": "Muster {card}",
+      "description": "When played, search your library for all copies of {card} and put them into your hand.",
+      "properties": {
+        "id": {
+          "const": "muster"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "card": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "card"
+          ],
           "additionalProperties": false
         }
       },
@@ -887,6 +936,27 @@
           "required": [
             "subtype"
           ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-ransack": {
+      "type": "object",
+      "title": "Ransack",
+      "description": "When played, look at your opponent's hand and choose a card. They discard it.",
+      "properties": {
+        "id": {
+          "const": "ransack"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
           "additionalProperties": false
         }
       },
@@ -1161,16 +1231,19 @@
             "draw",
             "drillmaster",
             "fealty",
+            "forced-march",
             "guard",
             "heal",
             "longshot",
             "marches-rally",
+            "muster",
             "outflank",
             "plague",
             "primal",
             "rage",
             "raid",
             "raise",
+            "ransack",
             "rest",
             "sanctuary",
             "scorch",
@@ -1235,6 +1308,9 @@
           "$ref": "#/definitions/ability-fealty"
         },
         {
+          "$ref": "#/definitions/ability-forced-march"
+        },
+        {
           "$ref": "#/definitions/ability-guard"
         },
         {
@@ -1245,6 +1321,9 @@
         },
         {
           "$ref": "#/definitions/ability-marches-rally"
+        },
+        {
+          "$ref": "#/definitions/ability-muster"
         },
         {
           "$ref": "#/definitions/ability-outflank"
@@ -1263,6 +1342,9 @@
         },
         {
           "$ref": "#/definitions/ability-raise"
+        },
+        {
+          "$ref": "#/definitions/ability-ransack"
         },
         {
           "$ref": "#/definitions/ability-rest"
@@ -1314,13 +1396,16 @@
             "draw",
             "drillmaster",
             "fealty",
+            "forced-march",
             "guard",
             "heal",
+            "muster",
             "outflank",
             "plague",
             "rage",
             "raid",
             "raise",
+            "ransack",
             "sanctuary",
             "scorch",
             "shield-wall",
@@ -1377,10 +1462,16 @@
           "$ref": "#/definitions/ability-fealty"
         },
         {
+          "$ref": "#/definitions/ability-forced-march"
+        },
+        {
           "$ref": "#/definitions/ability-guard"
         },
         {
           "$ref": "#/definitions/ability-heal"
+        },
+        {
+          "$ref": "#/definitions/ability-muster"
         },
         {
           "$ref": "#/definitions/ability-outflank"
@@ -1396,6 +1487,9 @@
         },
         {
           "$ref": "#/definitions/ability-raise"
+        },
+        {
+          "$ref": "#/definitions/ability-ransack"
         },
         {
           "$ref": "#/definitions/ability-sanctuary"
@@ -1435,9 +1529,11 @@
             "destroy",
             "draw",
             "heal",
+            "muster",
             "plague",
             "rage",
             "raise",
+            "ransack",
             "steadfast"
           ]
         },
@@ -1469,6 +1565,9 @@
           "$ref": "#/definitions/ability-heal"
         },
         {
+          "$ref": "#/definitions/ability-muster"
+        },
+        {
           "$ref": "#/definitions/ability-plague"
         },
         {
@@ -1476,6 +1575,9 @@
         },
         {
           "$ref": "#/definitions/ability-raise"
+        },
+        {
+          "$ref": "#/definitions/ability-ransack"
         },
         {
           "$ref": "#/definitions/ability-steadfast"

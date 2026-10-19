@@ -205,6 +205,12 @@ export function botCommand(state: GameState, registry: Registry): Command {
   if (state.pending) {
     const choice = state.pending;
     if (choice.kind === 'mulligan') return {type:'mulligan',cardIds:chooseMulligan(state,registry,choice.options,choice.max)};
+    if (choice.kind === 'hand-discard') {
+      // Take the most expensive card; ties keep hand order.
+      const price = (id: string) => { const cost = registry.cards[state.cards[id].definitionId].cost; return cost.generic + Object.values(cost.factions).reduce((a,b) => a + b,0); };
+      const best = choice.options.reduce((a,b) => price(b) > price(a) ? b : a);
+      return {type:'choose',choiceId:choice.id,option:best};
+    }
     if (choice.kind === 'response-energy') {
       const option = choice.options.findIndex(output => p.hand.some(id => {
         const def = registry.cards[state.cards[id].definitionId];

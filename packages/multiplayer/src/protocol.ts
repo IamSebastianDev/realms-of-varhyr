@@ -23,6 +23,7 @@ const pending = v.variant('kind',[
   v.object({id:text,player:seat,kind:v.literal('draw'),options:v.array(text)}),
   v.object({id:text,player:seat,kind:v.literal('mulligan'),options:v.array(text),max:number}),
   v.object({id:text,player:seat,kind:v.literal('response-energy'),options:v.array(pool),sourceName:v.string(),remaining:v.array(dead)}),
+  v.object({id:text,player:seat,kind:v.literal('hand-discard'),options:v.array(text),sourceName:v.string()}),
 ]);
 const avatarId = v.optional(v.pipe(v.string(),v.maxLength(64)));
 const player = v.object({id:seat,name:v.string(),avatar:avatarId,cardBack:avatarId,life:v.number(),board:v.pipe(v.array(v.nullable(text)),v.length(5)),discard:v.array(text),energy:pool,responseEnergy:pool,deckCount:zoneCount,handCount:zoneCount});

@@ -6,6 +6,8 @@ import { areAdjacent, battlefieldPositions, type AbilityExtension, type Battlefi
 import { positive } from "./schemas";
 /** `subtype` is a freeform creature subtype such as archer; it is matched against each card's subtypes. */
 const empty = v.object({});
+/** `card` is a card ID; the content compiler checks that it exists. */
+const musterSchema = v.strictObject({ card: v.pipe(v.string(), v.minLength(1)) });
 /** Fixed-rule keywords without parameters, mostly carried by faction leaders. Resolved effects are announced on the triggering event. */
 function leaderAbility(id: string, impl: Omit<AbilityExtension, "id" | "version" | "validate">, version = 2): AbilityExtension {
     return extension(id, empty, { ...impl, announce: true }, version);
@@ -102,6 +104,39 @@ export const evergreenAbilities: AbilityExtension[] = [
         description: "Cannot be blocked. Its attack always hits the opposing player.",
         // Only restricts the carrier as an attacker; a Sneaky card still blocks normally.
         canBlock: (source, attacker) => source.id !== attacker.id,
+    }),
+
+    extension("muster", musterSchema, {
+        translations: { de: {"name": "Aufgebot: {card}", "description": "Beim Ausspielen: Suche alle Exemplare von {card} in deiner Bibliothek und nimm sie auf die Hand."} },
+        name: "Muster {card}",
+        description: "When played, search your library for all copies of {card} and put them into your hand.",
+        announce: true,
+        hooks: { "card.played": (ctx, p) => {
+            if (ctx.event.cardId !== ctx.source.id) return;
+            ctx.issue({ type: "search", player: ctx.source.controller, card: p.card as string, source: ctx.source.id });
+        } },
+        // As a spell operation, the same search resolves when the spell is cast.
+        cast: (ctx, p) => ctx.issue({ type: "search", player: ctx.source.controller, card: p.card as string, source: ctx.source.id }),
+    }),
+
+    extension("ransack", empty, {
+        translations: { de: {"name": "Plündern", "description": "Beim Ausspielen: Sieh dir die Handkarten deines Gegners an und wähle eine davon. Dein Gegner legt sie ab."} },
+        name: "Ransack",
+        description: "When played, look at your opponent's hand and choose a card. They discard it.",
+        announce: true,
+        hooks: { "card.played": (ctx) => {
+            if (ctx.event.cardId !== ctx.source.id) return;
+            ctx.issue({ type: "ransack", player: ctx.source.controller, source: ctx.source.id });
+        } },
+        // As a spell operation, the same look-and-discard resolves when the spell is cast.
+        cast: (ctx) => ctx.issue({ type: "ransack", player: ctx.source.controller, source: ctx.source.id }),
+    }),
+
+    extension("forced-march", empty, {
+        translations: { de: {"name": "Eilmarsch", "description": "Kommt bereit ins Spiel: Kann im selben Zug angreifen oder Energie erzeugen."} },
+        name: "Forced March",
+        description: "Enters the battlefield ready: it can attack or channel energy the turn it is played.",
+        before: { "creature.enter.before": (_ctx, _p, payload) => ({ ...payload, exhausted: false }) },
     }),
 
     extension("charge", v.strictObject({ amount: positive }), {

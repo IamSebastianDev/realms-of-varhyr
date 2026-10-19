@@ -1,0 +1,36 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "tower-of-dusk",
+  "revision": 1,
+  "name": "Tower of Dusk",
+  "deckLimitKey": "tower-of-dusk",
+  "type": "holding",
+  "factions": [
+    "ember-fields"
+  ],
+  "subtypes": [
+    "landmark"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "ember-fields": 2
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 5
+  },
+  "abilities": [
+    {
+      "id": "banner",
+      "params": {
+        "amount": 2
+      }
+    }
+  ],
+  "lore": "The beacon is lit at nightfall, and by morning every banner in the Fields knows where to gather.",
+  "set": "foundations"
+}
