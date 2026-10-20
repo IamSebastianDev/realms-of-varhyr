@@ -51,3 +51,6 @@
 .art-card{isolation:auto}
 .hand-card.unaffordable,.hand-scroll .hand-card.unaffordable{filter:none}
 .hand-card.unaffordable>.card-box{filter:saturate(.7) brightness(.8)}
+
+/* Where the lobby page itself scrolls (narrow windows, tablets upright), the navigation stays put while the content moves. */
+.lobby>.lobby-header{position:sticky;top:0;z-index:var(--z-nav);background:rgb(var(--shade-rgb) / .94);backdrop-filter:blur(8px)}

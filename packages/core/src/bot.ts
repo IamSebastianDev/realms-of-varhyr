@@ -1,5 +1,8 @@
 import type { Command, GameState, PlayerId, Pool, Registry } from '../../contracts/src';
 import { energyProductionOptions } from './production';
+import { weights as W } from './botWeights';
+import { features } from './botFeatures';
+import { logit, model } from './botModel';
 import { apply, autoPayment, blockerFor, combatDamage, decisionPlayer, effectiveStats, inResponseStep, legalActions, other, previewDamage } from './index';
 
 type EnergyPlan = { pool: Pool; commands: Command[]; penalty: number };
@@ -9,18 +12,17 @@ const add = (a: Pool, b: Pool): Pool => {
   return pool;
 };
 // A static buff is worth what it gives the friendly creatures it reaches now (board) and soon (hand, at half weight).
-const SUPPORT_HAND = 1;
 function supportValue(state: GameState, id: string, registry: Registry): number {
   const source = state.cards[id], def = registry.cards[source.definitionId];
   if (!def.abilities.some(b => registry.abilities[b.id].static) || source.slot === null || source.slot === undefined) return 0;
   const owner = state.players[source.controller];
   let total = 0;
   for (const other of [...owner.board.filter((c): c is string => !!c && c !== id), ...owner.hand.filter(c => registry.cards[state.cards[c].definitionId].type === 'creature')]) {
-    const weight = owner.board.includes(other) ? 1 : SUPPORT_HAND * .5;
+    const weight = owner.board.includes(other) ? 1 : W.handSupport;
     const battlefield = {cards:Object.fromEntries([state.players.p1,state.players.p2].flatMap(pl=>pl.board).filter((c):c is string=>!!c).map(c=>[c,state.cards[c]])),players:{p1:{board:state.players.p1.board},p2:{board:state.players.p2.board}}};
     for (const binding of def.abilities) {
       const mod = registry.abilities[binding.id].static?.(source, state.cards[other], binding.params, registry, battlefield as never);
-      total += weight * ((mod?.attack ?? 0) * 2 + (mod?.defense ?? 0) * .65);
+      total += weight * ((mod?.attack ?? 0) * W.attack + (mod?.defense ?? 0) * W.defense) * W.support;
     }
   }
   return total;
@@ -28,7 +30,7 @@ function supportValue(state: GameState, id: string, registry: Registry): number 
 function creatureValue(state: GameState, id: string, registry: Registry): number {
   const def = registry.cards[state.cards[id].definitionId], stats = effectiveStats(state,id,registry);
   const outputs=energyProductionOptions(def,registry);
-  return stats.attack * (def.type==='holding' ? 1 : 2) + (stats.defense - state.cards[id].damage * .7) * .65 + Math.max(...(outputs.length ? outputs : [{}]).map(p => Object.values(p).reduce((a,b) => a+b,0))) * .6
+  return stats.attack * (def.type==='holding' ? W.attack * W.holding : W.attack) + (stats.defense - state.cards[id].damage * W.damage) * W.defense + Math.max(...(outputs.length ? outputs : [{}]).map(p => Object.values(p).reduce((a,b) => a+b,0))) * W.output
     + supportValue(state,id,registry)
     + def.abilities.reduce((n,a) => n + (a.id === 'armor' ? Number(a.params.amount) : ['collector','deathbound'].includes(a.id) ? 1 : 0),0);
 }
@@ -36,14 +38,15 @@ function colorsOnBoard(state: GameState, actor: PlayerId, registry: Registry, re
   return new Set(state.players[actor].board.flatMap(id => id && !removed.includes(id)
     ? registry.cards[state.cards[id].definitionId].stats!.energyOutputs.flatMap(pool => Object.keys(pool).filter(color => color !== 'neutral')) : []));
 }
-const LIVE_CARD = .6, DEAD_CARD = 0;
+const DEAD_CARD = 0;
 function positionValue(state: GameState, actor: PlayerId, registry: Registry): number {
   if (state.outcome) return state.outcome === actor ? 10000 : state.outcome === 'draw' ? 0 : -10000;
   // A creature printed with no Defense dies on arrival, so it is worth a card in hand only while support on the board keeps it alive.
-  const handValue = (p: PlayerId) => state.players[p].hand.reduce((n,id) => n + (registry.cards[state.cards[id].definitionId].type === 'creature' && effectiveStats(state,id,registry).defense <= 0 ? DEAD_CARD : LIVE_CARD),0);
-  const value = (p: PlayerId) => state.players[p].life * 1.8 + handValue(p) + colorsOnBoard(state,p,registry).size * 4
+  const handValue = (p: PlayerId) => state.players[p].hand.reduce((n,id) => n + (registry.cards[state.cards[id].definitionId].type === 'creature' && effectiveStats(state,id,registry).defense <= 0 ? DEAD_CARD : W.hand),0);
+  const value = (p: PlayerId) => state.players[p].life * W.life + handValue(p) + colorsOnBoard(state,p,registry).size * W.colors
     + state.players[p].board.reduce((n,id) => n + (id ? creatureValue(state,id,registry) : 0),0);
-  return value(actor) - value(other(actor));
+  const heuristic = value(actor) - value(other(actor));
+  return model && W.model > 0 ? (1 - W.model) * heuristic + W.model * W.modelScale * logit(model, features(state, actor, registry)) : heuristic;
 }
 function tryCommand(state: GameState, command: Command, registry: Registry): GameState | null {
   const result = apply(state,{actor:decisionPlayer(state),expectedRevision:state.revision,command},registry);
@@ -65,7 +68,7 @@ function energyPlans(state: GameState, registry: Registry): EnergyPlan[] {
     const previous=plans;plans=[...previous];
     for(const plan of previous)for(const {command,output} of options)plans.push({
       pool:add(plan.pool,output),commands:[...plan.commands,command],
-      penalty:plan.penalty+effectiveStats(state,cardId,registry).attack*.9+.15,
+      penalty:plan.penalty+effectiveStats(state,cardId,registry).attack*W.spendAttack+W.spendBase,
     });
   }
   return plans.sort((a,b) => a.penalty-b.penalty || a.commands.length-b.commands.length);
@@ -87,7 +90,7 @@ function playOptions(state: GameState, id: string, registry: Registry): Command[
 }
 function planPlay(state: GameState, registry: Registry): Command {
   const actor = decisionPlayer(state), p = state.players[actor], plans = energyPlans(state,registry), baseline = positionValue(state,actor,registry);
-  let best: {score:number;command:Command} = {score:.05,command:{type:'end'}};
+  let best: {score:number;command:Command} = {score:W.minPlay,command:{type:'end'}};
   // Reuse engine-validated states for plans shared by different cards.
   const funded = new Map<EnergyPlan,GameState | null>();
   const fund = (plan: EnergyPlan) => {
@@ -100,7 +103,7 @@ function planPlay(state: GameState, registry: Registry): Command {
     const def = command.type === 'play' ? registry.cards[state.cards[command.cardId].definitionId] : undefined;
     // A cheap cantrip cycles a card rather than adding one. A small fixed incentive
     // avoids inspecting unrevealed library contents and stops near deck exhaustion.
-    const cycle = !after.outcome && p.deck.length > 4 && def?.cast?.some(a=>a.id==='draw' && a.params.amount===1) ? .2 : 0;
+    const cycle = !after.outcome && p.deck.length > 4 && def?.cast?.some(a=>a.id==='draw' && a.params.amount===1) ? W.cycle : 0;
     const score = positionValue(after,actor,registry) - baseline - plan.penalty + cycle;
     if (score > best.score) best = {score,command:plan.commands[0] ?? command};
   };
@@ -108,7 +111,7 @@ function planPlay(state: GameState, registry: Registry): Command {
     for (const target of action.requiresTarget ? action.targets : [undefined]) for (const slot of action.slots ?? [undefined]) {
       const command:Command={type:'activate',cardId:action.cardId,ability:action.ability,target,slot};
       const after=tryCommand(state,command,registry);
-      const penalty=registry.cards[state.cards[action.cardId].definitionId].type==='creature' ? effectiveStats(state,action.cardId,registry).attack*.9 : 0;
+      const penalty=registry.cards[state.cards[action.cardId].definitionId].type==='creature' ? effectiveStats(state,action.cardId,registry).attack*W.spendAttack : 0;
       if(after)consider(after,command,{pool:p.energy,commands:[],penalty});
     }
   }
@@ -191,12 +194,12 @@ function chooseAttacks(state: GameState, registry: Registry): Command {
     // Own lane first so equal outcomes keep the straight-ahead attack.
     for(const lane of [...legal.lanes[attacker]].sort((a,b)=>Math.abs(a-own)-Math.abs(b-own))){
       const blocker=blockerFor(state,attacker,lane,registry);
-      if(!blocker){list.push({lane,life:effectiveStats(state,attacker,registry).attack,score:effectiveStats(state,attacker,registry).attack*4});continue;}
+      if(!blocker){list.push({lane,life:effectiveStats(state,attacker,registry).attack,score:effectiveStats(state,attacker,registry).attack*W.openDamage});continue;}
       const damage=new Map<string,number>();
       for(const hit of combatDamage(state,attacker,[{attacker,blocker}],registry))damage.set(hit.target,previewDamage(state,hit.target,hit.amount,registry));
       const blockerDies=(damage.get(blocker)??0)+state.cards[blocker].damage>=effectiveStats(state,blocker,registry).defense;
       const attackerDies=(damage.get(attacker)??0)+state.cards[attacker].damage>=effectiveStats(state,attacker,registry).defense;
-      list.push({lane,life:0,score:(blockerDies?creatureValue(state,blocker,registry)*.85:0)-(attackerDies?creatureValue(state,attacker,registry)*.9:0)});
+      list.push({lane,life:0,score:(blockerDies?creatureValue(state,blocker,registry)*W.killBlocker:0)-(attackerDies?creatureValue(state,attacker,registry)*W.loseAttacker:0)});
     }
     options.set(attacker,list);
   }

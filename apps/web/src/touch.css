@@ -59,3 +59,6 @@ html[data-touch-dragging] { overscroll-behavior: none; }
   .builder-deck .dk-curve, .builder-deck .deck-cost-curve, .builder-deck .deck-metrics { display: none; }
   .deck-purchase { padding-block: 4px; }
 }
+
+/* The pack in a draft does not scroll, so its cards can give every touch to the drag adapter instead of letting the browser claim the gesture. */
+@media (pointer: coarse) { .draft-gallery-grid > [draggable=true] { touch-action: none; } }

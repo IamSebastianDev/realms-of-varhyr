@@ -40,6 +40,7 @@ import { readRun } from './quest/questStore';
 import { DraftPage } from './draft/DraftPage';
 import { setActiveDraft } from './draft/draftStore';
 import type { MatchSetup } from './session';
+import { useAudio } from './AudioExperience';
 export type Screen='menu'|'cards'|'builder'|'stats'|'store'|'packs'|'profile'|'settings'|'multiplayer'|'quest'|'draft'|'match';
 type Mode='practice'|'hotseat';
 type Props={
@@ -64,7 +65,10 @@ function readDraft():CustomDeck {
 }
 export function Lobby(props:Props){
   useLanguage();
-  const {screen,navigate,canResume}=props;
+  const {screen,canResume}=props;
+  const {playEffect}=useAudio();
+  // Changing scene in the menu has its own sound; nothing else in the interface does.
+  const navigate=(next:Screen)=>{if(next!==screen&&next!=='match')playEffect('ui.scene');props.navigate(next);};
   // New players are offered the tutorial once. Any answer, or having a match under way, settles it.
   const profile=useProfile();
   const [offer,setOffer]=useState(()=>{try{return screen==='menu'&&!canResume&&!localStorage.getItem(tutorialKey);}catch{return false;}});

@@ -13,6 +13,8 @@
     "assets": "node --import tsx scripts/import-cards.ts",
     "check:css": "node scripts/check-css.mjs",
     "check:engine": "tsc --project tsconfig.engine.json",
+    "tune:bot": "node --import tsx scripts/tune-bot.ts tune",
+    "train:eval": "node --import tsx scripts/train-eval.ts train",
     "audit:bot": "node --import tsx scripts/audit-bot.ts",
     "audit:balance": "node --import tsx scripts/audit-first-player.ts",
     "import:cards": "node scripts/ensure-generated.mjs && node --import tsx scripts/import-cards.ts",

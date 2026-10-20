@@ -13,7 +13,7 @@ export type Voice = {
   filter?: { type: BiquadFilterType; freq: number; to?: number; q?: number };
 };
 export type EffectName =
-  | 'ui.click' | 'ui.tab' | 'ui.open' | 'ui.close' | 'ui.error'
+  | 'ui.scene' | 'ui.click' | 'ui.tab' | 'ui.open' | 'ui.close' | 'ui.error'
   | 'card.flip' | 'card.play' | 'card.draw' | 'card.discard' | 'spell.cast' | 'spell.fire' | 'spell.ice' | 'spell.water' | 'spell.lightning' | 'energy.gain'
   | 'combat.attack' | 'combat.hit' | 'creature.die' | 'life.heal'
   | 'draft.pick' | 'pack.open' | 'pack.burst' | 'pack.rare' | 'reward.coins';
@@ -23,6 +23,7 @@ const tone = (from: number, to: number, length: number, gain: number, extra: Par
 const hiss = (length: number, gain: number, filter: Voice['filter'], extra: Partial<Voice> = {}): Voice => ({ kind: 'noise', length, gain, filter, ...extra });
 
 export const effects: Record<EffectName, Effect> = {
+  'ui.scene': { cooldown: .12, volume: .6, voices: [tone(180, 90, .22, .6, { wave: 'sine' }), hiss(.5, .12, { type: 'bandpass', freq: 2400 })] },
   'ui.click': { cooldown: .03, volume: .5, voices: [tone(1400, 900, .05, .5, { wave: 'triangle' }), hiss(.03, .15, { type: 'highpass', freq: 3000 })] },
   'ui.tab': { cooldown: .05, volume: .5, voices: [tone(520, 640, .08, .4, { wave: 'triangle' })] },
   'ui.open': { cooldown: .08, volume: .55, voices: [tone(300, 520, .16, .4, { wave: 'triangle' }), hiss(.14, .12, { type: 'bandpass', freq: 1800, to: 3200, q: .8 })] },
@@ -58,7 +59,7 @@ export const effectAliases: Record<string, EffectName> = {
 export const effectFor = (type: string): EffectName | undefined => (type in effects ? type as EffectName : effectAliases[type]);
 /** Which engine events make a sound, in order of importance: one sound per step so a busy turn stays readable. */
 /** Sounds the game plays right now. The rest stay defined (and keep their files) so one can be switched back on by adding its name here. */
-export const enabledEffects: ReadonlySet<EffectName> = new Set<EffectName>(['spell.cast', 'spell.fire', 'spell.ice', 'spell.water', 'spell.lightning', 'life.heal', 'card.play', 'draft.pick', 'pack.open', 'pack.burst', 'pack.rare', 'combat.attack', 'combat.hit', 'creature.die']);
+export const enabledEffects: ReadonlySet<EffectName> = new Set<EffectName>(['ui.scene', 'spell.cast', 'spell.fire', 'spell.ice', 'spell.water', 'spell.lightning', 'life.heal', 'card.play', 'draft.pick', 'pack.open', 'pack.burst', 'pack.rare', 'combat.attack', 'combat.hit', 'creature.die']);
 /** Ambience is built but switched off until there are recordings worth hearing. */
 export const ambienceAvailable = false;
 /** What a spell sounds like is up to the spell: its element, not its faction. Spells not listed fall back to what they do. */
