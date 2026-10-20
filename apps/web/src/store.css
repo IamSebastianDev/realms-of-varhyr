@@ -99,3 +99,10 @@
 .booster-pack-stage.waiting .booster-sparks{display:none}
 .booster-pack-stage.waiting .booster-pack{animation:none}
 @media(prefers-reduced-motion:reduce){.booster-pack-hit span{animation:none}}
+
+/* Short screens (a phone on its side): the reveal fits the screen, so it never needs to scroll. */
+@media(max-height:700px){
+  .booster-backdrop .booster-burst-stage,.booster-backdrop .booster-grid{height:clamp(200px,calc(var(--app-h) - 322px),540px);min-height:0}
+  .booster-backdrop .booster-heading{margin-bottom:10px}.booster-backdrop .booster-actions{margin-top:10px}.booster-backdrop .booster-crown-total{margin-top:4px}
+  .booster-backdrop .booster-slot{width:min(calc((100% - 4 * clamp(14px,2vw,34px)) / 5),300px,calc((clamp(200px,calc(var(--app-h) - 322px),540px) - 82px) * .71))}
+}

@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "acolyte-of-draur",
-  "revision": 2,
+  "revision": 3,
   "name": "Acolyte of Draur",
   "deckLimitKey": "acolyte-of-draur",
   "type": "creature",
@@ -26,6 +26,14 @@
       }
     ]
   },
-  "abilities": [],
+  "abilities": [
+    {
+      "id": "bind",
+      "params": {
+        "amount": 1,
+        "subtype": "undead"
+      }
+    }
+  ],
   "set": "foundations"
 }

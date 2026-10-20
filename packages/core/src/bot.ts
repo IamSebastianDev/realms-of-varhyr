@@ -8,19 +8,40 @@ const add = (a: Pool, b: Pool): Pool => {
   for (const key of Object.keys(b) as (keyof Pool)[]) pool[key] = (pool[key] ?? 0) + (b[key] ?? 0);
   return pool;
 };
+// A static buff is worth what it gives the friendly creatures it reaches now (board) and soon (hand, at half weight).
+const SUPPORT_HAND = 1;
+function supportValue(state: GameState, id: string, registry: Registry): number {
+  const source = state.cards[id], def = registry.cards[source.definitionId];
+  if (!def.abilities.some(b => registry.abilities[b.id].static) || source.slot === null || source.slot === undefined) return 0;
+  const owner = state.players[source.controller];
+  let total = 0;
+  for (const other of [...owner.board.filter((c): c is string => !!c && c !== id), ...owner.hand.filter(c => registry.cards[state.cards[c].definitionId].type === 'creature')]) {
+    const weight = owner.board.includes(other) ? 1 : SUPPORT_HAND * .5;
+    const battlefield = {cards:Object.fromEntries([state.players.p1,state.players.p2].flatMap(pl=>pl.board).filter((c):c is string=>!!c).map(c=>[c,state.cards[c]])),players:{p1:{board:state.players.p1.board},p2:{board:state.players.p2.board}}};
+    for (const binding of def.abilities) {
+      const mod = registry.abilities[binding.id].static?.(source, state.cards[other], binding.params, registry, battlefield as never);
+      total += weight * ((mod?.attack ?? 0) * 2 + (mod?.defense ?? 0) * .65);
+    }
+  }
+  return total;
+}
 function creatureValue(state: GameState, id: string, registry: Registry): number {
   const def = registry.cards[state.cards[id].definitionId], stats = effectiveStats(state,id,registry);
   const outputs=energyProductionOptions(def,registry);
   return stats.attack * (def.type==='holding' ? 1 : 2) + (stats.defense - state.cards[id].damage * .7) * .65 + Math.max(...(outputs.length ? outputs : [{}]).map(p => Object.values(p).reduce((a,b) => a+b,0))) * .6
+    + supportValue(state,id,registry)
     + def.abilities.reduce((n,a) => n + (a.id === 'armor' ? Number(a.params.amount) : ['collector','deathbound'].includes(a.id) ? 1 : 0),0);
 }
 function colorsOnBoard(state: GameState, actor: PlayerId, registry: Registry, removed: string[] = []): Set<string> {
   return new Set(state.players[actor].board.flatMap(id => id && !removed.includes(id)
     ? registry.cards[state.cards[id].definitionId].stats!.energyOutputs.flatMap(pool => Object.keys(pool).filter(color => color !== 'neutral')) : []));
 }
+const LIVE_CARD = .6, DEAD_CARD = 0;
 function positionValue(state: GameState, actor: PlayerId, registry: Registry): number {
   if (state.outcome) return state.outcome === actor ? 10000 : state.outcome === 'draw' ? 0 : -10000;
-  const value = (p: PlayerId) => state.players[p].life * 1.8 + state.players[p].hand.length * .6 + colorsOnBoard(state,p,registry).size * 4
+  // A creature printed with no Defense dies on arrival, so it is worth a card in hand only while support on the board keeps it alive.
+  const handValue = (p: PlayerId) => state.players[p].hand.reduce((n,id) => n + (registry.cards[state.cards[id].definitionId].type === 'creature' && effectiveStats(state,id,registry).defense <= 0 ? DEAD_CARD : LIVE_CARD),0);
+  const value = (p: PlayerId) => state.players[p].life * 1.8 + handValue(p) + colorsOnBoard(state,p,registry).size * 4
     + state.players[p].board.reduce((n,id) => n + (id ? creatureValue(state,id,registry) : 0),0);
   return value(actor) - value(other(actor));
 }
@@ -195,8 +216,13 @@ function chooseAttacks(state: GameState, registry: Registry): Command {
 /** Return up to `max` of the most expensive cards (total cost 4+), but always keep a cheap play so the opening is not empty. */
 function chooseMulligan(state: GameState, registry: Registry, hand: string[], max: number): string[] {
   const cost=(id:string)=>{const c=registry.cards[state.cards[id].definitionId].cost;return c.generic+Object.values(c.factions).reduce((a,b)=>a+b,0);};
-  const cheap=hand.filter(id=>cost(id)<=1).length;
-  return [...hand].filter(id=>cost(id)>=4).sort((a,b)=>cost(b)-cost(a)||(a<b?-1:1)).slice(0,cheap?max:Math.max(max,0));
+  const def=(id:string)=>registry.cards[state.cards[id].definitionId];
+  // A support card (a static buff) that is cheap to cast keeps the creatures that need it alive.
+  const support=hand.some(id=>cost(id)<=2&&def(id).type==='creature'&&def(id).abilities.some(b=>registry.abilities[b.id].static));
+  const dead=(id:string)=>!support&&def(id).type==='creature'&&effectiveStats(state,id,registry).defense<=0;
+  const cheapLive=hand.filter(id=>cost(id)<=1&&!dead(id)).length;
+  const toss=[...hand].filter(id=>cost(id)>=4||dead(id)).sort((a,b)=>Number(dead(b))-Number(dead(a))||cost(b)-cost(a)||(a<b?-1:1));
+  return toss.slice(0,cheapLive?max:Math.max(max,0));
 }
 // A bounded, deterministic heuristic opponent issuing the same commands as a
 // human. It plans complete payments and evaluates casts with the actual engine.

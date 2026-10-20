@@ -29,6 +29,8 @@ import './ui-scale.css';
 import { watchUiScale } from './uiScale';
 import { RotateNotice } from './RotateNotice';
 import { LoadingScreen } from './LoadingScreen';
+import { installTouchDrag } from './touchDrag';
 import './loading.css';
 watchUiScale();
+installTouchDrag();
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><ApplicationPreferences><AudioExperience><App/></AudioExperience><RotateNotice/><LoadingScreen/></ApplicationPreferences></React.StrictMode>);

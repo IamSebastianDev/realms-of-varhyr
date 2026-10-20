@@ -987,7 +987,7 @@ input,textarea,[contenteditable="true"]{-webkit-user-select:text;user-select:tex
 .booster-actions button{min-height:46px;min-width:156px;padding:0 22px;font-size:12px}
 
 /* Menu dialogs: the nearly opaque black overlay used for card reveals, no plate of their own, bronze chrome buttons. */
-.modal-backdrop:has(>.choice-dialog){background:radial-gradient(ellipse at 50% 45%,rgb(var(--shade-rgb) / .85) 0,#020202f2 75%);backdrop-filter:blur(3px)}
+.modal-backdrop:has(>.choice-dialog){background:radial-gradient(ellipse at 50% 45%,rgb(var(--shade-rgb) / .5) 0,rgb(var(--shade-rgb) / .78) 75%);backdrop-filter:blur(3px)}
 .choice-dialog.choice-dialog{border:0;border-radius:0;background:none;box-shadow:none}
 .choice-dialog.choice-dialog:before{display:none}
 .choice-dialog.choice-dialog h2{color:var(--bronze-text);text-shadow:0 2px 14px var(--black)}
