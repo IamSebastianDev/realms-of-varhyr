@@ -1,3 +1,4 @@
+import { heldDrag, holdDrag, releaseDrag } from './dragPayload';
 import { useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
 import { useAudio } from '../AudioExperience';
@@ -41,12 +42,12 @@ export function DraftPicker({ run, preset, reduced, pick, back, inspect, status 
     pane={
       <DraftPane cards={mine} target={total} unit={msg("picked")} inspect={inspect} footer={msg("Drag a card here to take it.")}
       drop={{ over, onDragOver: event => { event.preventDefault(); setOver(true); }, onDragLeave: () => setOver(false),
-        onDrop: event => { event.preventDefault(); setOver(false); const index = Number(event.dataTransfer.getData('text/plain')); if (event.dataTransfer.getData('text/plain') !== '' && Number.isInteger(index) && pack[index]) take(index); } }}/>
+        onDrop: event => { event.preventDefault(); setOver(false); const raw = heldDrag('pick') ?? event.dataTransfer.getData('text/plain'), index = Number(raw); releaseDrag(); if (raw !== '' && Number.isInteger(index) && pack[index]) take(index); } }}/>
     }>
       <div className="draft-gallery"><div className="draft-gallery-grid">{pack.map((id, index) => {
         const card = registry.cards[id]!;
         return <article key={`${id}-${index}`} className={`builder-card-tile ${chosen === index ? 'has-copies' : ''} ${isFreeProducer(card, registry) ? 'is-producer' : ''}`} draggable
-          onDragStart={event => { setChosen(index); event.dataTransfer.setData('text/plain', String(index)); event.dataTransfer.effectAllowed = 'move'; }} onDragEnd={() => setOver(false)} onDoubleClick={() => take(index)}>
+          onDragStart={event => { setChosen(index); holdDrag(event, 'pick', String(index)); }} onDragEnd={() => { releaseDrag(); setOver(false); }} onDoubleClick={() => take(index)}>
           <ArtCard card={card} reduced={reduced} detail={false} selected={chosen === index} onClick={() => setChosen(chosen === index ? null : index)}
             interaction={{ 'aria-label': msg("Choose {v0}", { v0: card.name }), title: msg("Click to choose · double-click or drag to take · right-click to inspect"), onContextMenu: event => { event.preventDefault(); inspect(card); } }}/>
         </article>;

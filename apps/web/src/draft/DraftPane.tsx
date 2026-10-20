@@ -1,3 +1,4 @@
+import { holdDrag, releaseDrag } from './dragPayload';
 import { useMemo, type DragEvent, type ReactNode } from 'react';
 import { Check, Minus, Plus } from 'lucide-react';
 import { t as msg, useLanguage } from '../../../../packages/ui/src/i18n';
@@ -38,7 +39,7 @@ export function DraftPane({ head, cards, target, unit, problem, edit, inspect, f
           return list.length ? <section key={group.type} className="dk-group" aria-label={msg(group.name)}><h3>{msg(group.name)}<span>{total}</span></h3><ul>{list.map(card => {
             const count = countOf(cards, card.id);
             return <li key={card.id} className={`dk-row ${card.legendary ? 'is-legendary' : ''}`} draggable={!!edit}
-              onDragStart={event => { event.dataTransfer.setData('application/x-deck-row', card.id); event.dataTransfer.effectAllowed = 'move'; }}
+              onDragStart={event => holdDrag(event, 'row', card.id, 'application/x-deck-row')} onDragEnd={releaseDrag}
               onContextMenu={event => { event.preventDefault(); inspect(card); }}>
               <span className="dk-art" aria-hidden style={{ backgroundImage: `url("${card.art}")` }}/>
               <span className="dk-cost" title={msg("Energy cost")}>{cardCost(card)}</span>
