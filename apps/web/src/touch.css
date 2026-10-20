@@ -39,7 +39,7 @@
 
 /* Touch drag (touchDrag.ts): the held card floats under the finger and nothing near it is selectable. */
 [draggable=true] { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
-.touch-drag-ghost { position: fixed; left: 0; top: 0; margin: 0; z-index: var(--z-splash); opacity: .88; filter: drop-shadow(0 10px 18px rgb(var(--shade-rgb) / .6)); }
+.touch-drag-ghost { position: fixed; left: 0; top: 0; margin: 0; z-index: var(--z-splash); opacity: .96; will-change: transform; filter: drop-shadow(0 18px 22px rgb(var(--shade-rgb) / .65)); }
 html[data-touch-dragging] .touch-drag-ghost, html[data-touch-dragging] .touch-drag-ghost * { pointer-events: none; }
 html[data-touch-dragging] { overscroll-behavior: none; }
 
@@ -62,3 +62,6 @@ html[data-touch-dragging] { overscroll-behavior: none; }
 
 /* The pack in a draft does not scroll, so its cards can give every touch to the drag adapter instead of letting the browser claim the gesture. */
 @media (pointer: coarse) { .draft-gallery-grid > [draggable=true] { touch-action: none; } }
+
+/* The card being dragged is lifted off its place, which stays empty while it is held. */
+[data-lifted] { visibility: hidden; }

@@ -2,6 +2,7 @@ import * as v from 'valibot';
 import type { AbilityBinding, BattlefieldState, BeforePayload, CardDefinition, CardInstance, Combat, Command, CommandEnvelope, Cost, DeadSnapshot, EnergyType, GameEvent, GameState, HookContext, InternalOrder, LegalActions, Player, PlayerId, PlayerView, Pool, Registry } from '../../contracts/src';
 import { battlefieldPositions, deckRules, positionName } from '../../contracts/src';
 import { describeAbility } from '../../extensions/src/describeAbility';
+import { energyProductionOptions } from './production';
 export const RULES_VERSION = 'varhir-rules-0.20';
 const nonnegative = v.pipe(v.number(), v.integer(), v.minValue(0));
 const paymentSchema = v.record(v.pipe(v.string(), v.regex(/^[a-z][a-z0-9_-]*$/)), nonnegative);
@@ -167,6 +168,29 @@ export function decisionPlayer(state: GameState): PlayerId {
 }
 function blankPlayer(id: PlayerId, name: string): Player { return { id, name, life: 10, deck: [], hand: [], board: [null,null,null,null,null], discard: [], energy: {}, responseEnergy: {} }; }
 export const MULLIGAN_MAX = 2;
+const OPENING_HAND = 5;
+/** A creature that costs nothing and makes energy: the card a hand needs to get going. */
+const isFreeProducer = (card: CardDefinition, registry: Registry) => card.type === 'creature'
+  && card.cost.generic + Object.values(card.cost.factions).reduce((sum, n) => sum + n, 0) === 0
+  && energyProductionOptions(card, registry).some(output => Object.values(output).some(n => n > 0));
+/**
+ * How many free producers the opening hand should ideally hold. It follows the deck: a hand wants about twice the
+ * share of producers a random one would hold (10 in 30 cards asks for 3, 7 asks for 2, 3 asks for 1), never more than 3.
+ */
+export const idealOpeningProducers = (producers: number, deckSize: number) =>
+  producers === 0 ? 0 : Math.max(1, Math.min(3, Math.round(producers / deckSize * OPENING_HAND * 1.8)));
+/** Opening hands are weighted, not fair: shuffle three times and keep the library whose first hand is closest to the ideal. */
+function weightedShuffle(state: GameState, ids: string[], registry: Registry): string[] {
+  const free = ids.filter(id => isFreeProducer(registry.cards[state.cards[id].definitionId], registry)).length;
+  const ideal = idealOpeningProducers(free, ids.length);
+  let best: string[] | null = null, bestGap = Infinity;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const candidate = shuffle(state, ids);
+    const held = candidate.slice(-OPENING_HAND).filter(id => isFreeProducer(registry.cards[state.cards[id].definitionId], registry)).length;
+    if (Math.abs(held - ideal) < bestGap) { best = candidate; bestGap = Math.abs(held - ideal); }
+  }
+  return best!;
+}
 /** `mulligan` lets each player replace up to two opening cards, player one first. */
 export function createMatch(registry: Registry, decks: [string[], string[]], seed = 731, options: { mulligan?: boolean; /** Decks come from a draft: copy limits other than the legendary one are waived. */ draft?: boolean; /** Fixed card order per library, applied after the shuffle. Used by the tutorial. */ stack?: [string[], string[]] } = {}): GameState {
   for (const deck of decks) requireRule(!validateDeck(deck, registry, { draft: options.draft }).length, validateDeck(deck, registry, { draft: options.draft }).join(' '));
@@ -174,7 +198,7 @@ export function createMatch(registry: Registry, decks: [string[], string[]], see
   decks.forEach((deck, index) => {
     const player: PlayerId = index === 0 ? 'p1' : 'p2';
     deck.forEach((definitionId, i) => { const id = `${player}-${i}`; state.cards[id] = { id, definitionId, owner: player, controller: player, zone: 'deck', slot: null, exhausted: false, damage: 0 }; state.players[player].deck.push(id); });
-    state.players[player].deck = shuffle(state, state.players[player].deck);
+    state.players[player].deck = options.stack?.[index]?.length ? shuffle(state, state.players[player].deck) : weightedShuffle(state, state.players[player].deck, registry);
     // Tutorial control: `stack` lists the cards to draw first, in order (opening hand, then mulligan and turn draws).
     const taken: string[] = [];
     for (const definitionId of options.stack?.[index] ?? []) {
