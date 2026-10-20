@@ -68,7 +68,13 @@ export function Lobby(props:Props){
   const {screen,canResume}=props;
   const {playEffect}=useAudio();
   // Changing scene in the menu has its own sound; nothing else in the interface does.
-  const navigate=(next:Screen)=>{if(next!==screen&&next!=='match')playEffect('ui.scene');props.navigate(next);};
+  /** The deck builder holds a move away from it while the deck has unsaved changes. */
+  const builderGuard=useRef<((proceed:()=>void)=>boolean)|null>(null);
+  const navigate=(next:Screen)=>{
+    const go=()=>{if(next!==screen&&next!=='match')playEffect('ui.scene');props.navigate(next);};
+    if(screen==='builder'&&next!=='builder'&&builderGuard.current?.(go))return;
+    go();
+  };
   // New players are offered the tutorial once. Any answer, or having a match under way, settles it.
   const profile=useProfile();
   const [offer,setOffer]=useState(()=>{try{return screen==='menu'&&!canResume&&!localStorage.getItem(tutorialKey);}catch{return false;}});
@@ -160,7 +166,7 @@ export function Lobby(props:Props){
     </header>
     {isHome?<StartPage inert={setup!==null} collection={collection}
       canResume={canResume} resumeLabel={props.resumeLabel} play={()=>openSetup('practice')} draft={()=>openSetup('draft')}
-      resume={()=>navigate('match')} newQuest={()=>{const run=readRun();if(run)navigate('quest');else openSetup('quest');}}/>:screen==='profile'?<ProfilePage/>:screen==='packs'?<Packs collection={collection} reduced={props.reduced} open={openBooster} goToStore={()=>navigate('store')}/>:screen==='settings'?<SettingsPage learn={props.learn} watch={props.startSession}/>:screen==='store'?<Store collection={collection} saved={collectionSaved} message={msg(collectionMessage)} reduced={props.reduced} open={openBooster} buy={buyBooster}/>:screen==='stats'?<CollectionStats collection={collection} inspect={inspect} back={()=>navigate('cards')}/>:screen==='builder'?<DeckBuilder openCollection={()=>navigate('cards')} draft={draft} decks={props.decks} ownedCopies={ownedCopies} crowns={collection.crowns} message={msg(message)} canUndo={!!past.length} reduced={props.reduced} change={change} add={add} remove={remove} load={load} save={save} renameDeck={renameSaved} deleteSaved={deleteSaved} removeDeck={deleteDraft} undo={undo} buyMissing={buyMissingCards} inspect={inspect}/>:<main className="collection-page collection-wide">
+      resume={()=>navigate('match')} newQuest={()=>{const run=readRun();if(run)navigate('quest');else openSetup('quest');}}/>:screen==='profile'?<ProfilePage/>:screen==='packs'?<Packs collection={collection} reduced={props.reduced} open={openBooster} goToStore={()=>navigate('store')}/>:screen==='settings'?<SettingsPage learn={props.learn} watch={props.startSession}/>:screen==='store'?<Store collection={collection} saved={collectionSaved} message={msg(collectionMessage)} reduced={props.reduced} open={openBooster} buy={buyBooster}/>:screen==='stats'?<CollectionStats collection={collection} inspect={inspect} back={()=>navigate('cards')}/>:screen==='builder'?<DeckBuilder guardRef={builderGuard} openCollection={()=>navigate('cards')} draft={draft} decks={props.decks} ownedCopies={ownedCopies} crowns={collection.crowns} message={msg(message)} canUndo={!!past.length} reduced={props.reduced} change={change} add={add} remove={remove} load={load} save={save} renameDeck={renameSaved} deleteSaved={deleteSaved} removeDeck={deleteDraft} undo={undo} buyMissing={buyMissingCards} inspect={inspect}/>:<main className="collection-page collection-wide">
       <div className="collection-heading collection-subhead"><button className="builder-icon-button" aria-label={msg("Back to decks")} title={msg("Back to decks")} onClick={()=>navigate('builder')}><ArrowLeft size={16}/></button><h1>{msg("Collection")}</h1><button className="outline-button" onClick={()=>navigate('stats')}><BarChart3 size={15}/>{msg("Statistics")}</button></div>
       <div className="collection-columns"><section className="all-cards-panel" aria-label={msg("All cards")}>{cards.length!==Object.keys(registry.cards).length&&<div className="collection-panel-heading"><span>{cards.length} / {Object.keys(registry.cards).length}</span></div>}
         <div className="builder-collection-bar collection-filterbar"><CardFilterBar filters={filters} setFilters={setFilters} ownership={ownership} setOwnership={setOwnership} count={cards.length} hidden={matches.length-cards.length}/></div>

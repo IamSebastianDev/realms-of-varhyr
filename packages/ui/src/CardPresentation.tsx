@@ -95,7 +95,7 @@ export function CardFace({card,stats,showCost=true}:{card:CardDefinition;stats?:
     {showCost&&hasEnergyCost(card)&&<span className="card-cost"><CostCoins card={card}/></span>}
   </>;
 }
-export function ArtCard({card,onClick,selected=false,disabled=false,className='',stats,interaction,animated=false,reduced=false,detail=true}:{card:CardDefinition;/** Show the hover detail panel. On by default for every card; off where the caller supplies its own (hand, board) or the card is already shown in detail. */detail?:boolean;animated?:boolean;reduced?:boolean;interaction?:Pick<ButtonHTMLAttributes<HTMLButtonElement>,'id'|'title'|'aria-label'|'aria-disabled'|'onContextMenu'|'onPointerDown'|'onPointerEnter'|'onPointerLeave'|'onFocus'|'onBlur'>;onClick?:()=>void;selected?:boolean;disabled?:boolean;className?:string;stats?:{attack:number;defense:number}}) {
+export function ArtCard({card,onClick,selected=false,disabled=false,className='',stats,interaction,animated=false,reduced=false,detail=true}:{card:CardDefinition;/** Show the hover detail panel. On by default for every card; off where the caller supplies its own (hand, board) or the card is already shown in detail. */detail?:boolean;animated?:boolean;reduced?:boolean;interaction?:Pick<ButtonHTMLAttributes<HTMLButtonElement>,'id'|'style'|'title'|'aria-label'|'aria-disabled'|'onContextMenu'|'onPointerDown'|'onDoubleClick'|'onPointerEnter'|'onPointerLeave'|'onFocus'|'onBlur'>;onClick?:()=>void;selected?:boolean;disabled?:boolean;className?:string;stats?:{attack:number;defense:number}}) {
   useLanguage();
   card=localizedCard(card);
   const [hovered,setHovered]=useState(false),[focused,setFocused]=useState(false),[hoverRect,setHoverRect]=useState<DOMRect|null>(null),hoverTimer=useRef(0);

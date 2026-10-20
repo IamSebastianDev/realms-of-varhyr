@@ -1,0 +1,16 @@
+/* The hand is held like a hand of cards: fanned on an arc, straightening and rising under the pointer. */
+@media (pointer: fine) and (min-width: 951px) {
+  .hand-scroll { --spread: clamp(1.1deg, calc(8deg / max(var(--n, 5), 4)), 2.2deg); perspective: 1200px; }
+  .hand-scroll .hand-card {
+    transform-origin: 50% 190%;
+    rotate: calc(var(--fan, 0) * var(--spread));
+    translate: 0 calc(var(--fan, 0) * var(--fan, 0) * 3px);
+    transition: transform .22s cubic-bezier(.2, .8, .3, 1), rotate .22s cubic-bezier(.2, .8, .3, 1), translate .22s cubic-bezier(.2, .8, .3, 1), box-shadow .2s, margin .22s;
+  }
+  .hand-scroll .hand-card + .hand-card { margin-left: clamp(-70px, calc((5 - var(--n, 5)) * 10px - 10px), -6px); }
+  .hand-scroll .hand-card:hover, .hand-scroll .hand-card:focus-visible, .hand-scroll .hand-card.selected { rotate: 0deg; translate: 0 -12px; transform-origin: 50% 100%; }
+  .hand-scroll .hand-card.drag-source { rotate: 0deg; translate: 0 0; opacity: .35; }
+  /* Neighbours part slightly to make room for the card being looked at. */
+  .hand-scroll:has(.hand-card:hover) .hand-card:not(:hover) { filter: brightness(.82); }
+}
+@media (prefers-reduced-motion: reduce) { .hand-scroll .hand-card { transition: none; } }

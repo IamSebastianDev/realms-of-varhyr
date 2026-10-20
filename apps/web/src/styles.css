@@ -904,7 +904,7 @@ input,select,select option{background:#292824;color:#f0edde;border-color:#bab5ac
 .collection-reward-count{display:block;margin-top:9px;color:#e5ce96;font-size:10px}
 .booster-backdrop{z-index:var(--z-popover);background:#0b0b0bed;padding:22px;perspective:1200px}
 .booster-dialog{position:relative;isolation:isolate;width:min(1100px,100%);max-height:calc(var(--app-h) - 44px);overflow:auto;padding:35px 28px 24px;border:1px solid #e0ca8d70;border-radius:9px;background:radial-gradient(ellipse at 50% 30%,#3d3a3555,transparent 65%),linear-gradient(145deg,#292724,#1d1b19);box-shadow:0 25px 100px #090807b0}
-.booster-close{position:absolute;top:12px;right:12px;padding:8px;color:#e6dfc7;border-radius:4px;z-index:3}
+.booster-close{position:absolute;top:12px;right:12px;display:grid;place-items:center;width:40px;height:40px;padding:0;color:#e6dfc7;border-radius:4px;z-index:3}
 .booster-heading{text-align:center;margin-bottom:25px}
 .booster-heading .eyebrow{color:#e0c58e;letter-spacing:2px;font-size:9px}
 .booster-heading h2{font:500 42px/1.1 var(--serif);color:var(--gilt-white);margin:10px 0}
@@ -987,7 +987,7 @@ input,textarea,[contenteditable="true"]{-webkit-user-select:text;user-select:tex
 .booster-actions button{min-height:46px;min-width:156px;padding:0 22px;font-size:12px}
 
 /* Menu dialogs: the nearly opaque black overlay used for card reveals, no plate of their own, bronze chrome buttons. */
-.modal-backdrop:has(>.choice-dialog){background:radial-gradient(ellipse at 50% 45%,rgb(var(--shade-rgb) / .5) 0,rgb(var(--shade-rgb) / .78) 75%);backdrop-filter:blur(3px)}
+.modal-backdrop:has(>.choice-dialog){background:radial-gradient(ellipse at 50% 45%,rgb(var(--shade-rgb) / .68) 0,rgb(var(--shade-rgb) / .87) 75%);backdrop-filter:blur(3px)}
 .choice-dialog.choice-dialog{border:0;border-radius:0;background:none;box-shadow:none}
 .choice-dialog.choice-dialog:before{display:none}
 .choice-dialog.choice-dialog h2{color:var(--bronze-text);text-shadow:0 2px 14px var(--black)}

@@ -156,3 +156,18 @@
 
 /* The builder fills the window; nothing sits between it and the header any more. */
 .deck-workshop.builder-page{max-width:none;padding:12px 20px 16px}
+.dk-title{flex:1;min-width:0;display:flex;align-items:center;gap:7px;min-height:30px;padding:4px 8px;border:1px solid transparent;border-radius:4px;color:var(--gilt-white);text-align:left;font:600 16px/1.2 var(--serif)}
+.dk-title span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dk-title span.is-empty{color:var(--ink-3);font-style:italic}
+.dk-title svg{flex-shrink:0;color:var(--bronze)}
+.dk-title:hover,.dk-title:focus-visible{border-color:rgb(var(--edge-rgb) / .33);background:rgb(var(--shade-rgb) / .4)}
+.deck-detail-fields{display:grid;gap:16px;margin-bottom:6px}
+.deck-detail-name{display:grid;gap:6px;font-size:10px;color:var(--ink-2)}
+.deck-detail-name input{min-height:38px;padding:8px 10px;font-size:14px;background:rgb(var(--shade-rgb) / .4);border-color:rgb(var(--edge-rgb) / .27)}
+.deck-detail-back{display:flex;align-items:center;justify-content:space-between;gap:14px;font-size:10px;color:var(--ink-2)}
+.deck-detail-back span{display:grid;gap:3px}
+.deck-detail-back small{font-size:10px;color:var(--ink-3)}
+.deck-detail-back .back-picker-button .card-back-face{width:38px}
+.deck-detail-count{margin:14px 0 10px}
+.builder-discard{border-color:var(--danger-text);color:var(--danger-text)}
+.builder-discard:hover{border-color:var(--danger-text);color:var(--gilt-white)}

@@ -128,6 +128,7 @@ function fade(group:THREE.Object3D,alpha:number,bright=1){
   });
 }
 export type CardPose={x:number;y:number;s:number;rot:number;alpha:number;lift:boolean};
+
 function Card({ card,view,registry,own,highlight,selected,targeted,attacking,blocking,onSelect,onInspect,onHover,onDragStart,reduced,pulse,poses }: {poses?:MutableRefObject<Record<string,CardPose>>;card:CardInstance;view:PlayerView;registry:Registry;own:boolean;highlight:boolean;selected:boolean;targeted:boolean;attacking:boolean;blocking:boolean;onSelect:(id:string)=>void;onInspect:(id:string)=>void;onHover:(id:string|null)=>void;onDragStart?:BoardDragStart;reduced:boolean;pulse?:string}) {
   const hold=useHoldToInspect(()=>onInspect(card.id));
   const legendary=registry.cards[card.definitionId].legendary;
@@ -169,6 +170,7 @@ function Card({ card,view,registry,own,highlight,selected,targeted,attacking,blo
     {(selected||targeted||attacking||blocking)&&<mesh position={[0,-.018,0]} rotation={[-Math.PI/2,0,0]}><planeGeometry args={[1.79,2.4]}/><meshBasicMaterial color={targeted?'#c87150':blocking?'#6ce5f3':'#f1c15a'} transparent opacity={blocking?.28:.13}/></mesh>}
   </group></group></group>;
 }
+
 /** Slow motes and a few large soft lights, tinted by whichever faction holds the board. */
 function Dust({ reduced,ambient }: {reduced:boolean;ambient:string}) {
   const fine=useRef<THREE.Points>(null),soft=useRef<THREE.Points>(null),map=blobTexture();
@@ -221,6 +223,7 @@ function SceneBoard({ view,viewer,registry,selected,attacks,blocks,targets,onSel
   const effect=usePresentation(view.events,reduced);
   return <Canvas orthographic camera={{position:[0,15,4.5],near:.1,far:80,zoom:60}} dpr={[1,2]} shadows gl={{antialias:true,alpha:true}} aria-label="Three-dimensional battlefield">
     <CameraFit/><SlotAnchors viewer={viewer} view={view} attacks={attacks} onLayout={onLayout}/><ambientLight intensity={1.2}/><directionalLight position={[-3,8,4]} intensity={2} color="#c8d4bf" castShadow shadow-mapSize={[1024,1024]}/>
+    
     <mesh rotation={[-Math.PI/2,0,0]} position={[0,-.05,0]} receiveShadow><planeGeometry args={[13,7]}/><shadowMaterial transparent opacity={.5}/></mesh>
     <mesh rotation={[-Math.PI/2,0,0]} position={[0,-.035,0]}><ringGeometry args={[2.35,2.36,100]}/><meshBasicMaterial color="#d2b26c" transparent opacity={.065}/></mesh>
     <mesh rotation={[-Math.PI/2,0,0]} position={[0,-.03,0]}><ringGeometry args={[1.86,1.875,100]}/><meshBasicMaterial color="#d2b26c" transparent opacity={.045}/></mesh>

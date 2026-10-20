@@ -22,6 +22,7 @@ import { botCommand } from '../../../packages/core/src/bot';
 import { defaultDeckId, factionInfo, registry } from '../../../packages/content/src';
 const Board=lazy(()=>import('../../../packages/renderer/src/Board').then(module=>({default:module.Board})));
 import type { SlotLayout } from '../../../packages/renderer/src/Board';
+import { planChannels } from './autoChannel';
 import { hitDropZone, nextPlayStage, resolveDrop, resolveLaneDrop, type DropZone, type PlayDraft } from './cardInteraction';
 import { useCardDrag, type CardDrag } from './useCardDrag';
 import { creatureActions, type CreatureAction } from './creatureActions';
@@ -235,6 +236,31 @@ function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSessi
     if(nextStage!=='none'){setStage(nextStage);return;}
     send({type:'play',...nextDraft});
   }
+  /** Starts a play the way a drop would: single legal slots are taken, anything else opens the usual choice stage. */
+  function quickBegin(id:string) {
+    const legal=view.legal.playable.find(a=>a.cardId===id);if(!legal)return;
+    const spell=registry.cards[view.cards[id].definitionId].type==='spell';
+    setSelected(id);setPreviewRequest(null);setPreview(null);
+    beginPlay(!spell&&!legal.consumes.length&&legal.slots.length===1?{cardId:id,slot:legal.slots[0]}:{cardId:id});
+  }
+  /** Double-click: play the card, exhausting just enough producers first when the pool falls short. */
+  function quickPlay(id:string) {
+    if(!live||stage!=='none'||view.pending||state.outcome||view.cards[id]?.zone!=='hand')return;
+    if(view.legal.playable.some(a=>a.cardId===id)){quickBegin(id);return;}
+    if(view.phase!=='play'||responseStep){setError(msg("Generate matching energy and check the timing first."));return;}
+    const plan=planChannels(registry.cards[view.cards[id].definitionId].cost,you.energy,view.legal.energy);
+    if(!plan){setError(msg("Not enough energy, even with every producer."));return;}
+    if(!plan.length){setError(msg("Generate the required energy first, and check your free slots."));return;}
+    try{for(const step of plan)match.act({type:'energy',cardId:step.cardId,option:step.option});autoPlay.current={id,until:Date.now()+3000};setError('');}
+    catch(cause){setError(cause instanceof Error?cause.message:msg("Could not send the move."));}
+  }
+  const autoPlay=useRef<{id:string;until:number}|null>(null);
+  useEffect(()=>{
+    const pending=autoPlay.current;if(!pending)return;
+    if(view.legal.playable.some(a=>a.cardId===pending.id)){autoPlay.current=null;quickBegin(pending.id);}
+    else if(!online||Date.now()>pending.until){autoPlay.current=null;setError(msg("Energy is ready, but the card can't be played. Check your free slots."));}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[view.revision]);
   function inspectBoard(id:string) {
     const card=view.cards[id],slot=slotLayout.find(s=>s.player===card?.controller&&s.slot===card?.slot),rect=boardRef.current?.getBoundingClientRect();
     if(slot&&rect)pinPreview(id,{left:rect.left+slot.x,top:rect.top+slot.y,right:rect.left+slot.x+slot.width,bottom:rect.top+slot.y+slot.height});
@@ -444,7 +470,7 @@ function MatchApp({match,setup,script,leave,onBegin,onAttach}: {match:MatchSessi
       </section>
       {logOpen&&<BattleLog events={view.events} cards={view.cards} viewer={viewer} onClose={()=>setLogOpen(false)}/>}
     </main>
-    <section className="hand-zone">{stage!=='none'&&<div className="hand-caption"><p>{stage==='consume'?msg("Choose what to Consume"):stage==='position'?msg("Choose your position"):msg("Choose your target")}</p></div>}<div className="hand-scroll" style={{['--n' as string]:view.hand.length}}>{view.hand.map((id,i)=><ArtCard detail={false} reduced={reduced} key={id} card={registry.cards[view.cards[id].definitionId]} selected={selected===id} disabled={!targets.includes(id)&&!view.legal.playable.some(a=>a.cardId===id)} className={`hand-card ${targets.includes(id)?'rally-target':''} ${drag?.cardId===id?'drag-source':''} ${dragEnabled&&view.legal.playable.some(a=>a.cardId===id)?'draggable':''}`} interaction={{id:`hand-${id}`,onContextMenu:e=>{e.preventDefault();pinPreview(id,e.currentTarget.getBoundingClientRect());},onPointerDown:e=>startDrag(id,e),onPointerEnter:e=>{if(e.pointerType!=='touch'&&!drag)requestPreview(id,e.currentTarget.getBoundingClientRect());},onPointerLeave:clearHoverPreview,onFocus:e=>requestPreview(id,e.currentTarget.getBoundingClientRect()),onBlur:clearHoverPreview}} onClick={()=>{if(!live||suppressClick())return;if(stage==='target'&&targets.includes(id)){sendTarget(id);return;}if(stage!=='none')return;pinPreview(id,document.getElementById(`hand-${id}`)!.getBoundingClientRect());setDraft(null);setStage('none');}}/>)}{!view.hand.length&&<div className="empty-hand">{msg("No cards in hand")}</div>}</div></section>
+    <section className="hand-zone">{stage!=='none'&&<div className="hand-caption"><p>{stage==='consume'?msg("Choose what to Consume"):stage==='position'?msg("Choose your position"):msg("Choose your target")}</p></div>}<div className="hand-scroll" style={{['--n' as string]:view.hand.length}}>{view.hand.map((id,i)=><ArtCard detail={false} reduced={reduced} key={id} card={registry.cards[view.cards[id].definitionId]} selected={selected===id} disabled={!targets.includes(id)&&!view.legal.playable.some(a=>a.cardId===id)} className={`hand-card ${targets.includes(id)?'rally-target':''} ${drag?.cardId===id?'drag-source':''} ${dragEnabled&&view.legal.playable.some(a=>a.cardId===id)?'draggable':''}`} interaction={{id:`hand-${id}`,style:{['--fan' as string]:i-(view.hand.length-1)/2},onContextMenu:e=>{e.preventDefault();pinPreview(id,e.currentTarget.getBoundingClientRect());},onPointerDown:e=>startDrag(id,e),onDoubleClick:()=>quickPlay(id),onPointerEnter:e=>{if(e.pointerType!=='touch'&&!drag)requestPreview(id,e.currentTarget.getBoundingClientRect());},onPointerLeave:clearHoverPreview,onFocus:e=>requestPreview(id,e.currentTarget.getBoundingClientRect()),onBlur:clearHoverPreview}} onClick={()=>{if(!live||suppressClick())return;if(stage==='target'&&targets.includes(id)){sendTarget(id);return;}if(stage!=='none')return;pinPreview(id,document.getElementById(`hand-${id}`)!.getBoundingClientRect());setDraft(null);setStage('none');}}/>)}{!view.hand.length&&<div className="empty-hand">{msg("No cards in hand")}</div>}</div></section>
 
     {error&&<div className="toast" role="alert">{msg(error)}<button aria-label={msg("Dismiss error")} onClick={()=>setError('')}><X size={14}/></button></div>}
     {historyIndex!==null&&<div className={`replay-bar ${watching?'watching':''}`}><Eye size={16}/><span>{watching?msg("Replay"):msg("Viewing")} {msg("· step")}{' '}{historyIndex} {msg("of")}{' '}{historyLength}</span>

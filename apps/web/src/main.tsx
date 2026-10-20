@@ -24,6 +24,7 @@ import './onboarding.css';
 import './touch.css';
 import './plate.css';
 import './scene-transition.css';
+import './hand-fan.css';
 import './select-picker';
 import './ui-scale.css';
 import { watchUiScale } from './uiScale';

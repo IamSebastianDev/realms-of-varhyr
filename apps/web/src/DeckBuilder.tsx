@@ -3,8 +3,8 @@ import { Workshop } from './layout/Workshop';
 import { Checkbox } from './Checkbox';
 import { FactionSelect } from './FactionSelect';
 import { t as msg, useLanguage, formatNumber } from '../../../packages/ui/src/i18n';
-import { ArrowLeft, ChartNoAxesColumn, Check, Copy, Download, Filter, Layers, Minus, MoreHorizontal, Plus, RotateCcw, Search, ShoppingBag, Trash2, Upload, X } from 'lucide-react';
-import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { ArrowLeft, ChartNoAxesColumn, Check, Copy, Download, Filter, Layers, Minus, MoreHorizontal, Plus, RotateCcw, Search, ShoppingBag, SlidersHorizontal, Trash2, Upload, X } from 'lucide-react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
 import type { CardDefinition } from '../../../packages/contracts/src';
 import { deckRules } from '../../../packages/contracts/src';
 import { factionInfo, registry, setDefinitions } from '../../../packages/content/src';
@@ -22,13 +22,15 @@ import { builderCards, cardCost, compareCards, exportDeck, importDeck, initialBu
 type Props = {
   draft: CustomDeck; decks: CustomDeck[]; ownedCopies: OwnedCopies; crowns: number; message: string; canUndo: boolean; reduced: boolean;
   change: (deck: CustomDeck) => void; add: (id: string) => void; remove: (id: string) => void;
-  load: (id: string) => void; renameDeck: (id: string, name: string) => string | null; deleteSaved: (id: string) => string | null; removeDeck: () => void; save: () => void; undo: () => void; buyMissing: () => void; inspect: (card: CardDefinition) => void; openCollection: () => void;
+  load: (id: string) => void; renameDeck: (id: string, name: string) => string | null; deleteSaved: (id: string) => string | null; removeDeck: () => void; save: () => boolean; undo: () => void; buyMissing: () => void; inspect: (card: CardDefinition) => void; openCollection: () => void;
+  /** The lobby asks this before leaving the builder; it returns true when it is holding the move for an unsaved-changes prompt. */
+  guardRef?: MutableRefObject<((proceed: () => void) => boolean) | null>;
 };
 const newDeck = (): CustomDeck => ({ id: `custom-${crypto.randomUUID()}`, name: msg("New deck"), cards: [] });
 const groups = [{ type: 'creature', name: 'Creatures' }, { type: 'holding', name: 'Holdings' }, { type: 'spell', name: 'Spells' }] as const;
 const signature = (deck: CustomDeck) => JSON.stringify([deck.name, [...deck.cards].sort(), deck.back ?? '']);
 
-export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUndo, reduced, change, add, remove, load, save, renameDeck, deleteSaved, removeDeck, undo, buyMissing, inspect, openCollection }: Props) {
+export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUndo, reduced, change, add, remove, load, save, renameDeck, deleteSaved, removeDeck, undo, buyMissing, inspect, openCollection, guardRef }: Props) {
   useLanguage();
   const [filters, setFilters] = useState<BuilderFilters>(initialBuilderFilters);
   // The builder opens on the shelf of saved decks; choosing one (or starting a new one) opens the editor.
@@ -49,9 +51,10 @@ export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUnd
     onDragLeave: (event: React.DragEvent) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOver(null); },
     onDrop: (event: React.DragEvent) => { if (drag?.from !== accept) return; event.preventDefault(); apply(drag.id); endDrag(); },
   });
-  const [dialog, setDialogState] = useState<'deck' | 'overview' | 'import' | 'export' | null>(null);
+  const [dialog, setDialogState] = useState<'deck' | 'details' | 'import' | 'export' | null>(null);
   const setDialog = (next: typeof dialog) => { setConfirmDelete(false); setDialogState(next); };
   const sharing = dialog === 'import' || dialog === 'export' ? dialog : null;
+  const [pending, setPending] = useState<{ run: () => void } | null>(null);
   const [deckCode, setDeckCode] = useState('');
   const [copyMessage, setCopyMessage] = useState('');
   const sharingOrigin = useRef<HTMLElement | null>(null);
@@ -72,6 +75,20 @@ export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUnd
   const saved = decks.find(deck => deck.id === draft.id);
   const isSaved = saved && signature(saved) === signature(draft);
   const maxCurve = Math.max(1, ...summary.curve);
+  // A deck that was never saved only counts as changed once it holds cards; a saved deck counts as soon as it differs.
+  const dirty = !isSaved && (saved ? true : draft.cards.length > 0);
+  const guard = (run: () => void) => { if (dirty) setPending({ run }); else run(); };
+  useEffect(() => {
+    if (!guardRef) return;
+    guardRef.current = proceed => { if (!dirty) return false; setPending({ run: proceed }); return true; };
+    return () => { guardRef.current = null; };
+  }, [guardRef, dirty]);
+  function settle(keep: boolean) {
+    const next = pending; if (!next) return;
+    if (keep) { if (!save()) return; }
+    else if (saved) change(saved); else change(newDeck());
+    setPending(null); next.run();
+  }
   // Copies beyond what the player owns are listed apart from the owned ones and shown dimmed.
   type DeckEntry = { card: CardDefinition; count: number; unowned: boolean };
   const shownDeckCards = deckCards.filter(card => (deckCost === null || Math.min(6, cardCost(card)) === deckCost));
@@ -149,10 +166,19 @@ export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUnd
   }
 
   const shelf = !editing && dialog !== 'import';
-  const importFromShelf = () => { setEditing(true); openSharing('import'); };
-  if (shelf) return <DeckShelf decks={decks} draft={draft} ownedCopies={ownedCopies}
-    open={id => { if (id) load(id); setEditing(true); }}
-    create={() => { change(newDeck()); setEditing(true); }} importDeck={importFromShelf} openCollection={openCollection} rename={renameDeck} remove={deleteSaved}/>;
+  const importFromShelf = () => guard(() => { setEditing(true); openSharing('import'); });
+  const leaveDialog = pending && <BuilderDialog title={msg("Unsaved changes")} origin={null} close={() => setPending(null)}>
+    <p>{msg("“{v0}” has changes you haven’t saved.", { v0: draft.name.trim() || msg("Untitled deck") })}</p>
+    {!draft.name.trim() && <p className="builder-dialog-error" role="alert">{msg("Name your deck to save it.")}</p>}
+    <div className="builder-dialog-actions">
+      <button className="outline-button" onClick={() => setPending(null)}>{msg("Keep editing")}</button>
+      <button className="outline-button builder-discard" onClick={() => settle(false)}><Trash2 size={15}/>{msg("Discard changes")}</button>
+      <button className="gold-button" data-autofocus disabled={!draft.name.trim()} onClick={() => settle(true)}>{msg("Save")}<Check size={14}/></button>
+    </div>
+  </BuilderDialog>;
+  if (shelf) return <><DeckShelf decks={decks} draft={draft} ownedCopies={ownedCopies}
+    open={id => { const go = () => { if (id) load(id); setEditing(true); }; if (id && id !== draft.id) guard(go); else go(); }}
+    create={() => guard(() => { change(newDeck()); setEditing(true); })} importDeck={importFromShelf} openCollection={openCollection} rename={renameDeck} remove={deleteSaved}/>{leaveDialog}</>;
   return <Workshop label={msg("Deck builder")} className="collection-page builder-page" panelLabel={msg("All cards")}
     panel={{ className: `${drag?.from === 'deck' ? 'drop-ready' : ''} ${over === 'collection' ? 'drop-over' : ''}`, ...dropZone('collection', 'deck', id => remove(id)) }}
     title={msg("Your cards")} subtitle={<>{cards.length} {msg("cards")}</>}
@@ -163,12 +189,11 @@ export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUnd
     <aside className={`builder-deck ${drag?.from === 'collection' ? 'drop-ready' : ''} ${over === 'deck' ? 'drop-over' : ''}`} aria-label={msg("Cards in deck")} {...dropZone('deck', 'collection', id => add(id))}>
       <div className="dk-head">
         <h2 className="sr-only">{msg("Your deck")}{' '}{summary.total} {msg("cards")}</h2>
-        <button className="builder-icon-button" aria-label={msg("Back to decks")} title={msg("Back to decks")} onClick={() => setEditing(false)}><ArrowLeft size={16}/></button>
-        <input className="builder-deck-name" aria-label={msg("Deck name")} placeholder={msg("Name your deck")} maxLength={60} value={draft.name} onChange={event => change({ ...draft, name: event.target.value })}/>
+        <button className="builder-icon-button" aria-label={msg("Back to decks")} title={msg("Back to decks")} onClick={() => guard(() => setEditing(false))}><ArrowLeft size={16}/></button>
+        <button className="dk-title" aria-label={msg("Deck details: {v0}", { v0: draft.name.trim() || msg("Untitled deck") })} title={msg("Name, card back and energy overview")} onClick={() => openDialog('details')}><span className={draft.name.trim() ? '' : 'is-empty'}>{draft.name.trim() || msg("Name your deck")}</span><SlidersHorizontal size={13} aria-hidden/></button>
         <div className="builder-deck-actions">
-          <CardBackPicker value={draft.back} onChange={back => change({ ...draft, back })}/>
           <button className="builder-icon-button" aria-label={msg("Undo deck edit")} disabled={!canUndo} onClick={undo} title={msg("Undo the last edit")}><RotateCcw size={15}/></button>
-          <button className="gold-button builder-save" disabled={!draft.name.trim() || !!isSaved} onClick={save}>{isSaved ? msg("Saved") : msg("Save")}<Check size={14}/></button>
+          <button className="gold-button builder-save" disabled={!draft.name.trim() || !!isSaved} onClick={() => { save(); }}>{isSaved ? msg("Saved") : msg("Save")}<Check size={14}/></button>
           <button className="builder-icon-button" aria-label={msg("Deck actions")} title={msg("Load, new, duplicate, import or export")} onClick={() => openDialog('deck')}><MoreHorizontal size={18}/></button>
         </div>
       </div>
@@ -193,18 +218,22 @@ export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUnd
       {!!deckCards.length && <div className="dk-curve" role="group" aria-label={msg("Filter deck by energy cost")}>
         {summary.curve.map((count, cost) => <button key={cost} aria-pressed={deckCost === cost} aria-label={msg("{v0} cards costing {v1}", {v0: count, v1: cost === 6 ? '6 or more' : cost})} title={msg("{v0} cards costing {v1} · click to filter", {v0: count, v1: cost === 6 ? '6+' : cost})} disabled={!count} onClick={() => setDeckCost(deckCost === cost ? null : cost)}><span>{count || ''}</span><i style={{ height: `${Math.max(2, count / maxCurve * 30)}px` }}/><small>{cost === 6 ? '6+' : cost}</small></button>)}
       </div>}
-      <div className="builder-deck-footer"><span role="status" title={errors.map(issue=>msg(issue)).join(' ')}>{message || (errors.length ? errors[0] : isSaved ? msg("Saved on this device.") : msg("Draft saved automatically."))}</span><button onClick={() => openDialog('overview')} title={msg("Deck overview")}>{summary.freeProducers} {msg("free producers ·")}{' '}{formatNumber(summary.averageCost,{minimumFractionDigits:1,maximumFractionDigits:1})} {msg("avg. cost")}</button></div>
+      <div className="builder-deck-footer"><span role="status" title={errors.map(issue=>msg(issue)).join(' ')}>{message || (errors.length ? errors[0] : isSaved ? msg("Saved on this device.") : msg("Draft saved automatically."))}</span><button onClick={() => openDialog('details')} title={msg("Deck details")}>{summary.freeProducers} {msg("free producers ·")}{' '}{formatNumber(summary.averageCost,{minimumFractionDigits:1,maximumFractionDigits:1})} {msg("avg. cost")}</button></div>
     </aside>
     }
     overlays={<>
     {dialog === 'deck' && <BuilderDialog title={msg("Deck actions")} origin={sharingOrigin.current} close={() => setDialog(null)}>
-      <label>{msg("Load deck")}<select aria-label={msg("Load deck")} value={saved ? draft.id : 'draft'} onChange={event => { load(event.target.value); setDialog(null); }}><option value="draft">{msg("Current draft")}</option><optgroup label={msg("Starter decks")}>{starterOptions.map(deck => <option key={deck.id} value={deck.id}>{msg(deck.name)}</option>)}</optgroup>{decks.length > 0 && <optgroup label={msg("Your decks")}>{decks.map(deck => <option key={deck.id} value={deck.id}>{msg(deck.name)}</option>)}</optgroup>}</select></label>
-      <div className="builder-manage-actions"><button className="outline-button" onClick={() => { change(newDeck()); setDialog(null); }}><Plus size={16}/>{msg("New deck")}</button><button className="outline-button" onClick={() => { change({ ...draft, id: newDeck().id, name: msg("{v0} (copy)", {v0: draft.name.slice(0, 53)}) }); setDialog(null); }}><Copy size={16}/>{msg("Duplicate deck")}</button><button className="outline-button" onClick={() => openSharing('import')}><Upload size={16}/>{msg("Import deck")}</button><button className="outline-button" disabled={!draft.cards.length} onClick={() => openSharing('export')}><Download size={16}/>{msg("Export deck")}</button></div>
+      <label>{msg("Load deck")}<select aria-label={msg("Load deck")} value={saved ? draft.id : 'draft'} onChange={event => { const id = event.target.value; setDialog(null); if (id !== draft.id) guard(() => load(id)); }}><option value="draft">{msg("Current draft")}</option><optgroup label={msg("Starter decks")}>{starterOptions.map(deck => <option key={deck.id} value={deck.id}>{msg(deck.name)}</option>)}</optgroup>{decks.length > 0 && <optgroup label={msg("Your decks")}>{decks.map(deck => <option key={deck.id} value={deck.id}>{msg(deck.name)}</option>)}</optgroup>}</select></label>
+      <div className="builder-manage-actions"><button className="outline-button" onClick={() => { setDialog(null); guard(() => change(newDeck())); }}><Plus size={16}/>{msg("New deck")}</button><button className="outline-button" onClick={() => { change({ ...draft, id: newDeck().id, name: msg("{v0} (copy)", {v0: draft.name.slice(0, 53)}) }); setDialog(null); }}><Copy size={16}/>{msg("Duplicate deck")}</button><button className="outline-button" onClick={() => { setDialog(null); guard(() => openSharing('import')); }}><Upload size={16}/>{msg("Import deck")}</button><button className="outline-button" disabled={!draft.cards.length} onClick={() => openSharing('export')}><Download size={16}/>{msg("Export deck")}</button></div>
       {saved && (confirmDelete ? <div className="builder-delete-confirm" role="alertdialog" aria-label={msg("Delete deck")}><p>{msg("Delete “{v0}”? This can’t be undone.", {v0: saved.name})}</p><div className="builder-dialog-actions"><button className="outline-button" onClick={() => setConfirmDelete(false)}>{msg("Keep deck")}</button><button className="gold-button danger" data-autofocus onClick={() => { removeDeck(); setConfirmDelete(false); setDialog(null); setEditing(false); }}><Trash2 size={15}/>{msg("Delete deck")}</button></div></div> : <button className="outline-button builder-delete" onClick={() => setConfirmDelete(true)}><Trash2 size={16}/>{msg("Delete deck")}</button>)}
       <p>{deckRules.minimumCards} {msg("cards minimum ·")}{' '}{deckRules.copiesPerCard} {msg("copies per card ·")}{' '}{deckRules.copiesPerLegendary} {msg("per legendary")}</p>
     </BuilderDialog>}
-    {dialog === 'overview' && <BuilderDialog title={msg("Deck overview")} origin={sharingOrigin.current} close={() => setDialog(null)}>
-      <p>{draft.name || msg("Untitled deck")} · {summary.total} {msg("cards ·")}{' '}{summary.unique} {msg("unique")}</p>
+    {dialog === 'details' && <BuilderDialog title={msg("Deck details")} origin={sharingOrigin.current} close={() => setDialog(null)}>
+      <div className="deck-detail-fields">
+        <label className="deck-detail-name">{msg("Name")}<input data-autofocus aria-label={msg("Deck name")} placeholder={msg("Name your deck")} maxLength={60} value={draft.name} onChange={event => change({ ...draft, name: event.target.value })}/></label>
+        <div className="deck-detail-back"><span>{msg("Card back")}<small>{msg("Shown on the back of this deck’s cards.")}</small></span><CardBackPicker value={draft.back} onChange={back => change({ ...draft, back })}/></div>
+      </div>
+      <p className="deck-detail-count">{summary.total} {msg("cards ·")}{' '}{summary.unique} {msg("unique")}</p>
       <div className="deck-metrics"><span><b>{summary.freeProducers}</b>{' '}{msg("Free producers")}</span><span><b>{summary.producers}</b>{' '}{msg("All producers")}</span><span><b>{formatNumber(summary.averageCost,{minimumFractionDigits:1,maximumFractionDigits:1})}</b>{' '}{msg("Average cost")}</span></div>
       <div className="deck-curve-heading">{msg("Energy cost curve")}</div>
       <div className="deck-cost-curve" role="img" aria-label={msg("Energy cost curve: {v0}", {v0: summary.curve.map((count, cost) => `${cost === 6 ? '6+' : cost} cost: ${count} cards`).join(', ')})}>
@@ -212,6 +241,7 @@ export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUnd
       </div>
       <p role="status">{errors.length ? errors.join(' ') : msg("Ready to play.")}</p>
     </BuilderDialog>}
+    {leaveDialog}
     {sharing && <BuilderDialog title={sharing === 'export' ? msg("Export deck") : msg("Import deck")} origin={sharingOrigin.current} close={() => setDialog(null)}>
       <p>{sharing === 'export' ? msg("Copy this deck code to share it, or download a file.") : msg("Paste a deck code or choose an exported deck file. It opens as a new draft.")}</p>
       <textarea ref={codeRef} aria-label={msg("Deck code")} readOnly={sharing === 'export'} value={deckCode} onChange={event => { setDeckCode(event.target.value); setImportError(''); }} spellCheck={false}/>
