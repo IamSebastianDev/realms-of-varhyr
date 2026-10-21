@@ -28,14 +28,7 @@
       }
     ]
   },
-  "abilities": [
-    {
-      "id": "scorch",
-      "params": {
-        "amount": 1
-      }
-    }
-  ],
+  "abilities": [],
   "lore": "She arrives with a torch and leaves with whatever the fire uncovered.",
   "set": "foundations"
 }

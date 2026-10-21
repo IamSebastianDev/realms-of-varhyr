@@ -1,0 +1,34 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "torch-the-rooftops",
+  "revision": 1,
+  "name": "Torch the Rooftops",
+  "deckLimitKey": "torch-the-rooftops",
+  "type": "spell",
+  "factions": [
+    "ember-fields"
+  ],
+  "subtypes": [],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "ember-fields": 1
+    }
+  },
+  "abilities": [],
+  "timing": [
+    "play"
+  ],
+  "cast": [
+    {
+      "id": "damage",
+      "params": {
+        "amount": 3
+      }
+    }
+  ],
+  "lore": "“The thatch is dry, the wind comes from the west, and nobody has to give an order.”",
+  "set": "foundations"
+}

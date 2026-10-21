@@ -171,3 +171,12 @@
 .deck-detail-count{margin:14px 0 10px}
 .builder-discard{border-color:var(--danger-text);color:var(--danger-text)}
 .builder-discard:hover{border-color:var(--danger-text);color:var(--gilt-white)}
+.builder-filter-chips{display:grid;gap:14px}
+.builder-chips{display:grid;grid-template-columns:62px minmax(0,1fr);align-items:start;gap:10px;font-size:10px}
+.builder-chips>span{color:var(--ink-2);padding-top:7px}
+.builder-chips>div{display:flex;flex-wrap:wrap;gap:5px}
+.builder-chips button{display:inline-flex;align-items:center;gap:6px;min-width:27px;height:27px;padding:0 9px;border-radius:4px;border:1px solid rgb(var(--edge-rgb) / .33);background:rgb(var(--shade-rgb) / .5);font-size:10px;color:var(--ink-2)}
+.builder-chips button svg{width:13px;height:13px;color:var(--tint,currentColor)}
+.builder-chips button:hover{border-color:var(--gilt)}
+.builder-chips button[aria-pressed=true]{background:var(--gilt);color:var(--black);border-color:var(--gilt-bright)}
+.builder-chips button[aria-pressed=true] svg{color:inherit}

@@ -1,0 +1,32 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "vanguard-pikemen",
+  "revision": 1,
+  "name": "Vanguard Pikemen",
+  "deckLimitKey": "vanguard-pikemen",
+  "type": "creature",
+  "factions": [
+    "ember-fields"
+  ],
+  "subtypes": [],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "ember-fields": 1
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "ember-fields": 2
+      }
+    ]
+  },
+  "abilities": [],
+  "lore": "Pikes are cheap, men are cheaper, and the Fields always knew which of the two is easier to replace.",
+  "set": "foundations"
+}

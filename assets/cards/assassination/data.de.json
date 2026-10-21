@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Meuchelmord",
+  "lore": "Jemand muss vertrauenswürdig genug sein, das Zelt zu betreten. An Freiwilligen hat es den Feldern nie gemangelt."
+}

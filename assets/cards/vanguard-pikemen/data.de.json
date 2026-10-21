@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Vorhut-Pikeniere",
+  "lore": "Piken sind billig, Männer sind billiger, und die Felder wussten immer, welches von beidem sich leichter ersetzen lässt."
+}

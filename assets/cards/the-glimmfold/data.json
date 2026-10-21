@@ -1,0 +1,34 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "the-glimmfold",
+  "revision": 1,
+  "name": "The Glimmfold",
+  "deckLimitKey": "the-glimmfold",
+  "type": "holding",
+  "factions": [
+    "ember-fields"
+  ],
+  "subtypes": [
+    "landmark"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "ember-fields": 2
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 3
+  },
+  "abilities": [
+    {
+      "id": "fealty",
+      "params": {}
+    }
+  ],
+  "lore": "Every oath of the Fields was sworn here. None has ever been returned.",
+  "set": "foundations"
+}

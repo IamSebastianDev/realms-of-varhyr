@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "assassination",
+  "revision": 1,
+  "name": "Assassination",
+  "deckLimitKey": "assassination",
+  "type": "spell",
+  "factions": [
+    "ember-fields"
+  ],
+  "subtypes": [],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "ember-fields": 1
+    }
+  },
+  "abilities": [
+    {
+      "id": "consume",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "timing": [
+    "play"
+  ],
+  "cast": [
+    {
+      "id": "destroy",
+      "params": {}
+    }
+  ],
+  "lore": "Someone has to be trusted enough to walk into the tent. The Fields have never run short of volunteers.",
+  "set": "foundations"
+}

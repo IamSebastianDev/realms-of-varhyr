@@ -16,8 +16,10 @@ export type CardSort = 'faction' | 'cost' | 'name' | 'attack' | 'defense';
 const factionRank = (card: CardDefinition) => { const index = card.factions.length ? factions.indexOf(card.factions[0]) : -1; return index < 0 ? factions.length : index; };
 /** Faction, then total cost, then name: the default order for the collection and deck builder. */
 export const compareCards = (a: CardDefinition, b: CardDefinition) => factionRank(a) - factionRank(b) || cardCost(a) - cardCost(b) || a.name.localeCompare(b.name) || a.id.localeCompare(b.id);
-export type BuilderFilters = { query: string; set: string; faction: string; kind: string; rarity: string; cost: number | null; role: 'all' | 'producers' | 'free-producers'; addable: boolean; sort: CardSort };
-export const initialBuilderFilters: BuilderFilters = { query: '', set: 'all', faction: 'all', kind: 'all', rarity: 'all', cost: null, role: 'all', addable: false, sort: 'faction' };
+/** Each list is multi-select: empty means "any", otherwise a card matches when it fits at least one chosen value. */
+export type CardRole = 'producers' | 'free-producers';
+export type BuilderFilters = { query: string; set: string[]; faction: string[]; kind: string[]; rarity: string[]; cost: number[]; role: CardRole[]; addable: boolean; sort: CardSort };
+export const initialBuilderFilters: BuilderFilters = { query: '', set: [], faction: [], kind: [], rarity: [], cost: [], role: [], addable: false, sort: 'faction' };
 
 export function builderCards(content: Registry, deck: string[], filters: BuilderFilters, owned?: OwnedCopies): CardDefinition[] {
   const words = filters.query.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean);
@@ -29,12 +31,12 @@ export function builderCards(content: Registry, deck: string[], filters: Builder
       return `${ability.name} ${ability.description} ${Object.values(content.abilities[binding.id].translations??{}).map(text=>`${text?.name??''} ${text?.description??''}`).join(' ')}`;
     })].join(' ').toLocaleLowerCase();
     return words.every(word => text.includes(word))
-      && (filters.set === 'all' || card.set === filters.set)
-      && (filters.faction === 'all' || (filters.faction === 'neutral' ? !card.factions.length : card.factions.includes(filters.faction)))
-      && (filters.kind === 'all' || card.type === filters.kind)
-      && (filters.rarity === 'all' || card.rarity === filters.rarity)
-      && (filters.cost === null || Math.min(6, cardCost(card)) === filters.cost)
-      && (filters.role === 'all' || isProducer(card,content) && (filters.role !== 'free-producers' || cardCost(card) === 0))
+      && (!filters.set.length || !!card.set && filters.set.includes(card.set))
+      && (!filters.faction.length || filters.faction.some(faction => faction === 'neutral' ? !card.factions.length : card.factions.includes(faction)))
+      && (!filters.kind.length || filters.kind.includes(card.type))
+      && (!filters.rarity.length || filters.rarity.includes(card.rarity))
+      && (!filters.cost.length || filters.cost.includes(Math.min(6, cardCost(card))))
+      && (!filters.role.length || isProducer(card,content) && (cardCost(card) === 0 ? true : filters.role.includes('producers')))
       && (!filters.addable || deckCardAvailability(deck, card.id, content, owned).remaining > 0);
   }).sort((a, b) => {
     const primary = filters.sort === 'faction' ? 0 : filters.sort === 'cost' ? cardCost(a) - cardCost(b)

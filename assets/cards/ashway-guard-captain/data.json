@@ -19,7 +19,12 @@
   },
   "stats": {
     "attack": 3,
-    "defense": 3
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "ember-fields": 2
+      }
+    ]
   },
   "abilities": [
     {

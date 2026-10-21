@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Das Glimmfold",
+  "lore": "Jeder Eid der Felder wurde hier geschworen. Keiner wurde je zurückgegeben."
+}
