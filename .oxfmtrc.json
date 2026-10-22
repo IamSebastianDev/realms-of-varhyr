@@ -1,0 +1,19 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 100,
+  "singleQuote": false,
+  "semi": true,
+  "trailingComma": "all",
+  "ignorePatterns": [
+    "**/dist/**",
+    "public/**",
+    "assets/**",
+    "**/.turbo/**",
+    "package-lock.json",
+    "packages/content/src/*.json",
+    "docs/**",
+    "**/*.html",
+    "*.md",
+    "packages/ui/src/card.css"
+  ]
+}

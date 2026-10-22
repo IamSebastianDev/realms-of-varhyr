@@ -1,0 +1,29 @@
+{
+  "name": "@realms/renderer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.ts",
+    "./*.json": "./src/*.json",
+    "./*.css": "./src/*.css",
+    "./Board": "./src/Board.tsx",
+    "./CardArtwork": "./src/CardArtwork.tsx",
+    "./FactionIcon": "./src/FactionIcon.tsx",
+    "./HolographicFoil": "./src/HolographicFoil.tsx"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@react-three/fiber": "^9.4.0",
+    "@realms/contracts": "*",
+    "react": "^19.2.0",
+    "three": "^0.180.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@types/three": "^0.180.0"
+  }
+}

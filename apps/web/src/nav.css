@@ -1,29 +1,149 @@
 /* Top navigation: tabs that run the full height of the header, the active one lit from below. */
-@media(min-width:861px){
-  .lobby .lobby-header{height:70px;min-height:70px;padding-block:0;align-items:center}
-  .lobby .lobby-header nav{align-self:stretch;align-items:stretch;justify-content:center;gap:0}
-  .lobby .lobby-header nav button{position:relative;height:100%;padding:0 30px;gap:10px;border-radius:0;font:500 15px/1 var(--sans, inherit);letter-spacing:.02em;color:#c7c6c2;border-left:1px solid rgb(var(--edge-rgb) / .06);transition:background .15s,color .15s}
-  .lobby .lobby-header nav button:last-child{border-right:1px solid rgb(var(--edge-rgb) / .06)}
-  .lobby .lobby-header nav button:hover:not(.active){color:#f1e6c4;background:rgb(var(--edge-rgb) / .05)}
-  .lobby .lobby-header nav button.active{color:#fff1c8;background:linear-gradient(180deg,transparent 15%,rgb(var(--gilt-rgb) / .19));box-shadow:inset 0 -3px var(--gilt)}
-  .lobby .lobby-header nav button:focus-visible{outline:2px solid var(--gilt);outline-offset:-4px}
+@media (min-width: 861px) {
+  .lobby .lobby-header {
+    height: 70px;
+    min-height: 70px;
+    padding-block: 0;
+    align-items: center;
+  }
+  .lobby .lobby-header nav {
+    align-self: stretch;
+    align-items: stretch;
+    justify-content: center;
+    gap: 0;
+  }
+  .lobby .lobby-header nav button {
+    position: relative;
+    height: 100%;
+    padding: 0 30px;
+    gap: 10px;
+    border-radius: 0;
+    font: 500 15px/1 var(--sans, inherit);
+    letter-spacing: 0.02em;
+    color: #c7c6c2;
+    border-left: 1px solid rgb(var(--edge-rgb) / 0.06);
+    transition:
+      background 0.15s,
+      color 0.15s;
+  }
+  .lobby .lobby-header nav button:last-child {
+    border-right: 1px solid rgb(var(--edge-rgb) / 0.06);
+  }
+  .lobby .lobby-header nav button:hover:not(.active) {
+    color: #f1e6c4;
+    background: rgb(var(--edge-rgb) / 0.05);
+  }
+  .lobby .lobby-header nav button.active {
+    color: #fff1c8;
+    background: linear-gradient(180deg, transparent 15%, rgb(var(--gilt-rgb) / 0.19));
+    box-shadow: inset 0 -3px var(--gilt);
+  }
+  .lobby .lobby-header nav button:focus-visible {
+    outline: 2px solid var(--gilt);
+    outline-offset: -4px;
+  }
 }
-.lobby-header nav button svg{flex:none}
+.lobby-header nav button svg {
+  flex: none;
+}
 /* The gold count medallion, used on the packs page and in the navigation. --s is its diameter. */
-.count-badge{--s:28px;position:relative;flex:none;width:var(--s);height:var(--s);box-sizing:border-box;padding:calc(var(--s)*.07);display:grid;place-items:center;border-radius:50%;overflow:hidden;
-  background:conic-gradient(from 30deg,#f8e7b0,#c39a43,#fff3c8,#a77f32,#f8e7b0);box-shadow:0 3px 10px #0009,0 0 0 1px #3a2b0c}
-.count-badge.big{--s:68px;box-shadow:0 6px 18px #000b,0 0 0 1px #3a2b0c,0 0 26px color-mix(in srgb,var(--pack-color,var(--gilt)) 65%,transparent)}
-.count-badge::before{content:'';position:absolute;inset:calc(var(--s)*.07);border-radius:50%;background:radial-gradient(circle at 40% 30%,color-mix(in srgb,var(--pack-color,var(--gilt)) 30%,#1e1d19),#080807 75%);box-shadow:inset 0 3px 8px #000c,inset 0 0 0 1px #e9d29855}
-.count-badge::after{content:'';position:absolute;inset:0;border-radius:50%;background:linear-gradient(115deg,transparent 40%,#fff6 50%,transparent 60%);background-size:250% 100%;background-position:150% 0;animation:count-badge-sheen 4.5s ease-in-out 1s infinite}
-.count-badge i{position:absolute;inset:calc(var(--s)*.16);border-radius:50%;border:1px dashed #e9d29866}
-.count-badge.small i{display:none}
-.count-badge small{position:absolute;top:calc(var(--s)*.22);left:0;right:0;text-align:center;font:600 calc(var(--s)*.16)/1 var(--serif);color:#c9ad6a}
-.count-badge b{position:relative;font:700 calc(var(--s)*.44)/1 var(--serif);font-variant-numeric:lining-nums;color:#f8e2a2;text-shadow:0 2px 4px #000c,0 0 10px #f0c86a66}
-.count-badge.big b{margin-top:calc(var(--s)*.06)}
-@keyframes count-badge-sheen{0%,55%{background-position:150% 0}100%{background-position:-50% 0}}
-@media(prefers-reduced-motion:reduce){.count-badge::after{animation:none}}
+.count-badge {
+  --s: 28px;
+  position: relative;
+  flex: none;
+  width: var(--s);
+  height: var(--s);
+  box-sizing: border-box;
+  padding: calc(var(--s)*0.07);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  overflow: hidden;
+  background: conic-gradient(from 30deg, #f8e7b0, #c39a43, #fff3c8, #a77f32, #f8e7b0);
+  box-shadow:
+    0 3px 10px #0009,
+    0 0 0 1px #3a2b0c;
+}
+.count-badge.big {
+  --s: 68px;
+  box-shadow:
+    0 6px 18px #000b,
+    0 0 0 1px #3a2b0c,
+    0 0 26px color-mix(in srgb, var(--pack-color, var(--gilt)) 65%, transparent);
+}
+.count-badge::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--s)*0.07);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 40% 30%,
+    color-mix(in srgb, var(--pack-color, var(--gilt)) 30%, #1e1d19),
+    #080807 75%
+  );
+  box-shadow:
+    inset 0 3px 8px #000c,
+    inset 0 0 0 1px #e9d29855;
+}
+.count-badge::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(115deg, transparent 40%, #fff6 50%, transparent 60%);
+  background-size: 250% 100%;
+  background-position: 150% 0;
+  animation: count-badge-sheen 4.5s ease-in-out 1s infinite;
+}
+.count-badge i {
+  position: absolute;
+  inset: calc(var(--s)*0.16);
+  border-radius: 50%;
+  border: 1px dashed #e9d29866;
+}
+.count-badge.small i {
+  display: none;
+}
+.count-badge small {
+  position: absolute;
+  top: calc(var(--s)*0.22);
+  left: 0;
+  right: 0;
+  text-align: center;
+  font: 600 calc(var(--s)*0.16)/1 var(--serif);
+  color: #c9ad6a;
+}
+.count-badge b {
+  position: relative;
+  font: 700 calc(var(--s)*0.44)/1 var(--serif);
+  font-variant-numeric: lining-nums;
+  color: #f8e2a2;
+  text-shadow:
+    0 2px 4px #000c,
+    0 0 10px #f0c86a66;
+}
+.count-badge.big b {
+  margin-top: calc(var(--s)*0.06);
+}
+@keyframes count-badge-sheen {
+  0%,
+  55% {
+    background-position: 150% 0;
+  }
+  100% {
+    background-position: -50% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .count-badge::after {
+    animation: none;
+  }
+}
 
 /* Narrow desktop windows and phones scaled to ~1100px: tighter tabs so the wallet and settings stay on screen. */
-@media(min-width:861px) and (max-width:1240px){
-  .lobby .lobby-header nav button{padding:0 16px;gap:8px}
+@media (min-width: 861px) and (max-width: 1240px) {
+  .lobby .lobby-header nav button {
+    padding: 0 16px;
+    gap: 8px;
+  }
 }

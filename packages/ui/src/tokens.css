@@ -1,65 +1,70 @@
 /* Design tokens: the one place raw colours, layers, safe areas and chrome sizes are defined.
    Stylesheets reference these; scripts/check-css.mjs stops new raw values creeping back in.
    Breakpoints cannot be variables in @media. Use only these: 480 / 700 / 860 / 950 px (width), 620px (short height). */
-:root{
+:root {
   /* Surfaces */
-  --bg:#0b0a09;
-  --surface:#0c0b0a;
-  --surface-raised:#0e0d0b;
-  --black:#000;
-  --white:#fff;
+  --bg: #0b0a09;
+  --surface: #0c0b0a;
+  --surface-raised: #0e0d0b;
+  --black: #000;
+  --white: #fff;
   /* Channel triplets for translucent use: rgb(var(--bronze-rgb) / .5) */
-  --shade-rgb:8 7 6;
-  --scene-black-rgb:0 0 0;
-  --white-rgb:255 255 255;
-  --bronze-rgb:207 174 106;
-  --gilt-rgb:227 199 128;
-  --edge-rgb:229 210 159;
+  --shade-rgb: 8 7 6;
+  --scene-black-rgb: 0 0 0;
+  --white-rgb: 255 255 255;
+  --bronze-rgb: 207 174 106;
+  --gilt-rgb: 227 199 128;
+  --edge-rgb: 229 210 159;
   /* Gilt: highlights, active states, numerals */
-  --gilt:#e3c780;
-  --gilt-bright:#f2d99a;
-  --gilt-pale:#f6e8bd;
-  --gilt-white:#fff2cf;
+  --gilt: #e3c780;
+  --gilt-bright: #f2d99a;
+  --gilt-pale: #f6e8bd;
+  --gilt-white: #fff2cf;
   /* Text */
-  --ink-2:#9d9b97;
-  --ink-3:#beb8ab;
-  --danger-text:#f0b5a6;
+  --ink-2: #9d9b97;
+  --ink-3: #beb8ab;
+  --danger-text: #f0b5a6;
 
   /* Stacking: fixed layers, lowest to highest. Local stacking inside a component (-3..15) stays a bare number. */
-  --z-toast:20;
-  --z-energy:24;
-  --z-fx:25;
-  --z-spell:26;
-  --z-actions:28;
-  --z-pinned:29;
-  --z-modal:30;
-  --z-bar:35;
-  --z-peek:40;
-  --z-coach-scrim:48;
-  --z-coach-rings:49;
-  --z-coach:50;
-  --z-drag:50;
-  --z-popover:60;
-  --z-sheet:70;
-  --z-dialog:75;
-  --z-onboarding:80;
-  --z-notice:99;
-  --z-loading:10001;
-  --z-nav:6;
-  --z-setup:110;
-  --z-splash:10000;
+  --z-toast: 20;
+  --z-energy: 24;
+  --z-fx: 25;
+  --z-spell: 26;
+  --z-actions: 28;
+  --z-pinned: 29;
+  --z-modal: 30;
+  --z-bar: 35;
+  --z-peek: 40;
+  --z-coach-scrim: 48;
+  --z-coach-rings: 49;
+  --z-coach: 50;
+  --z-drag: 50;
+  --z-popover: 60;
+  --z-sheet: 70;
+  --z-dialog: 75;
+  --z-onboarding: 80;
+  --z-notice: 99;
+  --z-loading: 10001;
+  --z-nav: 6;
+  --z-setup: 110;
+  --z-splash: 10000;
 
   /* Safe areas: notches, rounded corners and home indicators. Every edge-anchored element pads by these. */
-  --safe-t:env(safe-area-inset-top,0px);
-  --safe-r:env(safe-area-inset-right,0px);
-  --safe-b:env(safe-area-inset-bottom,0px);
-  --safe-l:env(safe-area-inset-left,0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
 
   /* Chrome sizes shared by every screen */
-  --header-h:70px;
-  --topbar-h:64px;
-  --app-h:calc(100dvh - var(--safe-t) - var(--safe-b));
-  --gutter:clamp(14px,2.4vw,30px);
+  --header-h: 70px;
+  --topbar-h: 64px;
+  --app-h: calc(100dvh - var(--safe-t) - var(--safe-b));
+  --gutter: clamp(14px, 2.4vw, 30px);
 }
 /* Debug: add data-safe-debug to <html> to simulate a notched phone in landscape (values are layout px; phones are scaled by uiScale.ts). */
-html[data-safe-debug]{--safe-t:0px;--safe-r:60px;--safe-b:28px;--safe-l:68px}
+html[data-safe-debug] {
+  --safe-t: 0px;
+  --safe-r: 60px;
+  --safe-b: 28px;
+  --safe-l: 68px;
+}

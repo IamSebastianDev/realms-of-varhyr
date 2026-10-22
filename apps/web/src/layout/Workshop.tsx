@@ -1,5 +1,5 @@
-import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
+import { ArrowLeft } from "lucide-react";
 
 /**
  * The workshop layout: a full-height screen with a main panel on the left and a side pane on the right.
@@ -37,25 +37,58 @@ export type WorkshopProps = {
   children: ReactNode;
 };
 
-export function Workshop({ label, className = '', style, backdrop, panelLabel, panel, back, title, subtitle, actions, rail, pane, overlays, children }: WorkshopProps) {
-  const { className: panelClass = '', ...panelProps } = panel ?? {};
-  return <main className={`deck-workshop ${className}`.trim()} aria-label={label} style={style}>
-    {backdrop}
-    <section className={`builder-collection ${panelClass}`.trim()} aria-label={panelLabel} {...panelProps}>
-      <div className="builder-collection-bar">
-        {back && <button className="builder-icon-button" aria-label={back.label} title={back.label} onClick={back.onClick}><ArrowLeft size={16}/></button>}
-        <h2>{title}{subtitle && <span>{subtitle}</span>}</h2>
-        {actions}
-      </div>
-      {children}
-      {rail}
-    </section>
-    {pane}
-    {overlays}
-  </main>;
+export function Workshop({
+  label,
+  className = "",
+  style,
+  backdrop,
+  panelLabel,
+  panel,
+  back,
+  title,
+  subtitle,
+  actions,
+  rail,
+  pane,
+  overlays,
+  children,
+}: WorkshopProps) {
+  const { className: panelClass = "", ...panelProps } = panel ?? {};
+  return (
+    <main className={`deck-workshop ${className}`.trim()} aria-label={label} style={style}>
+      {backdrop}
+      <section
+        className={`builder-collection ${panelClass}`.trim()}
+        aria-label={panelLabel}
+        {...panelProps}
+      >
+        <div className="builder-collection-bar">
+          {back && (
+            <button
+              className="builder-icon-button"
+              aria-label={back.label}
+              title={back.label}
+              onClick={back.onClick}
+            >
+              <ArrowLeft size={16} />
+            </button>
+          )}
+          <h2>
+            {title}
+            {subtitle && <span>{subtitle}</span>}
+          </h2>
+          {actions}
+        </div>
+        {children}
+        {rail}
+      </section>
+      {pane}
+      {overlays}
+    </main>
+  );
 }
 
 /** The slim footer rail under a panel: a status line on the left, actions on the right. */
-export function Rail({ className = '', children }: { className?: string; children: ReactNode }) {
+export function Rail({ className = "", children }: { className?: string; children: ReactNode }) {
   return <div className={`builder-deck-footer ${className}`.trim()}>{children}</div>;
 }

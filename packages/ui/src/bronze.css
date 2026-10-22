@@ -1,19 +1,64 @@
 /* Black and bronze: the one set of tokens and chrome the game and the card studio share.
    Plates carry bracket corners; buttons an inset bronze edge in the serif; the primary action is a bronze plate. */
-:root{
-  --bronze:#cfae6a;--bronze-bright:#f1d59a;--bronze-ink:#161514;--bronze-text:#f0e6cc;
-  --plate-bg:#0d0c0af2;
-  --plate-edge:#04040499 #e5d29f26 #e5d29f33 #04040499;
-  --plate-shadow:inset 0 3px 16px #06060599,0 24px 80px #000b;
-  --plate-bracket:#cfae6acc;
-  --button-edge:#0b0a0999 #e5d29f1f #e5d29f2e #0b0a0999;
-  --button-fill:#0b0a08cc;
-  --button-shadow:inset 0 3px 16px #06060599;
-  --corners-plate:linear-gradient(var(--plate-bracket),var(--plate-bracket)) top left/14px 1px no-repeat,linear-gradient(var(--plate-bracket),var(--plate-bracket)) top left/1px 14px no-repeat,linear-gradient(var(--plate-bracket),var(--plate-bracket)) top right/14px 1px no-repeat,linear-gradient(var(--plate-bracket),var(--plate-bracket)) top right/1px 14px no-repeat,linear-gradient(var(--plate-bracket),var(--plate-bracket)) bottom left/14px 1px no-repeat,linear-gradient(var(--plate-bracket),var(--plate-bracket)) bottom left/1px 14px no-repeat,linear-gradient(var(--plate-bracket),var(--plate-bracket)) bottom right/14px 1px no-repeat,linear-gradient(var(--plate-bracket),var(--plate-bracket)) bottom right/1px 14px no-repeat;
-  --corners-button:linear-gradient(#cfae6a88,#cfae6a88) top left/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top left/1px 10px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top right/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) top right/1px 10px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom left/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom left/1px 10px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom right/10px 1px no-repeat,linear-gradient(#cfae6a88,#cfae6a88) bottom right/1px 10px no-repeat;
+:root {
+  --bronze: #cfae6a;
+  --bronze-bright: #f1d59a;
+  --bronze-ink: #161514;
+  --bronze-text: #f0e6cc;
+  --plate-bg: #0d0c0af2;
+  --plate-edge: #04040499 #e5d29f26 #e5d29f33 #04040499;
+  --plate-shadow: inset 0 3px 16px #06060599, 0 24px 80px #000b;
+  --plate-bracket: #cfae6acc;
+  --button-edge: #0b0a0999 #e5d29f1f #e5d29f2e #0b0a0999;
+  --button-fill: #0b0a08cc;
+  --button-shadow: inset 0 3px 16px #06060599;
+  --corners-plate:
+    linear-gradient(var(--plate-bracket), var(--plate-bracket)) top left/14px 1px no-repeat,
+    linear-gradient(var(--plate-bracket), var(--plate-bracket)) top left/1px 14px no-repeat,
+    linear-gradient(var(--plate-bracket), var(--plate-bracket)) top right/14px 1px no-repeat,
+    linear-gradient(var(--plate-bracket), var(--plate-bracket)) top right/1px 14px no-repeat,
+    linear-gradient(var(--plate-bracket), var(--plate-bracket)) bottom left/14px 1px no-repeat,
+    linear-gradient(var(--plate-bracket), var(--plate-bracket)) bottom left/1px 14px no-repeat,
+    linear-gradient(var(--plate-bracket), var(--plate-bracket)) bottom right/14px 1px no-repeat,
+    linear-gradient(var(--plate-bracket), var(--plate-bracket)) bottom right/1px 14px no-repeat;
+  --corners-button:
+    linear-gradient(#cfae6a88, #cfae6a88) top left/10px 1px no-repeat,
+    linear-gradient(#cfae6a88, #cfae6a88) top left/1px 10px no-repeat,
+    linear-gradient(#cfae6a88, #cfae6a88) top right/10px 1px no-repeat,
+    linear-gradient(#cfae6a88, #cfae6a88) top right/1px 10px no-repeat,
+    linear-gradient(#cfae6a88, #cfae6a88) bottom left/10px 1px no-repeat,
+    linear-gradient(#cfae6a88, #cfae6a88) bottom left/1px 10px no-repeat,
+    linear-gradient(#cfae6a88, #cfae6a88) bottom right/10px 1px no-repeat,
+    linear-gradient(#cfae6a88, #cfae6a88) bottom right/1px 10px no-repeat;
 }
-.bronze-plate{border:1px solid;border-color:var(--plate-edge);border-radius:6px;box-shadow:var(--plate-shadow);background:var(--corners-plate),var(--plate-bg)}
-.bronze-button{border:1px solid;border-color:var(--button-edge);border-radius:6px;box-shadow:var(--button-shadow);background:var(--corners-button),var(--button-fill);color:var(--bronze-text);font:500 15px var(--serif)}
-.bronze-button:hover:not(:disabled){border-color:rgb(var(--bronze-rgb) / .6);color:var(--gilt-white)}
-.bronze-primary{border:1px solid #e2c88869;border-radius:3px;background:linear-gradient(110deg,#e5cd96,#c6ad73);color:var(--bronze-ink);box-shadow:0 3px 18px #cab6720a}
-.bronze-primary:hover:not(:disabled){background:linear-gradient(100deg,#e1cca0,#d3b983);box-shadow:0 0 18px #cab6721c}
+.bronze-plate {
+  border: 1px solid;
+  border-color: var(--plate-edge);
+  border-radius: 6px;
+  box-shadow: var(--plate-shadow);
+  background: var(--corners-plate), var(--plate-bg);
+}
+.bronze-button {
+  border: 1px solid;
+  border-color: var(--button-edge);
+  border-radius: 6px;
+  box-shadow: var(--button-shadow);
+  background: var(--corners-button), var(--button-fill);
+  color: var(--bronze-text);
+  font: 500 15px var(--serif);
+}
+.bronze-button:hover:not(:disabled) {
+  border-color: rgb(var(--bronze-rgb) / 0.6);
+  color: var(--gilt-white);
+}
+.bronze-primary {
+  border: 1px solid #e2c88869;
+  border-radius: 3px;
+  background: linear-gradient(110deg, #e5cd96, #c6ad73);
+  color: var(--bronze-ink);
+  box-shadow: 0 3px 18px #cab6720a;
+}
+.bronze-primary:hover:not(:disabled) {
+  background: linear-gradient(100deg, #e1cca0, #d3b983);
+  box-shadow: 0 0 18px #cab6721c;
+}

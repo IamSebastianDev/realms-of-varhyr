@@ -1,0 +1,23 @@
+# Install the hooks with `npm install` (the prepare script runs `lefthook install`).
+pre-commit:
+  parallel: true
+  jobs:
+    - name: oxlint
+      glob: "*.{ts,tsx,mts,js,mjs}"
+      run: npx oxlint {staged_files}
+    - name: oxfmt
+      glob: "*.{ts,tsx,mts,js,mjs,json,css,md,yml,yaml}"
+      run: npx oxfmt --check {staged_files}
+    - name: css tokens
+      glob: "*.css"
+      run: npm run check:css
+
+commit-msg:
+  jobs:
+    - name: commitlint
+      run: npx commitlint --edit {1}
+
+pre-push:
+  jobs:
+    - name: typecheck and tests
+      run: npx turbo run typecheck test

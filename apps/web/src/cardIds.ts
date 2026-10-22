@@ -4,8 +4,8 @@
  * earlier content catalogue.
  */
 const aliases: Record<string, string> = {
-  'crown-bastion': 'crown-holding',
-  'crown-bulwark': 'crown-holding',
+  "crown-bastion": "crown-holding",
+  "crown-bulwark": "crown-holding",
 };
 
 export const currentCardId = (id: string) => aliases[id] ?? id;

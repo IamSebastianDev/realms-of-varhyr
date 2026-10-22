@@ -1,50 +1,394 @@
-.faction-effects{position:fixed;inset:0;z-index:11;pointer-events:none;overflow:hidden;contain:layout style}
-.faction-effects *{pointer-events:none}
-.ability-source-mark{position:absolute;width:21px;height:21px;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--ability-color) 55%,transparent);border-radius:50%;color:var(--ability-color);background:#18291fed;box-shadow:0 0 9px color-mix(in srgb,var(--ability-color) 18%,transparent);opacity:.55}
-.ability-source-mark.is-active{opacity:.94}
-.ability-threads,.ability-trail{position:absolute;inset:0;width:100%;height:100%;overflow:visible;fill:none}
-.ability-threads path{stroke-width:1;stroke-opacity:.24;stroke-dasharray:3 9;animation:oath-flow 9s linear infinite}
-.ability-ward{position:absolute;border-radius:6px;box-shadow:0 0 9px color-mix(in srgb,var(--ability-color) 18%,transparent);animation:ward-breathe 4.8s ease-in-out infinite}
-.oath-corner{position:absolute;width:17px;height:17px;border-color:var(--ability-color);border-style:solid;opacity:.66}
-.oath-corner.top{left:-4px;top:-4px;border-width:1px 0 0 1px}
-.oath-corner.bottom{right:-4px;bottom:-4px;border-width:0 1px 1px 0}
-.aura-sanctuary .ability-ward{border-left:1px solid #a6d8a054;border-right:1px solid #a6d8a054}
-.ward-leaf{position:absolute;width:9px;height:17px;border:1px solid var(--ability-color);border-radius:0 95% 0 95%;opacity:.68;top:45%}
-.ward-leaf.left{left:-5px;transform:rotate(-27deg)}.ward-leaf.right{right:-5px;transform:rotate(153deg)}
-.strong-ward{box-shadow:0 0 15px #a6d8a03b,inset 0 0 6px #a6d8a024}
-.elf-ward{position:absolute;bottom:-7px;left:calc(50% - 7px);color:var(--ability-color);filter:drop-shadow(0 0 4px #80d69b)}
-.raid-claws{position:absolute;right:-5px;top:36%;display:flex;gap:3px;transform:rotate(28deg);opacity:calc(.38 + var(--raid-strength)*.2)}
-.raid-claws i{display:block;width:2px;height:24px;border-radius:80%;background:linear-gradient(transparent,var(--ability-color),transparent);box-shadow:0 0 5px var(--ability-color)}
-.ability-origin,.ability-destination{position:absolute;display:block}
-.ability-sigil{position:absolute;left:calc(50% - 22px);top:calc(50% - 22px);width:44px;height:44px;border:1px solid var(--ability-color);border-radius:50%;display:grid;place-items:center;color:var(--ability-color);background:#14282060;box-shadow:0 0 20px color-mix(in srgb,var(--ability-color) 50%,transparent);animation:sigil-reveal 1.8s ease-out both}
-.ability-ring{position:absolute;inset:25% 12%;border:1px solid var(--ability-color);border-radius:50%;opacity:0;animation:ability-wave 1.45s ease-out both;box-shadow:0 0 10px color-mix(in srgb,var(--ability-color) 35%,transparent)}
-.ability-ring.second{animation-delay:.16s}
-.ability-trail path{stroke:var(--ability-color);stroke-width:2;stroke-linecap:round;stroke-dasharray:6 12;filter:drop-shadow(0 0 4px var(--ability-color));animation:trail-reveal 1.7s ease-out both}
-.ability-mote{position:absolute;left:0;top:0;width:5px;height:5px;border-radius:50%;background:var(--ability-color);box-shadow:0 0 9px var(--ability-color);animation:mote-travel .8s cubic-bezier(.2,.5,.6,1) both;animation-delay:calc(var(--i)*55ms + 80ms)}
-.ability-impact{position:absolute;inset:-4%;border:1px solid var(--ability-color);border-radius:5px;box-shadow:0 0 24px color-mix(in srgb,var(--ability-color) 50%,transparent);opacity:0;animation:ability-impact 1.7s .35s ease-out both}
-.ability-fragment{position:absolute;left:50%;top:50%;width:4px;height:12px;background:var(--ability-color);border-radius:50%;transform:rotate(var(--angle));opacity:0;animation:ability-fragment 1s .55s ease-out both}
-.burst-rally .ability-impact{border-radius:0;border-width:2px;background:linear-gradient(0deg,#ffb87218,transparent 70%);clip-path:polygon(0 0,24% 0,24% 2%,76% 2%,76% 0,100% 0,100% 100%,0 100%)}
-.burst-rally .ability-ring{border-radius:4px;transform:rotate(45deg)}
-.burst-trade .ability-mote{width:9px;height:9px;border:1px solid #fff0ae;background:#c59c48;box-shadow:0 0 6px #eec567}
-.burst-trade .ability-fragment{width:7px;height:7px;border:1px solid #ffecb2;background:#c59c48}
-.burst-scorch .ability-mote{width:6px;height:14px;border-radius:70% 15% 70% 35%;background:linear-gradient(#fff0c2,#ff8c4c,#d84928)}
-.burst-scorch .ability-impact{background:radial-gradient(ellipse at center,#ffdd8a45,transparent 65%);border-color:#ffb86b;box-shadow:0 0 32px #ff753b77}
-.burst-scorch .ability-fragment{height:20px;background:linear-gradient(#ffdd8a,#e26c3c,transparent)}
-.burst-accord .ability-ring{border-style:dashed;border-width:2px;border-radius:4px}
-.burst-accord .ability-mote{width:6px;height:6px;border-radius:0;transform:rotate(45deg);box-shadow:0 0 10px #c6edff}
-.burst-accord .ability-impact{background:linear-gradient(135deg,#c4efff24,transparent);clip-path:polygon(0 15%,15% 0,85% 0,100% 15%,100% 85%,85% 100%,15% 100%,0 85%)}
-.burst-soul-harvest .ability-mote{height:17px;width:5px;background:linear-gradient(transparent,#dabaff);filter:blur(.6px);border-radius:70% 70% 30% 30%}
-.burst-soul-harvest .ability-trail path{stroke-width:1;stroke-dasharray:2 18;stroke-opacity:.5}
-.burst-soul-harvest .ability-impact{border-radius:50%;background:radial-gradient(ellipse,#c39fec32,transparent 70%)}
-.burst-wayfarer .ability-ring{border-width:2px;border-style:dashed;animation:portal-open 1.8s ease-out both}
-.burst-wayfarer .ability-impact{border-radius:50%;border-style:dashed;box-shadow:0 0 25px #c3eddb66,inset 0 0 16px #c3eddb33}
-.faction-motion-reduced .ability-threads path,.faction-motion-reduced .ability-ward{animation:none}
-@keyframes oath-flow{to{stroke-dashoffset:-72}}
-@keyframes ward-breathe{0%,100%{opacity:.55}50%{opacity:.9}}
-@keyframes sigil-reveal{0%{opacity:0;transform:scale(.6) rotate(-15deg)}18%{opacity:1;transform:scale(1.1)}60%{opacity:.9}100%{opacity:0;transform:scale(1.15)}}
-@keyframes ability-wave{0%{opacity:.8;transform:scale(.5)}65%{opacity:.3}100%{opacity:0;transform:scale(1.8)}}
-@keyframes portal-open{0%{opacity:0;transform:scale(.3) rotate(-45deg)}25%{opacity:1}70%{opacity:.6}100%{opacity:0;transform:scale(1.5) rotate(80deg)}}
-@keyframes trail-reveal{0%{opacity:0;stroke-dashoffset:70}18%{opacity:.85}65%{opacity:.5}100%{opacity:0;stroke-dashoffset:0}}
-@keyframes mote-travel{0%{offset-distance:0%;opacity:0}12%{opacity:1}80%{opacity:1}100%{offset-distance:100%;opacity:0}}
-@keyframes ability-impact{0%{opacity:0;transform:scale(.94)}18%{opacity:.9;transform:scale(1.04)}70%{opacity:.25}100%{opacity:0;transform:scale(1.08)}}
-@keyframes ability-fragment{0%{opacity:.9;transform:rotate(var(--angle)) translateY(-6px) scale(.8)}100%{opacity:0;transform:rotate(var(--angle)) translateY(-60px) scale(.2)}}
+.faction-effects {
+  position: fixed;
+  inset: 0;
+  z-index: 11;
+  pointer-events: none;
+  overflow: hidden;
+  contain: layout style;
+}
+.faction-effects * {
+  pointer-events: none;
+}
+.ability-source-mark {
+  position: absolute;
+  width: 21px;
+  height: 21px;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--ability-color) 55%, transparent);
+  border-radius: 50%;
+  color: var(--ability-color);
+  background: #18291fed;
+  box-shadow: 0 0 9px color-mix(in srgb, var(--ability-color) 18%, transparent);
+  opacity: 0.55;
+}
+.ability-source-mark.is-active {
+  opacity: 0.94;
+}
+.ability-threads,
+.ability-trail {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+}
+.ability-threads path {
+  stroke-width: 1;
+  stroke-opacity: 0.24;
+  stroke-dasharray: 3 9;
+  animation: oath-flow 9s linear infinite;
+}
+.ability-ward {
+  position: absolute;
+  border-radius: 6px;
+  box-shadow: 0 0 9px color-mix(in srgb, var(--ability-color) 18%, transparent);
+  animation: ward-breathe 4.8s ease-in-out infinite;
+}
+.oath-corner {
+  position: absolute;
+  width: 17px;
+  height: 17px;
+  border-color: var(--ability-color);
+  border-style: solid;
+  opacity: 0.66;
+}
+.oath-corner.top {
+  left: -4px;
+  top: -4px;
+  border-width: 1px 0 0 1px;
+}
+.oath-corner.bottom {
+  right: -4px;
+  bottom: -4px;
+  border-width: 0 1px 1px 0;
+}
+.aura-sanctuary .ability-ward {
+  border-left: 1px solid #a6d8a054;
+  border-right: 1px solid #a6d8a054;
+}
+.ward-leaf {
+  position: absolute;
+  width: 9px;
+  height: 17px;
+  border: 1px solid var(--ability-color);
+  border-radius: 0 95% 0 95%;
+  opacity: 0.68;
+  top: 45%;
+}
+.ward-leaf.left {
+  left: -5px;
+  transform: rotate(-27deg);
+}
+.ward-leaf.right {
+  right: -5px;
+  transform: rotate(153deg);
+}
+.strong-ward {
+  box-shadow:
+    0 0 15px #a6d8a03b,
+    inset 0 0 6px #a6d8a024;
+}
+.elf-ward {
+  position: absolute;
+  bottom: -7px;
+  left: calc(50% - 7px);
+  color: var(--ability-color);
+  filter: drop-shadow(0 0 4px #80d69b);
+}
+.raid-claws {
+  position: absolute;
+  right: -5px;
+  top: 36%;
+  display: flex;
+  gap: 3px;
+  transform: rotate(28deg);
+  opacity: calc(0.38 + var(--raid-strength)*0.2);
+}
+.raid-claws i {
+  display: block;
+  width: 2px;
+  height: 24px;
+  border-radius: 80%;
+  background: linear-gradient(transparent, var(--ability-color), transparent);
+  box-shadow: 0 0 5px var(--ability-color);
+}
+.ability-origin,
+.ability-destination {
+  position: absolute;
+  display: block;
+}
+.ability-sigil {
+  position: absolute;
+  left: calc(50% - 22px);
+  top: calc(50% - 22px);
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--ability-color);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--ability-color);
+  background: #14282060;
+  box-shadow: 0 0 20px color-mix(in srgb, var(--ability-color) 50%, transparent);
+  animation: sigil-reveal 1.8s ease-out both;
+}
+.ability-ring {
+  position: absolute;
+  inset: 25% 12%;
+  border: 1px solid var(--ability-color);
+  border-radius: 50%;
+  opacity: 0;
+  animation: ability-wave 1.45s ease-out both;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--ability-color) 35%, transparent);
+}
+.ability-ring.second {
+  animation-delay: 0.16s;
+}
+.ability-trail path {
+  stroke: var(--ability-color);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 6 12;
+  filter: drop-shadow(0 0 4px var(--ability-color));
+  animation: trail-reveal 1.7s ease-out both;
+}
+.ability-mote {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ability-color);
+  box-shadow: 0 0 9px var(--ability-color);
+  animation: mote-travel 0.8s cubic-bezier(0.2, 0.5, 0.6, 1) both;
+  animation-delay: calc(var(--i)*55ms + 80ms);
+}
+.ability-impact {
+  position: absolute;
+  inset: -4%;
+  border: 1px solid var(--ability-color);
+  border-radius: 5px;
+  box-shadow: 0 0 24px color-mix(in srgb, var(--ability-color) 50%, transparent);
+  opacity: 0;
+  animation: ability-impact 1.7s 0.35s ease-out both;
+}
+.ability-fragment {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 12px;
+  background: var(--ability-color);
+  border-radius: 50%;
+  transform: rotate(var(--angle));
+  opacity: 0;
+  animation: ability-fragment 1s 0.55s ease-out both;
+}
+.burst-rally .ability-impact {
+  border-radius: 0;
+  border-width: 2px;
+  background: linear-gradient(0deg, #ffb87218, transparent 70%);
+  clip-path: polygon(0 0, 24% 0, 24% 2%, 76% 2%, 76% 0, 100% 0, 100% 100%, 0 100%);
+}
+.burst-rally .ability-ring {
+  border-radius: 4px;
+  transform: rotate(45deg);
+}
+.burst-trade .ability-mote {
+  width: 9px;
+  height: 9px;
+  border: 1px solid #fff0ae;
+  background: #c59c48;
+  box-shadow: 0 0 6px #eec567;
+}
+.burst-trade .ability-fragment {
+  width: 7px;
+  height: 7px;
+  border: 1px solid #ffecb2;
+  background: #c59c48;
+}
+.burst-scorch .ability-mote {
+  width: 6px;
+  height: 14px;
+  border-radius: 70% 15% 70% 35%;
+  background: linear-gradient(#fff0c2, #ff8c4c, #d84928);
+}
+.burst-scorch .ability-impact {
+  background: radial-gradient(ellipse at center, #ffdd8a45, transparent 65%);
+  border-color: #ffb86b;
+  box-shadow: 0 0 32px #ff753b77;
+}
+.burst-scorch .ability-fragment {
+  height: 20px;
+  background: linear-gradient(#ffdd8a, #e26c3c, transparent);
+}
+.burst-accord .ability-ring {
+  border-style: dashed;
+  border-width: 2px;
+  border-radius: 4px;
+}
+.burst-accord .ability-mote {
+  width: 6px;
+  height: 6px;
+  border-radius: 0;
+  transform: rotate(45deg);
+  box-shadow: 0 0 10px #c6edff;
+}
+.burst-accord .ability-impact {
+  background: linear-gradient(135deg, #c4efff24, transparent);
+  clip-path: polygon(0 15%, 15% 0, 85% 0, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0 85%);
+}
+.burst-soul-harvest .ability-mote {
+  height: 17px;
+  width: 5px;
+  background: linear-gradient(transparent, #dabaff);
+  filter: blur(0.6px);
+  border-radius: 70% 70% 30% 30%;
+}
+.burst-soul-harvest .ability-trail path {
+  stroke-width: 1;
+  stroke-dasharray: 2 18;
+  stroke-opacity: 0.5;
+}
+.burst-soul-harvest .ability-impact {
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #c39fec32, transparent 70%);
+}
+.burst-wayfarer .ability-ring {
+  border-width: 2px;
+  border-style: dashed;
+  animation: portal-open 1.8s ease-out both;
+}
+.burst-wayfarer .ability-impact {
+  border-radius: 50%;
+  border-style: dashed;
+  box-shadow:
+    0 0 25px #c3eddb66,
+    inset 0 0 16px #c3eddb33;
+}
+.faction-motion-reduced .ability-threads path,
+.faction-motion-reduced .ability-ward {
+  animation: none;
+}
+@keyframes oath-flow {
+  to {
+    stroke-dashoffset: -72;
+  }
+}
+@keyframes ward-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+@keyframes sigil-reveal {
+  0% {
+    opacity: 0;
+    transform: scale(0.6) rotate(-15deg);
+  }
+  18% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  60% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.15);
+  }
+}
+@keyframes ability-wave {
+  0% {
+    opacity: 0.8;
+    transform: scale(0.5);
+  }
+  65% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.8);
+  }
+}
+@keyframes portal-open {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-45deg);
+  }
+  25% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5) rotate(80deg);
+  }
+}
+@keyframes trail-reveal {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 70;
+  }
+  18% {
+    opacity: 0.85;
+  }
+  65% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes mote-travel {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+@keyframes ability-impact {
+  0% {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  18% {
+    opacity: 0.9;
+    transform: scale(1.04);
+  }
+  70% {
+    opacity: 0.25;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.08);
+  }
+}
+@keyframes ability-fragment {
+  0% {
+    opacity: 0.9;
+    transform: rotate(var(--angle)) translateY(-6px) scale(0.8);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--angle)) translateY(-60px) scale(0.2);
+  }
+}

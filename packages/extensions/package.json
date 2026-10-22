@@ -1,0 +1,19 @@
+{
+  "name": "@realms/extensions",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts",
+    "./*.json": "./src/*.json",
+    "./*.css": "./src/*.css"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@realms/contracts": "*",
+    "valibot": "^1.1.0"
+  }
+}

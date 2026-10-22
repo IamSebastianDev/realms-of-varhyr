@@ -1,0 +1,35 @@
+{
+  "name": "@realms/ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts",
+    "./*.json": "./src/*.json",
+    "./*.css": "./src/*.css",
+    "./CardDetail": "./src/CardDetail.tsx",
+    "./CardPresentation": "./src/CardPresentation.tsx",
+    "./i18n": "./src/i18n/index.tsx",
+    "./siteIcons": "./src/siteIcons.tsx"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fontsource/cormorant-garamond": "^5.3.0",
+    "@fontsource/source-serif-4": "^5.3.1",
+    "@realms/content": "*",
+    "@realms/contracts": "*",
+    "@realms/extensions": "*",
+    "@realms/quest": "*",
+    "@realms/renderer": "*",
+    "lucide-react": "^0.468.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0"
+  }
+}

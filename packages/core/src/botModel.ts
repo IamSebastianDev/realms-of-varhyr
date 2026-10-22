@@ -1,8 +1,15 @@
-import data from './botModel.json';
+import data from "./botModel.json";
 
 /** A one-hidden-layer network: tanh units, a single output that is the log-odds that the player to move wins. */
-export type Model = { mean: number[]; scale: number[]; w1: number[][]; b1: number[]; w2: number[]; b2: number };
-export const model = (data as Model | null);
+export type Model = {
+  mean: number[];
+  scale: number[];
+  w1: number[][];
+  b1: number[];
+  w2: number[];
+  b2: number;
+};
+export const model = data as Model | null;
 export function logit(net: Model, input: number[]): number {
   const hidden = net.w1.map((row, unit) => {
     let sum = net.b1[unit];

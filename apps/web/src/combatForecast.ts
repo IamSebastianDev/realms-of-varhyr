@@ -1,2 +1,2 @@
-export { combatForecast } from '../../../packages/core/src/combatForecast';
-export type { AttackDraft } from '../../../packages/core/src/combatForecast';
+export { combatForecast } from "@realms/core/combatForecast";
+export type { AttackDraft } from "@realms/core/combatForecast";

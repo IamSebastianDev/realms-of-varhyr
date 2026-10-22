@@ -1,0 +1,17 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["tsconfig.base.json", ".oxlintrc.json"],
+  "tasks": {
+    "generate": { "cache": false },
+    "typecheck": {
+      "dependsOn": ["@realms/tools#generate"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/assets/**/*.json"]
+    },
+    "test": {
+      "dependsOn": ["@realms/tools#generate"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/assets/**/*.json"]
+    },
+    "build": { "dependsOn": ["@realms/tools#generate", "typecheck"], "outputs": ["dist/**"] },
+    "dev": { "dependsOn": ["@realms/tools#generate"], "cache": false, "persistent": true }
+  }
+}

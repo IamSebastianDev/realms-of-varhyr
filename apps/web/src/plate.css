@@ -1,56 +1,413 @@
 /* Black and bronze: one plate for every panel, dialog and sheet. Tokens and the corner brackets live in packages/ui/src/bronze.css, shared with the card studio. Loaded last so it replaces the older green surfaces. */
-.profile-stage,.builder-dialog,.quest-dialog,.privacy-card,.result-dialog,.side-panel,.game-setup-pane,.hover-preview,.creature-actions{
-  border:1px solid;border-color:var(--plate-edge);border-radius:6px;box-shadow:var(--plate-shadow);
-  background:var(--corners-plate),var(--plate-bg)}
-.privacy-card:before,.result-dialog:before{display:none}
-.side-panel,.game-setup-pane{border-radius:0}
-.builder-dialog h2,.privacy-card h2,.result-dialog h2,.quest-dialog h2{color:var(--bronze-text)}
+.profile-stage,
+.builder-dialog,
+.quest-dialog,
+.privacy-card,
+.result-dialog,
+.side-panel,
+.game-setup-pane,
+.hover-preview,
+.creature-actions {
+  border: 1px solid;
+  border-color: var(--plate-edge);
+  border-radius: 6px;
+  box-shadow: var(--plate-shadow);
+  background: var(--corners-plate), var(--plate-bg);
+}
+.privacy-card:before,
+.result-dialog:before {
+  display: none;
+}
+.side-panel,
+.game-setup-pane {
+  border-radius: 0;
+}
+.builder-dialog h2,
+.privacy-card h2,
+.result-dialog h2,
+.quest-dialog h2 {
+  color: var(--bronze-text);
+}
 /* Buttons on a plate: bronze chrome, serif. */
-:is(.builder-dialog,.quest-dialog,.privacy-card,.result-dialog,.side-panel,.game-setup-pane,.profile-stage) .outline-button{
-  border:1px solid;border-color:rgb(var(--shade-rgb) / .6) rgb(var(--edge-rgb) / .1) rgb(var(--edge-rgb) / .13) rgb(var(--shade-rgb) / .6);border-radius:6px;box-shadow:inset 0 3px 16px rgb(var(--shade-rgb) / .6);
-  background:var(--corners-button),rgb(var(--shade-rgb) / .8);color:var(--bronze-text);font:500 15px var(--serif)}
-:is(.builder-dialog,.quest-dialog,.privacy-card,.result-dialog,.side-panel,.game-setup-pane,.profile-stage) .outline-button:hover:not(:disabled){border-color:rgb(var(--bronze-rgb) / .6)}
-:is(.builder-dialog,.quest-dialog,.privacy-card,.result-dialog,.side-panel,.game-setup-pane,.profile-stage) .outline-button svg{color:var(--bronze)}
-.builder-dialog textarea{background:rgb(var(--shade-rgb) / .53)}
-.profile-stage{background:radial-gradient(ellipse 38% 55% at 22% 50%,color-mix(in srgb,var(--avatar) 18%,transparent),transparent 70%),var(--corners-plate),rgb(var(--shade-rgb) / .3);backdrop-filter:blur(2px)}
+:is(
+    .builder-dialog,
+    .quest-dialog,
+    .privacy-card,
+    .result-dialog,
+    .side-panel,
+    .game-setup-pane,
+    .profile-stage
+  )
+  .outline-button {
+  border: 1px solid;
+  border-color: rgb(var(--shade-rgb) / 0.6) rgb(var(--edge-rgb) / 0.1) rgb(var(--edge-rgb) / 0.13)
+    rgb(var(--shade-rgb) / 0.6);
+  border-radius: 6px;
+  box-shadow: inset 0 3px 16px rgb(var(--shade-rgb) / 0.6);
+  background: var(--corners-button), rgb(var(--shade-rgb) / 0.8);
+  color: var(--bronze-text);
+  font: 500 15px var(--serif);
+}
+:is(
+    .builder-dialog,
+    .quest-dialog,
+    .privacy-card,
+    .result-dialog,
+    .side-panel,
+    .game-setup-pane,
+    .profile-stage
+  )
+  .outline-button:hover:not(:disabled) {
+  border-color: rgb(var(--bronze-rgb) / 0.6);
+}
+:is(
+    .builder-dialog,
+    .quest-dialog,
+    .privacy-card,
+    .result-dialog,
+    .side-panel,
+    .game-setup-pane,
+    .profile-stage
+  )
+  .outline-button
+  svg {
+  color: var(--bronze);
+}
+.builder-dialog textarea {
+  background: rgb(var(--shade-rgb) / 0.53);
+}
+.profile-stage {
+  background:
+    radial-gradient(
+      ellipse 38% 55% at 22% 50%,
+      color-mix(in srgb, var(--avatar) 18%, transparent),
+      transparent 70%
+    ),
+    var(--corners-plate), rgb(var(--shade-rgb) / 0.3);
+  backdrop-filter: blur(2px);
+}
 /* Near-black ground, the painted valley under a heavy vignette: dark at the edges and over the text, open in the middle so the art reads. */
-:root{background:#0c0b09;color:#e0dccf;--muted:#8d8a82;--line:#cfae6a1f}
-.world-bg:not(.app>.world-bg){opacity:1;filter:saturate(.85)}
-.world-vignette:not(.app>.world-vignette){background:radial-gradient(ellipse 85% 75% at 50% 42%,rgb(var(--shade-rgb) / .3) 0,rgb(var(--shade-rgb) / .7) 60%,rgb(var(--shade-rgb) / .94) 100%)}
-.lobby .world-vignette{background:linear-gradient(110deg,rgb(var(--shade-rgb) / .9),rgb(var(--shade-rgb) / .62) 55%,rgb(var(--shade-rgb) / .92))}
+:root {
+  background: #0c0b09;
+  color: #e0dccf;
+  --muted: #8d8a82;
+  --line: #cfae6a1f;
+}
+.world-bg:not(.app > .world-bg) {
+  opacity: 1;
+  filter: saturate(0.85);
+}
+.world-vignette:not(.app > .world-vignette) {
+  background: radial-gradient(
+    ellipse 85% 75% at 50% 42%,
+    rgb(var(--shade-rgb) / 0.3) 0,
+    rgb(var(--shade-rgb) / 0.7) 60%,
+    rgb(var(--shade-rgb) / 0.94) 100%
+  );
+}
+.lobby .world-vignette {
+  background: linear-gradient(
+    110deg,
+    rgb(var(--shade-rgb) / 0.9),
+    rgb(var(--shade-rgb) / 0.62) 55%,
+    rgb(var(--shade-rgb) / 0.92)
+  );
+}
 
 /* Each screen has its own painting under the vignette. The default is the valley. */
-.lobby[data-screen=cards] .world-bg,.lobby[data-screen=builder] .world-bg,.lobby[data-screen=stats] .world-bg{background-image:url('/art/screen-decks.jpg');background-position:50% 50%}
-.lobby[data-screen=packs] .world-bg{background-image:url('/art/screen-packs.jpg');background-position:50% 50%}
-.lobby[data-screen=store] .world-bg{background-image:url('/art/screen-store.jpg');background-position:50% 50%}
-.lobby[data-screen=profile] .world-bg{background-image:url('/art/screen-profile.jpg');background-position:50% 50%}
+.lobby[data-screen="cards"] .world-bg,
+.lobby[data-screen="builder"] .world-bg,
+.lobby[data-screen="stats"] .world-bg {
+  background-image: url("/art/screen-decks.jpg");
+  background-position: 50% 50%;
+}
+.lobby[data-screen="packs"] .world-bg {
+  background-image: url("/art/screen-packs.jpg");
+  background-position: 50% 50%;
+}
+.lobby[data-screen="store"] .world-bg {
+  background-image: url("/art/screen-store.jpg");
+  background-position: 50% 50%;
+}
+.lobby[data-screen="profile"] .world-bg {
+  background-image: url("/art/screen-profile.jpg");
+  background-position: 50% 50%;
+}
 
 /* Every button except Play gets the bronze chrome. Square buttons carry the bracket corners; pills and round buttons a bronze edge. */
-:is(.outline-button,.text-button,.builder-icon-button,.builder-small-button,.filter-trigger,.setup-change,.reset-button,.store-crown-buy,.coach-secondary,.lobby-resume,.packs-store,.deck-strip-new):not(.gold-button){border:1px solid;border-color:rgb(var(--shade-rgb) / .6) rgb(var(--edge-rgb) / .12) rgb(var(--edge-rgb) / .18) rgb(var(--shade-rgb) / .6);border-radius:6px;box-shadow:inset 0 3px 16px rgb(var(--shade-rgb) / .6);background:var(--corners-button),rgb(var(--shade-rgb) / .8);color:var(--bronze-text)}
-:is(.outline-button,.text-button,.builder-icon-button,.builder-small-button,.filter-trigger,.setup-change,.reset-button,.store-crown-buy,.coach-secondary,.lobby-resume,.packs-store,.deck-strip-new):not(.gold-button):hover:not(:disabled){border-color:rgb(var(--bronze-rgb) / .6);color:var(--gilt-white)}
-:is(.outline-button,.text-button,.builder-icon-button,.builder-small-button,.filter-trigger,.setup-change,.reset-button,.store-crown-buy,.coach-secondary,.lobby-resume,.packs-store,.deck-strip-new):not(.gold-button) svg{color:var(--bronze)}
-.outline-button.danger{border-color:#c25a4c99;color:var(--danger-text)}
-:is(.peek-toggle,.profile-tabs button,.store-tabs button,.collection-tabs button,.collection-wallet-pill,.collection-close,.setup-close,.energy-arc-close,.store-arrow,.ob-arrow,.ring-button,.goal-claim,.board-key-row button,.match-corner button,.builder-dialog-close,.preview-close,.booster-close,.quest-x,.coach-skip){border:1px solid;border-color:rgb(var(--shade-rgb) / .6) rgb(var(--edge-rgb) / .15) rgb(var(--edge-rgb) / .2) rgb(var(--shade-rgb) / .6);box-shadow:inset 0 2px 10px rgb(var(--shade-rgb) / .6);background:rgb(var(--shade-rgb) / .8);color:#e8dcb8}
-:is(.peek-toggle,.profile-tabs button,.store-tabs button,.collection-tabs button,.collection-wallet-pill,.collection-close,.setup-close,.energy-arc-close,.store-arrow,.ob-arrow,.ring-button,.goal-claim,.board-key-row button,.match-corner button,.builder-dialog-close,.preview-close,.booster-close,.quest-x,.coach-skip):hover:not(:disabled){border-color:rgb(var(--bronze-rgb) / .6);color:var(--gilt-white)}
-:is(.peek-toggle,.profile-tabs button,.store-tabs button,.collection-tabs button,.collection-wallet-pill,.collection-close,.setup-close,.energy-arc-close,.store-arrow,.ob-arrow,.ring-button,.goal-claim,.board-key-row button,.match-corner button,.builder-dialog-close,.preview-close,.booster-close,.quest-x,.coach-skip)[aria-selected=true],:is(.peek-toggle,.profile-tabs button,.store-tabs button,.collection-tabs button,.collection-wallet-pill,.collection-close,.setup-close,.energy-arc-close,.store-arrow,.ob-arrow,.ring-button,.goal-claim,.board-key-row button,.match-corner button,.builder-dialog-close,.preview-close,.booster-close,.quest-x,.coach-skip).active,:is(.peek-toggle,.profile-tabs button,.store-tabs button,.collection-tabs button,.collection-wallet-pill,.collection-close,.setup-close,.energy-arc-close,.store-arrow,.ob-arrow,.ring-button,.goal-claim,.board-key-row button,.match-corner button,.builder-dialog-close,.preview-close,.booster-close,.quest-x,.coach-skip).on{border-color:rgb(var(--bronze-rgb) / .8);background:rgb(var(--bronze-rgb) / .12);color:#f6e6b4}
-:is(.peek-toggle,.profile-tabs button,.store-tabs button,.collection-tabs button,.collection-wallet-pill,.collection-close,.setup-close,.energy-arc-close,.store-arrow,.ob-arrow,.ring-button,.goal-claim,.board-key-row button,.match-corner button,.builder-dialog-close,.preview-close,.booster-close,.quest-x,.coach-skip) svg{color:var(--bronze)}
+:is(
+  .outline-button,
+  .text-button,
+  .builder-icon-button,
+  .builder-small-button,
+  .filter-trigger,
+  .setup-change,
+  .reset-button,
+  .store-crown-buy,
+  .coach-secondary,
+  .lobby-resume,
+  .packs-store,
+  .deck-strip-new
+):not(.gold-button) {
+  border: 1px solid;
+  border-color: rgb(var(--shade-rgb) / 0.6) rgb(var(--edge-rgb) / 0.12) rgb(var(--edge-rgb) / 0.18)
+    rgb(var(--shade-rgb) / 0.6);
+  border-radius: 6px;
+  box-shadow: inset 0 3px 16px rgb(var(--shade-rgb) / 0.6);
+  background: var(--corners-button), rgb(var(--shade-rgb) / 0.8);
+  color: var(--bronze-text);
+}
+:is(
+    .outline-button,
+    .text-button,
+    .builder-icon-button,
+    .builder-small-button,
+    .filter-trigger,
+    .setup-change,
+    .reset-button,
+    .store-crown-buy,
+    .coach-secondary,
+    .lobby-resume,
+    .packs-store,
+    .deck-strip-new
+  ):not(.gold-button):hover:not(:disabled) {
+  border-color: rgb(var(--bronze-rgb) / 0.6);
+  color: var(--gilt-white);
+}
+:is(
+    .outline-button,
+    .text-button,
+    .builder-icon-button,
+    .builder-small-button,
+    .filter-trigger,
+    .setup-change,
+    .reset-button,
+    .store-crown-buy,
+    .coach-secondary,
+    .lobby-resume,
+    .packs-store,
+    .deck-strip-new
+  ):not(.gold-button)
+  svg {
+  color: var(--bronze);
+}
+.outline-button.danger {
+  border-color: #c25a4c99;
+  color: var(--danger-text);
+}
+:is(
+  .peek-toggle,
+  .profile-tabs button,
+  .store-tabs button,
+  .collection-tabs button,
+  .collection-wallet-pill,
+  .collection-close,
+  .setup-close,
+  .energy-arc-close,
+  .store-arrow,
+  .ob-arrow,
+  .ring-button,
+  .goal-claim,
+  .board-key-row button,
+  .match-corner button,
+  .builder-dialog-close,
+  .preview-close,
+  .booster-close,
+  .quest-x,
+  .coach-skip
+) {
+  border: 1px solid;
+  border-color: rgb(var(--shade-rgb) / 0.6) rgb(var(--edge-rgb) / 0.15) rgb(var(--edge-rgb) / 0.2)
+    rgb(var(--shade-rgb) / 0.6);
+  box-shadow: inset 0 2px 10px rgb(var(--shade-rgb) / 0.6);
+  background: rgb(var(--shade-rgb) / 0.8);
+  color: #e8dcb8;
+}
+:is(
+    .peek-toggle,
+    .profile-tabs button,
+    .store-tabs button,
+    .collection-tabs button,
+    .collection-wallet-pill,
+    .collection-close,
+    .setup-close,
+    .energy-arc-close,
+    .store-arrow,
+    .ob-arrow,
+    .ring-button,
+    .goal-claim,
+    .board-key-row button,
+    .match-corner button,
+    .builder-dialog-close,
+    .preview-close,
+    .booster-close,
+    .quest-x,
+    .coach-skip
+  ):hover:not(:disabled) {
+  border-color: rgb(var(--bronze-rgb) / 0.6);
+  color: var(--gilt-white);
+}
+:is(
+  .peek-toggle,
+  .profile-tabs button,
+  .store-tabs button,
+  .collection-tabs button,
+  .collection-wallet-pill,
+  .collection-close,
+  .setup-close,
+  .energy-arc-close,
+  .store-arrow,
+  .ob-arrow,
+  .ring-button,
+  .goal-claim,
+  .board-key-row button,
+  .match-corner button,
+  .builder-dialog-close,
+  .preview-close,
+  .booster-close,
+  .quest-x,
+  .coach-skip
+)[aria-selected="true"],
+:is(
+  .peek-toggle,
+  .profile-tabs button,
+  .store-tabs button,
+  .collection-tabs button,
+  .collection-wallet-pill,
+  .collection-close,
+  .setup-close,
+  .energy-arc-close,
+  .store-arrow,
+  .ob-arrow,
+  .ring-button,
+  .goal-claim,
+  .board-key-row button,
+  .match-corner button,
+  .builder-dialog-close,
+  .preview-close,
+  .booster-close,
+  .quest-x,
+  .coach-skip
+).active,
+:is(
+  .peek-toggle,
+  .profile-tabs button,
+  .store-tabs button,
+  .collection-tabs button,
+  .collection-wallet-pill,
+  .collection-close,
+  .setup-close,
+  .energy-arc-close,
+  .store-arrow,
+  .ob-arrow,
+  .ring-button,
+  .goal-claim,
+  .board-key-row button,
+  .match-corner button,
+  .builder-dialog-close,
+  .preview-close,
+  .booster-close,
+  .quest-x,
+  .coach-skip
+).on {
+  border-color: rgb(var(--bronze-rgb) / 0.8);
+  background: rgb(var(--bronze-rgb) / 0.12);
+  color: #f6e6b4;
+}
+:is(
+    .peek-toggle,
+    .profile-tabs button,
+    .store-tabs button,
+    .collection-tabs button,
+    .collection-wallet-pill,
+    .collection-close,
+    .setup-close,
+    .energy-arc-close,
+    .store-arrow,
+    .ob-arrow,
+    .ring-button,
+    .goal-claim,
+    .board-key-row button,
+    .match-corner button,
+    .builder-dialog-close,
+    .preview-close,
+    .booster-close,
+    .quest-x,
+    .coach-skip
+  )
+  svg {
+  color: var(--bronze);
+}
 
 /* The Play button: bronze plate chrome, the ember still burns around its edge on hover. */
-.start-play.start-play,.start-play.start-play:hover:not(:disabled),.start-play.start-play:active:not(:disabled){--c:rgb(var(--bronze-rgb) / .8);color:#f3e2b4;text-shadow:0 1px 6px #000c;border:1px solid;border-color:rgb(var(--shade-rgb) / .6) rgb(var(--edge-rgb) / .25) rgb(var(--edge-rgb) / .35) rgb(var(--shade-rgb) / .6);border-radius:6px;filter:none;
-  background:linear-gradient(106deg,transparent 40%,#f3dc9c24 50%,transparent 60%) var(--glint,140%) 0/260% 100% no-repeat,
-    linear-gradient(var(--c),var(--c)) top left/14px 1px no-repeat,linear-gradient(var(--c),var(--c)) top left/1px 14px no-repeat,linear-gradient(var(--c),var(--c)) top right/14px 1px no-repeat,linear-gradient(var(--c),var(--c)) top right/1px 14px no-repeat,
-    linear-gradient(var(--c),var(--c)) bottom left/14px 1px no-repeat,linear-gradient(var(--c),var(--c)) bottom left/1px 14px no-repeat,linear-gradient(var(--c),var(--c)) bottom right/14px 1px no-repeat,linear-gradient(var(--c),var(--c)) bottom right/1px 14px no-repeat,
-    radial-gradient(ellipse at 50% 0,rgb(var(--bronze-rgb) / .18),transparent 72%),var(--surface);
-  box-shadow:inset 0 3px 16px rgb(var(--shade-rgb) / .8),inset 0 0 0 5px var(--surface),inset 0 0 0 6px rgb(var(--bronze-rgb) / .2),0 10px 24px #0008}
-.start-play.start-play:hover:not(:disabled){--c:#ecd08ae6;color:var(--gilt-white);border-color:rgb(var(--shade-rgb) / .6) #f3dc9c66 #f3dc9c80 rgb(var(--shade-rgb) / .6)}
-.start-play>svg{stroke:#e8cd8f;background:radial-gradient(circle at 35% 28%,#2b2823,#12110f 72%);box-shadow:0 0 0 1.5px #8f6c2c,0 0 0 3px rgb(var(--bronze-rgb) / .33),inset 0 1px 2px #0008}
-.start-play span{text-shadow:0 1px 6px #000c}
-.start-play.start-play:disabled{filter:grayscale(.5);opacity:.55}
+.start-play.start-play,
+.start-play.start-play:hover:not(:disabled),
+.start-play.start-play:active:not(:disabled) {
+  --c: rgb(var(--bronze-rgb) / 0.8);
+  color: #f3e2b4;
+  text-shadow: 0 1px 6px #000c;
+  border: 1px solid;
+  border-color: rgb(var(--shade-rgb) / 0.6) rgb(var(--edge-rgb) / 0.25) rgb(var(--edge-rgb) / 0.35)
+    rgb(var(--shade-rgb) / 0.6);
+  border-radius: 6px;
+  filter: none;
+  background:
+    linear-gradient(106deg, transparent 40%, #f3dc9c24 50%, transparent 60%) var(--glint, 140%)
+      0/260% 100% no-repeat,
+    linear-gradient(var(--c), var(--c)) top left/14px 1px no-repeat,
+    linear-gradient(var(--c), var(--c)) top left/1px 14px no-repeat,
+    linear-gradient(var(--c), var(--c)) top right/14px 1px no-repeat,
+    linear-gradient(var(--c), var(--c)) top right/1px 14px no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left/14px 1px no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left/1px 14px no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right/14px 1px no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right/1px 14px no-repeat,
+    radial-gradient(ellipse at 50% 0, rgb(var(--bronze-rgb) / 0.18), transparent 72%),
+    var(--surface);
+  box-shadow:
+    inset 0 3px 16px rgb(var(--shade-rgb) / 0.8),
+    inset 0 0 0 5px var(--surface),
+    inset 0 0 0 6px rgb(var(--bronze-rgb) / 0.2),
+    0 10px 24px #0008;
+}
+.start-play.start-play:hover:not(:disabled) {
+  --c: #ecd08ae6;
+  color: var(--gilt-white);
+  border-color: rgb(var(--shade-rgb) / 0.6) #f3dc9c66 #f3dc9c80 rgb(var(--shade-rgb) / 0.6);
+}
+.start-play > svg {
+  stroke: #e8cd8f;
+  background: radial-gradient(circle at 35% 28%, #2b2823, #12110f 72%);
+  box-shadow:
+    0 0 0 1.5px #8f6c2c,
+    0 0 0 3px rgb(var(--bronze-rgb) / 0.33),
+    inset 0 1px 2px #0008;
+}
+.start-play span {
+  text-shadow: 0 1px 6px #000c;
+}
+.start-play.start-play:disabled {
+  filter: grayscale(0.5);
+  opacity: 0.55;
+}
 
 /* Cards are not stacking contexts, so their cost coins sit above neighbouring cards. Dimming goes on the card's face, not the card. */
-.art-card{isolation:auto}
-.hand-card.unaffordable,.hand-scroll .hand-card.unaffordable{filter:none}
-.hand-card.unaffordable>.card-box{filter:saturate(.7) brightness(.8)}
+.art-card {
+  isolation: auto;
+}
+.hand-card.unaffordable,
+.hand-scroll .hand-card.unaffordable {
+  filter: none;
+}
+.hand-card.unaffordable > .card-box {
+  filter: saturate(0.7) brightness(0.8);
+}
 
 /* Where the lobby page itself scrolls (narrow windows, tablets upright), the navigation stays put while the content moves. */
-.lobby>.lobby-header{position:sticky;top:0;z-index:var(--z-nav);background:rgb(var(--shade-rgb) / .94);backdrop-filter:blur(8px)}
+.lobby > .lobby-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-nav);
+  background: rgb(var(--shade-rgb) / 0.94);
+  backdrop-filter: blur(8px);
+}

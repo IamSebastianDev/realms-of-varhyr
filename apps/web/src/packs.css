@@ -1,10 +1,65 @@
 /* The packs page reuses the store's inset stage and carousel; this adds the count badge and the empty state. */
-.packs-carousel{container-type:size}
-.count-badge.big.pack-badge{--s:clamp(36px,16.5cqh,88px);position:absolute;z-index:2;left:calc(50% + 21cqh - var(--s) / 2);top:calc(50% - 38cqh - var(--s) * .26);pointer-events:none;animation:pack-badge-in .45s cubic-bezier(.3,1.5,.5,1) both,pack-badge-glow 3.2s ease-in-out .5s infinite}
-@keyframes pack-badge-in{from{transform:scale(.4) rotate(-40deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
-@keyframes pack-badge-glow{50%{box-shadow:0 6px 18px #000b,0 0 0 1px #3a2b0c,0 0 38px color-mix(in srgb,var(--pack-color) 90%,transparent)}}
-.packs-store{margin-left:auto;display:inline-flex;align-items:center;gap:8px}
-.packs-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;color:#b2b0ab}
-.packs-empty h2{margin:6px 0 0;font:600 30px/1.1 var(--serif);color:var(--gilt-pale)}
-.packs-empty p{margin:0;max-width:44ch;font-size:14px;line-height:1.55}
-@media(prefers-reduced-motion:reduce){.pack-badge{animation:none}}
+.packs-carousel {
+  container-type: size;
+}
+.count-badge.big.pack-badge {
+  --s: clamp(36px, 16.5cqh, 88px);
+  position: absolute;
+  z-index: 2;
+  left: calc(50% + 21cqh - var(--s) / 2);
+  top: calc(50% - 38cqh - var(--s) * 0.26);
+  pointer-events: none;
+  animation:
+    pack-badge-in 0.45s cubic-bezier(0.3, 1.5, 0.5, 1) both,
+    pack-badge-glow 3.2s ease-in-out 0.5s infinite;
+}
+@keyframes pack-badge-in {
+  from {
+    transform: scale(0.4) rotate(-40deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+@keyframes pack-badge-glow {
+  50% {
+    box-shadow:
+      0 6px 18px #000b,
+      0 0 0 1px #3a2b0c,
+      0 0 38px color-mix(in srgb, var(--pack-color) 90%, transparent);
+  }
+}
+.packs-store {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.packs-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  color: #b2b0ab;
+}
+.packs-empty h2 {
+  margin: 6px 0 0;
+  font: 600 30px/1.1 var(--serif);
+  color: var(--gilt-pale);
+}
+.packs-empty p {
+  margin: 0;
+  max-width: 44ch;
+  font-size: 14px;
+  line-height: 1.55;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pack-badge {
+    animation: none;
+  }
+}

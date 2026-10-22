@@ -1,1 +1,1 @@
-export { SiteIcon, siteShape } from '../../../packages/ui/src/siteIcons';
+export { SiteIcon, siteShape } from "@realms/ui/siteIcons";

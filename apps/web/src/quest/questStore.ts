@@ -1,25 +1,47 @@
-import { useSyncExternalStore } from 'react';
-import { factionInfo, registry } from '../../../../packages/content/src';
-import { boosterPacks } from '../../../../packages/content/src/boosters';
-import { loadRun, parseMap, type QuestContent, type QuestMap, type RunState } from '../../../../packages/quest/src';
+import { useSyncExternalStore } from "react";
+import { factionInfo, registry } from "@realms/content";
+import { boosterPacks } from "@realms/content/boosters";
+import { loadRun, parseMap, type QuestContent, type QuestMap, type RunState } from "@realms/quest";
 
 /** The game's real cards and the three booster alignments, in the shape the quest engine wants. */
 export const questContent: QuestContent = {
   cards: registry.cards,
-  packs: boosterPacks.map(pack => ({ id: pack.id, name: pack.name, factions: pack.factions })),
-  factionNames: Object.fromEntries(Object.entries(factionInfo).map(([id, info]) => [id, info.name])),
+  packs: boosterPacks.map((pack) => ({ id: pack.id, name: pack.name, factions: pack.factions })),
+  factionNames: Object.fromEntries(
+    Object.entries(factionInfo).map(([id, info]) => [id, info.name]),
+  ),
 };
 
-const runKey = 'varhyr-quest-run-v1', resultKey = 'varhyr-quest-result-v1', returnKey = 'varhyr-quest-return-v1';
-const read = (key: string) => { try { return localStorage.getItem(key); } catch { return null; } };
-const write = (key: string, value: string | null) => { try { if (value === null) localStorage.removeItem(key); else localStorage.setItem(key, value); return true; } catch { return false; /* The run stays in memory. */ } };
+const runKey = "varhyr-quest-run-v1",
+  resultKey = "varhyr-quest-result-v1",
+  returnKey = "varhyr-quest-return-v1";
+const read = (key: string) => {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+};
+const write = (key: string, value: string | null) => {
+  try {
+    if (value === null) localStorage.removeItem(key);
+    else localStorage.setItem(key, value);
+    return true;
+  } catch {
+    return false; /* The run stays in memory. */
+  }
+};
 
 let current: RunState | null | undefined;
 const listeners = new Set<() => void>();
 function parseRun(raw: string | null): RunState | null {
-  try { return loadRun(JSON.parse(raw ?? 'null')); } catch { return null; }
+  try {
+    return loadRun(JSON.parse(raw ?? "null"));
+  } catch {
+    return null;
+  }
 }
-const snapshot = () => current === undefined ? (current = parseRun(read(runKey))) : current;
+const snapshot = () => (current === undefined ? (current = parseRun(read(runKey))) : current);
 export const readRun = snapshot;
 export function saveRun(run: RunState | null) {
   current = run;
@@ -28,33 +50,66 @@ export function saveRun(run: RunState | null) {
   return saved;
 }
 export function useQuestRun(): RunState | null {
-  return useSyncExternalStore(listener => { listeners.add(listener); return () => { listeners.delete(listener); }; }, snapshot, snapshot);
+  return useSyncExternalStore(
+    (listener) => {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    snapshot,
+    snapshot,
+  );
 }
 
 /** The match screen reports how a quest fight ended; the quest screen applies it when it next opens. */
-export type FightReport = { run: string; node: string; won: boolean; life: number; finishedAt?: number };
-export function reportFight(report: FightReport) { write(resultKey, JSON.stringify({ ...report, finishedAt: report.finishedAt ?? Date.now() })); }
+export type FightReport = {
+  run: string;
+  node: string;
+  won: boolean;
+  life: number;
+  finishedAt?: number;
+};
+export function reportFight(report: FightReport) {
+  write(resultKey, JSON.stringify({ ...report, finishedAt: report.finishedAt ?? Date.now() }));
+}
 export function readFightReport(run: RunState): FightReport | null {
   try {
-    const report = JSON.parse(read(resultKey) ?? 'null') as FightReport | null;
+    const report = JSON.parse(read(resultKey) ?? "null") as FightReport | null;
     if (!report || report.run !== run.id || report.node !== run.fight?.node) return null;
     return report;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 export function clearFightReport(report: FightReport) {
-  try { const current = JSON.parse(read(resultKey) ?? 'null'); if (current?.run === report.run && current?.node === report.node) write(resultKey, null); } catch { /* Nothing to acknowledge. */ }
+  try {
+    const current = JSON.parse(read(resultKey) ?? "null");
+    if (current?.run === report.run && current?.node === report.node) write(resultKey, null);
+  } catch {
+    /* Nothing to acknowledge. */
+  }
 }
 
-export const wantsQuestScreen = () => read(returnKey) === '1';
-export const setWantsQuestScreen = (value: boolean) => write(returnKey, value ? '1' : null);
+export const wantsQuestScreen = () => read(returnKey) === "1";
+export const setWantsQuestScreen = (value: boolean) => write(returnKey, value ? "1" : null);
 
-export type LoadedMap = QuestMap & { tiles: { size: number; maxZoom: number; width: number; height: number } };
+export type LoadedMap = QuestMap & {
+  tiles: { size: number; maxZoom: number; width: number; height: number };
+};
 let mapPromise: Promise<LoadedMap | null> | undefined;
 /** The node file the studio saved, as published by the build. Null when no map has been made yet. */
 export function loadMap(): Promise<LoadedMap | null> {
-  return mapPromise ??= fetch('/quest/map.json').then(async response => {
-    if (!response.ok) return null;
-    const text = await response.text();
-    try { const raw = JSON.parse(text); return { ...parseMap(raw), tiles: raw.tiles } as LoadedMap; } catch { return null; }
-  }).catch(() => null);
+  return (mapPromise ??= fetch("/quest/map.json")
+    .then(async (response) => {
+      if (!response.ok) return null;
+      const text = await response.text();
+      try {
+        const raw = JSON.parse(text);
+        return { ...parseMap(raw), tiles: raw.tiles } as LoadedMap;
+      } catch {
+        return null;
+      }
+    })
+    .catch(() => null));
 }

@@ -1,0 +1,48 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "react", "unicorn", "import"],
+  "categories": {
+    "correctness": "error"
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2024": true
+  },
+  "rules": {
+    "no-unused-vars": [
+      "warn",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }
+    ],
+    "react/set-state-in-effect": "warn",
+    "react/refs": "warn",
+    "react/immutability": "warn",
+    "react/purity": "warn",
+    "react/use-memo": "warn",
+    "react/static-components": "warn",
+    "react-hooks/exhaustive-deps": "warn",
+    "unicorn/no-useless-spread": "warn",
+    "unicorn/no-useless-fallback-in-spread": "warn",
+    "react/no-did-update-set-state": "warn",
+    "no-unused-expressions": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["tools/src/card-schema.ts"],
+      "rules": {
+        "unicorn/no-thenable": "off"
+      }
+    }
+  ],
+  "ignorePatterns": [
+    "**/dist/**",
+    "**/node_modules/**",
+    "public/**",
+    "assets/**",
+    "**/.turbo/**",
+    "packages/content/src/*.json"
+  ]
+}

@@ -1,37 +1,47 @@
-import '../../../packages/ui/src/fonts';
-import './styles.css';
-import './card-layout.css';
-import './layout.css';
-import { ApplicationPreferences } from '../../../packages/ui/src/i18n';
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { AudioExperience } from './AudioExperience';
-import './audio.css';
-import { App } from './App';
-import './detail-chrome.css';
-import './arena.css';
-import './deck-builder.css';
-import './collection.css';
-import './multiplayer/multiplayer.css';
-import './start-screen.css';
-import './tutorial.css';
-import './combat-fx.css';
-import './match-summary.css';
-import './profile.css';
-import './collection-stats.css';
-import './form-controls.css';
-import './onboarding.css';
-import './touch.css';
-import './plate.css';
-import './scene-transition.css';
-import './hand-fan.css';
-import './select-picker';
-import './ui-scale.css';
-import { watchUiScale } from './uiScale';
-import { RotateNotice } from './RotateNotice';
-import { LoadingScreen } from './LoadingScreen';
-import { installTouchDrag } from './touchDrag';
-import './loading.css';
+import "@realms/ui/fonts";
+import "./styles.css";
+import "./card-layout.css";
+import "./layout.css";
+import { ApplicationPreferences } from "@realms/ui/i18n";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { AudioExperience } from "./AudioExperience";
+import "./audio.css";
+import { App } from "./App";
+import "./detail-chrome.css";
+import "./arena.css";
+import "./deck-builder.css";
+import "./collection.css";
+import "./multiplayer/multiplayer.css";
+import "./start-screen.css";
+import "./tutorial.css";
+import "./combat-fx.css";
+import "./match-summary.css";
+import "./profile.css";
+import "./collection-stats.css";
+import "./form-controls.css";
+import "./onboarding.css";
+import "./touch.css";
+import "./plate.css";
+import "./scene-transition.css";
+import "./hand-fan.css";
+import "./select-picker";
+import "./ui-scale.css";
+import { watchUiScale } from "./uiScale";
+import { RotateNotice } from "./RotateNotice";
+import { LoadingScreen } from "./LoadingScreen";
+import { installTouchDrag } from "./touchDrag";
+import "./loading.css";
 watchUiScale();
 installTouchDrag();
-ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><ApplicationPreferences><AudioExperience><App/></AudioExperience><RotateNotice/><LoadingScreen/></ApplicationPreferences></React.StrictMode>);
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <ApplicationPreferences>
+      <AudioExperience>
+        <App />
+      </AudioExperience>
+      <RotateNotice />
+      <LoadingScreen />
+    </ApplicationPreferences>
+  </React.StrictMode>,
+);

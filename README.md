@@ -8,14 +8,14 @@ The game is a static web app. There is no account system and no game backend. Ev
 
 ## Run
 
-Requires Node.js 22.12 or newer.
+Requires Node.js 22.18 or newer (see `.nvmrc`) and npm 10.
 
 ```sh
 npm install
 npm run dev
 ```
 
-Open **<http://localhost:5173>**. The first run imports the card catalogue from `assets/`, and it re-imports whenever you change a card file.
+Open **<http://localhost:5173>**. `npm install` also installs the git hooks. The first run imports the card catalogue from `assets/`, and it re-imports whenever you change a card file. To rebuild the generated catalogue by hand, run `npm run assets`.
 
 ## The game in short
 
@@ -27,7 +27,7 @@ Open **<http://localhost:5173>**. The first run imports the card catalogue from 
 - **Response step:** whenever a creature dies, its owner receives that creature's energy as response energy and a chance to cast response-timed spells. The attacker's window comes first.
 - **Cards:** creatures, spells and holdings (persistent defensive cards that cannot attack). Spells declare `play` and/or `response` timing.
 
-The full rules and the engine's decisions are in [docs/prototype.md](docs/prototype.md) and the [architecture draft](fantasy-card-game-architecture.md). Both are historical in places: when they disagree with the code, the code and this README win.
+The full rules and the engine's decisions are in [docs/prototype.md](docs/prototype.md) and the [architecture draft](docs/architecture.md). Both are historical in places: when they disagree with the code, the code and this README win.
 
 ## What is in the box
 
@@ -58,7 +58,7 @@ Each card is a folder in `assets/cards/<card-id>/`:
 | `data.de.json` | German name and lore |
 | `data.png` | Required artwork (optional `data.webm` for animated art) |
 
-Factions are `assets/factions/<id>.json` and sets are `assets/sets/<id>.json`. Copy an existing card folder, give it a new `id` and `deckLimitKey`, and the importer, UI and engine pick it up. Bump `revision` when you change a card. Generated files (`packages/content/src/*.json`, `public/cards/`) are never edited by hand. `npm run import:cards` rebuilds them, reports the file and reason for any error, and keeps the last good import.
+Factions are `assets/factions/<id>.json` and sets are `assets/sets/<id>.json`. Copy an existing card folder, give it a new `id` and `deckLimitKey`, and the importer, UI and engine pick it up. Bump `revision` when you change a card. Generated files (`packages/content/src/*.json`, `public/cards/`) are never edited by hand. `npm run assets` rebuilds them, reports the file and reason for any error, and keeps the last good import.
 
 `npm run schema:cards` regenerates `assets/schemas/card.schema.json` after you change an ability, which gives editors autocomplete and validation.
 
@@ -76,30 +76,44 @@ The complete guide, with JSON templates, ability tables, targeting kinds and hoo
 ## Check your changes
 
 ```sh
-npm test                 # rules, content, importer, deck rules, multiplayer, tutorial
-npm run check:engine     # type-check the engine without browser/DOM libraries
-npm run build            # import cards, type-check and build dist/
+npm run check            # typecheck + tests + lint + format check + css ratchet
+npm test                 # all workspace tests through turbo (cached)
+npm run typecheck        # every workspace, engine packages without DOM libs
+npm run lint             # oxlint
+npm run format           # oxfmt (npm run format:check only verifies)
+npm run build            # generate assets, type-check and build apps/web/dist
+npm run build:studio     # build apps/studio/dist
 npm run simulate         # complete matches with exact replay
 npm run audit:bot        # starter matchup audit
 npm run audit:balance -- --pairs 1000   # paired mirror matches, first player reversed
 npm run preview          # serve the built site
 ```
 
-The rules tests use their own fixed content in `tests/fixtures/`, so adding or rebalancing cards does not break unrelated combat tests.
+Git hooks (lefthook, installed by `npm install`): `pre-commit` lints and format-checks the staged files (`npm run format` fixes them), `commit-msg` checks the message with commitlint ([Conventional Commits](https://www.conventionalcommits.org), e.g. `feat(draft): add sleeve picker`), and `pre-push` runs typecheck and tests. CI runs the same `npm run check` on every push and pull request.
+
+Tests live next to the workspace they cover (`packages/*/tests`, `apps/*/tests`). The rules tests use their own fixed content in `packages/testing/src`, so adding or rebalancing cards does not break unrelated combat tests.
 
 ## Code layout
 
+This is an npm-workspaces monorepo orchestrated by [turbo](https://turbo.build). Packages are `@realms/*`, export their TypeScript source directly (no build step) and share `tsconfig.base.json`.
+
 | Path | Contents |
 | --- | --- |
+| `apps/web` | The game client (Vite, React) |
+| `apps/studio` | The card studio |
 | `packages/contracts` | Shared types, command and order shapes, deck rules |
 | `packages/core` | The engine: `apply(state, envelope, registry)`, legal actions, bot |
 | `packages/extensions` | Ability handlers |
 | `packages/content` | Compiler, generated catalogue, boosters |
+| `packages/draft` | Draft rules and tables |
+| `packages/quest` | Expedition engine and map rules |
 | `packages/multiplayer` | Match authority and wire protocol (no browser APIs) |
 | `packages/renderer` | React Three Fiber battlefield |
 | `packages/ui` | Shared UI, card presentation, translations |
-| `apps/web` | The game client |
-| `apps/studio` | The card studio |
+| `packages/testing` | Fixed test content shared by the suites |
+| `tools` | Card importer, schema generator, simulations, audits, build plugins |
+| `assets`, `public` | Card, faction and set sources; static media |
+| `docs` | Design notes and specs |
 
 The engine takes a command and returns a new state or a rejection; nothing outside `packages/core` decides legality. The client reads projections of that state, so a seat never sees what it should not.
 

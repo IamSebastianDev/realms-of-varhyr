@@ -1,59 +1,295 @@
 /* Card backs: the sleeve artwork (public/sleeves) as a background. */
-.card-back-face{position:relative;width:28px;aspect-ratio:2/3;flex:none;border-radius:4px;overflow:hidden;background:#1a0f0c center/cover no-repeat;box-shadow:0 0 0 1px #0008,0 1px 3px #0008}
-.back-picker-button{display:grid;place-items:center;padding:3px;border-radius:5px;border:1px solid rgb(var(--edge-rgb) / .27);background:rgb(var(--shade-rgb) / .6)}
-.back-picker-button:hover{border-color:var(--gilt)}
-.back-picker-button .card-back-face{width:24px;border-radius:3px}
-.back-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;max-height:min(62dvh,520px);overflow:auto;padding:2px}
-.back-grid button{position:relative;display:grid;justify-items:center;align-content:start;gap:4px;padding:10px 6px 8px;text-align:center;border-radius:6px;border:1px solid rgb(var(--edge-rgb) / .12);background:rgb(var(--shade-rgb) / .4);color:#e8e2c8}
-.back-grid button:hover:not(:disabled){border-color:rgb(var(--edge-rgb) / .4)}
-.back-grid button.on{border-color:var(--gilt);background:rgb(var(--edge-rgb) / .09)}
-.back-grid button:disabled{cursor:default}
-.back-grid button:disabled .card-back-face{filter:saturate(.45) brightness(.65)}
-.back-grid .card-back-face{width:76px;border-radius:5px;margin-bottom:4px}
-.back-grid b{font:600 14px/1.15 var(--serif)}
-.back-grid small{font-size:10.5px;line-height:1.25;color:#aeaba5}
-.back-grid svg{position:absolute;top:8px;right:8px;color:var(--gilt)}
+.card-back-face {
+  position: relative;
+  width: 28px;
+  aspect-ratio: 2/3;
+  flex: none;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #1a0f0c center/cover no-repeat;
+  box-shadow:
+    0 0 0 1px #0008,
+    0 1px 3px #0008;
+}
+.back-picker-button {
+  display: grid;
+  place-items: center;
+  padding: 3px;
+  border-radius: 5px;
+  border: 1px solid rgb(var(--edge-rgb) / 0.27);
+  background: rgb(var(--shade-rgb) / 0.6);
+}
+.back-picker-button:hover {
+  border-color: var(--gilt);
+}
+.back-picker-button .card-back-face {
+  width: 24px;
+  border-radius: 3px;
+}
+.back-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 10px;
+  max-height: min(62dvh, 520px);
+  overflow: auto;
+  padding: 2px;
+}
+.back-grid button {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 4px;
+  padding: 10px 6px 8px;
+  text-align: center;
+  border-radius: 6px;
+  border: 1px solid rgb(var(--edge-rgb) / 0.12);
+  background: rgb(var(--shade-rgb) / 0.4);
+  color: #e8e2c8;
+}
+.back-grid button:hover:not(:disabled) {
+  border-color: rgb(var(--edge-rgb) / 0.4);
+}
+.back-grid button.on {
+  border-color: var(--gilt);
+  background: rgb(var(--edge-rgb) / 0.09);
+}
+.back-grid button:disabled {
+  cursor: default;
+}
+.back-grid button:disabled .card-back-face {
+  filter: saturate(0.45) brightness(0.65);
+}
+.back-grid .card-back-face {
+  width: 76px;
+  border-radius: 5px;
+  margin-bottom: 4px;
+}
+.back-grid b {
+  font: 600 14px/1.15 var(--serif);
+}
+.back-grid small {
+  font-size: 10.5px;
+  line-height: 1.25;
+  color: #aeaba5;
+}
+.back-grid svg {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: var(--gilt);
+}
 /* The library pile in a match shows your deck's back. */
-.app .library-count .card-back-face{position:absolute;inset:0;width:auto;height:auto;aspect-ratio:auto;border-radius:3px;box-shadow:none}
-.app .library-count.has-back{border-color:rgb(var(--bronze-rgb) / .4);background:none}
-.app .library-count.has-back::before,.app .library-count.has-back>svg{display:none}
+.app .library-count .card-back-face {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  aspect-ratio: auto;
+  border-radius: 3px;
+  box-shadow: none;
+}
+.app .library-count.has-back {
+  border-color: rgb(var(--bronze-rgb) / 0.4);
+  background: none;
+}
+.app .library-count.has-back::before,
+.app .library-count.has-back > svg {
+  display: none;
+}
 
 /* The sleeve and deck pickers float on a dark, shadowy screen instead of sitting in a panel. */
-.builder-dialog-backdrop:has(.back-grid),.builder-dialog-backdrop:has(.setup-deck-grid){background:radial-gradient(ellipse at 50% 45%,rgb(var(--shade-rgb) / .85) 0,#020202f2 75%);backdrop-filter:blur(3px)}
-.builder-dialog:has(.back-grid),.builder-dialog:has(.setup-deck-grid){width:min(92vw,860px);max-width:none;background:none;border:0;box-shadow:none;backdrop-filter:none}
-.builder-dialog:has(.back-grid) h2,.builder-dialog:has(.setup-deck-grid) h2{text-align:center;font-size:38px;text-shadow:0 2px 14px var(--black)}
-.builder-dialog:has(.back-grid) .back-grid,.builder-dialog:has(.setup-deck-grid) .setup-deck-grid{max-height:min(68dvh,600px);padding:10px}
-.back-grid button{background:rgb(var(--white-rgb) / .03);border-color:rgb(var(--edge-rgb) / .12)}
-.back-grid button.on{background:rgb(var(--edge-rgb) / .1)}
+.builder-dialog-backdrop:has(.back-grid),
+.builder-dialog-backdrop:has(.setup-deck-grid) {
+  background: radial-gradient(ellipse at 50% 45%, rgb(var(--shade-rgb) / 0.85) 0, #020202f2 75%);
+  backdrop-filter: blur(3px);
+}
+.builder-dialog:has(.back-grid),
+.builder-dialog:has(.setup-deck-grid) {
+  width: min(92vw, 860px);
+  max-width: none;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.builder-dialog:has(.back-grid) h2,
+.builder-dialog:has(.setup-deck-grid) h2 {
+  text-align: center;
+  font-size: 38px;
+  text-shadow: 0 2px 14px var(--black);
+}
+.builder-dialog:has(.back-grid) .back-grid,
+.builder-dialog:has(.setup-deck-grid) .setup-deck-grid {
+  max-height: min(68dvh, 600px);
+  padding: 10px;
+}
+.back-grid button {
+  background: rgb(var(--white-rgb) / 0.03);
+  border-color: rgb(var(--edge-rgb) / 0.12);
+}
+.back-grid button.on {
+  background: rgb(var(--edge-rgb) / 0.1);
+}
 
 /* More room in the two pickers. */
-.builder-dialog:has(.back-grid),.builder-dialog:has(.setup-deck-grid){width:min(94vw,1040px);padding:48px 40px 40px}
-.builder-dialog:has(.back-grid) h2,.builder-dialog:has(.setup-deck-grid) h2{margin:0 0 34px}
-.builder-dialog:has(.back-grid) .builder-dialog-close,.builder-dialog:has(.setup-deck-grid) .builder-dialog-close{top:22px;right:26px}
-.back-grid{grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:18px}
-.back-grid button{padding:16px 10px 14px;gap:6px}
-.back-grid .card-back-face{width:90px;margin-bottom:8px}
-.setup-deck-grid{grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px}
-.setup-deck-grid .setup-deck{min-height:150px}
-.builder-dialog:has(.back-grid) .back-grid,.builder-dialog:has(.setup-deck-grid) .setup-deck-grid{max-height:min(66dvh,640px);padding:12px}
+.builder-dialog:has(.back-grid),
+.builder-dialog:has(.setup-deck-grid) {
+  width: min(94vw, 1040px);
+  padding: 48px 40px 40px;
+}
+.builder-dialog:has(.back-grid) h2,
+.builder-dialog:has(.setup-deck-grid) h2 {
+  margin: 0 0 34px;
+}
+.builder-dialog:has(.back-grid) .builder-dialog-close,
+.builder-dialog:has(.setup-deck-grid) .builder-dialog-close {
+  top: 22px;
+  right: 26px;
+}
+.back-grid {
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  gap: 18px;
+}
+.back-grid button {
+  padding: 16px 10px 14px;
+  gap: 6px;
+}
+.back-grid .card-back-face {
+  width: 90px;
+  margin-bottom: 8px;
+}
+.setup-deck-grid {
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 18px;
+}
+.setup-deck-grid .setup-deck {
+  min-height: 150px;
+}
+.builder-dialog:has(.back-grid) .back-grid,
+.builder-dialog:has(.setup-deck-grid) .setup-deck-grid {
+  max-height: min(66dvh, 640px);
+  padding: 12px;
+}
 
 /* Profile: sleeve browser. Mirrors the portrait picker: a grid on the left, the chosen one in detail on the right. */
-.profile-page.profile-hall .profile-sleeves{margin:0;min-height:0;display:flex;flex-direction:column;gap:16px;padding:22px 32px;justify-content:center}
-.profile-sleeves h2{margin:0;font:500 22px var(--serif);color:#e8dcb8;display:flex;align-items:baseline;gap:12px}
-.profile-sleeves h2 small{font:500 13px var(--sans,inherit);color:var(--ink-2)}
-.sleeve-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,360px);gap:24px;align-items:start}
-.sleeve-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:14px;max-width:640px}
-.sleeve-grid button{position:relative;padding:6px;border-radius:6px;border:1px solid rgb(var(--edge-rgb) / .12);background:rgb(var(--white-rgb) / .03);transition:transform .15s,border-color .15s}
-.sleeve-grid button:hover{transform:translateY(-2px);border-color:rgb(var(--edge-rgb) / .4)}
-.sleeve-grid button.on{border-color:var(--gilt);background:rgb(var(--edge-rgb) / .1);box-shadow:0 0 18px rgb(var(--gilt-rgb) / .27)}
-.sleeve-grid .card-back-face{width:100%;border-radius:4px}
-.sleeve-grid button.locked .card-back-face,.sleeve-detail .card-back-face.dim{filter:saturate(.45) brightness(.65)}
-.sleeve-grid i{position:absolute;right:-5px;top:-5px;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#e9d298;color:#171614}
-.sleeve-grid i.lock{background:#171614;color:var(--bronze);border:1px solid rgb(var(--bronze-rgb) / .53)}
-.sleeve-detail{display:grid;grid-template-columns:auto minmax(0,1fr);gap:20px;align-items:center;padding:18px 20px;border:1px solid rgb(var(--edge-rgb) / .2);border-radius:6px;background:rgb(var(--shade-rgb) / .4)}
-.sleeve-detail .card-back-face{width:clamp(110px,14vw,150px);border-radius:6px;box-shadow:0 10px 24px #000a}
-.sleeve-detail>div{display:grid;gap:10px;justify-items:start}
-.sleeve-detail h3{margin:0;font:500 24px/1.15 var(--serif);color:#f3e6bf}
-.sleeve-status{margin:0;font-size:13px;color:#c1c0bd}
-.sleeve-detail small{font-size:11px;line-height:1.4;color:var(--ink-2)}
-@media(max-width:860px){.sleeve-layout{grid-template-columns:1fr}.profile-page.profile-hall .profile-sleeves{padding:20px 16px}}
+.profile-page.profile-hall .profile-sleeves {
+  margin: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px 32px;
+  justify-content: center;
+}
+.profile-sleeves h2 {
+  margin: 0;
+  font: 500 22px var(--serif);
+  color: #e8dcb8;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.profile-sleeves h2 small {
+  font: 500 13px var(--sans, inherit);
+  color: var(--ink-2);
+}
+.sleeve-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+  gap: 24px;
+  align-items: start;
+}
+.sleeve-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 14px;
+  max-width: 640px;
+}
+.sleeve-grid button {
+  position: relative;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid rgb(var(--edge-rgb) / 0.12);
+  background: rgb(var(--white-rgb) / 0.03);
+  transition:
+    transform 0.15s,
+    border-color 0.15s;
+}
+.sleeve-grid button:hover {
+  transform: translateY(-2px);
+  border-color: rgb(var(--edge-rgb) / 0.4);
+}
+.sleeve-grid button.on {
+  border-color: var(--gilt);
+  background: rgb(var(--edge-rgb) / 0.1);
+  box-shadow: 0 0 18px rgb(var(--gilt-rgb) / 0.27);
+}
+.sleeve-grid .card-back-face {
+  width: 100%;
+  border-radius: 4px;
+}
+.sleeve-grid button.locked .card-back-face,
+.sleeve-detail .card-back-face.dim {
+  filter: saturate(0.45) brightness(0.65);
+}
+.sleeve-grid i {
+  position: absolute;
+  right: -5px;
+  top: -5px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #e9d298;
+  color: #171614;
+}
+.sleeve-grid i.lock {
+  background: #171614;
+  color: var(--bronze);
+  border: 1px solid rgb(var(--bronze-rgb) / 0.53);
+}
+.sleeve-detail {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+  padding: 18px 20px;
+  border: 1px solid rgb(var(--edge-rgb) / 0.2);
+  border-radius: 6px;
+  background: rgb(var(--shade-rgb) / 0.4);
+}
+.sleeve-detail .card-back-face {
+  width: clamp(110px, 14vw, 150px);
+  border-radius: 6px;
+  box-shadow: 0 10px 24px #000a;
+}
+.sleeve-detail > div {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+}
+.sleeve-detail h3 {
+  margin: 0;
+  font: 500 24px/1.15 var(--serif);
+  color: #f3e6bf;
+}
+.sleeve-status {
+  margin: 0;
+  font-size: 13px;
+  color: #c1c0bd;
+}
+.sleeve-detail small {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+@media (max-width: 860px) {
+  .sleeve-layout {
+    grid-template-columns: 1fr;
+  }
+  .profile-page.profile-hall .profile-sleeves {
+    padding: 20px 16px;
+  }
+}

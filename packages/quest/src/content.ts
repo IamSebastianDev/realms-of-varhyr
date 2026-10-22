@@ -1,4 +1,4 @@
-import type { CardDefinition } from '../../contracts/src';
+import type { CardDefinition } from "@realms/contracts";
 
 /** What the quest needs to know about the game's cards and factions; the app passes the real content in. */
 export type QuestContent = {

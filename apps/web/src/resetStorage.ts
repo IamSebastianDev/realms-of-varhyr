@@ -12,8 +12,13 @@ export function clearGameStorage(storage: Storage) {
 export function resetStoredGameData() {
   let failed = false;
   // Still attempt both stores if one is unavailable. Never reload while a failed reset is hidden.
-  for (const name of ['localStorage', 'sessionStorage'] as const) {
-    try { clearGameStorage(window[name]); } catch { failed = true; }
+  for (const name of ["localStorage", "sessionStorage"] as const) {
+    try {
+      clearGameStorage(window[name]);
+    } catch {
+      failed = true;
+    }
   }
-  if (failed) throw new Error('Some saved data could not be deleted. Allow browser storage and try again.');
+  if (failed)
+    throw new Error("Some saved data could not be deleted. Allow browser storage and try again.");
 }

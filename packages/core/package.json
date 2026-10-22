@@ -1,0 +1,26 @@
+{
+  "name": "@realms/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts",
+    "./*.json": "./src/*.json",
+    "./*.css": "./src/*.css"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@realms/contracts": "*",
+    "@realms/extensions": "*",
+    "valibot": "^1.1.0"
+  },
+  "devDependencies": {
+    "@realms/content": "*",
+    "@realms/testing": "*",
+    "vitest": "^5.0.3"
+  }
+}

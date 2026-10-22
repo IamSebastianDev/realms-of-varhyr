@@ -1,0 +1,701 @@
+[
+  {
+    "id": "abyss-imp",
+    "revision": 1,
+    "name": "Abyssal Imp",
+    "deckLimitKey": "abyss-imp",
+    "type": "creature",
+    "factions": ["abyssal"],
+    "subtypes": ["creature"],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 0,
+      "factions": {}
+    },
+    "text": "A spark from a darker world.",
+    "art": "/cards/abyssal-imp/data.png?v=116820c7ee06750a",
+    "abilities": [],
+    "stats": {
+      "attack": 1,
+      "defense": 1,
+      "energyOutputs": [
+        {
+          "abyssal": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "abyss-whelp",
+    "revision": 1,
+    "name": "Abyssal Whelp",
+    "deckLimitKey": "abyss-whelp",
+    "type": "creature",
+    "factions": ["abyssal"],
+    "subtypes": ["creature"],
+    "legendary": false,
+    "rarity": "rare",
+    "cost": {
+      "generic": 0,
+      "factions": {
+        "abyssal": 1
+      }
+    },
+    "text": "Blood price — lose 1 life on play.",
+    "art": "/cards/abyssal-whelp/data.png?v=5de7fb25d36f9b48",
+    "abilities": [
+      {
+        "id": "blood-price",
+        "params": {
+          "amount": 1
+        }
+      }
+    ],
+    "stats": {
+      "attack": 3,
+      "defense": 1,
+      "energyOutputs": [
+        {
+          "abyssal": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "aldric-runewarden",
+    "revision": 1,
+    "name": "Aldric, the Runewarden",
+    "deckLimitKey": "aldric-runewarden",
+    "type": "creature",
+    "factions": ["crownlands", "ironbound"],
+    "subtypes": ["creature"],
+    "legendary": true,
+    "rarity": "legendary",
+    "cost": {
+      "generic": 2,
+      "factions": {
+        "crownlands": 1,
+        "ironbound": 1
+      }
+    },
+    "text": "Armor 1 — reduce each damage hit by 1. Choose Crown or Iron when generating energy.",
+    "art": "/cards/aldric-the-runewarden/data.png?v=6c40324e7c98b106",
+    "animation": "/cards/aldric-the-runewarden/data.webm?v=a513cbf872d47e23",
+    "abilities": [
+      {
+        "id": "armor",
+        "params": {
+          "amount": 1
+        }
+      }
+    ],
+    "stats": {
+      "attack": 3,
+      "defense": 5,
+      "energyOutputs": [
+        {
+          "crownlands": 1
+        },
+        {
+          "ironbound": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "ashen-initiate",
+    "revision": 1,
+    "name": "Ashen Initiate",
+    "deckLimitKey": "ashen-initiate",
+    "type": "creature",
+    "factions": ["ashen"],
+    "subtypes": ["creature"],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 0,
+      "factions": {}
+    },
+    "text": "Even the smallest soul has a price.",
+    "art": "/cards/ashen-initiate/data.png?v=cbb799b20e709a33",
+    "abilities": [],
+    "stats": {
+      "attack": 0,
+      "defense": 1,
+      "energyOutputs": [
+        {
+          "ashen": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "clan-scout",
+    "revision": 1,
+    "name": "Free Clans Scout",
+    "deckLimitKey": "clan-scout",
+    "type": "creature",
+    "factions": ["clans"],
+    "subtypes": ["creature"],
+    "legendary": false,
+    "rarity": "rare",
+    "cost": {
+      "generic": 0,
+      "factions": {}
+    },
+    "text": "Ready — enters unexhausted.",
+    "art": "/cards/free-clans-scout/data.png?v=2e1f5a9279b18947",
+    "abilities": [
+      {
+        "id": "ready",
+        "params": {}
+      }
+    ],
+    "stats": {
+      "attack": 1,
+      "defense": 1,
+      "energyOutputs": [
+        {
+          "clans": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "cleansing-light",
+    "revision": 1,
+    "name": "Cleansing Light",
+    "deckLimitKey": "cleansing-light",
+    "type": "spell",
+    "factions": ["crownlands"],
+    "subtypes": [],
+    "legendary": false,
+    "rarity": "rare",
+    "cost": {
+      "generic": 1,
+      "factions": {
+        "crownlands": 1
+      }
+    },
+    "text": "Deal 2 damage to an enemy monster or player. Restore 1 life to yourself.",
+    "art": "/cards/cleansing-light/data.png?v=84303327fa01fa83",
+    "abilities": [],
+    "timing": ["play"],
+    "cast": [
+      {
+        "id": "damage",
+        "params": {
+          "amount": 2
+        }
+      },
+      {
+        "id": "heal",
+        "params": {
+          "amount": 1
+        }
+      }
+    ]
+  },
+  {
+    "id": "crown-recruit",
+    "revision": 2,
+    "name": "Crownlands Recruit",
+    "deckLimitKey": "crown-recruit",
+    "type": "creature",
+    "factions": ["crownlands"],
+    "subtypes": ["creature"],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 0,
+      "factions": {}
+    },
+    "text": "Every kingdom begins with an oath.",
+    "art": "/cards/crownlands-recruit/data.png?v=34b428de4db709c8",
+    "abilities": [],
+    "stats": {
+      "attack": 1,
+      "defense": 2,
+      "energyOutputs": [
+        {
+          "crownlands": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "dawn-banner",
+    "revision": 2,
+    "name": "Dawn Standard-bearer",
+    "deckLimitKey": "dawn-banner",
+    "type": "creature",
+    "factions": ["crownlands"],
+    "subtypes": ["creature"],
+    "legendary": false,
+    "rarity": "rare",
+    "cost": {
+      "generic": 1,
+      "factions": {
+        "crownlands": 1
+      }
+    },
+    "text": "Other friendly monsters have +1 Attack.",
+    "art": "/cards/dawn-standard-bearer/data.png?v=4afb068adb49b6b5",
+    "abilities": [
+      {
+        "id": "banner",
+        "params": {
+          "amount": 1
+        }
+      }
+    ],
+    "stats": {
+      "attack": 1,
+      "defense": 3,
+      "energyOutputs": [
+        {
+          "crownlands": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "final-bargain",
+    "revision": 1,
+    "name": "Final Bargain",
+    "deckLimitKey": "final-bargain",
+    "type": "spell",
+    "factions": ["ashen"],
+    "subtypes": [],
+    "legendary": false,
+    "rarity": "rare",
+    "cost": {
+      "generic": 0,
+      "factions": {
+        "ashen": 1
+      }
+    },
+    "text": "Restore 2 life and draw 1. Also playable with death energy after defending.",
+    "art": "/cards/final-bargain/data.png?v=eff8784b7e37f32b",
+    "abilities": [],
+    "timing": ["play", "response"],
+    "cast": [
+      {
+        "id": "heal",
+        "params": {
+          "amount": 2
+        }
+      },
+      {
+        "id": "draw",
+        "params": {
+          "amount": 1
+        }
+      }
+    ]
+  },
+  {
+    "id": "forest-sprite",
+    "revision": 1,
+    "name": "Elderwood Sprite",
+    "deckLimitKey": "forest-sprite",
+    "type": "creature",
+    "factions": ["elderwood"],
+    "subtypes": ["creature"],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 0,
+      "factions": {}
+    },
+    "text": "A small light. An ancient power.",
+    "art": "/cards/elderwood-sprite/data.png?v=8b70c184f835a401",
+    "abilities": [],
+    "stats": {
+      "attack": 1,
+      "defense": 1,
+      "energyOutputs": [
+        {
+          "elderwood": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "grave-collector",
+    "revision": 1,
+    "name": "Grave Collector",
+    "deckLimitKey": "grave-collector",
+    "type": "creature",
+    "factions": ["ashen"],
+    "subtypes": ["creature"],
+    "legendary": false,
+    "rarity": "rare",
+    "cost": {
+      "generic": 0,
+      "factions": {
+        "ashen": 2
+      }
+    },
+    "text": "Draw 1 whenever another friendly monster is destroyed.",
+    "art": "/cards/grave-collector/data.png?v=d42d7848093f68cc",
+    "abilities": [
+      {
+        "id": "collector",
+        "params": {
+          "amount": 1
+        }
+      }
+    ],
+    "stats": {
+      "attack": 2,
+      "defense": 3,
+      "energyOutputs": [
+        {
+          "ashen": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "grove-keeper",
+    "revision": 1,
+    "name": "Grove Keeper",
+    "deckLimitKey": "grove-keeper",
+    "type": "creature",
+    "factions": ["elderwood"],
+    "subtypes": ["creature"],
+    "legendary": false,
+    "rarity": "rare",
+    "cost": {
+      "generic": 0,
+      "factions": {
+        "elderwood": 1
+      }
+    },
+    "text": "Deathbound — draw 1 when destroyed.",
+    "art": "/cards/grove-keeper/data.png?v=fbf2f337a6cf5134",
+    "abilities": [
+      {
+        "id": "deathbound",
+        "params": {
+          "amount": 1
+        }
+      }
+    ],
+    "stats": {
+      "attack": 2,
+      "defense": 2,
+      "energyOutputs": [
+        {
+          "elderwood": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "hollow-devourer",
+    "revision": 1,
+    "name": "Hollow Devourer",
+    "deckLimitKey": "hollow-devourer",
+    "type": "creature",
+    "factions": ["ashen", "clans"],
+    "subtypes": ["creature"],
+    "legendary": false,
+    "rarity": "rare",
+    "cost": {
+      "generic": 1,
+      "factions": {
+        "ashen": 1
+      }
+    },
+    "text": "Consume a friendly monster as a cost. Battlecry: deal 1 to an enemy monster, if any.",
+    "art": "/cards/hollow-devourer/data.png?v=fe8a1479b189505e",
+    "abilities": [
+      {
+        "id": "consume",
+        "params": {
+          "amount": 1
+        }
+      },
+      {
+        "id": "battlecry",
+        "params": {
+          "amount": 1
+        }
+      }
+    ],
+    "stats": {
+      "attack": 4,
+      "defense": 3,
+      "energyOutputs": [
+        {
+          "ashen": 1
+        },
+        {
+          "clans": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "homeward",
+    "revision": 1,
+    "name": "Homeward Bound",
+    "deckLimitKey": "homeward",
+    "type": "spell",
+    "factions": ["tidebound"],
+    "subtypes": [],
+    "legendary": false,
+    "rarity": "rare",
+    "cost": {
+      "generic": 1,
+      "factions": {}
+    },
+    "text": "Return a friendly monster to your hand. Also playable in the death window.",
+    "art": "/cards/homeward-bound/data.png?v=c0eade49d7150483",
+    "abilities": [],
+    "timing": ["play", "response"],
+    "cast": [
+      {
+        "id": "return",
+        "params": {}
+      }
+    ]
+  },
+  {
+    "id": "iron-guard",
+    "revision": 1,
+    "name": "Ironbound Guard",
+    "deckLimitKey": "iron-guard",
+    "type": "creature",
+    "factions": ["ironbound"],
+    "subtypes": ["creature"],
+    "legendary": false,
+    "rarity": "rare",
+    "cost": {
+      "generic": 0,
+      "factions": {
+        "ironbound": 1
+      }
+    },
+    "text": "Armor 1 — reduce each damage hit by 1.",
+    "art": "/cards/ironbound-guard/data.png?v=71fa266a9c95c429",
+    "abilities": [
+      {
+        "id": "armor",
+        "params": {
+          "amount": 1
+        }
+      }
+    ],
+    "stats": {
+      "attack": 1,
+      "defense": 4,
+      "energyOutputs": [
+        {
+          "ironbound": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "iron-squire",
+    "revision": 1,
+    "name": "Ironbound Squire",
+    "deckLimitKey": "iron-squire",
+    "type": "creature",
+    "factions": ["ironbound"],
+    "subtypes": ["creature"],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 0,
+      "factions": {}
+    },
+    "text": "Forged below. Unbroken above.",
+    "art": "/cards/ironbound-squire/data.png?v=dd7d2dbdb7b20e5d",
+    "abilities": [],
+    "stats": {
+      "attack": 0,
+      "defense": 2,
+      "energyOutputs": [
+        {
+          "ironbound": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "runeguard",
+    "revision": 2,
+    "name": "Runeguard",
+    "deckLimitKey": "runeguard",
+    "type": "creature",
+    "factions": ["crownlands", "ironbound"],
+    "subtypes": ["creature"],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 1,
+      "factions": {
+        "crownlands": 1,
+        "ironbound": 1
+      }
+    },
+    "text": "Choose Crown or Iron when generating energy.",
+    "art": "/cards/runeguard/data.png?v=6c40324e7c98b106",
+    "animation": "/cards/runeguard/data.webm?v=a513cbf872d47e23",
+    "abilities": [],
+    "stats": {
+      "attack": 2,
+      "defense": 4,
+      "energyOutputs": [
+        {
+          "crownlands": 1
+        },
+        {
+          "ironbound": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "stone-golem",
+    "revision": 1,
+    "name": "Ruined Sentinel",
+    "deckLimitKey": "stone-golem",
+    "type": "creature",
+    "factions": [],
+    "subtypes": ["creature"],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 2,
+      "factions": {}
+    },
+    "text": "Old stone. A new purpose.",
+    "art": "/cards/ruined-sentinel/data.png?v=0fa3a9bd240c191d",
+    "abilities": [],
+    "stats": {
+      "attack": 2,
+      "defense": 4,
+      "energyOutputs": [
+        {
+          "neutral": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "tide-apprentice",
+    "revision": 1,
+    "name": "Tidebound Apprentice",
+    "deckLimitKey": "tide-apprentice",
+    "type": "creature",
+    "factions": ["tidebound"],
+    "subtypes": ["creature"],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 0,
+      "factions": {}
+    },
+    "text": "The sea remembers every name.",
+    "art": "/cards/tidebound-apprentice/data.png?v=e3cb8446117166b9",
+    "abilities": [],
+    "stats": {
+      "attack": 1,
+      "defense": 1,
+      "energyOutputs": [
+        {
+          "tidebound": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "veil-novice",
+    "revision": 1,
+    "name": "Veiled Novice",
+    "deckLimitKey": "veil-novice",
+    "type": "creature",
+    "factions": ["conclave"],
+    "subtypes": ["creature"],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 0,
+      "factions": {}
+    },
+    "text": "Where knowledge ends, magic begins.",
+    "art": "/cards/veiled-novice/data.png?v=d968a79f8e9e7b49",
+    "abilities": [],
+    "stats": {
+      "attack": 1,
+      "defense": 1,
+      "energyOutputs": [
+        {
+          "conclave": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "wayfarer",
+    "revision": 1,
+    "name": "Lantern Wayfarer",
+    "deckLimitKey": "wayfarer",
+    "type": "creature",
+    "factions": [],
+    "subtypes": ["creature"],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 0,
+      "factions": {}
+    },
+    "text": "neutral energy pays generic costs.",
+    "art": "/cards/lantern-wayfarer/data.png?v=fb421498ff0b1b51",
+    "abilities": [],
+    "stats": {
+      "attack": 1,
+      "defense": 2,
+      "energyOutputs": [
+        {
+          "neutral": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "wild-guardian",
+    "revision": 1,
+    "name": "Wildwood Guardian",
+    "deckLimitKey": "wild-guardian",
+    "type": "creature",
+    "factions": ["elderwood"],
+    "subtypes": ["creature"],
+    "legendary": false,
+    "rarity": "common",
+    "cost": {
+      "generic": 1,
+      "factions": {
+        "elderwood": 1
+      }
+    },
+    "text": "The forest has found its champion.",
+    "art": "/cards/wildwood-guardian/data.png?v=cb2c4ec14e99d813",
+    "abilities": [],
+    "stats": {
+      "attack": 3,
+      "defense": 4,
+      "energyOutputs": [
+        {
+          "elderwood": 2
+        }
+      ]
+    }
+  }
+]

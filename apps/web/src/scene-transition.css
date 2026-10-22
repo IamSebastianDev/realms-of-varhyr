@@ -1,15 +1,62 @@
 /* Scene transitions: crossfade through black. Change --scene-duration to retime. */
-:root{--scene-duration:350ms}
-::view-transition{background:rgb(var(--scene-black-rgb))}
-::view-transition-group(root){animation-duration:var(--scene-duration)}
-::view-transition-old(root),::view-transition-new(root){animation-duration:calc(var(--scene-duration) / 2);animation-timing-function:ease-in-out;mix-blend-mode:normal}
-::view-transition-old(root){animation-name:scene-out;animation-fill-mode:both}
-::view-transition-new(root){animation-name:scene-in;animation-delay:calc(var(--scene-duration) / 2);animation-fill-mode:both}
+:root {
+  --scene-duration: 350ms;
+}
+::view-transition {
+  background: rgb(var(--scene-black-rgb));
+}
+::view-transition-group(root) {
+  animation-duration: var(--scene-duration);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: calc(var(--scene-duration) / 2);
+  animation-timing-function: ease-in-out;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  animation-name: scene-out;
+  animation-fill-mode: both;
+}
+::view-transition-new(root) {
+  animation-name: scene-in;
+  animation-delay: calc(var(--scene-duration) / 2);
+  animation-fill-mode: both;
+}
 /* Navigation sits outside the transition: it is lifted into its own layer and never fades. */
-.lobby-header{view-transition-name:lobby-nav}
-::view-transition-group(lobby-nav){animation-duration:0s}
-::view-transition-old(lobby-nav){display:none}
-::view-transition-new(lobby-nav){animation:none;opacity:1}
-@keyframes scene-out{from{opacity:1}to{opacity:0}}
-@keyframes scene-in{from{opacity:0}to{opacity:1}}
-@media(prefers-reduced-motion:reduce){::view-transition-group(root),::view-transition-old(root),::view-transition-new(root){animation:none}}
+.lobby-header {
+  view-transition-name: lobby-nav;
+}
+::view-transition-group(lobby-nav) {
+  animation-duration: 0s;
+}
+::view-transition-old(lobby-nav) {
+  display: none;
+}
+::view-transition-new(lobby-nav) {
+  animation: none;
+  opacity: 1;
+}
+@keyframes scene-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes scene-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(root),
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
