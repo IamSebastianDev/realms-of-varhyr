@@ -101,14 +101,14 @@ Identity so far: cheap producers, armor and sturdy bodies, flank raiders, gold a
 
 Spells carry one subtype, shown on the card as "Spell · Strike" (German labels live in `packages/ui/src/i18n/de.json`). Current vocabulary:
 
-| Subtype | German | Meaning | Cards |
-|---|---|---|---|
-| Strike | Schlag | Damage to one target | Puncture, Strike the Hammer, Revenge, Rockslide |
-| Barrage | Sperrfeuer | Damage to every enemy creature | Volley |
-| Tactic | Taktik | Combat bonus for a friendly creature | Close Ranks, Moment of Glory |
-| Rite | Ritus | Holy, dark and communal rites (healing, reanimation, drawing) | Cleansing Light, Battlefield Hymn, Raise Undead, Grave Exchange |
-| Curse | Fluch | Destroys creatures outright | Death, Plague Wind |
-| Divination | Weissagung | Knowledge and finding things (draw, energy) | Borrowed Wisdom, Gift of the March, Find Gold |
+| Subtype    | German     | Meaning                                                       | Cards                                                           |
+| ---------- | ---------- | ------------------------------------------------------------- | --------------------------------------------------------------- |
+| Strike     | Schlag     | Damage to one target                                          | Puncture, Strike the Hammer, Revenge, Rockslide                 |
+| Barrage    | Sperrfeuer | Damage to every enemy creature                                | Volley                                                          |
+| Tactic     | Taktik     | Combat bonus for a friendly creature                          | Close Ranks, Moment of Glory                                    |
+| Rite       | Ritus      | Holy, dark and communal rites (healing, reanimation, drawing) | Cleansing Light, Battlefield Hymn, Raise Undead, Grave Exchange |
+| Curse      | Fluch      | Destroys creatures outright                                   | Death, Plague Wind                                              |
+| Divination | Weissagung | Knowledge and finding things (draw, energy)                   | Borrowed Wisdom, Gift of the March, Find Gold                   |
 
 Subtypes on spells are freeform like creature subtypes, so new ones can be added without code. Holdings now show their subtype too ("Holding · Fortification").
 

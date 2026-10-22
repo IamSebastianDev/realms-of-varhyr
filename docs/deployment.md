@@ -4,13 +4,14 @@ The game is a static single-page app. Multiplayer runs peer to peer over WebRTC 
 
 ## Cloudflare (Workers static assets)
 
-`apps/web/wrangler.toml` points Cloudflare at `apps/web/dist/`. Connect the GitHub repository (Workers Builds) and use:
+`wrangler.toml` in the repository root points Cloudflare at `apps/web/dist/`. Connect the GitHub repository (Workers Builds) and use:
 
-| Setting | Value |
-| --- | --- |
-| Build command | `npm run build` |
-| Deploy command | `npx wrangler deploy --config apps/web/wrangler.toml` |
-| Node version | 22.18 or newer (set `NODE_VERSION` if the default is older) |
+| Setting        | Value                                                       |
+| -------------- | ----------------------------------------------------------- |
+| Build command  | `npm run build`                                             |
+| Deploy command | `npx wrangler deploy`                                       |
+| Root directory | repository root (leave empty)                               |
+| Node version   | 22.18 or newer (set `NODE_VERSION` if the default is older) |
 
 `npm run build` regenerates the card catalogue from `assets/` first, then type-checks and bundles.
 

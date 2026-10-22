@@ -7,7 +7,8 @@ pre-commit:
       run: npx oxlint {staged_files}
     - name: oxfmt
       glob: "*.{ts,tsx,mts,js,mjs,json,css,md,yml,yaml}"
-      run: npx oxfmt --check {staged_files}
+      # Files matched by ignorePatterns in .oxfmtrc.json (assets, generated JSON) must not fail the hook.
+      run: npx oxfmt --check --no-error-on-unmatched-pattern {staged_files}
     - name: css tokens
       glob: "*.css"
       run: npm run check:css

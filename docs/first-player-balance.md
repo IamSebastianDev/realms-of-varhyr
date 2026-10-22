@@ -25,12 +25,12 @@ These are correlations. Being first to deploy Cavalry or deal damage can reflect
 
 Each row below uses the same 500 seeds (1,000 games), so the baseline row is the matching subset of the larger audit. Only in-memory card definitions changed; all game rules, deck counts and bot code remained identical.
 
-| Experiment | First wins | Average turns | Library endings | First Cavalry deployer wins |
-| --- | ---: | ---: | ---: | ---: |
-| Authored deck | 46.0% | 12.3 | 3.4% | 88.0% |
-| Every War Banner gives 1 less Attack | 48.0% | 14.4 | 10.3% | 82.4% |
-| +1 Defense on every zero-cost creature | 45.8% | 12.7 | 5.4% | 85.2% |
-| +1 output energy on every zero-cost creature | 52.3% | 13.2 | 8.7% | 73.7% |
+| Experiment                                   | First wins | Average turns | Library endings | First Cavalry deployer wins |
+| -------------------------------------------- | ---------: | ------------: | --------------: | --------------------------: |
+| Authored deck                                |      46.0% |          12.3 |            3.4% |                       88.0% |
+| Every War Banner gives 1 less Attack         |      48.0% |          14.4 |           10.3% |                       82.4% |
+| +1 Defense on every zero-cost creature       |      45.8% |          12.7 |            5.4% |                       85.2% |
+| +1 output energy on every zero-cost creature |      52.3% |          13.2 |            8.7% |                       73.7% |
 
 The banner experiment reduced every `war-banner` amount by one, omitting bindings that reached zero; Cavalry retained its adjacent aura. The Defense experiment added one Defense to all zero-cost creatures, including Recruit and Merchant. The energy experiment added one to each existing positive output entry on those same creatures (usual producers 1→2, Merchant 2→3).
 

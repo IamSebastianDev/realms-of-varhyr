@@ -52,11 +52,11 @@ Local matches use the same machinery as online ones. The bot is simply a remote 
 
 Each card is a folder in `assets/cards/<card-id>/`:
 
-| File | Purpose |
-| --- | --- |
-| `data.json` | Name, type, cost, stats, factions, subtypes, rarity, abilities, lore |
-| `data.de.json` | German name and lore |
-| `data.png` | Required artwork (optional `data.webm` for animated art) |
+| File           | Purpose                                                              |
+| -------------- | -------------------------------------------------------------------- |
+| `data.json`    | Name, type, cost, stats, factions, subtypes, rarity, abilities, lore |
+| `data.de.json` | German name and lore                                                 |
+| `data.png`     | Required artwork (optional `data.webm` for animated art)             |
 
 Factions are `assets/factions/<id>.json` and sets are `assets/sets/<id>.json`. Copy an existing card folder, give it a new `id` and `deckLimitKey`, and the importer, UI and engine pick it up. Bump `revision` when you change a card. Generated files (`packages/content/src/*.json`, `public/cards/`) are never edited by hand. `npm run assets` rebuilds them, reports the file and reason for any error, and keeps the last good import.
 
@@ -97,23 +97,23 @@ Tests live next to the workspace they cover (`packages/*/tests`, `apps/*/tests`)
 
 This is an npm-workspaces monorepo orchestrated by [turbo](https://turbo.build). Packages are `@realms/*`, export their TypeScript source directly (no build step) and share `tsconfig.base.json`.
 
-| Path | Contents |
-| --- | --- |
-| `apps/web` | The game client (Vite, React) |
-| `apps/studio` | The card studio |
-| `packages/contracts` | Shared types, command and order shapes, deck rules |
-| `packages/core` | The engine: `apply(state, envelope, registry)`, legal actions, bot |
-| `packages/extensions` | Ability handlers |
-| `packages/content` | Compiler, generated catalogue, boosters |
-| `packages/draft` | Draft rules and tables |
-| `packages/quest` | Expedition engine and map rules |
-| `packages/multiplayer` | Match authority and wire protocol (no browser APIs) |
-| `packages/renderer` | React Three Fiber battlefield |
-| `packages/ui` | Shared UI, card presentation, translations |
-| `packages/testing` | Fixed test content shared by the suites |
-| `tools` | Card importer, schema generator, simulations, audits, build plugins |
-| `assets`, `public` | Card, faction and set sources; static media |
-| `docs` | Design notes and specs |
+| Path                   | Contents                                                            |
+| ---------------------- | ------------------------------------------------------------------- |
+| `apps/web`             | The game client (Vite, React)                                       |
+| `apps/studio`          | The card studio                                                     |
+| `packages/contracts`   | Shared types, command and order shapes, deck rules                  |
+| `packages/core`        | The engine: `apply(state, envelope, registry)`, legal actions, bot  |
+| `packages/extensions`  | Ability handlers                                                    |
+| `packages/content`     | Compiler, generated catalogue, boosters                             |
+| `packages/draft`       | Draft rules and tables                                              |
+| `packages/quest`       | Expedition engine and map rules                                     |
+| `packages/multiplayer` | Match authority and wire protocol (no browser APIs)                 |
+| `packages/renderer`    | React Three Fiber battlefield                                       |
+| `packages/ui`          | Shared UI, card presentation, translations                          |
+| `packages/testing`     | Fixed test content shared by the suites                             |
+| `tools`                | Card importer, schema generator, simulations, audits, build plugins |
+| `assets`, `public`     | Card, faction and set sources; static media                         |
+| `docs`                 | Design notes and specs                                              |
 
 ### Inside `apps/web/src`
 

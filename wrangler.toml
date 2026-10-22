@@ -1,7 +1,8 @@
 # Cloudflare Workers static assets. The build (npm run build) writes the site to apps/web/dist/.
+# Kept at the repository root so `npx wrangler deploy` works from the workspace root.
 name = "realms-of-varhyr"
 compatibility_date = "2026-10-14"
 
 [assets]
-directory = "./dist"
+directory = "./apps/web/dist"
 not_found_handling = "single-page-application"

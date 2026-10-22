@@ -11,9 +11,7 @@
     "**/.turbo/**",
     "package-lock.json",
     "packages/content/src/*.json",
-    "docs/**",
     "**/*.html",
-    "*.md",
     "packages/ui/src/card.css"
   ]
 }

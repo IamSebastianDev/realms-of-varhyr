@@ -64,16 +64,16 @@ Hybrids connect neighbouring factions in a single chain:
 
 ### Pool facts (repo snapshot, 2026-10-22)
 
-| Faction | Mono cards | Free producers for the guaranteed slot (mono, non-legendary) |
-|---|---|---|
-| Bright Marches | 19 | 3 (a 4th, Grendel, is legendary) |
-| Crownlands | 19 | 3 (Merchant of Tris Vale is legendary) |
-| Black Host | 19 | 3 (Envoy of the Black Host is legendary) |
-| Ember Fields | 19 | 3 |
-| Mountain Clans | 19 | 3 |
-| League of Winter | 1 | none |
-| Horde | 1 | none |
-| Conclave | 1 | none (Black Shaman is a hybrid) |
+| Faction          | Mono cards | Free producers for the guaranteed slot (mono, non-legendary) |
+| ---------------- | ---------- | ------------------------------------------------------------ |
+| Bright Marches   | 19         | 3 (a 4th, Grendel, is legendary)                             |
+| Crownlands       | 19         | 3 (Merchant of Tris Vale is legendary)                       |
+| Black Host       | 19         | 3 (Envoy of the Black Host is legendary)                     |
+| Ember Fields     | 19         | 3                                                            |
+| Mountain Clans   | 19         | 3                                                            |
+| League of Winter | 1          | none                                                         |
+| Horde            | 1          | none                                                         |
+| Conclave         | 1          | none (Black Shaman is a hybrid)                              |
 
 - **Five factions are draftable now. League, Horde and Conclave must be finished first**: a roster (target 4 legendary, 6 rare, 10 common) and mono non-legendary free producers. Producer variety is thin (3 per faction) and is accepted for now; it will grow over time.
 
@@ -90,13 +90,13 @@ Hybrids connect neighbouring factions in a single chain:
 
 - **Entry fee: 1500 crowns.** Because draft boosters are not sold, the fee stays in crowns. The payout comes on top of the cards, in crowns and boosters, by wins out of 4. The 0-win payout is 250 crowns + 1 booster (decided); the rest is proposed and was made more generous on request. A booster counts as 100 crowns. The paid-out boosters are normal collection boosters.
 
-| Wins | Payout | Value |
-|---|---|---|
-| 0 | 250 crowns + 1 booster | 350 |
-| 1 | 450 crowns + 2 boosters | 650 |
-| 2 | 600 crowns + 3 boosters | 900 |
-| 3 | 800 crowns + 5 boosters | 1300 |
-| 4 | 1100 crowns + 8 boosters | 1900 |
+| Wins | Payout                   | Value |
+| ---- | ------------------------ | ----- |
+| 0    | 250 crowns + 1 booster   | 350   |
+| 1    | 450 crowns + 2 boosters  | 650   |
+| 2    | 600 crowns + 3 boosters  | 900   |
+| 3    | 800 crowns + 5 boosters  | 1300  |
+| 4    | 1100 crowns + 8 boosters | 1900  |
 
 - **Economy check (generous version):** the 48 cards are worth about 960 crowns at booster prices (5 cards per 100 crowns), more because you choose them. Counting cards at that floor, a player who wins 30% of matches nets about +165, 40% about +290, 50% about +430, 60% about +575, 70% about +740 and 80% about +925. Only a run with no wins loses crowns (about 190). The mode is a net crown source for every skill level; the sinks are boosters (100) and buying specific cards (50 / 150 / 400). An earlier, flatter table (0 wins 350 up to 4 wins 1200) netted +130 at 50% and was replaced as too stingy.
 - **(open)** Tune the table. A normal win pays 25 crowns + 1 booster today, which is small next to a run.
@@ -124,11 +124,11 @@ Status: flow decided by Sebastian, details proposed. The flow below is updated f
 
 Today all three start cards open the same Play blade (`GameSetup.tsx`, the `game-setup-pane` dialog) with a mode toggle. The new structure gives **each start card its own blade with its own content**:
 
-| Start card | Blade content |
-|---|---|
+| Start card                                                | Blade content                                                                                                              |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | **Play a match** (replaces Quick match and Play a friend) | Opponent row: Computer, Friend online, Same device. Then the deck picker and Start. Online shows the room lobby, as today. |
-| **Faction draft** (new) | Your faction for phase 1, and the draft to enter or resume. |
-| **Quest** | Resume or new quest (`QuestPicker`), moved out of the Play blade. |
+| **Faction draft** (new)                                   | Your faction for phase 1, and the draft to enter or resume.                                                                |
+| **Quest**                                                 | Resume or new quest (`QuestPicker`), moved out of the Play blade.                                                          |
 
 ### Faction draft flow
 

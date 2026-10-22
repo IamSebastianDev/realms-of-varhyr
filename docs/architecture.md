@@ -2,7 +2,7 @@
 
 **Status:** Implementation blueprint / design draft 0.2 (prototype defaults accepted)  
 **Updated:** 2026-10-11  
-**Terminology note (2026-10-14, rules 0.18):** what this draft calls death energy, the death window and `deathEnergy` is now *response energy*, the *response step* and `responseEnergy`; any creature death on any turn opens one, attacker first. See `docs/prototype.md`.
+**Terminology note (2026-10-14, rules 0.18):** what this draft calls death energy, the death window and `deathEnergy` is now _response energy_, the _response step_ and `responseEnergy`; any creature death on any turn opens one, attacker first. See `docs/prototype.md`.
 **Primary implementation:** TypeScript, browser client, authoritative server when multiplayer is introduced  
 **Source of rules:** User's October 2026 ruleset, adapted through the design discussion.
 
@@ -59,7 +59,7 @@ This section is normative except where labeled **[PROPOSED]** or **[OPEN]**. It 
 - Shuffle before the game. Each player draws **five** initial cards.
 - Approx. **10–12 zero-cost cards** is an initial deckbuilding guideline, **not** a legality rule.
 - **[LOCKED]** Any combination of faction affiliations is allowed in a deck.
-- **[PROPOSED]** Define a stable `deckLimitKey` to enforce the original *name + variant* restriction independently of localization or display-name changes.
+- **[PROPOSED]** Define a stable `deckLimitKey` to enforce the original _name + variant_ restriction independently of localization or display-name changes.
 
 ### 2.3 Cards and zones **[LOCKED]**
 
@@ -126,7 +126,7 @@ After all declared attacks and blocks have resolved, each defending monster dest
 - Those spells resolve completely, sequentially, without a stack.
 - All unspent death-window energy expires when the window closes.
 - **[PROPOSED]** Award the dead monsters' faction-specific printed/last-known **energy production** (selected based on its death snapshot for optional colors). **[OPEN, HIGH IMPACT]** An energy output with multiple choices needs an exact rule: owner chooses a legal output for each destroyed monster, or a separate printed `deathEnergy` attribute. The source rules predate colored energy and do not settle this.
-- **[OPEN]** Whether creatures destroyed by death-window spells can add more energy to the same window. Original rule specifies destroyed *defending monsters during that Attack Phase*; **[PROPOSED]** no, because spell deaths occur after combat resolution.
+- **[OPEN]** Whether creatures destroyed by death-window spells can add more energy to the same window. Original rule specifies destroyed _defending monsters during that Attack Phase_; **[PROPOSED]** no, because spell deaths occur after combat resolution.
 
 ### 2.9 Spell timing and resolution **[LOCKED]**
 
@@ -159,16 +159,16 @@ Candidate reusable keywords/extensions, **not yet rules**:
 
 All names below are **working lore/content**, not fundamental engine enums. Content authors may rename them by updating definitions and localization while preserving stable IDs.
 
-| Stable ID | Working name | Setting | Mechanical direction |
-| --- | --- | --- | --- |
-| `crownlands` | The Crownlands | Kingdoms, cities, knights, diplomacy | Formation, defense, ally synergy |
-| `elderwood` | The Elderwood | Elves, beasts, druids, ancient forests | Growth, ramp, evolution |
-| `ironbound` | The Ironbound | Dwarven fortresses, engineers, craft | Armor, resilience, upgrading |
-| `ashen` | The Ashen Covenant | Undead, revenants, necromancers | Sacrifice, graveyard, death triggers |
-| `clans` | The Free Clans | Orcs, goblins, nomads, raiders | Aggression, turnover, attack rewards |
-| `conclave` | The Veiled Conclave | Mages, artificers, constructs | Spells, conversion, control |
-| `abyssal` | The Abyssal Host | Demons, eldritch corruption | Risk, self-damage, volatile power |
-| `tidebound` | The Tidebound | Mariners, pirates, aquatic cultures | Tempo, return-to-hand, card selection |
+| Stable ID    | Working name        | Setting                                | Mechanical direction                  |
+| ------------ | ------------------- | -------------------------------------- | ------------------------------------- |
+| `crownlands` | The Crownlands      | Kingdoms, cities, knights, diplomacy   | Formation, defense, ally synergy      |
+| `elderwood`  | The Elderwood       | Elves, beasts, druids, ancient forests | Growth, ramp, evolution               |
+| `ironbound`  | The Ironbound       | Dwarven fortresses, engineers, craft   | Armor, resilience, upgrading          |
+| `ashen`      | The Ashen Covenant  | Undead, revenants, necromancers        | Sacrifice, graveyard, death triggers  |
+| `clans`      | The Free Clans      | Orcs, goblins, nomads, raiders         | Aggression, turnover, attack rewards  |
+| `conclave`   | The Veiled Conclave | Mages, artificers, constructs          | Spells, conversion, control           |
+| `abyssal`    | The Abyssal Host    | Demons, eldritch corruption            | Risk, self-damage, volatile power     |
+| `tidebound`  | The Tidebound       | Mariners, pirates, aquatic cultures    | Tempo, return-to-hand, card selection |
 
 - **[LOCKED]** Individual cards may have multiple affiliations; neutral cards have no faction affiliation.
 - **[PROPOSED]** Neutral is `factions: []`, not a ninth energy color.
@@ -210,16 +210,16 @@ All names below are **working lore/content**, not fundamental engine enums. Cont
 
 ### 4.1 Ownership boundaries
 
-| Package | Owns | Does not own |
-| --- | --- | --- |
-| `@game/core` | Deterministic state, actions/orders, phases, zones, payments, combat, hook execution, choice lifecycle | React, assets, sockets |
-| `@game/extensions` | Typed reusable operations and ability implementations | Individual card identities |
-| `@game/content` | Data-only cards, factions, keywords, presets, sets and manifests | Executable gameplay effects |
-| `@game/contracts` | Public transport types, versioning, schema definitions | Runtime stateful match processing |
-| `@game/renderer` | View models, animation event mapping, cards/board/UI | Rules decisions, secret information |
-| `apps/web` | Menus, client match session, input, deck UI | Authoritative game execution online |
-| `apps/server` | Match authority, authentication as needed, sockets, persistence | Card rendering |
-| `apps/sandbox` | Local match simulator, debug panels, scenario/test content | Live matchmaking |
+| Package            | Owns                                                                                                   | Does not own                        |
+| ------------------ | ------------------------------------------------------------------------------------------------------ | ----------------------------------- |
+| `@game/core`       | Deterministic state, actions/orders, phases, zones, payments, combat, hook execution, choice lifecycle | React, assets, sockets              |
+| `@game/extensions` | Typed reusable operations and ability implementations                                                  | Individual card identities          |
+| `@game/content`    | Data-only cards, factions, keywords, presets, sets and manifests                                       | Executable gameplay effects         |
+| `@game/contracts`  | Public transport types, versioning, schema definitions                                                 | Runtime stateful match processing   |
+| `@game/renderer`   | View models, animation event mapping, cards/board/UI                                                   | Rules decisions, secret information |
+| `apps/web`         | Menus, client match session, input, deck UI                                                            | Authoritative game execution online |
+| `apps/server`      | Match authority, authentication as needed, sockets, persistence                                        | Card rendering                      |
+| `apps/sandbox`     | Local match simulator, debug panels, scenario/test content                                             | Live matchmaking                    |
 
 **[PROPOSED repository layout]**
 
@@ -249,13 +249,13 @@ Cards are **entities** with unique instance IDs. Their reusable behaviors are **
 ### 5.1 Distinguish definition, instance and runtime state
 
 ```ts
-type PlayerId = string & { readonly __brand: 'PlayerId' };
-type CardInstanceId = string & { readonly __brand: 'CardInstanceId' };
-type CardDefinitionId = string & { readonly __brand: 'CardDefinitionId' };
-type FactionId = string & { readonly __brand: 'FactionId' };
+type PlayerId = string & { readonly __brand: "PlayerId" };
+type CardInstanceId = string & { readonly __brand: "CardInstanceId" };
+type CardDefinitionId = string & { readonly __brand: "CardDefinitionId" };
+type FactionId = string & { readonly __brand: "FactionId" };
 
-type Zone = 'deck' | 'hand' | 'battlefield' | 'discard';
-type Phase = 'draw' | 'play' | 'attack' | 'end';
+type Zone = "deck" | "hand" | "battlefield" | "discard";
+type Phase = "draw" | "play" | "attack" | "end";
 
 type CardInstance = {
   id: CardInstanceId;
@@ -275,7 +275,7 @@ type CardInstance = {
 - Instances are created per match; two copies of the same definition never share state.
 - `ownerId` does not necessarily change if control changes; `controllerId` may.
 - Cards in deck/hand need identity but not battlefield state. Keep one canonical representation; do not allow duplicate copies of the same instance in multiple zones.
-- **[PROPOSED]** Represent each zone as ordered card instance IDs and the battlefield as a length-five array of IDs/null; instance `zone`/`slot` must be updated atomically with those indexes. Alternatively derive location from zone structures; choose *one* canonical owner to avoid inconsistency.
+- **[PROPOSED]** Represent each zone as ordered card instance IDs and the battlefield as a length-five array of IDs/null; instance `zone`/`slot` must be updated atomically with those indexes. Alternatively derive location from zone structures; choose _one_ canonical owner to avoid inconsistency.
 
 ### 5.2 Example top-level state
 
@@ -290,7 +290,7 @@ type GameState = {
   activePlayer: PlayerId;
   phase: Phase;
   turn: number;
-  winner: PlayerId | 'draw' | null;
+  winner: PlayerId | "draw" | null;
   players: Record<PlayerId, PlayerState>;
   cards: Record<CardInstanceId, CardInstance>;
   activeCombat: CombatState | null;
@@ -304,9 +304,13 @@ type PlayerState = {
   deck: CardInstanceId[];
   hand: CardInstanceId[];
   discard: CardInstanceId[];
-  battlefield: [CardInstanceId | null, CardInstanceId | null,
-                CardInstanceId | null, CardInstanceId | null,
-                CardInstanceId | null];
+  battlefield: [
+    CardInstanceId | null,
+    CardInstanceId | null,
+    CardInstanceId | null,
+    CardInstanceId | null,
+    CardInstanceId | null,
+  ];
   energyPool: EnergyPool;
   deathEnergyPool: EnergyPool;
 };
@@ -327,14 +331,19 @@ Distinguish four things:
 
 ```ts
 type PlayerCommand =
-  | { type: 'playCard'; cardId: CardInstanceId; slot?: number;
-      payment?: PaymentAllocation; targets?: TargetRef[] }
-  | { type: 'exhaustForEnergy'; creatureId: CardInstanceId; option: number }
-  | { type: 'declareAttackers'; attackerIds: CardInstanceId[] }
-  | { type: 'assignBlockers'; assignments: BlockingAssignment[] }
-  | { type: 'selectDraw'; keepId: CardInstanceId }
-  | { type: 'resolveChoice'; choiceId: string; selection: unknown }
-  | { type: 'endPhase' };
+  | {
+      type: "playCard";
+      cardId: CardInstanceId;
+      slot?: number;
+      payment?: PaymentAllocation;
+      targets?: TargetRef[];
+    }
+  | { type: "exhaustForEnergy"; creatureId: CardInstanceId; option: number }
+  | { type: "declareAttackers"; attackerIds: CardInstanceId[] }
+  | { type: "assignBlockers"; assignments: BlockingAssignment[] }
+  | { type: "selectDraw"; keepId: CardInstanceId }
+  | { type: "resolveChoice"; choiceId: string; selection: unknown }
+  | { type: "endPhase" };
 
 type DispatchResult = {
   state: GameState;
@@ -380,16 +389,15 @@ interface HookContext {
 }
 
 const deathbound = defineAbility({
-  id: 'deathbound',
+  id: "deathbound",
   version: 1,
   paramsSchema: v.object({ amount: v.pipe(v.number(), v.integer(), v.minValue(1)) }),
   hooks: {
-    'creature.destroyed': (ctx, event, params) => {
+    "creature.destroyed": (ctx, event, params) => {
       if (event.creatureId !== ctx.sourceId) return;
-      ctx.issue({ type: 'draw', playerId: event.lastControllerId,
-                  amount: params.amount });
-    }
-  }
+      ctx.issue({ type: "draw", playerId: event.lastControllerId, amount: params.amount });
+    },
+  },
 });
 ```
 
@@ -397,20 +405,20 @@ The above is an **API sketch**, not code to paste verbatim: `HookName`, `HookHan
 
 ### 6.2 Required hooks for the first implementation
 
-| Hook | Timing | Can mutate requested order? | Typical use |
-| --- | --- | --- | --- |
-| `turn.started` / `turn.ended` | Lifecycle | No, issue orders | Start/end buffs |
-| `phase.started` / `phase.ended` | Lifecycle | No, issue orders | Ready/cleanup, energy expiration |
-| `card.play.before` | Before commit | Constrained rewrite/cancel | Cost changes, Consume |
-| `card.played` | After commit | Issue orders | Battlecries |
-| `creature.enter.before` | Before entry | Constrained rewrite | Ready keyword |
-| `creature.entered` | After entry | Issue orders | Summon triggers |
-| `creature.attacked` / `creature.blocked` | Committed actions | Issue orders | Attack/block effects |
-| `damage.before` | Before damage | Constrained rewrite/cancel | Armor, ward |
-| `damage.dealt` | After damage | Issue orders | Retaliation |
-| `creature.destroy.before` | Before destruction | Constrained replacement | Prevention/replacement |
-| `creature.destroyed` | After removal | Issue orders | Deathbound, sacrifice effects |
-| `energy.generate.before` / `energy.generated` | Around energy | Constrained rewrite / issue orders | Energy multipliers |
+| Hook                                          | Timing             | Can mutate requested order?        | Typical use                      |
+| --------------------------------------------- | ------------------ | ---------------------------------- | -------------------------------- |
+| `turn.started` / `turn.ended`                 | Lifecycle          | No, issue orders                   | Start/end buffs                  |
+| `phase.started` / `phase.ended`               | Lifecycle          | No, issue orders                   | Ready/cleanup, energy expiration |
+| `card.play.before`                            | Before commit      | Constrained rewrite/cancel         | Cost changes, Consume            |
+| `card.played`                                 | After commit       | Issue orders                       | Battlecries                      |
+| `creature.enter.before`                       | Before entry       | Constrained rewrite                | Ready keyword                    |
+| `creature.entered`                            | After entry        | Issue orders                       | Summon triggers                  |
+| `creature.attacked` / `creature.blocked`      | Committed actions  | Issue orders                       | Attack/block effects             |
+| `damage.before`                               | Before damage      | Constrained rewrite/cancel         | Armor, ward                      |
+| `damage.dealt`                                | After damage       | Issue orders                       | Retaliation                      |
+| `creature.destroy.before`                     | Before destruction | Constrained replacement            | Prevention/replacement           |
+| `creature.destroyed`                          | After removal      | Issue orders                       | Deathbound, sacrifice effects    |
+| `energy.generate.before` / `energy.generated` | Around energy      | Constrained rewrite / issue orders | Energy multipliers               |
 
 **[PROPOSED]** Start with these hooks and add new named hooks when needed, rather than a hook around every helper function. A single game action may emit multiple committed events, but their sequence is well defined.
 
@@ -441,7 +449,7 @@ Receive player command
 
 ### 6.4 Effects vs orders
 
-**Operations** are reusable low-level game mutations (`dealDamage`, `draw`, `move`, `modifyStats`). **Abilities** decide *when* and *why* those operations happen. **Keywords** are reusable, named bundles of ability bindings with metadata/tooltips. **Cards** reference keywords/abilities and their validated parameters.
+**Operations** are reusable low-level game mutations (`dealDamage`, `draw`, `move`, `modifyStats`). **Abilities** decide _when_ and _why_ those operations happen. **Keywords** are reusable, named bundles of ability bindings with metadata/tooltips. **Cards** reference keywords/abilities and their validated parameters.
 
 A highly specialized ability may be TypeScript; that is acceptable **once per reusable mechanic**, not once per card. Avoid forcing every possible ability into JSON expression syntax. Add selectors/expressions only where they pay off for reuse.
 
@@ -459,9 +467,9 @@ Effects sometimes require interaction before completion: choose a target, select
 type PendingChoice = {
   id: string;
   playerId: PlayerId;
-  kind: 'draw-pick' | 'target' | 'energy-option' | 'payment' | 'ability-option';
+  kind: "draw-pick" | "target" | "energy-option" | "payment" | "ability-option";
   allowedOptions: unknown[]; // normalized, typed per kind in final union
-  resumeToken: string;        // internal opaque continuation key
+  resumeToken: string; // internal opaque continuation key
 };
 ```
 
@@ -511,11 +519,9 @@ Dual-faction example:
     "factions": { "crownlands": 1, "ironbound": 1 }
   },
   "stats": {
-    "attack": 2, "defense": 4,
-    "energyOutputs": [
-      { "factions": { "crownlands": 1 } },
-      { "factions": { "ironbound": 1 } }
-    ]
+    "attack": 2,
+    "defense": 4,
+    "energyOutputs": [{ "factions": { "crownlands": 1 } }, { "factions": { "ironbound": 1 } }]
   },
   "abilities": [{ "id": "defensive-formation", "params": { "defense": 1 } }]
 }
@@ -641,18 +647,18 @@ Animation queue must be cancellable/skippable. A disconnect, refresh, fast-forwa
 
 ### 10.4 Renderer event mapping
 
-| Game event | Typical animation |
-| --- | --- |
-| `card.drawn` | Card moves toward private hand (never reveal opponent card) |
-| `card.played` | Hand card into chosen board slot |
-| `energy.generated` | Colored energy counter pulse |
-| `creature.exhausted` | Tilt/overlay/status indicator |
-| `attack.declared` | Attacker advances |
-| `block.assigned` | Defender intercepts |
-| `damage.dealt` | Impact/highlight/life reduction |
-| `creature.destroyed` | Dissolve/remove/free slot |
-| `spell.cast` | Visual preset keyed by card presentation data |
-| `game.ended` | Victory/loss presentation |
+| Game event           | Typical animation                                           |
+| -------------------- | ----------------------------------------------------------- |
+| `card.drawn`         | Card moves toward private hand (never reveal opponent card) |
+| `card.played`        | Hand card into chosen board slot                            |
+| `energy.generated`   | Colored energy counter pulse                                |
+| `creature.exhausted` | Tilt/overlay/status indicator                               |
+| `attack.declared`    | Attacker advances                                           |
+| `block.assigned`     | Defender intercepts                                         |
+| `damage.dealt`       | Impact/highlight/life reduction                             |
+| `creature.destroyed` | Dissolve/remove/free slot                                   |
+| `spell.cast`         | Visual preset keyed by card presentation data               |
+| `game.ended`         | Victory/loss presentation                                   |
 
 The event log is a **presentation instruction source**, not authority for recomputing game rules.
 
@@ -813,20 +819,20 @@ The rules engine is small enough to test exhaustively at the boundary, but exten
 
 These are **fixture concepts**, not final balanced card content:
 
-| Card | Cost | Stats / energy | Mechanic exercised |
-| --- | --- | --- | --- |
-| Elderwood Sprite | 0 | 1/1, 1 Elderwood | Basic delayed ramp |
-| Free Clans Scout | 0 | 1/1, 1 Clans | `ready` override (balance test) |
-| Crownlands Recruit | 0 | 1/2, 1 Crownlands | Basic defender |
-| Ironbound Guard | 1 Ironbound | 1/4, 1 Ironbound | Typed payment, blocking |
-| Ashen Initiate | 0 | 0/1, 1 Ashen | Sacrifice target |
-| Conclave Adept | 1 Conclave | 1/2, 1 Conclave | Spell synergy |
-| Tidebound Courier | 1 Tidebound | 1/2, 1 Tidebound | Return-to-hand test |
-| Abyssal Whelp | 1 Abyssal | 3/1, 1 Abyssal | Aggressive tradeoff |
-| Runeguard | 1 Crownlands + 1 Ironbound + 1 generic | 2/4, either faction energy | Dual affiliation/output choice |
-| Grave Collector | 2 Ashen | 2/2, 1 Ashen | Death-trigger draw |
-| Cleansing Light | 1 Crownlands + 1 generic | Spell | Damage/heal operation test |
-| Final Bargain | 1 Ashen | Spell, death-window eligible | Defensive death-pool test |
+| Card               | Cost                                   | Stats / energy               | Mechanic exercised              |
+| ------------------ | -------------------------------------- | ---------------------------- | ------------------------------- |
+| Elderwood Sprite   | 0                                      | 1/1, 1 Elderwood             | Basic delayed ramp              |
+| Free Clans Scout   | 0                                      | 1/1, 1 Clans                 | `ready` override (balance test) |
+| Crownlands Recruit | 0                                      | 1/2, 1 Crownlands            | Basic defender                  |
+| Ironbound Guard    | 1 Ironbound                            | 1/4, 1 Ironbound             | Typed payment, blocking         |
+| Ashen Initiate     | 0                                      | 0/1, 1 Ashen                 | Sacrifice target                |
+| Conclave Adept     | 1 Conclave                             | 1/2, 1 Conclave              | Spell synergy                   |
+| Tidebound Courier  | 1 Tidebound                            | 1/2, 1 Tidebound             | Return-to-hand test             |
+| Abyssal Whelp      | 1 Abyssal                              | 3/1, 1 Abyssal               | Aggressive tradeoff             |
+| Runeguard          | 1 Crownlands + 1 Ironbound + 1 generic | 2/4, either faction energy   | Dual affiliation/output choice  |
+| Grave Collector    | 2 Ashen                                | 2/2, 1 Ashen                 | Death-trigger draw              |
+| Cleansing Light    | 1 Crownlands + 1 generic               | Spell                        | Damage/heal operation test      |
+| Final Bargain      | 1 Ashen                                | Spell, death-window eligible | Defensive death-pool test       |
 
 Note: a **costed monster cannot normally be the first source of its own faction energy**; playtest decks require adequate zero-cost ramp in that faction or qualifying neutral/dual-faction conversion. Fixtures may force test states when testing mechanics, but starter decks must obey real ramp economics.
 
@@ -836,28 +842,29 @@ Note: a **costed monster cannot normally be the first source of its own faction 
 
 The user has **accepted all suggested defaults in this table for initial testing**. Treat the third column as the operational prototype rule, not merely a suggestion. The questions remain tracked for playtesting and later finalization; do not block implementation on them. **`Consume`** is the canonical name of the former proposed `Replace` ability.
 
-| Priority | Question | Suggested prototype default | Why it matters |
-| --- | --- | --- | --- |
-| **P0** | Does blocker retaliate? | Yes: simultaneous return damage; one blocker per attacker (latest user amendment, 2026-10-11) | Changes combat lethality/economy |
-| **P0** | Lane attacks and automatic blocks (2026-10-12) | Attacker picks own/adjacent lane; the card in that lane blocks automatically; empty lane hits the player | Makes position matter; removes the defender's block decision |
-| **P0** | Batch attacks and blocks, or sequential combat? | Batch declare, batch block, then resolve | Impacts triggers and death pool |
-| **P0** | When do monsters ready? | During controller's End Phase, as source says | Defensive readiness/tempo |
-| **P0** | Typed energy from destroyed defenders with multiple options? | Defender chooses one legal printed output per destroyed defender | Determines reactive spell availability |
-| **P0** | Can `consume` free a slot *before* checking ability to play? | Yes, as an additional play cost of a card with `consume` | Defines five-slot escape route |
-| **P1** | When do end-turn triggers fire relative to ready/cleanup? | Trigger, damage clear, expire, ready, empty pools, pass | Affects timing synergies |
-| **P1** | How are simultaneous triggers ordered? | Stable priority/controller/slot/ID order | Fairness, replayability |
-| **P1** | What can death-window spells target and trigger? | Normal effects, no new death energy from spell deaths | Limits chains |
-| **P1** | What if only one card can be drawn in draw-two-keep-one? | Keep it automatically | Edge-case handling |
-| **P1** | Can costs/energy output change from abilities? | Yes via typed hooks/modifiers | Content richness |
-| **P1** | Is there a maximum deck size? | No for initial prototype | Deckbuilder/competitive constraints |
-| **P2** | UI term: Monster or Creature? | Monster in formal rules, Creature in runtime | Naming only |
-| **P2** | Is neutral energy a distinct pool type? | Yes, payable for generic costs only | Neutral-ramp balancing |
-| **P2** | Are multi-faction cards inherently stronger? | No automatic bonus | Balance policy, not engine rule |
+| Priority | Question                                                     | Suggested prototype default                                                                              | Why it matters                                               |
+| -------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| **P0**   | Does blocker retaliate?                                      | Yes: simultaneous return damage; one blocker per attacker (latest user amendment, 2026-10-11)            | Changes combat lethality/economy                             |
+| **P0**   | Lane attacks and automatic blocks (2026-10-12)               | Attacker picks own/adjacent lane; the card in that lane blocks automatically; empty lane hits the player | Makes position matter; removes the defender's block decision |
+| **P0**   | Batch attacks and blocks, or sequential combat?              | Batch declare, batch block, then resolve                                                                 | Impacts triggers and death pool                              |
+| **P0**   | When do monsters ready?                                      | During controller's End Phase, as source says                                                            | Defensive readiness/tempo                                    |
+| **P0**   | Typed energy from destroyed defenders with multiple options? | Defender chooses one legal printed output per destroyed defender                                         | Determines reactive spell availability                       |
+| **P0**   | Can `consume` free a slot _before_ checking ability to play? | Yes, as an additional play cost of a card with `consume`                                                 | Defines five-slot escape route                               |
+| **P1**   | When do end-turn triggers fire relative to ready/cleanup?    | Trigger, damage clear, expire, ready, empty pools, pass                                                  | Affects timing synergies                                     |
+| **P1**   | How are simultaneous triggers ordered?                       | Stable priority/controller/slot/ID order                                                                 | Fairness, replayability                                      |
+| **P1**   | What can death-window spells target and trigger?             | Normal effects, no new death energy from spell deaths                                                    | Limits chains                                                |
+| **P1**   | What if only one card can be drawn in draw-two-keep-one?     | Keep it automatically                                                                                    | Edge-case handling                                           |
+| **P1**   | Can costs/energy output change from abilities?               | Yes via typed hooks/modifiers                                                                            | Content richness                                             |
+| **P1**   | Is there a maximum deck size?                                | No for initial prototype                                                                                 | Deckbuilder/competitive constraints                          |
+| **P2**   | UI term: Monster or Creature?                                | Monster in formal rules, Creature in runtime                                                             | Naming only                                                  |
+| **P2**   | Is neutral energy a distinct pool type?                      | Yes, payable for generic costs only                                                                      | Neutral-ramp balancing                                       |
+| **P2**   | Are multi-faction cards inherently stronger?                 | No automatic bonus                                                                                       | Balance policy, not engine rule                              |
 
 **Decision log template**
 
 ```md
 ### DEC-001 — Combat damage semantics
+
 - Date:
 - Status: accepted / proposed / superseded
 - Decision:
@@ -895,23 +902,23 @@ A developer can add several new cards—including at least one dual-faction crea
 
 ## Appendix A — Source/adaptation traceability
 
-| Source concept (October 2026 rules) | Adaptation |
-| --- | --- |
-| §1.1 10 life, win/lose/draw | Unchanged |
-| §1.2 30-card decks, 3 copies, Legendary singleton, initial 5 | Unchanged |
-| §1.3 monsters and spells | Unchanged |
-| §2.2 draw 2 choose 1; first-player skip | Unchanged |
-| §2.3 / §3.1 three battlefield monsters | **Five**, explicit user decision |
-| §2.3 no summoning sickness vs §3.3 enters exhausted | **Enters exhausted**, explicit latest user decision; Ready exception |
-| §2.3 exhaustion creates energy | Same structure, now typed/faction energy |
-| §2.4 unblocked/blocked attacks and defender blockers | Amended 2026-10-11: simultaneous retaliation with at most one blocker per attacker and no damage reordering |
-| §2.5 death-energy window | Preserved; colored output needs explicit decision |
-| §2.6/§3.3 end turn ready and clear damage | Preserved pending timing clarification |
-| §3.4 static/triggered/spell effects | Extension hook framework, content references reusable implementations |
-| §4 temporary energy pools and cost payment | Preserved; colored/faction + generic costs added |
-| §4.3 spell timing, no stack | Preserved |
-| §5 deck/discard and reshuffling | Preserved |
-| §6 victory checks after full resolution | Preserved |
+| Source concept (October 2026 rules)                          | Adaptation                                                                                                  |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| §1.1 10 life, win/lose/draw                                  | Unchanged                                                                                                   |
+| §1.2 30-card decks, 3 copies, Legendary singleton, initial 5 | Unchanged                                                                                                   |
+| §1.3 monsters and spells                                     | Unchanged                                                                                                   |
+| §2.2 draw 2 choose 1; first-player skip                      | Unchanged                                                                                                   |
+| §2.3 / §3.1 three battlefield monsters                       | **Five**, explicit user decision                                                                            |
+| §2.3 no summoning sickness vs §3.3 enters exhausted          | **Enters exhausted**, explicit latest user decision; Ready exception                                        |
+| §2.3 exhaustion creates energy                               | Same structure, now typed/faction energy                                                                    |
+| §2.4 unblocked/blocked attacks and defender blockers         | Amended 2026-10-11: simultaneous retaliation with at most one blocker per attacker and no damage reordering |
+| §2.5 death-energy window                                     | Preserved; colored output needs explicit decision                                                           |
+| §2.6/§3.3 end turn ready and clear damage                    | Preserved pending timing clarification                                                                      |
+| §3.4 static/triggered/spell effects                          | Extension hook framework, content references reusable implementations                                       |
+| §4 temporary energy pools and cost payment                   | Preserved; colored/faction + generic costs added                                                            |
+| §4.3 spell timing, no stack                                  | Preserved                                                                                                   |
+| §5 deck/discard and reshuffling                              | Preserved                                                                                                   |
+| §6 victory checks after full resolution                      | Preserved                                                                                                   |
 
 ## Appendix B — Explicit architectural principles
 

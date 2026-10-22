@@ -6,16 +6,16 @@ Ownership caps are three copies per card ID and one per legendary card ID. Deck 
 
 The provisional economy is centralized in `apps/web/src/features/collection/lib/collection.ts`:
 
-| Action | Amount |
-| --- | --- |
-| Welcome grant | Starter cards + 5 Realm’s Bounty packs |
-| Buy any booster | 100 Crowns |
-| Buy a specific card | 50 / 150 / 400 Crowns (common / rare / legendary) |
-| Excess common | 10 Crowns |
-| Excess rare | 25 Crowns |
-| Excess legendary | 100 Crowns |
-| Win a game as player one | 25 Crowns + 1 Realm’s Bounty pack |
-| Store debug button | +1,000 Crowns |
+| Action                   | Amount                                            |
+| ------------------------ | ------------------------------------------------- |
+| Welcome grant            | Starter cards + 5 Realm’s Bounty packs            |
+| Buy any booster          | 100 Crowns                                        |
+| Buy a specific card      | 50 / 150 / 400 Crowns (common / rare / legendary) |
+| Excess common            | 10 Crowns                                         |
+| Excess rare              | 25 Crowns                                         |
+| Excess legendary         | 100 Crowns                                        |
+| Win a game as player one | 25 Crowns + 1 Realm’s Bounty pack                 |
+| Store debug button       | +1,000 Crowns                                     |
 
 Opening consumes one pack of the selected kind and applies its rewards before the reveal animation. Closing, skipping or inspecting that reveal does not grant again. Buying adds a pack of the selected kind to inventory; it does not open it automatically. Crowns are credited immediately for excess cards, and each reveal shows the conversion and total reclaimed Crowns. No manual conversion, crafting or real-money purchases are included.
 

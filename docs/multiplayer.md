@@ -26,12 +26,12 @@ WebRTC connection-state changes pause input on a lost link. Silence alone does n
 
 The defaults need no environment variables. These optional Vite variables configure a different signaling service or ICE servers:
 
-| Variable | Purpose |
-| --- | --- |
-| `VITE_PEER_HOST` | Your PeerServer hostname |
-| `VITE_PEER_PORT` | Signaling port, default 443 |
-| `VITE_PEER_PATH` | Signaling path, default `/` |
-| `VITE_PEER_SECURE` | `false` only for a local non-TLS server |
+| Variable               | Purpose                                                           |
+| ---------------------- | ----------------------------------------------------------------- |
+| `VITE_PEER_HOST`       | Your PeerServer hostname                                          |
+| `VITE_PEER_PORT`       | Signaling port, default 443                                       |
+| `VITE_PEER_PATH`       | Signaling path, default `/`                                       |
+| `VITE_PEER_SECURE`     | `false` only for a local non-TLS server                           |
 | `VITE_RTC_ICE_SERVERS` | JSON array of `RTCIceServer` objects, replacing PeerJS's defaults |
 
 Vite client variables are public. A future authenticated TURN service should issue short-lived client credentials rather than embed private server keys in the frontend. Changing this configuration requires restarting the development server or rebuilding the static site.

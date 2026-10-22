@@ -56,11 +56,11 @@ Shrines retain their card-exchange role, replacing one expedition card with anot
 
 Authored landmarks provide the world's stable geography and identity. Cities, villages, shrines, and other permanent sites are fixed locations with defined services or encounters. A standalone market location is replaced by a village; cities still contain a market service.
 
-| Location | Services |
-|---|---|
-| City | Healing, market, rumors, smith |
-| Village | Rumors, smith |
-| Shrine | Card exchange |
+| Location             | Services                                       |
+| -------------------- | ---------------------------------------------- |
+| City                 | Healing, market, rumors, smith                 |
+| Village              | Rumors, smith                                  |
+| Shrine               | Card exchange                                  |
 | Other fixed landmark | Its authored purpose, such as a boss encounter |
 
 Villages do not offer healing or a market.
@@ -71,12 +71,12 @@ Additional travel locations are generated upfront between fixed landmarks, withi
 
 These transient locations have exactly four possible types:
 
-| Type | Purpose |
-|---|---|
-| Encounter | A random fight against an enemy |
-| Roadside camp | Healing for a silver fee. Replaces the earlier free refugee camp |
-| Traveling merchant | Buying expedition cards |
-| Cache | A small find: 1 life, a small amount of silver, or nothing |
+| Type               | Purpose                                                          |
+| ------------------ | ---------------------------------------------------------------- |
+| Encounter          | A random fight against an enemy                                  |
+| Roadside camp      | Healing for a silver fee. Replaces the earlier free refugee camp |
+| Traveling merchant | Buying expedition cards                                          |
+| Cache              | A small find: 1 life, a small amount of silver, or nothing       |
 
 A cache is a gamble, not a service: it has no price and can come up empty. Its outcome is rolled on first visit and saved with the location, like its type, so reloading or revisiting never rerolls it.
 
