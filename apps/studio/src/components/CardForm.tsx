@@ -159,6 +159,35 @@ function Bindings({
                     </option>
                   ))}
                 </select>
+              ) : field.kind === "multi" ? (
+                <span role="group" aria-label={field.key}>
+                  {field.options!.map((option) => {
+                    const chosen = (binding.params[field.key] ?? field.initial) as string[],
+                      on = chosen.includes(option);
+                    return (
+                      <label key={option}>
+                        <input
+                          type="checkbox"
+                          checked={on}
+                          // At least one option stays chosen: an empty list is not a valid card.
+                          disabled={on && chosen.length === 1}
+                          onChange={() =>
+                            set(index, {
+                              ...binding,
+                              params: {
+                                ...binding.params,
+                                [field.key]: field.options!.filter((o) =>
+                                  o === option ? !on : chosen.includes(o),
+                                ),
+                              },
+                            })
+                          }
+                        />
+                        {label(option)}
+                      </label>
+                    );
+                  })}
+                </span>
               ) : field.kind === "number" ? (
                 <Num
                   name={field.key}

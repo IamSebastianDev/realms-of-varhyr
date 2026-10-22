@@ -6,7 +6,9 @@ import {
   germanIncomplete,
   glance,
   matches,
+  newBinding,
   noFilters,
+  paramFields,
   serialize,
   setStats,
   validate,
@@ -315,5 +317,14 @@ describe("starter decks", () => {
         "crownlands",
       ).map((c) => c.data.id),
     ).toEqual(["a", "n"]);
+  });
+});
+
+describe("ability parameters", () => {
+  it("offers a list of allowed options as a multi-choice field, starting with the first", () => {
+    const field = paramFields("destroy").find((f) => f.key === "type")!;
+    expect(field.kind).toBe("multi");
+    expect(field.options).toEqual(["creature", "holding"]);
+    expect(newBinding("destroy").params).toEqual({ type: ["creature"] });
   });
 });

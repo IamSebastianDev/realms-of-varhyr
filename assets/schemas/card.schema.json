@@ -544,14 +544,27 @@
     "ability-destroy": {
       "type": "object",
       "title": "Destroy",
-      "description": "Destroy target enemy creature.",
+      "description": "Destroy target enemy {type}.",
       "properties": {
         "id": {
           "const": "destroy"
         },
         "params": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "type": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "creature",
+                  "holding"
+                ],
+                "type": "string"
+              },
+              "minItems": 1,
+              "maxItems": 2
+            }
+          },
           "required": [],
           "additionalProperties": false
         }

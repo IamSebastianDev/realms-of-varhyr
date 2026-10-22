@@ -2,9 +2,13 @@ import type { AbilityBinding, AbilityExtension } from "@realms/contracts";
 
 /** Plain text for any client; React escapes it when rendered. */
 export function describeAbility(binding: AbilityBinding, extension: AbilityExtension) {
+  const params = { ...extension.defaults, ...binding.params };
   function fill(template: string) {
     return template.replace(/\{([a-zA-Z][a-zA-Z0-9_]*)\}/g, (_placeholder, key: string) => {
-      const value = binding.params[key];
+      let value = params[key];
+      // A list of words reads as "creature or holding". Translating callers join the list themselves.
+      if (Array.isArray(value) && value.every((entry) => typeof entry === "string"))
+        value = value.join(" or ");
       if (typeof value !== "number" && typeof value !== "string" && typeof value !== "boolean") {
         throw new Error(`Missing text parameter ${key} for ability ${binding.id}`);
       }

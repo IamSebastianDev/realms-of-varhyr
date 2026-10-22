@@ -242,6 +242,10 @@ export type AbilityExtension = {
   ) => boolean;
   activate?: (ctx: HookContext, params: Record<string, unknown>) => void;
   cast?: (ctx: HookContext, params: Record<string, unknown>) => void;
+  /** Parameter values assumed when a binding leaves them out, so cards authored before a parameter existed keep working and keep their text. */
+  defaults?: Record<string, unknown>;
+  /** Narrows which board cards a board-targeting ability may choose, e.g. by card type. Receives the binding's params with `defaults` applied. */
+  targetFilter?: (card: CardDefinition, params: Record<string, unknown>) => boolean;
   /** Optional declared energy choices for an activated producer. One faction per pool; the chosen faction is the target. */
   activationEnergy?: (params: Record<string, unknown>, registry: Registry) => Pool[];
   /** Target a field card (in hand, or in your discard pile) and choose a free friendly position before activating or casting. */

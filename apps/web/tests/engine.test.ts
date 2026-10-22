@@ -23,6 +23,7 @@ import {
   validateDeck,
 } from "@realms/core";
 import { botCommand } from "@realms/core/bot";
+import { localizedAbility } from "@realms/ui/i18n";
 import raw, { abilities, compileContent, registry, starterDecks } from "@realms/testing/content";
 import { startMatch } from "./support/session";
 import {
@@ -646,6 +647,104 @@ describe("simultaneous combat and response energy", () => {
       s.cards[spell].definitionId = "destroy-test";
       s.players.p1.energy = { crownlands: 1, neutral: 1 };
       expect(legalActions(s, destroyRegistry).playable.some((a) => a.cardId === spell)).toBe(false);
+    });
+    describe("by type", () => {
+      const typed = (type?: string[]) =>
+        compileContent([
+          ...raw,
+          {
+            ...registry.cards["cleansing-light"],
+            id: "destroy-typed",
+            deckLimitKey: "destroy-typed",
+            cast: [{ id: "destroy", params: type ? { type } : {} }],
+          },
+          {
+            ...registry.cards["wayfarer"],
+            id: "destroy-holding",
+            deckLimitKey: "destroy-holding",
+            type: "holding",
+            abilities: [],
+            stats: { attack: 0, defense: 3, energyOutputs: [] },
+          },
+        ]);
+      const holdingFor = (s: GameState, owner: PlayerId, slot: number) => {
+        // Relabel any card still in the library, then place it like any other fixture.
+        const spare = Object.keys(s.cards).find(
+          (id) =>
+            s.cards[id].owner === owner &&
+            s.cards[id].zone === "deck" &&
+            registry.cards[s.cards[id].definitionId].type === "creature",
+        )!;
+        s.cards[spare].definitionId = "destroy-holding";
+        return fixture(s, "destroy-holding", owner, "board", slot);
+      };
+      const board = (content: ReturnType<typeof typed>) => {
+        const s = setup(content);
+        const spell = fixture(s, "cleansing-light", "p1", "hand");
+        s.cards[spell].definitionId = "destroy-typed";
+        s.players.p1.energy = { crownlands: 1, neutral: 1 };
+        return {
+          s,
+          spell,
+          creature: fixture(s, "ashen-initiate", "p2", "board", 1),
+          holding: holdingFor(s, "p2", 3),
+          own: holdingFor(s, "p1", 2),
+        };
+      };
+      const offered = (content: ReturnType<typeof typed>) => {
+        const b = board(content);
+        return {
+          ...b,
+          targets: legalActions(b.s, content).playable.find((a) => a.cardId === b.spell)?.targets,
+        };
+      };
+      it("keeps destroying creatures only when no type is given", () => {
+        const o = offered(typed());
+        expect(o.targets).toEqual([o.creature]);
+      });
+      it("offers only enemy creatures for [creature]", () => {
+        const o = offered(typed(["creature"]));
+        expect(o.targets).toEqual([o.creature]);
+      });
+      it("offers only enemy holdings for [holding], and destroys one", () => {
+        const content = typed(["holding"]),
+          o = offered(content);
+        expect(o.targets).toEqual([o.holding]);
+        const r = step(o.s, { type: "play", cardId: o.spell, target: o.holding }, "p1", content);
+        expect(r.cards[o.holding].zone).toBe("discard");
+        expect(r.cards[o.creature].zone).toBe("board");
+        expect(r.cards[o.own].zone).toBe("board");
+        assertInvariants(r);
+      });
+      it("offers both for [creature, holding], never a friendly card", () => {
+        const o = offered(typed(["creature", "holding"]));
+        expect([...o.targets!].sort()).toEqual([o.creature, o.holding].sort());
+      });
+      it("is not offered for [holding] when the enemy has none", () => {
+        const content = typed(["holding"]),
+          { s, spell, holding } = board(content);
+        s.cards[holding].zone = "discard";
+        s.players.p2.board[3] = null;
+        expect(legalActions(s, content).playable.some((a) => a.cardId === spell)).toBe(false);
+      });
+      it("rejects an empty or unknown type list", () => {
+        expect(() => typed([])).toThrow();
+        expect(() => typed(["spell"])).toThrow();
+      });
+      it("describes the choice in both languages", () => {
+        const text = (type?: string[], language: "en" | "de" = "en") =>
+          localizedAbility(
+            { id: "destroy", params: type ? { type } : {} },
+            abilities.destroy,
+            language,
+          ).description;
+        expect(text()).toBe("Destroy target enemy creature.");
+        expect(text(["holding"])).toBe("Destroy target enemy holding.");
+        expect(text(["creature", "holding"])).toBe("Destroy target enemy creature or holding.");
+        expect(text(["creature", "holding"], "de")).toBe(
+          "Zerstöre eine gegnerische Kreatur oder Besitzung.",
+        );
+      });
     });
   });
   describe("mines", () => {

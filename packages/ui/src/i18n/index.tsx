@@ -45,17 +45,19 @@ export function localizedAbility(
 ) {
   const text = extension.translations?.[language];
   const params = Object.fromEntries(
-    Object.entries(binding.params).map(([key, value]) => [
+    Object.entries({ ...extension.defaults, ...binding.params }).map(([key, value]) => [
       key,
-      key === "energy" && typeof value === "string"
-        ? translate(factionInfo[value]?.short ?? "Neutral", language)
-        : key === "subtype" && typeof value === "string"
-          ? subtypeLabel(value, language)
-          : key === "card" && typeof value === "string" && registry.cards[value]
-            ? localizedCard(registry.cards[value], language).name
-            : typeof value === "string"
-              ? translate(value, language)
-              : value,
+      Array.isArray(value) && value.every((entry) => typeof entry === "string")
+        ? value.map((entry) => translate(entry, language)).join(` ${translate("or", language)} `)
+        : key === "energy" && typeof value === "string"
+          ? translate(factionInfo[value]?.short ?? "Neutral", language)
+          : key === "subtype" && typeof value === "string"
+            ? subtypeLabel(value, language)
+            : key === "card" && typeof value === "string" && registry.cards[value]
+              ? localizedCard(registry.cards[value], language).name
+              : typeof value === "string"
+                ? translate(value, language)
+                : value,
     ]),
   );
   return describeAbility({ ...binding, params }, text ? { ...extension, ...text } : extension);

@@ -8,6 +8,14 @@ const channelSchema = v.strictObject({
   energy: v.pipe(v.string(), v.minLength(1)),
 });
 const raiseSchema = v.strictObject({ subtype: v.pipe(v.string(), v.minLength(1)) });
+/** `type` lists what may be destroyed: ["creature"], ["holding"] or ["creature", "holding"]. Left out, it means creatures. */
+const destroySchema = v.strictObject({
+  type: v.optional(
+    v.pipe(v.array(v.picklist(["creature", "holding"])), v.minLength(1), v.maxLength(2)),
+  ),
+});
+const destroyTypes = (params: Record<string, unknown>) =>
+  (params.type as string[] | undefined) ?? ["creature"];
 
 /** Abilities that resolve when a spell is cast. They belong to no faction, so any faction's spells can use them. */
 export const spellAbilities: AbilityExtension[] = [
@@ -27,11 +35,17 @@ export const spellAbilities: AbilityExtension[] = [
     },
   }),
 
-  extension("destroy", v.strictObject({}), {
-    translations: { de: { name: "Vernichten", description: "Zerstöre eine gegnerische Kreatur." } },
+  extension("destroy", destroySchema, {
+    translations: {
+      de: { name: "Vernichten", description: "Zerstöre eine gegnerische {type}." },
+    },
     name: "Destroy",
-    description: "Destroy target enemy creature.",
-    target: "enemy-creature",
+    description: "Destroy target enemy {type}.",
+    // Cards written before `type` existed destroy creatures only.
+    defaults: { type: ["creature"] },
+    // Any enemy board card may be offered; the filter keeps only the chosen types.
+    target: "enemy-field",
+    targetFilter: (card, p) => destroyTypes(p).includes(card.type),
     cast: (ctx) => {
       if (ctx.target) ctx.issue({ type: "destroy", target: ctx.target });
     },

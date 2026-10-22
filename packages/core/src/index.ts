@@ -1084,8 +1084,10 @@ function targetOptions(
 ): { targets: string[]; required: boolean } {
   let targets: string[] | null = null;
   for (const b of bindings) {
-    const kind = registry.abilities[b.id].target;
+    const extension = registry.abilities[b.id],
+      kind = extension.target;
     if (!kind) continue;
+    const params = { ...extension.defaults, ...b.params };
     const side =
       kind === "friendly-creature" ||
       kind === "friendly-discard-creature" ||
@@ -1116,7 +1118,8 @@ function targetOptions(
                     kind === "enemy-creature" ||
                     kind === "enemy-reach"
                   ) ||
-                    definition(state, id, registry).type === "creature"),
+                    definition(state, id, registry).type === "creature") &&
+                  (extension.targetFilter?.(definition(state, id, registry), params) ?? true),
               );
     if (kind === "enemy-any" || kind === "enemy-reach") options.push(other(actor));
     targets = targets === null ? options : targets.filter((id) => options.includes(id));

@@ -1,0 +1,42 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "goblin-siege-weapon",
+  "revision": 1,
+  "name": "Goblin Siege Weapon",
+  "deckLimitKey": "goblin-siege-weapon",
+  "type": "spell",
+  "factions": [
+    "horde"
+  ],
+  "subtypes": [],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "horde": 2
+    }
+  },
+  "abilities": [
+    {
+      "id": "consume",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "timing": [
+    "play"
+  ],
+  "cast": [
+    {
+      "id": "destroy",
+      "params": {
+        "type": [
+          "holding"
+        ]
+      }
+    }
+  ],
+  "set": "foundations"
+}

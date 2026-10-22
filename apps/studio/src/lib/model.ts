@@ -202,7 +202,8 @@ export function validate(
 /** Param form fields for one ability, read from the generated JSON schema so they always match the game's rules. */
 export type ParamField = {
   key: string;
-  kind: "number" | "text" | "choice";
+  /** "multi" is a list of the allowed options, at least one of them. */
+  kind: "number" | "text" | "choice" | "multi";
   options?: string[];
   min?: number;
   initial: unknown;
@@ -217,6 +218,13 @@ export function paramFields(id: string): ParamField[] {
         kind: "choice" as const,
         options: spec.enum as string[],
         initial: spec.enum[0],
+      };
+    if (spec.type === "array" && spec.items?.enum)
+      return {
+        key,
+        kind: "multi" as const,
+        options: spec.items.enum as string[],
+        initial: [spec.items.enum[0]],
       };
     if (spec.type === "integer" || spec.type === "number")
       return { key, kind: "number" as const, min: spec.minimum, initial: spec.minimum ?? 1 };
