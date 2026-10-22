@@ -180,3 +180,13 @@
 .builder-chips button:hover{border-color:var(--gilt)}
 .builder-chips button[aria-pressed=true]{background:var(--gilt);color:var(--black);border-color:var(--gilt-bright)}
 .builder-chips button[aria-pressed=true] svg{color:inherit}
+.showcase-button{display:flex;padding:3px;gap:2px;border-radius:5px;border:1px solid rgb(var(--edge-rgb) / .27);background:rgb(var(--shade-rgb) / .6)}
+.showcase-button:hover{border-color:var(--gilt)}
+.showcase-button img{width:34px;height:46px;object-fit:cover;border-radius:3px}
+.showcase-hint{margin:0 0 10px;color:var(--ink-3);font-size:12px}
+.showcase-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;max-height:min(52dvh,420px);overflow:auto;padding:4px}
+.showcase-grid button{position:relative;display:grid;gap:4px;padding:4px;border-radius:6px;border:1px solid rgb(var(--edge-rgb) / .27);background:rgb(var(--shade-rgb) / .6);color:inherit;font-size:11px;text-align:center}
+.showcase-grid button img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:4px}
+.showcase-grid button.on{border-color:var(--gilt)}
+.showcase-grid button:disabled{opacity:.4}
+.showcase-grid button svg{position:absolute;top:8px;right:8px;color:var(--gilt)}

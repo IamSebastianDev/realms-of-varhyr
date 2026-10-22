@@ -3,6 +3,10 @@
 .draft-stripe[aria-checked=true]{border-color:var(--tint,var(--gilt))}
 .draft-blade .quest-stripes{display:grid;gap:10px;margin-bottom:18px}
 .draft-blade .draft-stripe{min-height:112px}
+.draft-stripe:disabled{opacity:.5;cursor:not-allowed}
+.draft-run-line{display:flex;flex-direction:column;gap:4px;margin:0 0 18px}
+.faction-choice{display:grid;gap:10px;align-content:start;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.faction-choice .draft-stripe{min-height:112px}
 
 .draft-page{min-height:var(--app-h);display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;gap:14px;padding:clamp(14px,2.4vw,30px) clamp(14px,3vw,44px) 18px;color:#e9e8e5;background:radial-gradient(ellipse at 50% 0%,#2b2620,#14120f 70%),var(--surface-raised);box-sizing:border-box}
 .draft-head{display:flex;align-items:center;gap:14px;min-width:0}
@@ -67,7 +71,8 @@
 .reduce-motion .draft-tier.next .draft-medal::before,.reduce-motion .draft-tier.next .draft-medal::after{animation:none}
 
 /* The boosters, bottom left, and the way in, bottom right */
-.draft-packs{position:relative;width:min(360px,100%);height:min(230px,26vh);min-height:150px;margin:6px 0 0 -30px;pointer-events:none}
+.draft-packs{position:relative;display:grid;grid-template-columns:1fr 1fr;width:min(460px,100%);height:min(230px,26vh);min-height:150px;margin:6px 0 0 -30px;pointer-events:none}
+.draft-packs-side{position:relative;min-width:0}
 .draft-packs canvas{width:100%!important;height:100%!important}
 .draft-pack-flat{height:100%;display:grid;place-content:center;justify-items:center;gap:12px;color:var(--pack-color)}
 .draft-pack-icon{width:56px;height:56px}
@@ -153,3 +158,31 @@
 .table-seats .is-away { opacity: .6; }
 .draft-table-status { display: block; color: var(--gilt); min-height: 1.2em; }
 .draft-join { margin-top: 10px; align-self: center; }
+
+/* The faction ring and its side panel, shown before a run starts. */
+.draft-radial-stage{grid-column:2;grid-row:2;display:grid;place-items:center;min-height:0}
+.faction-radial{position:relative;width:min(100%,56vh,520px);aspect-ratio:1}
+.faction-radial-core{position:absolute;inset:30%;display:grid;place-items:center;border-radius:50%;border:2px solid var(--tint,var(--gilt));background:rgb(var(--shade-rgb) / .78);box-shadow:0 0 60px rgb(var(--shade-rgb) / .9)}
+.faction-radial-core svg,.faction-radial-core img{width:62%;height:62%}
+.faction-radial-node{position:absolute;width:clamp(48px,14%,76px);aspect-ratio:1;transform:translate(-50%,-50%);display:grid;place-items:center;padding:0;border-radius:50%;border:2px solid rgb(var(--gilt-rgb) / .35);background:rgb(var(--shade-rgb) / .82);color:inherit;cursor:pointer;transition:transform .15s,border-color .15s}
+.faction-radial-node svg,.faction-radial-node img{width:60%;height:60%}
+.faction-radial-node:hover:not(:disabled),.faction-radial-node:focus-visible{transform:translate(-50%,-50%) scale(1.1);border-color:var(--tint,var(--gilt))}
+.faction-radial-node[aria-checked=true]{border-color:var(--tint,var(--gilt));box-shadow:0 0 22px var(--tint,var(--gilt))}
+.faction-radial-node:disabled{opacity:.45;cursor:not-allowed}
+.faction-explain{display:grid;gap:10px;padding:14px 16px;border:1px solid rgb(var(--gilt-rgb) / .27);border-radius:8px;background:rgb(var(--shade-rgb) / .72)}
+.faction-explain h2{margin:0;font:600 24px/1.1 var(--serif);color:var(--gold-bright)}
+.faction-explain dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:0}
+.faction-explain dt{color:var(--ink-3)}
+.faction-explain dd{margin:0}
+.faction-explain p{margin:0;font-size:13px;color:var(--ink-3)}
+@media(max-width:860px){.draft-radial-stage{grid-column:auto;grid-row:auto;width:100%}.faction-radial{width:min(100%,380px)}}
+
+/* The faction screen before the overview: explanation left, ring in the middle, the way on right. */
+.draft-faction-screen{position:relative;isolation:isolate;height:var(--app-h);overflow:hidden;grid-template-columns:minmax(0,1.2fr) minmax(300px,440px);grid-template-rows:auto minmax(0,1fr);gap:clamp(12px,3vh,40px) clamp(20px,3vw,56px);padding:clamp(16px,3.4vh,48px) clamp(24px,5vw,88px)}
+.draft-faction-screen .draft-head{grid-column:1/-1;justify-content:space-between}
+.draft-faction-title{margin:0;font:600 clamp(22px,3vw,36px)/1 var(--serif);color:var(--gold-bright)}
+.draft-faction-side{grid-column:2;grid-row:2;align-self:center;display:grid;gap:14px}
+.draft-faction-screen .draft-radial-stage{grid-column:1;grid-row:2}
+@media(max-width:860px){.draft-faction-screen{display:flex;flex-direction:column;height:auto;min-height:var(--app-h);overflow:visible}.draft-faction-side{grid-column:auto;grid-row:auto;width:100%}}
+.draft-faction-side .draft-cta{grid-column:auto;grid-row:auto}
+.faction-explain .faction-guide{font-size:15px;line-height:1.5;color:inherit}

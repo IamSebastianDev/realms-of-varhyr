@@ -10,7 +10,7 @@ afterEach(() => { vi.useRealTimers(); });
 
 /** A host with its own browser in seat 0. Guests join over in-memory links. */
 function room(options: { pickMs?: number; awayMs?: number } = {}) {
-  const host = new DraftTableHost({ registry, preset, code: 'ROOM1234', ...options }, 'host-token');
+  const host = new DraftTableHost({ registry, preset, code: 'ROOM1234', faction: 'bright-marches', ...options }, 'host-token');
   const client = (role: 'host' | 'guest') => new TableClient(role, 'ROOM1234', registry);
   const own = client('host');
   host.connectLocal(own, { token: 'host-token', name: 'Host' });
@@ -24,7 +24,13 @@ function room(options: { pickMs?: number; awayMs?: number } = {}) {
   return { host, own, guest };
 }
 const pickFirst = (client: TableClient) => { const run = client.getSnapshot().run!; client.pick(run.draft.held[0]![0]!); };
-const draftAll = (clients: TableClient[]) => { while (clients[0]!.getSnapshot().run!.stage === 'draft') for (const client of clients) if (client.getSnapshot().run!.draft.held[0]!.length && client.getSnapshot().waiting.includes(client.getSnapshot().run!.table!.names[0])) pickFirst(client); };
+const chosen = (client: TableClient) => client.getSnapshot().waiting.includes(client.getSnapshot().run!.table!.names[0]);
+/** Everyone takes the first card of their pack, and brings Crownlands to the second half. */
+const draftAll = (clients: TableClient[]) => { while (clients[0]!.getSnapshot().run!.stage === 'draft') for (const client of clients) {
+  const run = client.getSnapshot().run!;
+  if (!chosen(client)) continue;
+  if (run.draft.awaiting) client.faction('crownlands'); else if (run.draft.held[0]!.length) pickFirst(client);
+} };
 
 describe('a faction draft room', () => {
   it('seats the host first, lets guests ready up, fills empty seats with bots, and closes the door once it starts', () => {
@@ -37,6 +43,8 @@ describe('a faction draft room', () => {
     host.start(5, 'table-1');
     expect(own.getSnapshot().phase).toBe('table');
     expect(own.getSnapshot().run!.table).toMatchObject({ seat: 0, humans: [true, true, false], host: true });
+    expect(own.getSnapshot().faction).toBe('bright-marches');
+    expect(one.client.getSnapshot().faction).toBe('bright-marches');
     expect(one.client.getSnapshot().run!.table!.names[0]).toBe('Ana');
     const late = guest('Late');
     expect(late.client.getSnapshot().phase).toBe('error');
@@ -89,6 +97,27 @@ describe('a faction draft room', () => {
     one.client.act(live, { kind: 'command', command: { type: 'concede' } });
     expect(winsOf(own.getSnapshot().run!)).toBe(2);
     expect(winsOf(one.client.getSnapshot().run!)).toBe(0);
+  });
+
+  it('waits for every person to choose a faction between the halves, and chooses for the slow when time runs out', () => {
+    const { host, own, guest } = room({ pickMs: 10_000 });
+    const one = guest('Ana'); one.client.ready(true);
+    host.start(6, 'table-5');
+    // Play the first half: both people take the first card of each pack.
+    while (!own.getSnapshot().run!.draft.awaiting) for (const client of [own, one.client]) if (chosen(client)) pickFirst(client);
+    expect(own.getSnapshot().waiting.sort()).toEqual(['Ana', 'Host']);
+    expect(own.getSnapshot().run!.draft.held[0]).toEqual([]);
+    own.faction('black-host');
+    expect(own.getSnapshot().run!.draft.awaiting).toBe(true);
+    expect(one.client.getSnapshot().run!.draft.factions).toEqual([null, null, null]); // hidden until she has chosen too
+    expect(own.getSnapshot().waiting).toEqual(['Ana']);
+    vi.advanceTimersByTime(10_000);
+    const run = own.getSnapshot().run!;
+    expect(run.draft.awaiting).toBe(false);
+    expect(run.draft.factions[0]).toBe('black-host');
+    expect(run.draft.factions[1]).toBeTruthy();
+    expect(one.client.getSnapshot().run!.draft.factions[0]).toBe(run.draft.factions[1]); // her own choice, seen from her seat
+    expect(own.getSnapshot().deadline).not.toBeNull(); // the second half has its own clock
   });
 
   it('hands a guest who leaves to a bot, and a guest who is away too long', () => {

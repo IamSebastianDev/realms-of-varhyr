@@ -9,7 +9,7 @@ import { registry } from '../../../packages/content/src';
 import { deckRules } from '../../../packages/contracts/src';
 import { validateDeck } from '../../../packages/core/src';
 import { missingDeckCopies } from './collection';
-import { rarest } from './DeckShelf';
+import { showcaseOf } from './DeckShelf';
 import './game-setup.css';
 import { QuestPicker } from './quest/QuestPicker';
 import { DraftBlade } from './draft/DraftBlade';
@@ -28,7 +28,7 @@ type Props = {
 
 /** One deck as a tile: art, name, state and sleeve. Used for the chosen deck and in the deck dialog. */
 function DeckTile({ deck, ownedCopies, selected, onPick, disabledWhenUnready = false }: { deck: Props['options'][number]; ownedCopies: Record<string, number>; selected: boolean; onPick: () => void; disabledWhenUnready?: boolean }) {
-  const unfinished = validateDeck(deck.cards, registry).length, lacking = missingDeckCopies(deck.cards, ownedCopies).length, art = rarest(deck.cards)[0], back = useCardBack(deck.back);
+  const unfinished = validateDeck(deck.cards, registry).length, lacking = missingDeckCopies(deck.cards, ownedCopies).length, art = showcaseOf(deck)[0], back = useCardBack(deck.back);
   return <button role="radio" aria-checked={selected} disabled={disabledWhenUnready && !!(unfinished || lacking) && !selected} className={`setup-deck ${unfinished || lacking ? 'warn' : ''}`} onClick={onPick}>
     <span className="setup-deck-art" style={art ? { backgroundImage: `url(${cardArtUrl(art.id)})` } : undefined}/>
     <span className="setup-deck-text"><b>{msg(deck.name)}</b><small>{deck.cards.length} {msg("cards")}{unfinished ? ` · ${msg("unfinished")}` : lacking ? ` · ${msg("missing copies")}` : ` · ${msg("Ready to play")}`}</small></span>

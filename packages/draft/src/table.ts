@@ -1,7 +1,7 @@
 import type { Registry } from '../../contracts/src';
 import { makeRng } from '../../quest/src/rng';
 import {
-  botPick, buildBotDeck, deckProblems, draftRules, pickRound, startDraft,
+  botFaction, botPick, buildBotDeck, chooseFactions, deckProblems, draftRules, draftableFactions, pickRound, startDraft,
   type DraftMatch, type DraftPreset, type DraftResult, type DraftRun, type DraftStage, type DraftState,
 } from './index';
 
@@ -38,12 +38,12 @@ export const botSeat = (table: DraftTable, seat: number) => !table.seats[seat]!.
 /** Matches that can change somebody's payout: a person who is still at the table plays in them. Bot against bot is never played. */
 export const countsFor = (table: DraftTable, match: TableMatch) => !botSeat(table, match.a) || !botSeat(table, match.b);
 
-export function createTable(preset: DraftPreset, registry: Registry, options: { id: string; seed: number; now: number; seats: TableSeat[] }): DraftTable {
+export function createTable(preset: DraftPreset, registry: Registry, options: { id: string; seed: number; now: number; seats: TableSeat[]; /** The faction the whole table drafts first. */ faction: string }): DraftTable {
   if (options.seats.length !== draftRules.drafters) throw new Error('A draft table has three seats.');
   const rng = makeRng(`${options.seed}:table`);
   return {
     id: options.id, preset: preset.id, seed: options.seed, startedAt: options.now, seats: options.seats.map(seat => ({ ...seat })),
-    draft: startDraft(preset, registry, options.seed), pending: [null, null, null], decks: [null, null, null], stage: 'draft',
+    draft: startDraft(preset, registry, options.seed, options.faction), pending: [null, null, null], decks: [null, null, null], stage: 'draft',
     matches: tableSchedule.map(([a, b]) => ({ a, b, seed: Math.max(1, rng.int(2 ** 32)), result: null })),
   };
 }
@@ -57,6 +57,8 @@ export const deckWaitingOn = (table: DraftTable): number[] => table.stage !== 'b
 function settle(table: DraftTable, preset: DraftPreset, registry: Registry): DraftTable {
   if (table.stage !== 'draft' || waitingOn(table).length) return table;
   const choices = table.seats.map((_, seat) => botSeat(table, seat) ? null : table.pending[seat]!);
+  // Between the halves the pending choices are factions, revealed together once the last person has chosen.
+  if (table.draft.awaiting) return { ...table, draft: chooseFactions(table.draft, registry, choices), pending: [null, null, null] };
   const draft = pickRound(table.draft, preset, registry, choices);
   const next: DraftTable = { ...table, draft, pending: [null, null, null] };
   if (!draft.done) return next;
@@ -71,14 +73,25 @@ function startMatches(table: DraftTable): DraftTable {
 export function submitPick(table: DraftTable, preset: DraftPreset, registry: Registry, seat: number, cardId: string): DraftTable {
   if (table.stage !== 'draft') throw new Error('The draft is over.');
   if (botSeat(table, seat)) throw new Error('This seat is played by a bot.');
+  if (table.draft.awaiting) throw new Error('Choose your faction first.');
   if (table.pending[seat] !== null) throw new Error('You already chose a card from this pack.');
   if (!table.draft.held[seat]!.includes(cardId)) throw new Error('That card is not in your pack.');
   const pending = [...table.pending]; pending[seat] = cardId;
   return settle({ ...table, pending }, preset, registry);
 }
+/** A person's faction for the second half. It stays hidden from the others until everybody has chosen. */
+export function submitFaction(table: DraftTable, preset: DraftPreset, registry: Registry, seat: number, faction: string): DraftTable {
+  if (table.stage !== 'draft' || !table.draft.awaiting) throw new Error('Nobody is choosing a faction now.');
+  if (botSeat(table, seat)) throw new Error('This seat is played by a bot.');
+  if (table.pending[seat] !== null) throw new Error('You already chose a faction.');
+  if (!draftableFactions(registry).includes(faction)) throw new Error('That faction cannot be drafted yet.');
+  const pending = [...table.pending]; pending[seat] = faction;
+  return settle({ ...table, pending }, preset, registry);
+}
 /** What a bot would take from this seat's pack: used when a person runs out of time. */
 export const autoChoice = (table: DraftTable, registry: Registry, seat: number) => botPick(table.draft.held[seat]!, table.draft.picks[seat]!, registry, makeRng(`${table.seed}:auto:${table.draft.round}:${table.draft.step}:${seat}`));
 export function autoPick(table: DraftTable, preset: DraftPreset, registry: Registry, seat: number): DraftTable {
+  if (table.draft.awaiting) return submitFaction(table, preset, registry, seat, botFaction(table.draft.picks[seat]!, table.draft.pod, registry, makeRng(`${table.seed}:autofaction:${seat}`)));
   return submitPick(table, preset, registry, seat, autoChoice(table, registry, seat));
 }
 /** The time is up: everyone who has not chosen gets a bot's pick. */
@@ -147,7 +160,7 @@ export function viewFor(table: DraftTable, seat: number, options: { code: string
   const names = rotate(table.seats.map(entry => entry.name), seat) as [string, string, string];
   const humans = rotate(table.seats.map((_, index) => !botSeat(table, index)), seat) as [boolean, boolean, boolean];
   const draft: DraftState = {
-    seed: table.seed, preset: table.preset, deal: [], round: table.draft.round, step: table.draft.step, done: table.draft.done,
+    seed: table.seed, preset: table.preset, pod: table.draft.pod, factions: rotate(table.draft.factions, seat), awaiting: table.draft.awaiting, deal: [], round: table.draft.round, step: table.draft.step, done: table.draft.done,
     held: [table.draft.held[seat]!, [], []], picks: [table.draft.picks[seat]!, [], []],
   };
   const mine = table.matches.flatMap((match, index) => match.a === seat || match.b === seat ? [{ match, index }] : []);

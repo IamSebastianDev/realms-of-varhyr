@@ -1,4 +1,5 @@
 import { CardBackPicker } from './CardBackFace';
+import { ShowcasePicker } from './ShowcasePicker';
 import { Workshop } from './layout/Workshop';
 import { Checkbox } from './Checkbox';
 import { FactionSelect } from './FactionSelect';
@@ -28,7 +29,7 @@ type Props = {
 };
 const newDeck = (): CustomDeck => ({ id: `custom-${crypto.randomUUID()}`, name: msg("New deck"), cards: [] });
 const groups = [{ type: 'creature', name: 'Creatures' }, { type: 'holding', name: 'Holdings' }, { type: 'spell', name: 'Spells' }] as const;
-const signature = (deck: CustomDeck) => JSON.stringify([deck.name, [...deck.cards].sort(), deck.back ?? '']);
+const signature = (deck: CustomDeck) => JSON.stringify([deck.name, [...deck.cards].sort(), deck.back ?? '', deck.showcase ?? []]);
 
 export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUndo, reduced, change, add, remove, load, save, renameDeck, deleteSaved, removeDeck, undo, buyMissing, inspect, openCollection, guardRef }: Props) {
   useLanguage();
@@ -232,6 +233,7 @@ export function DeckBuilder({ draft, decks, ownedCopies, crowns, message, canUnd
       <div className="deck-detail-fields">
         <label className="deck-detail-name">{msg("Name")}<input data-autofocus aria-label={msg("Deck name")} placeholder={msg("Name your deck")} maxLength={60} value={draft.name} onChange={event => change({ ...draft, name: event.target.value })}/></label>
         <div className="deck-detail-back"><span>{msg("Card back")}<small>{msg("Shown on the back of this deck’s cards.")}</small></span><CardBackPicker value={draft.back} onChange={back => change({ ...draft, back })}/></div>
+        <div className="deck-detail-back"><span>{msg("Deck box art")}<small>{msg("Up to three cards from this deck. Without a choice, its rarest cards are shown.")}</small></span><ShowcasePicker deck={draft} onChange={showcase => { const { showcase: _old, ...rest } = draft; change(showcase.length ? { ...rest, showcase } : rest); }}/></div>
       </div>
       <p className="deck-detail-count">{summary.total} {msg("cards ·")}{' '}{summary.unique} {msg("unique")}</p>
       <div className="deck-metrics"><span><b>{summary.freeProducers}</b>{' '}{msg("Free producers")}</span><span><b>{summary.producers}</b>{' '}{msg("All producers")}</span><span><b>{formatNumber(summary.averageCost,{minimumFractionDigits:1,maximumFractionDigits:1})}</b>{' '}{msg("Average cost")}</span></div>

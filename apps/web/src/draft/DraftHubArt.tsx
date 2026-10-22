@@ -1,20 +1,17 @@
 import { lazy, Suspense, type CSSProperties } from 'react';
-import { carouselPack, hasWebGL, SceneBoundary } from '../packScene';
+import { hasWebGL, proceduralPack, SceneBoundary } from '../packScene';
 import { Check, Minus, Package, Swords, X } from 'lucide-react';
 import { t as msg, useLanguage } from '../../../../packages/ui/src/i18n';
-import { registry } from '../../../../packages/content/src';
-import { boosterPacks, packCards } from '../../../../packages/content/src/boosters';
 import { FactionIcon } from '../../../../packages/renderer/src/FactionIcon';
-import type { DraftMatch, DraftPreset } from '../../../../packages/draft/src';
-import { packColor, packLines } from '../BoosterOpening';
+import type { DraftPreset } from '../../../../packages/draft/src';
+import { packLines } from '../BoosterOpening';
 import { CrownIcon } from '../Crowns';
-import { rarest } from '../DeckShelf';
 import { cardArtUrl } from '../cardArtUrl';
+import { factionArt, factionColor, factionName } from './factionTools';
 
-const packOf = (preset: DraftPreset) => boosterPacks.find(entry => entry.id === preset.packs[0])!;
-/** The same artwork as the draft's stripe in the blade: the best card of the booster, full bleed, shaded for reading. */
-export function DraftBackdrop({ preset }: { preset: DraftPreset }) {
-  const art = rarest(packCards(Object.values(registry.cards), packOf(preset)).map(card => card.id))[0];
+/** The same artwork as the faction's stripe in the blade: its best card, full bleed, shaded for reading. */
+export function DraftBackdrop({ faction }: { faction: string }) {
+  const art = factionArt(faction);
   return <div className="draft-backdrop" aria-hidden>
     <div className="draft-world" style={art ? { backgroundImage: `url(${cardArtUrl(art.id)})` } : undefined}/>
     <div className="draft-shade"/>
@@ -24,17 +21,20 @@ export function DraftBackdrop({ preset }: { preset: DraftPreset }) {
 const Booster3D = lazy(() => import('../BoosterPack3D').then(module => ({ default: module.BoosterReward3D })));
 const calm = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches || document.body.classList.contains('reduce-motion'); } catch { return false; } };
 
-/** The draft's boosters: the real 3D pack, three of them side by side, with the count of the whole draft. */
-export function DraftPacks({ preset }: { preset: DraftPreset }) {
+/** The draft's boosters: half of them are the faction everybody starts with, the other half are a mystery until the second faction is chosen. */
+export function DraftPacks({ preset, faction, second }: { preset: DraftPreset; faction: string; second?: string | null }) {
   useLanguage();
-  const pack = packOf(preset);
-  const flat = <div className="draft-pack-flat"><FactionIcon faction={pack.icon} className="draft-pack-icon"/><span className="draft-pack-name">{packLines(pack.name)}</span></div>;
-  return <div className="draft-packs" style={packColor(pack) as CSSProperties} role="img" aria-label={msg("{v0} boosters", { v0: preset.rounds * 3 })}>
+  const half = preset.rounds * 3 / 2, other = second ?? null;
+  const sides = [
+    { key: 'first', pack: proceduralPack('draft-first', factionName(faction), factionColor(faction), faction), icon: faction, name: factionName(faction) },
+    { key: 'second', pack: proceduralPack('draft-second', other ? factionName(other) : '?', other ? factionColor(other) : '#8d8574', other), icon: other, name: other ? factionName(other) : msg("Second faction") },
+  ];
+  return <div className="draft-packs" role="img" aria-label={msg("{v0} boosters", { v0: preset.rounds * 3 })}>{sides.map(side => <div key={side.key} className="draft-packs-side" style={{ ['--pack-color' as string]: side.pack.color } as CSSProperties}>
     {hasWebGL
-      ? <SceneBoundary fallback={flat}><Suspense fallback={null}><Booster3D pack={carouselPack(pack)} count={3} tagline={msg("SIX CARDS")} reduced={calm()}/></Suspense></SceneBoundary>
-      : flat}
-    <b className="draft-packs-count">×{preset.rounds * 3}</b>
-  </div>;
+      ? <SceneBoundary fallback={<div className="draft-pack-flat">{side.icon ? <FactionIcon faction={side.icon} className="draft-pack-icon"/> : <span className="draft-pack-icon">?</span>}<span className="draft-pack-name">{packLines(side.name)}</span></div>}><Suspense fallback={null}><Booster3D pack={side.pack} count={1} tagline={msg("SIX CARDS")} reduced={calm()}/></Suspense></SceneBoundary>
+      : <div className="draft-pack-flat">{side.icon ? <FactionIcon faction={side.icon} className="draft-pack-icon"/> : <span className="draft-pack-icon">?</span>}<span className="draft-pack-name">{packLines(side.name)}</span></div>}
+    <b className="draft-packs-count">×{half}</b>
+  </div>)}</div>;
 }
 
 const prizeText = (boosters: number) => boosters === 1 ? msg("+ 1 booster") : msg("+ {v0} boosters", { v0: boosters });

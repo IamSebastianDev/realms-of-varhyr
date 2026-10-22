@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { registry } from '../packages/content/src';
-import { buildBotDeck, draftPresets, recordResult, setDeck, startRun, takePick, type DraftRun } from '../packages/draft/src';
+import { buildBotDeck, chooseFaction, draftPresets, recordResult, setDeck, startRun, takePick, type DraftRun } from '../packages/draft/src';
 import { collectionRules, emptyCollection, ownedCopyCount, parseCollection } from '../apps/web/src/collection';
-import { enterDraft, settleDraft } from '../apps/web/src/draft/rewards';
+import { enterDraft, payoutBooster, settleDraft } from '../apps/web/src/draft/rewards';
 
 const preset = draftPresets[0]!;
 function played(wins: number): DraftRun {
-  let run = startRun(preset, registry, { id: 'run-a', seed: 12, now: 0 });
-  while (run.stage === 'draft') run = takePick(run, preset, registry, run.draft.held[0]![0]!);
+  let run = startRun(preset, registry, { id: 'run-a', seed: 12, now: 0, faction: 'bright-marches' });
+  while (run.stage === 'draft') run = run.draft.awaiting ? chooseFaction(run, registry, 'crownlands') : takePick(run, preset, registry, run.draft.held[0]![0]!);
   run = setDeck(run, buildBotDeck(run.draft.picks[0]!, registry), registry);
   run.matches.forEach((_, index) => { run = recordResult(run, index, index < wins ? 'won' : 'lost'); });
   return run;
@@ -23,8 +23,8 @@ describe('draft entry and payout', () => {
     const result = settleDraft(start, run, preset, registry)!;
     const { collection, settlement } = result;
     expect(settlement.wins).toBe(3);
-    expect(settlement.boosters).toEqual([{ pack: preset.packs[0], count: 5 }]);
-    expect(collection.packs[preset.packs[0]!]).toBe(5);
+    expect(settlement.boosters).toEqual([{ pack: payoutBooster(run), count: 5 }]);
+    expect(collection.packs[payoutBooster(run)]).toBe(5);
     const picks = run.draft.picks[0]!;
     let expectedDust = 0;
     for (const id of new Set(picks)) {

@@ -1,4 +1,6 @@
 import { heldDrag, holdDrag, releaseDrag } from './dragPayload';
+import { CardBackPicker } from '../CardBackFace';
+import { setDraftBack, useDraftBack } from './draftStore';
 import { useMemo, useState } from 'react';
 import { ArrowLeft, Check, RotateCcw, Sparkles } from 'lucide-react';
 import { t as msg, useLanguage } from '../../../../packages/ui/src/i18n';
@@ -30,8 +32,8 @@ export function DraftDeckBuilder({ run, preset, reduced, save, back, inspect }: 
   const canAdd = (card: CardDefinition) => count(deck, card.id) < count(pool, card.id) && !(card.legendary && deck.some(id => registry.cards[id]!.deckLimitKey === card.deckLimitKey));
   const add = (card: CardDefinition) => { if (canAdd(card)) setDeck(current => [...current, card.id]); };
   const remove = (id: string) => setDeck(current => { const at = current.indexOf(id); return at < 0 ? current : [...current.slice(0, at), ...current.slice(at + 1)]; });
-  const [over, setOver] = useState(false);
-  return <Workshop label={msg("Draft deck builder")} className="draft-workshop" backdrop={<DraftBackdrop preset={preset}/>} panelLabel={msg("Your picks")}
+  const [over, setOver] = useState(false), sleeve = useDraftBack(run.id);
+  return <Workshop label={msg("Draft deck builder")} className="draft-workshop" backdrop={<DraftBackdrop faction={run.draft.pod}/>} panelLabel={msg("Your picks")}
     panel={{ className: over ? 'drop-over' : '',
       onDragOver: event => { if (heldDrag('row') !== null || event.dataTransfer.types.includes('application/x-deck-row')) { event.preventDefault(); setOver(true); } }, onDragLeave: () => setOver(false),
       onDrop: event => { const id = heldDrag('row') ?? event.dataTransfer.getData('application/x-deck-row'); releaseDrag(); setOver(false); if (id) { event.preventDefault(); remove(id); } } }}
@@ -47,6 +49,7 @@ export function DraftDeckBuilder({ run, preset, reduced, save, back, inspect }: 
         <button className="builder-icon-button" aria-label={msg("Back to the draft overview")} title={msg("Back to the draft overview")} onClick={back}><ArrowLeft size={16}/></button>
         <strong className="draft-pane-title">{msg("Build your deck")}</strong>
         <div className="builder-deck-actions">
+          <CardBackPicker value={sleeve} onChange={id => setDraftBack(run.id, id)}/>
           <button className="builder-icon-button" title={msg("Suggest a deck")} aria-label={msg("Suggest a deck")} onClick={() => setDeck(buildBotDeck(pool, registry))}><Sparkles size={15}/></button>
           <button className="builder-icon-button" title={msg("Clear")} aria-label={msg("Clear")} disabled={!deck.length} onClick={() => setDeck([])}><RotateCcw size={15}/></button>
           <button className="gold-button builder-save" disabled={!!problems.length} onClick={() => save(deck)}>{msg("Save deck")}<Check size={14}/></button>

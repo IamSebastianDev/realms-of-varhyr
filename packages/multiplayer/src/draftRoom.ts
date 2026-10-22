@@ -3,7 +3,7 @@ import type { Command, PlayerId, Registry } from '../../contracts/src';
 import { RULES_VERSION } from '../../core/src';
 import { botNamesFor, draftRules, parseRun, type DraftPreset, type DraftResult, type DraftRun } from '../../draft/src';
 import {
-  autoDeckAll, autoPickAll, botSeat, createTable, deckWaitingOn, leaveSeat, recordTableResult, submitDeck, submitPick, tableComplete, viewFor, waitingOn,
+  autoDeckAll, autoPickAll, botSeat, createTable, deckWaitingOn, leaveSeat, recordTableResult, submitDeck, submitFaction, submitPick, tableComplete, viewFor, waitingOn,
   type DraftTable,
 } from '../../draft/src/table';
 import { MatchAuthority } from './authority';
@@ -26,6 +26,7 @@ export type TableClientMessage =
   | Join
   | { type: 'ready'; ready: boolean }
   | { type: 'pick'; card: string }
+  | { type: 'faction'; faction: string }
   | { type: 'deck'; cards: string[] }
   | { type: 'result'; index: number; result: DraftResult }
   | { type: 'leave' }
@@ -33,7 +34,7 @@ export type TableClientMessage =
   | { type: 'match'; index: number; message: ClientMessage }
   | { type: 'pong' };
 export type TableHostMessage =
-  | { type: 'lobby'; lobby: LobbySeat[]; seat: number; code: string; preset: string }
+  | { type: 'lobby'; lobby: LobbySeat[]; seat: number; code: string; preset: string; /** The faction the table drafts first. */ faction: string }
   | { type: 'table'; run: DraftRun; waiting: string[]; /** Whether you are one of the people the table waits for. */ mine: boolean; /** Milliseconds left for the current pick or deck. */ remaining: number | null; lobby: LobbySeat[] }
   | { type: 'match'; index: number; message: HostMessage }
   | { type: 'reject'; message: string }
@@ -49,6 +50,7 @@ export function parseTableClientMessage(input: unknown): TableClientMessage {
     case 'join': return v.parse(joinSchema, input);
     case 'ready': return v.parse(v.object({ type: v.literal('ready'), ready: v.boolean() }), input);
     case 'pick': return v.parse(v.object({ type: v.literal('pick'), card: text }), input);
+    case 'faction': return v.parse(v.object({ type: v.literal('faction'), faction: text }), input);
     case 'deck': return v.parse(v.object({ type: v.literal('deck'), cards: v.pipe(v.array(text), v.maxLength(200)) }), input);
     case 'result': return v.parse(v.object({ type: v.literal('result'), index, result: v.picklist(['won', 'lost', 'draw']) }), input);
     case 'leave': return { type: 'leave' };
@@ -69,7 +71,7 @@ export function parseTableHostMessage(input: unknown): TableHostMessage {
   const message = input as Record<string, unknown>;
   switch (message.type) {
     case 'ping': return { type: 'ping' };
-    case 'lobby': return { type: 'lobby', lobby: v.parse(lobbySchema, message.lobby), seat: v.parse(index, message.seat), code: v.parse(text, message.code), preset: v.parse(text, message.preset) };
+    case 'lobby': return { type: 'lobby', lobby: v.parse(lobbySchema, message.lobby), seat: v.parse(index, message.seat), code: v.parse(text, message.code), preset: v.parse(text, message.preset), faction: v.parse(text, message.faction) };
     case 'table': {
       const run = parseRun(message.run);
       if (!run?.table) throw new Error('The host sent a draft this browser cannot read.');
@@ -84,6 +86,8 @@ export function parseTableHostMessage(input: unknown): TableHostMessage {
 
 export type HostOptions = {
   registry: Registry; preset: DraftPreset; code: string;
+  /** The faction the table drafts first. */
+  faction: string;
   /** How long a person has for each pick, and for building their deck. */
   pickMs?: number; deckMs?: number;
   /** How long a person can be away before a bot takes their seat for good. */
@@ -170,6 +174,7 @@ export class DraftTableHost {
     switch (message.type) {
       case 'ready': if (this.table) return; slot.ready = message.ready; break;
       case 'pick': this.change(table => submitPick(table, preset, registry, seat, message.card)); return;
+      case 'faction': this.change(table => submitFaction(table, preset, registry, seat, message.faction)); return;
       case 'deck': this.change(table => submitDeck(table, registry, seat, message.cards)); return;
       case 'result': this.report(seat, message.index, message.result); return;
       case 'leave': this.leave(seat); return;
@@ -189,7 +194,7 @@ export class DraftTableHost {
     const seats = this.slots.map(slot => slot
       ? { name: slot.name, human: true, token: slot.token, avatar: slot.avatar, cardBack: slot.cardBack }
       : { name: bots++ === 0 ? first : second, human: false, token: '' });
-    this.table = createTable(this.options.preset, this.options.registry, { id, seed, now: this.clock.now(), seats });
+    this.table = createTable(this.options.preset, this.options.registry, { id, seed, now: this.clock.now(), seats, faction: this.options.faction });
     this.publish();
   }
 
@@ -298,7 +303,7 @@ export class DraftTableHost {
     for (let seat = 0; seat < 3; seat++) {
       const link = this.slots[seat]?.link;
       if (!link) continue;
-      if (!table) this.send(link, { type: 'lobby', lobby: this.lobby(), seat, code: this.options.code, preset: this.options.preset.id });
+      if (!table) this.send(link, { type: 'lobby', lobby: this.lobby(), seat, code: this.options.code, preset: this.options.preset.id, faction: this.options.faction });
       else this.send(link, { type: 'table', run: viewFor(table, seat, { code: this.options.code, host: seat === 0, fee: this.options.preset.entryFee }), waiting: this.waitingNames(), mine: [...waitingOn(table), ...deckWaitingOn(table)].includes(seat), remaining: this.deadline === null ? null : Math.max(0, this.deadline - this.clock.now()), lobby: this.lobby() });
     }
   }
@@ -310,7 +315,7 @@ export class DraftTableHost {
   /** One deadline per pick and one for deck building. It restarts whenever the table moves on. */
   private schedule() {
     const table = this.table;
-    const key = !table ? '' : table.stage === 'draft' ? `d${table.draft.round}:${table.draft.step}` : table.stage === 'build' ? 'b' : '';
+    const key = !table ? '' : table.stage === 'draft' ? `d${table.draft.round}:${table.draft.step}:${table.draft.awaiting ? 'f' : 'p'}` : table.stage === 'build' ? 'b' : '';
     if (key === this.timerKey) return;
     this.timerKey = key;
     if (this.timer) this.clock.clearTimeout(this.timer);
@@ -346,6 +351,8 @@ export type TableRoomState = {
   connected: boolean; message: string;
   /** The named draft this table plays, once the host has said so. */
   preset: string | null;
+  /** The faction the table drafts first. */
+  faction: string | null;
   lobby: LobbySeat[]; run: DraftRun | null; waiting: string[]; mine: boolean;
   /** When the current pick or deck runs out, on this machine's clock. */
   deadline: number | null;
@@ -363,7 +370,7 @@ export class TableClient {
   /** Where this client's messages go; set by whoever owns the connection. */
   attach(send: (message: TableClientMessage) => void) { this.send = send; }
   constructor(role: 'host' | 'guest', code: string, private registry: Registry) {
-    this.state = { role, code, seat: null, phase: 'connecting', connected: false, message: 'Connecting to the room…', preset: null, lobby: [], run: null, waiting: [], mine: false, deadline: null, matches: {} };
+    this.state = { role, code, seat: null, phase: 'connecting', connected: false, message: 'Connecting to the room…', preset: null, faction: null, lobby: [], run: null, waiting: [], mine: false, deadline: null, matches: {} };
   }
   readonly subscribe = (listener: () => void) => { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; };
   readonly getSnapshot = () => this.state;
@@ -379,8 +386,8 @@ export class TableClient {
     try { message = parseTableHostMessage(wire(input)); } catch (error) { this.publish({ phase: 'error', connected: false, message: error instanceof Error ? error.message : 'Invalid host message.' }); return; }
     switch (message.type) {
       case 'ping': this.send({ type: 'pong' }); break;
-      case 'lobby': this.publish({ phase: 'lobby', connected: true, seat: message.seat, preset: message.preset, lobby: message.lobby, message: 'Waiting for the host to start.' }); break;
-      case 'table': this.publish({ phase: 'table', connected: true, seat: message.run.table!.seat, preset: message.run.preset, run: message.run, waiting: message.waiting, mine: message.mine, deadline: message.remaining === null ? null : Date.now() + message.remaining, lobby: message.lobby, message: 'Connected' }); break;
+      case 'lobby': this.publish({ phase: 'lobby', connected: true, seat: message.seat, preset: message.preset, faction: message.faction, lobby: message.lobby, message: 'Waiting for the host to start.' }); break;
+      case 'table': this.publish({ phase: 'table', connected: true, seat: message.run.table!.seat, preset: message.run.preset, faction: message.run.draft.pod, run: message.run, waiting: message.waiting, mine: message.mine, deadline: message.remaining === null ? null : Date.now() + message.remaining, lobby: message.lobby, message: 'Connected' }); break;
       case 'closed': this.publish({ phase: 'closed', connected: false, message: message.message }); break;
       case 'reject': this.publish({ phase: this.state.run ? this.state.phase : 'error', connected: this.state.connected, message: message.message }); break;
       case 'match': this.receiveMatch(message.index, message.message); break;
@@ -401,6 +408,7 @@ export class TableClient {
 
   ready(ready: boolean) { this.send({ type: 'ready', ready }); }
   pick(card: string) { this.send({ type: 'pick', card }); }
+  faction(faction: string) { this.send({ type: 'faction', faction }); }
   deck(cards: string[]) { this.send({ type: 'deck', cards }); }
   report(index: number, result: DraftResult) { this.send({ type: 'result', index, result }); }
   leave() { this.send({ type: 'leave' }); }

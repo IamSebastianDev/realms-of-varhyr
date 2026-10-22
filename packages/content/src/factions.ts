@@ -6,12 +6,14 @@ export type FactionPresentation = {
   name: string;
   short: string;
   color: string;
+  /** How the faction plays in the draft, when authored. */
+  draft?: string;
 };
 export type { FactionDefinition } from './factionDefinition';
 
 export const factionDefinitions: readonly FactionDefinition[] = raw as FactionDefinition[];
 
-const present = ({ name, short, color }: FactionDefinition): FactionPresentation => ({ name, short, color });
+const present = ({ name, short, color, draft }: FactionDefinition): FactionPresentation => ({ name, short, color, ...(draft ? { draft } : {}) });
 // Neutral is a faction file like the others, listed last in filters.
 export const factionInfo: Record<string, FactionPresentation> = Object.fromEntries([
   ...factionDefinitions.filter(faction => faction.id !== neutralId),

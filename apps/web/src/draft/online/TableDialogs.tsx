@@ -10,6 +10,7 @@ import { randomSeed } from '../../session';
 import { payEntryOnce } from './entry';
 import { PeerTable, setActiveTable, useActiveTable, useTableState } from './PeerTable';
 import { useDraftRun } from '../draftStore';
+import { factionName } from '../factionTools';
 
 /** Who sits at the table: names, who is ready, and which seats a bot will take. */
 function Seats({ lobby, you }: { lobby: LobbySeat[]; you: number | null }) {
@@ -25,7 +26,7 @@ function Seats({ lobby, you }: { lobby: LobbySeat[]; you: number | null }) {
 }
 
 /** The host's side: a room code to share, who has joined, and the start button. Empty seats are played by bots. */
-export function HostTableDialog({ preset, origin, close }: { preset: DraftPreset; origin: HTMLElement | null; close: () => void }) {
+export function HostTableDialog({ preset, faction, origin, close }: { preset: DraftPreset; faction: string; origin: HTMLElement | null; close: () => void }) {
   useLanguage();
   const { collection } = useCollection();
   const [room, setRoom] = useState<PeerTable | null>(null), [error, setError] = useState(''), [copied, setCopied] = useState(false);
@@ -33,8 +34,8 @@ export function HostTableDialog({ preset, origin, close }: { preset: DraftPreset
   const created = useRef(false);
   useEffect(() => {
     if (created.current) return; created.current = true;
-    PeerTable.host(preset).then(next => { setActiveTable(next); setRoom(next); }).catch(cause => setError(cause instanceof Error ? msg(cause.message) : msg("Could not create the room.")));
-  }, [preset]);
+    PeerTable.host(preset, faction).then(next => { setActiveTable(next); setRoom(next); }).catch(cause => setError(cause instanceof Error ? msg(cause.message) : msg("Could not create the room.")));
+  }, [preset, faction]);
   // The table has started: the draft screens take over.
   useEffect(() => { if (state.phase === 'table') close(); }, [state.phase]); // eslint-disable-line react-hooks/exhaustive-deps
   const cancel = () => { setActiveTable(null); close(); };
@@ -51,7 +52,7 @@ export function HostTableDialog({ preset, origin, close }: { preset: DraftPreset
   return <BuilderDialog title={msg("Invite to draft")} origin={origin} close={cancel}>
     {!room && !error && <p role="status">{msg("Opening a room…")}</p>}
     {room && <>
-      <p>{msg("Share this code with up to two friends. Empty seats are played by bots.")}</p>
+      <p>{msg("Share this code with up to two friends. Empty seats are played by bots. The table starts with {v0}.", { v0: msg(factionName(faction)) })}</p>
       <div className="table-code"><code aria-label={msg("Room code")}>{state.code}</code><button className="outline-button" onClick={() => void copy()}>{copied ? <Check size={15}/> : <Copy size={15}/>}{copied ? msg("Copied") : msg("Copy")}</button></div>
       <Seats lobby={state.lobby} you={0}/>
       <p>{msg("Everyone pays {v0} crowns when the draft starts and is paid for their own wins. You have {v1}.", { v0: preset.entryFee, v1: collection.crowns })}</p>
@@ -91,7 +92,7 @@ export function JoinTableDialog({ origin, close, started }: { origin: HTMLElemen
         onChange={event => setCode(event.target.value.toUpperCase())} onKeyDown={event => { if (event.key === 'Enter' && code && !busy) void join(); }}/></label>
       {state.phase === 'error' && <p className="builder-dialog-error" role="alert">{msg(state.message)}</p>}
     </> : <>
-      <p>{msg("You are at {v0}'s table for the {v1} draft. Entering costs {v2} crowns, paid when the host starts. You have {v3}.", { v0: state.lobby[0]?.name ?? '', v1: msg(preset!.name), v2: preset!.entryFee, v3: collection.crowns })}</p>
+      <p>{msg("You are at {v0}'s table for the {v1} draft, starting with {v4}. Entering costs {v2} crowns, paid when the host starts. You have {v3}.", { v0: state.lobby[0]?.name ?? '', v1: msg(preset!.name), v2: preset!.entryFee, v3: collection.crowns, v4: msg(factionName(state.faction ?? '')) })}</p>
       <Seats lobby={state.lobby} you={state.seat}/>
       <p role="status">{blocked ? msg("You already have a run of this draft. Finish or end it first.") : mine?.ready ? msg("Waiting for the host to start.") : msg("Press ready when you want to play.")}</p>
     </>}

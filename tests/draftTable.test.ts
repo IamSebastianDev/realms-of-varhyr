@@ -2,14 +2,16 @@ import { describe, expect, it } from 'vitest';
 import { registry } from '../packages/content/src';
 import { validateDeck } from '../packages/core/src';
 import { draftPresets, isRunComplete, winsOf, type DraftRun } from '../packages/draft/src';
-import { autoDeckAll, autoPickAll, createTable, deckWaitingOn, leaveSeat, recordTableResult, submitDeck, submitPick, tableComplete, viewFor, waitingOn, type DraftTable } from '../packages/draft/src/table';
+import { autoDeckAll, autoPickAll, createTable, deckWaitingOn, leaveSeat, recordTableResult, submitDeck, submitFaction, submitPick, tableComplete, viewFor, waitingOn, type DraftTable } from '../packages/draft/src/table';
 
 const preset = draftPresets[0]!;
 const seats = (humans: boolean[]) => humans.map((human, index) => ({ name: `Seat ${index}`, human, token: `t${index}` }));
-const table = (humans = [true, true, false], seed = 9) => createTable(preset, registry, { id: 'table-1', seed, now: 0, seats: seats(humans) });
+const table = (humans = [true, true, false], seed = 9) => createTable(preset, registry, { id: 'table-1', seed, now: 0, seats: seats(humans), faction: 'bright-marches' });
 const view = (t: DraftTable, seat: number): DraftRun => viewFor(t, seat, { code: 'ROOM1234', host: seat === 0, fee: preset.entryFee });
-/** Everyone takes the first card of their pack until the draft is over. */
-const draftAll = (t: DraftTable) => { while (t.stage === 'draft') for (const seat of waitingOn(t)) t = submitPick(t, preset, registry, seat, t.draft.held[seat]![0]!); return t; };
+/** Everyone takes the first card of their pack until the draft is over, and brings Crownlands to the second half. */
+const draftAll = (t: DraftTable) => { while (t.stage === 'draft') for (const seat of waitingOn(t)) t = t.draft.awaiting ? submitFaction(t, preset, registry, seat, 'crownlands') : submitPick(t, preset, registry, seat, t.draft.held[seat]![0]!); return t; };
+/** Everyone takes the first card of their pack until the first half is over. */
+const firstHalf = (t: DraftTable) => { while (!t.draft.awaiting) for (const seat of waitingOn(t)) t = submitPick(t, preset, registry, seat, t.draft.held[seat]![0]!); return t; };
 
 describe('a draft table with other people', () => {
   it('waits for every person, lets the bots go with them, and ends with 48 picks each', () => {
@@ -25,6 +27,30 @@ describe('a draft table with other people', () => {
     expect(t.draft.picks.map(list => list.length)).toEqual([48, 48, 48]);
     expect(t.decks[2]).toHaveLength(30); // the bot built its own
     expect(deckWaitingOn(t)).toEqual([0, 1]);
+  });
+
+  it('keeps the faction choices hidden until the last person has chosen, then deals the second half', () => {
+    let t = firstHalf(table());
+    expect(t.draft.awaiting).toBe(true);
+    expect(waitingOn(t)).toEqual([0, 1]);
+    expect(() => submitPick(t, preset, registry, 0, 'x')).toThrow(/faction/);
+    expect(() => submitFaction(t, preset, registry, 0, 'horde')).toThrow();
+    t = submitFaction(t, preset, registry, 0, 'black-host');
+    expect(view(t, 1).draft.factions).toEqual([null, null, null]); // nothing is revealed yet
+    expect(view(t, 0).draft.awaiting).toBe(true);
+    expect(() => submitFaction(t, preset, registry, 0, 'ember-fields')).toThrow(); // no second thoughts
+    t = submitFaction(t, preset, registry, 1, 'ember-fields');
+    expect(t.draft.awaiting).toBe(false);
+    expect(t.draft.factions.slice(0, 2)).toEqual(['black-host', 'ember-fields']);
+    expect(view(t, 1).draft.factions.slice(0, 2)).toEqual(['ember-fields', t.draft.factions[2]]); // rotated around you
+    expect(waitingOn(t)).toEqual([0, 1]);
+    expect(t.draft.held[0]).toEqual(t.draft.deal[12]);
+  });
+
+  it('chooses a faction for a person who runs out of time, the same way every time', () => {
+    const a = autoPickAll(firstHalf(table()), preset, registry), b = autoPickAll(firstHalf(table()), preset, registry);
+    expect(a.draft.awaiting).toBe(false);
+    expect(a.draft.factions).toEqual(b.draft.factions);
   });
 
   it('plays a slow person\'s pick with a bot\'s choice when time runs out, and the same way every time', () => {

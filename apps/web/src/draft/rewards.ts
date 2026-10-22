@@ -1,4 +1,5 @@
 import type { Registry } from '../../../../packages/contracts/src';
+import { boosterPacks } from '../../../../packages/content/src/boosters';
 import { payoutFor, poolOf, winsOf, type DraftPreset, type DraftRun } from '../../../../packages/draft/src';
 import { grantCopies, type Collection } from '../collection';
 
@@ -16,6 +17,8 @@ export type DraftSettlement = {
   cards: DraftCardReward[]; dusted: number;
 };
 export const draftReceiptKey = (run: DraftRun) => run.id;
+/** The collection booster a run pays in: the one that holds the faction the whole table drafted first. */
+export const payoutBooster = (run: DraftRun) => (boosterPacks.find(pack => pack.factions.includes(run.draft.pod)) ?? boosterPacks[0]!).id;
 
 /**
  * Pays a finished or dropped run once: the payout tier, then every drafted card as one big booster. Copies over the ownership
@@ -34,7 +37,7 @@ export function settleDraft(collection: Collection, run: DraftRun, preset: Draft
     dusted += grant.crowns; byCard.set(id, entry);
   }
   const boosters = new Map<string, number>();
-  for (let index = 0; index < tier.boosters; index++) { const pack = preset.packs[index % preset.packs.length]!; boosters.set(pack, (boosters.get(pack) ?? 0) + 1); }
+  if (tier.boosters) boosters.set(payoutBooster(run), tier.boosters);
   for (const [pack, count] of boosters) next.packs[pack] = (next.packs[pack] ?? 0) + count;
   next.crowns += tier.crowns;
   return { collection: next, settlement: { wins, played: run.matches.filter(match => match.result).length, dropped: run.dropped, crowns: tier.crowns, boosters: [...boosters].map(([pack, count]) => ({ pack, count })), cards: [...byCard.values()], dusted } };

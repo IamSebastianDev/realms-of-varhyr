@@ -3,6 +3,7 @@
   "name": "The Bright Marches",
   "short": "Marches",
   "color": "#ebc77e",
+  "draft": "Wide and quick. Banners and Guard let cheap humans and archers outnumber the board, while Longshot and Volley clear the way. Draft creatures first and keep a holding or two, like the Wooden Fort, to hold a lane. Hybrids with the Crownlands give it a sturdier line.",
   "starter": {
     "id": "hearth-and-stone",
     "name": "Hearth and Stone",

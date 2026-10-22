@@ -1,32 +1,35 @@
 import { deckRules, type CardDefinition, type Registry } from '../../contracts/src';
 import { validateDeck } from '../../core/src';
 import { energyProductionOptions } from '../../core/src/production';
-import { boosterPacks, drawBooster, packCards } from '../../content/src/boosters';
+import { drawBooster } from '../../content/src/boosters';
+import { factions as namedFactions } from '../../content/src/factions';
+import { neutralId } from '../../content/src/factionDefinition';
 import { makeRng, type Rng } from '../../quest/src/rng';
 
 /**
  * The faction draft. Three drafters (you and two bots) open a pack each, pick one card and pass the rest on.
+ * It has two halves of four rounds. In the first, everybody drafts boosters of one faction; then every drafter chooses a faction
+ * at the same time, the choices are revealed together, and each drafter opens four boosters of their own choice.
  * Everything here is pure: a run is plain data, so it can be saved, resumed and replayed from its seed.
  */
 export type PayoutTier = { crowns: number; boosters: number };
 
 /** Provisional tuning. Wins out of four, so five tiers. A booster counts as 100 crowns. */
-export const draftRules = { drafters: 3, packSize: 6, rounds: 8, entryFee: 1500, matches: 4 } as const;
+export const draftRules = { drafters: 3, packSize: 6, rounds: 8, /** Rounds in each half of the draft. */ phaseRounds: 4, entryFee: 1500, matches: 4,
+  /** A faction can be drafted once it has this many cards of its own and a free producer for its boosters to guarantee. */ minimumRoster: 12 } as const;
 export const defaultPayout: readonly PayoutTier[] = [
   { crowns: 250, boosters: 1 }, { crowns: 450, boosters: 2 }, { crowns: 600, boosters: 3 }, { crowns: 800, boosters: 5 }, { crowns: 1100, boosters: 8 },
 ];
 
-/** A named draft: which boosters feed it, what it costs and what it pays. New drafts are new entries, not new code. */
+/** A named draft: what it costs and what it pays. Which cards it deals comes from the factions the drafters choose. */
 export type DraftPreset = {
-  id: string; name: string; blurb: string; color: string;
-  /** Booster ids, dealt in turn: the packs of round r are packs[(3r + drafter) % packs.length]. */
-  packs: string[];
+  id: string; name: string; blurb: string;
   entryFee: number; rounds: number; packSize: number; payout: readonly PayoutTier[];
 };
-export const draftPresets: DraftPreset[] = boosterPacks.map(pack => ({
-  id: `draft-${pack.id}`, name: pack.name, blurb: pack.blurb, color: pack.color, packs: [pack.id],
+export const draftPresets: DraftPreset[] = [{
+  id: 'faction-draft', name: 'Faction Draft', blurb: 'Draft a faction, then choose a second one.',
   entryFee: draftRules.entryFee, rounds: draftRules.rounds, packSize: draftRules.packSize, payout: defaultPayout,
-}));
+}];
 export const presetById = (id: string) => draftPresets.find(preset => preset.id === id);
 
 export const costOf = (card: CardDefinition) => card.cost.generic + Object.values(card.cost.factions).reduce((sum, n) => sum + n, 0);
@@ -34,16 +37,36 @@ export const isProducer = (card: CardDefinition, registry: Registry) => card.typ
 /** A producer you can play for nothing: what the rules call a producer in a draft. */
 export const isFreeProducer = (card: CardDefinition, registry: Registry) => costOf(card) === 0 && isProducer(card, registry);
 
-/** One draft booster: a guaranteed free producer plus five normal cards, in a shuffled order. */
-export function makeDraftPack(pool: CardDefinition[], registry: Registry, rng: Rng, size: number = draftRules.packSize): string[] {
-  const free = pool.filter(card => isFreeProducer(card, registry));
-  if (!free.length) throw new Error('This booster has no producers to guarantee.');
+export const isNeutralCard = (card: CardDefinition) => card.factions.length === 0 || card.factions.every(faction => faction === neutralId);
+/** What a booster of a faction can contain: its own cards, every hybrid that includes it, and neutrals. */
+export const factionPool = (cards: CardDefinition[], faction: string) => cards.filter(card => card.factions.includes(faction) || isNeutralCard(card));
+/** The guaranteed card of a booster: a free producer of the faction itself. Never a hybrid, a neutral or a legendary. */
+export const guaranteedProducers = (cards: CardDefinition[], faction: string, registry: Registry) =>
+  cards.filter(card => card.factions.length === 1 && card.factions[0] === faction && !card.legendary && isFreeProducer(card, registry));
+/** Factions that have the cards and the producers to fill boosters of their own. */
+export const draftableFactions = (registry: Registry): string[] => {
+  const all = Object.values(registry.cards);
+  return namedFactions.filter(faction => all.filter(card => card.factions.length === 1 && card.factions[0] === faction).length >= draftRules.minimumRoster && guaranteedProducers(all, faction, registry).length > 0);
+};
+/** The hybrids that join two factions: the cards a drafter takes at the risk of never using them. */
+export const isHybrid = (card: CardDefinition) => card.factions.filter(faction => faction !== neutralId).length > 1;
+
+/** One draft booster of a faction: a guaranteed free producer of that faction plus five normal cards, in a shuffled order. */
+export function makeDraftPack(registry: Registry, faction: string, rng: Rng, size: number = draftRules.packSize): string[] {
+  const all = Object.values(registry.cards), pool = factionPool(all, faction), free = guaranteedProducers(all, faction, registry);
+  if (!free.length) throw new Error(`The ${faction} boosters have no producer to guarantee.`);
   const normal = Array.from({ length: size - 1 }, () => drawBooster(pool, rng.next)[0]!);
   return rng.shuffle([rng.pick(free).id, ...normal]);
 }
 
 export type DraftState = {
   seed: number; preset: string;
+  /** The faction of everybody's first four boosters. */
+  pod: string;
+  /** What each drafter chose for the second half. Null until all of them have chosen; then the choices are public. */
+  factions: (string | null)[];
+  /** Between the halves: the drafters are choosing their faction and no pack is in play. */
+  awaiting: boolean;
   /** Every pack of the draft, round by round: rounds x drafters. Drafter 0 is you. */
   deal: string[][];
   round: number; step: number;
@@ -53,15 +76,17 @@ export type DraftState = {
   done: boolean;
 };
 
-export function startDraft(preset: DraftPreset, registry: Registry, seed: number): DraftState {
-  const rng = makeRng(seed), all = Object.values(registry.cards);
+/** The boosters of rounds `from` up to `to`, one for each drafter, of the faction that drafter brings. */
+function dealRounds(registry: Registry, seed: number, factions: string[], from: number, to: number): string[][] {
   const deal: string[][] = [];
-  for (let slot = 0; slot < preset.rounds * draftRules.drafters; slot++) {
-    const pack = boosterPacks.find(entry => entry.id === preset.packs[slot % preset.packs.length]);
-    if (!pack) throw new Error(`Unknown booster in ${preset.id}.`);
-    deal.push(makeDraftPack(packCards(all, pack), registry, rng, preset.packSize));
-  }
-  return { seed, preset: preset.id, deal, round: 0, step: 0, held: deal.slice(0, draftRules.drafters).map(pack => [...pack]), picks: Array.from({ length: draftRules.drafters }, () => []), done: false };
+  for (let round = from; round < to; round++) for (let drafter = 0; drafter < draftRules.drafters; drafter++) deal.push(makeDraftPack(registry, factions[drafter]!, makeRng(`${seed}:deal:${round}:${drafter}`)));
+  return deal;
+}
+
+export function startDraft(preset: DraftPreset, registry: Registry, seed: number, pod: string): DraftState {
+  if (!draftableFactions(registry).includes(pod)) throw new Error('That faction cannot be drafted yet.');
+  const deal = dealRounds(registry, seed, [pod, pod, pod], 0, draftRules.phaseRounds);
+  return { seed, preset: preset.id, pod, factions: [null, null, null], awaiting: false, deal, round: 0, step: 0, held: deal.slice(0, draftRules.drafters).map(pack => [...pack]), picks: Array.from({ length: draftRules.drafters }, () => []), done: false };
 }
 
 const rarityValue = { common: 1, rare: 3, legendary: 5 } as const;
@@ -75,6 +100,21 @@ function topFactions(cards: CardDefinition[], registry: Registry, count = 2): st
   const weight = new Map<string, number>();
   for (const card of cards) for (const faction of card.factions) weight.set(faction, (weight.get(faction) ?? 0) + cardValue(card, registry));
   return [...weight].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)).slice(0, count).map(entry => entry[0]);
+}
+
+/**
+ * The faction a bot brings to the second half: the partner of the hybrids it holds, else a second faction (the first one again is
+ * a little less likely). It looks only at its own picks, so nobody can react to what the others chose.
+ */
+export function botFaction(picks: string[], pod: string, registry: Registry, rng: Rng): string {
+  const owned = picks.map(id => registry.cards[id]!), candidates = draftableFactions(registry);
+  let best = pod, bestScore = -Infinity;
+  for (const faction of candidates) {
+    const hybrids = owned.filter(card => isHybrid(card) && card.factions.includes(faction)).reduce((sum, card) => sum + cardValue(card, registry), 0);
+    const score = hybrids + (faction === pod ? -0.5 : 1) + rng.next() * 1.5;
+    if (score > bestScore) { best = faction; bestScore = score; }
+  }
+  return best;
 }
 
 /** A bot takes the best card for its colours so far, makes sure it gets producers, and does not take a second legendary. */
@@ -102,6 +142,7 @@ export function botPick(pack: string[], picks: string[], registry: Registry, rng
  */
 export function pickRound(state: DraftState, preset: DraftPreset, registry: Registry, choices: (string | null)[]): DraftState {
   if (state.done) throw new Error('The draft is over.');
+  if (state.awaiting) throw new Error('Choose your faction first.');
   const picks = state.picks.map(list => [...list]);
   let held = state.held.map(pack => [...pack]);
   const take = (drafter: number, id: string) => { held[drafter]!.splice(held[drafter]!.indexOf(id), 1); picks[drafter]!.push(id); };
@@ -113,17 +154,36 @@ export function pickRound(state: DraftState, preset: DraftPreset, registry: Regi
   let { round, step } = state;
   const pass = () => { held = held.map((_, drafter) => held[(drafter + draftRules.drafters - 1) % draftRules.drafters]!); };
   pass(); step++;
-  let done = false;
+  let done = false, awaiting = false;
   if (step >= preset.packSize) {
     round++; step = 0;
     if (round >= preset.rounds) done = true;
+    else if (round === draftRules.phaseRounds && state.factions.some(faction => faction === null)) { awaiting = true; held = [[], [], []]; }
     else held = state.deal.slice(round * draftRules.drafters, (round + 1) * draftRules.drafters).map(pack => [...pack]);
   }
-  return { ...state, round, step, held, picks, done };
+  return { ...state, round, step, held, picks, done, awaiting };
+}
+
+/**
+ * Between the halves every drafter chooses a faction. `choices` holds a faction for each person and null for a seat a bot plays;
+ * the choices are revealed together, and the boosters of the second half are dealt from them.
+ */
+export function chooseFactions(state: DraftState, registry: Registry, choices: (string | null)[]): DraftState {
+  if (!state.awaiting) throw new Error('Nobody is choosing a faction now.');
+  const allowed = draftableFactions(registry);
+  const factions = state.picks.map((picks, drafter) => {
+    const choice = choices[drafter] ?? null;
+    if (choice === null) return botFaction(picks, state.pod, registry, makeRng(`${state.seed}:faction:${drafter}`));
+    if (!allowed.includes(choice)) throw new Error('That faction cannot be drafted yet.');
+    return choice;
+  });
+  const deal = [...state.deal, ...dealRounds(registry, state.seed, factions, draftRules.phaseRounds, draftRules.rounds)];
+  return { ...state, factions, awaiting: false, deal, held: deal.slice(state.round * draftRules.drafters, (state.round + 1) * draftRules.drafters).map(pack => [...pack]) };
 }
 
 /** You take a card from your pack; both bots pick and the packs move on. The last card of a pack is picked like any other. */
 export function pickCard(state: DraftState, preset: DraftPreset, registry: Registry, cardId: string): DraftState {
+  if (state.awaiting) throw new Error('Choose your faction first.');
   if (!state.done && !state.held[0]!.includes(cardId)) throw new Error('That card is not in your pack.');
   return pickRound(state, preset, registry, [cardId, null, null]);
 }
@@ -169,9 +229,17 @@ const botNames = ['Brannoch the Quartermaster', 'Isolde Vane', 'Old Hask', 'Mare
 /** The two bots' names for a seed, known from the first pick so the table can be shown while drafting. */
 export const botNamesFor = (seed: number): [string, string] => { const names = makeRng(`${seed}:bots`).shuffle(botNames); return [names[0]!, names[1]!]; };
 
-export function startRun(preset: DraftPreset, registry: Registry, options: { id: string; seed: number; now: number }): DraftRun {
-  return { id: options.id, preset: preset.id, seed: options.seed, startedAt: options.now, stage: 'draft', draft: startDraft(preset, registry, options.seed), deck: [], bots: [], matches: [], dropped: false, fee: preset.entryFee };
+export function startRun(preset: DraftPreset, registry: Registry, options: { id: string; seed: number; now: number; faction: string }): DraftRun {
+  return { id: options.id, preset: preset.id, seed: options.seed, startedAt: options.now, stage: 'draft', draft: startDraft(preset, registry, options.seed, options.faction), deck: [], bots: [], matches: [], dropped: false, fee: preset.entryFee };
 }
+
+/** Your faction for the second half. The bots choose theirs from their own picks, so nobody reacts to anybody. */
+export function chooseFaction(run: DraftRun, registry: Registry, faction: string): DraftRun {
+  if (run.stage !== 'draft' || !run.draft.awaiting) throw new Error('Nobody is choosing a faction now.');
+  return { ...run, draft: chooseFactions(run.draft, registry, [faction, null, null]) };
+}
+/** The factions a run is drafted from: the shared one, then the one you chose once the choices are in. */
+export const factionsOf = (draft: DraftState): string[] => [...new Set([draft.pod, ...(draft.factions[0] ? [draft.factions[0]] : [])])];
 
 /** Double round-robin, seen from your seat: each bot twice, alternating. Matches between the bots do not matter. */
 function scheduleMatches(seed: number): DraftMatch[] {
@@ -221,7 +289,7 @@ export const bestPossible = (run: DraftRun) => winsOf(run) + run.matches.filter(
 export function parseRun(value: unknown): DraftRun | null {
   const run = value as DraftRun | null;
   if (!run || typeof run !== 'object' || typeof run.id !== 'string' || typeof run.preset !== 'string' || !run.draft || !Array.isArray(run.draft.picks)
-    || !Array.isArray(run.draft.held) || !Array.isArray(run.draft.deal) || !Array.isArray(run.deck) || !Array.isArray(run.matches) || !Array.isArray(run.bots)
+    || !Array.isArray(run.draft.held) || !Array.isArray(run.draft.deal) || typeof run.draft.pod !== 'string' || !Array.isArray(run.draft.factions) || typeof run.draft.awaiting !== 'boolean' || !Array.isArray(run.deck) || !Array.isArray(run.matches) || !Array.isArray(run.bots)
     || !['draft', 'build', 'matches', 'finished'].includes(run.stage)) return null;
   return run;
 }

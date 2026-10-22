@@ -28,6 +28,12 @@ export function rarest(cards: string[]) {
   return [...new Set(cards)].filter(id => registry.cards[id]).sort((a, b) => rarityRank[registry.cards[b].rarity] - rarityRank[registry.cards[a].rarity] || total(b) - total(a) || registry.cards[a].name.localeCompare(registry.cards[b].name)).slice(0, 3).map(id => registry.cards[id]);
 }
 
+/** The cards on a deck box: the ones the player chose and the deck still holds, otherwise the rarest. */
+export function showcaseOf(deck: CustomDeck) {
+  const chosen = (deck.showcase ?? []).filter(id => registry.cards[id] && deck.cards.includes(id)).slice(0, 3).map(id => registry.cards[id]!);
+  return chosen.length ? chosen : rarest(deck.cards);
+}
+
 function look(deck: CustomDeck) {
   const [main] = leanings(deck.cards);
   return { main: main ?? 'neutral', colour: factionInfo[main]?.color ?? '#b9a574', hero: avatarDefinitions.find(avatar => avatar.faction === main) };
@@ -66,7 +72,7 @@ export function DeckShelf({ decks, draft, ownedCopies, open, create, importDeck,
   const info = current && (() => {
     const { deck, missing } = current;
     const ready = !validateDeck(deck.cards, registry).length && !missing;
-    return { ...look(deck), ready, summary: summarizeDeck(deck.cards, registry), showcase: rarest(deck.cards) };
+    return { ...look(deck), ready, summary: summarizeDeck(deck.cards, registry), showcase: showcaseOf(deck) };
   })();
   const curveMax = Math.max(1, ...(info?.summary.curve ?? [1]));
   return <main className="collection-page deck-shelf" aria-label={msg("Your decks")}>

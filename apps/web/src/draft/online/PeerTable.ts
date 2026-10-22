@@ -8,7 +8,7 @@ import { getProfile } from '../../profile';
 import { newRoomCode, normalizeRoomCode, validRoomCode } from '../../multiplayer/RtcRoom';
 import { readDraftRun, saveDraftRun } from '../draftStore';
 
-const peerId = (code: string) => `varhyr-draft-v${NETWORK_VERSION}-${code}`;
+const peerId = (code: string) => `varhyr-draft2-v${NETWORK_VERSION}-${code}`;
 const tokenKey = (code: string) => `varhyr-draft-seat-v1:${code}`;
 /** The same person gets the same seat back after a reload, because the token stays in this browser. */
 function seatToken(code: string, fresh = false) {
@@ -36,9 +36,9 @@ export class PeerTable {
   private peer: Peer | null = null;
   private connection: DataConnection | null = null;
   private closed = false;
-  private constructor(readonly code: string, readonly role: 'host' | 'guest', private token: string, readonly preset: DraftPreset | null) {
+  private constructor(readonly code: string, readonly role: 'host' | 'guest', private token: string, readonly preset: DraftPreset | null, readonly faction: string | null = null) {
     this.client = new TableClient(role, code, registry);
-    this.hub = role === 'host' ? new DraftTableHost({ registry, preset: preset!, code }, token) : null;
+    this.hub = role === 'host' ? new DraftTableHost({ registry, preset: preset!, code, faction: faction! }, token) : null;
     // The saved run follows what the table says, so the overview and a reload see the same thing as the draft screens.
     this.client.subscribe(() => {
       const run = this.client.getSnapshot().run, saved = run && readDraftRun(run.preset);
@@ -48,8 +48,8 @@ export class PeerTable {
   }
   private get profile() { const profile = getProfile(); return { token: this.token, name: profile.name || 'Player', avatar: profile.avatar }; }
 
-  static async host(preset: DraftPreset) {
-    const room = new PeerTable(newRoomCode(), 'host', crypto.randomUUID(), preset);
+  static async host(preset: DraftPreset, faction: string) {
+    const room = new PeerTable(newRoomCode(), 'host', crypto.randomUUID(), preset, faction);
     room.peer = await openPeer(peerId(room.code));
     const peer = room.peer;
     await new Promise<void>((resolve, reject) => {
@@ -116,5 +116,5 @@ const notify = () => { for (const listener of listeners) listener(); };
 export const activeTable = () => current;
 export function setActiveTable(next: PeerTable | null) { if (current && current !== next) current.close(); current = next; notify(); }
 export const useActiveTable = () => useSyncExternalStore(listener => { listeners.add(listener); return () => { listeners.delete(listener); }; }, () => current, () => null);
-const emptyState: TableRoomState = { role: 'guest', code: '', seat: null, phase: 'closed', connected: false, message: '', preset: null, lobby: [], run: null, waiting: [], mine: false, deadline: null, matches: {} };
+const emptyState: TableRoomState = { role: 'guest', code: '', seat: null, phase: 'closed', connected: false, message: '', preset: null, faction: null, lobby: [], run: null, waiting: [], mine: false, deadline: null, matches: {} };
 export const useTableState = (room: PeerTable | null): TableRoomState => useSyncExternalStore(room?.client.subscribe ?? (() => () => undefined), room?.client.getSnapshot ?? (() => emptyState), () => emptyState);

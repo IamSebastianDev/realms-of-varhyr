@@ -26,6 +26,12 @@ export function carouselPack(pack: BoosterPack): CarouselPack {
   return { id: pack.id, name: msg(pack.name), color: pack.color, symbol: symbolFor(pack), model, art: look?.art, variant: look?.variant ?? { width: 1, height: 1, thin: 1, seal: 'ribs', finish: 'matte' } };
 }
 
+/** A pack that belongs to no store: the shared model with a generated face and one mark on it, a faction's emblem or a question mark. */
+export function proceduralPack(id: string, name: string, color: string, mark: string | null): CarouselPack {
+  const paths = mark ? factionIconPaths[mark] : undefined;
+  return { id, name, color, symbol: paths ? { paths, box: 24 } : { text: '?' }, model, variant: { width: 1, height: 1, thin: 1, seal: 'ribs', finish: 'matte' } };
+}
+
 /** WebGL can be missing or refuse a context; callers keep a flat fallback. */
 export const hasWebGL = (() => { try { return !!document.createElement('canvas').getContext('webgl2') || !!document.createElement('canvas').getContext('webgl'); } catch { return false; } })();
 

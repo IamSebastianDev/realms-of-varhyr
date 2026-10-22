@@ -4,7 +4,7 @@ import { registry, starterDefinitions } from '../../../packages/content/src';
 import { ownedCopyCount, type OwnedCopies } from './collection';
 import { currentCardIds } from './cardIds';
 
-export type CustomDeck = { id: string; name: string; cards: string[]; /** Card back (sleeve) id; saved with the deck. */ back?: string };
+export type CustomDeck = { id: string; name: string; cards: string[]; /** Card back (sleeve) id; saved with the deck. */ back?: string; /** Up to three cards whose art is shown on the deck box. Without it the rarest cards are used. */ showcase?: string[] };
 export const decksKey = 'varhir-decks-v1';
 export const draftKey = 'varhir-deck-draft-v1';
 export const favoriteDecksKey = 'varhir-favorite-decks-v1';
@@ -56,7 +56,8 @@ export function parseDeck(value: unknown, allowBlankName = false, content: Regis
     !cards || !cards.every(id => content.cards[id])
   ) return null;
   if (validateDeck(cards, content).some(error => !error.startsWith('A deck needs'))) return null;
-  return { id: deck.id, name: deck.name.trim(), cards, ...(typeof deck.back === 'string' && deck.back.length <= 40 ? { back: deck.back } : {}) };
+  const showcase = Array.isArray(deck.showcase) ? [...new Set(deck.showcase.filter(id => typeof id === 'string' && content.cards[id] && cards.includes(id)))].slice(0, 3) : [];
+  return { id: deck.id, name: deck.name.trim(), cards, ...(typeof deck.back === 'string' && deck.back.length <= 40 ? { back: deck.back } : {}), ...(showcase.length ? { showcase } : {}) };
 }
 
 export function parseDecks(raw: string | null, content: Registry = registry): CustomDeck[] {

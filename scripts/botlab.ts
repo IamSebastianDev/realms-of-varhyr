@@ -3,7 +3,7 @@ import { registry, starterDecks, starterDefinitions } from '../packages/content/
 import { apply, createMatch, decisionPlayer, validateDeck } from '../packages/core/src';
 import { botCommand } from '../packages/core/src/bot';
 import { setBotWeights, type BotWeights } from '../packages/core/src/botWeights';
-import { buildBotDeck, draftPresets, pickRound, startDraft } from '../packages/draft/src';
+import { buildBotDeck, chooseFactions, draftableFactions, draftPresets, pickRound, startDraft } from '../packages/draft/src';
 import type { Command, GameState, PlayerId } from '../packages/contracts/src';
 
 export function seedFor(sample: number): number {
@@ -13,9 +13,9 @@ export function seedFor(sample: number): number {
 export function deckPool(drafted = 24): string[][] {
   const decks = starterDefinitions.filter(d => !validateDeck(starterDecks[d.id], registry).length).map(d => starterDecks[d.id]);
   for (let i = 0; i < drafted; i++) {
-    const preset = draftPresets[i % draftPresets.length];
-    let state = startDraft(preset, registry, 500 + i);
-    while (!state.done) state = pickRound(state, preset, registry, [null, null, null]);
+    const preset = draftPresets[0]!, factions = draftableFactions(registry);
+    let state = startDraft(preset, registry, 500 + i, factions[i % factions.length]!);
+    while (!state.done) state = state.awaiting ? chooseFactions(state, registry, [null, null, null]) : pickRound(state, preset, registry, [null, null, null]);
     for (const picks of state.picks) { const deck = buildBotDeck(picks, registry); if (deck.length === 30 && !validateDeck(deck, registry, { draft: true }).length) decks.push(deck); }
   }
   return decks;

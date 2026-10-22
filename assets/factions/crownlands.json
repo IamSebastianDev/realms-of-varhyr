@@ -3,6 +3,7 @@
   "name": "The Crownlands",
   "short": "Crown",
   "color": "#deb966",
+  "draft": "Disciplined and defensive. Armor, Shield Wall and Banner reward a tight row of creatures and holdings standing side by side, and Rest and Cleansing Light keep your life high in a long game. It wins by being harder to move than whatever it faces. Hybrids with the Bright Marches add attackers.",
   "starter": {
     "id": "crown",
     "name": "Banners of the Crown",

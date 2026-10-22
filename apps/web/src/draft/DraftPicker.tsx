@@ -6,10 +6,11 @@ import { t as msg, useLanguage } from '../../../../packages/ui/src/i18n';
 import { registry } from '../../../../packages/content/src';
 import type { CardDefinition } from '../../../../packages/contracts/src';
 import { ArtCard } from '../../../../packages/ui/src/CardPresentation';
-import { botNamesFor, isFreeProducer, type DraftPreset, type DraftRun } from '../../../../packages/draft/src';
+import { botNamesFor, draftRules, isFreeProducer, type DraftPreset, type DraftRun } from '../../../../packages/draft/src';
 import { DraftBackdrop } from './DraftHubArt';
 import { DraftPane } from './DraftPane';
 import { Rail, Workshop } from '../layout/Workshop';
+import { factionColor, factionName } from './factionTools';
 
 /** The pick screen: the pack in front of you in an inset panel, your picks in the deckbuilder's pane. Choose a card, or drag it over. */
 /** At a table with other people: who is still choosing, and when time runs out. */
@@ -29,13 +30,15 @@ export function DraftPicker({ run, preset, reduced, pick, back, inspect, status 
   const seconds = useSecondsLeft(status?.deadline ?? null), chosenAlready = !!status && !status.mine;
   useEffect(() => { setChosen(null); }, [state.round, state.step]);
   const total = preset.rounds * preset.packSize;
+  /** The first half is everybody's shared faction; in the second you opened boosters of the one you chose. */
+  const second = state.round >= draftRules.phaseRounds, faction = second ? state.factions[0] ?? state.pod : state.pod;
   const { playEffect } = useAudio();
   const take = (index: number) => { if (chosenAlready || !status?.connected && status) return; setChosen(null); playEffect('draft.pick'); pick(pack[index]!); };
-  return <Workshop label={msg("Draft picks")} className="draft-workshop" style={{ ['--pack-color' as string]: preset.color }} backdrop={<DraftBackdrop preset={preset}/>}
+  return <Workshop label={msg("Draft picks")} className="draft-workshop" style={{ ['--pack-color' as string]: factionColor(faction) }} backdrop={<DraftBackdrop faction={faction}/>}
     panelLabel={msg("Cards in your pack")} back={{ label: msg("Back to the draft overview"), onClick: back }}
     title={msg("Pick a card")} subtitle={msg("Round {v0} of {v1} · {v2} cards in this pack", { v0: state.round + 1, v1: preset.rounds, v2: pack.length })}
     rail={<Rail className="draft-rail">
-        <span>{msg("You pass what is left to {v0} and receive a pack from {v1}.", { v0: next, v1: previous })}</span>
+        <span>{second ? msg("Second half: you opened {v0} boosters.", { v0: msg(factionName(faction)) }) : msg("First half: every booster is {v0}.", { v0: msg(factionName(faction)) })} {msg("You pass what is left to {v0} and receive a pack from {v1}.", { v0: next, v1: previous })}</span>
         {status && <span className="draft-table-status" role="status">{!status.connected ? msg("Reconnecting to the table…") : chosenAlready ? msg("Waiting for {v0}…", { v0: status.waiting.join(', ') || '…' }) : seconds !== null ? msg("{v0} s to choose. A bot picks for you after that.", { v0: seconds }) : ''}</span>}
         <button className="gold-button builder-save" disabled={chosen === null || chosenAlready} onClick={() => chosen !== null && take(chosen)}>{chosenAlready ? msg("Card chosen") : chosen === null ? msg("Choose a card") : msg("Take card")}<Check size={14}/></button>
     </Rail>}
