@@ -2,12 +2,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { apply, decisionPlayer } from "@realms/core";
 import { botCommand } from "@realms/core/bot";
 import { MatchAuthority } from "@realms/multiplayer/authority";
-import { LoopbackRoom } from "../src/match/LoopbackRoom";
-import { createLocalMatch } from "../src/match/localMatch";
-import { LiveMatchSession } from "../src/match/MatchSession";
+import { LoopbackRoom } from "../src/features/match/session/LoopbackRoom";
+import { createLocalMatch } from "../src/features/match/lib/localMatch";
+import { LiveMatchSession } from "../src/features/match/session/MatchSession";
 import { registry } from "@realms/testing/content";
-import { startMatch } from "@realms/testing/session";
-import { opponentMoves, startTutorial, opponentCommand } from "../src/tutorial";
+import { startMatch } from "./support/session";
+import { opponentMoves, startTutorial, opponentCommand } from "../src/features/tutorial/tutorial";
 
 beforeEach(() => {
   vi.useFakeTimers();

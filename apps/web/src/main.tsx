@@ -1,45 +1,45 @@
 import "@realms/ui/fonts";
-import "./styles.css";
-import "./card-layout.css";
-import "./layout.css";
+import "./app/styles/styles.css";
+import "./app/styles/card-layout.css";
+import "./app/styles/layout.css";
 import { ApplicationPreferences } from "@realms/ui/i18n";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { AudioExperience } from "./AudioExperience";
-import "./audio.css";
-import { App } from "./App";
-import "./detail-chrome.css";
-import "./arena.css";
-import "./deck-builder.css";
-import "./collection.css";
-import "./multiplayer/multiplayer.css";
-import "./start-screen.css";
-import "./tutorial.css";
-import "./combat-fx.css";
-import "./match-summary.css";
-import "./profile.css";
-import "./collection-stats.css";
-import "./form-controls.css";
-import "./onboarding.css";
-import "./touch.css";
-import "./plate.css";
-import "./scene-transition.css";
-import "./hand-fan.css";
-import "./select-picker";
-import "./ui-scale.css";
-import { watchUiScale } from "./uiScale";
-import { RotateNotice } from "./RotateNotice";
-import { LoadingScreen } from "./LoadingScreen";
-import { installTouchDrag } from "./touchDrag";
-import "./loading.css";
+import { AudioProvider } from "./app/providers/AudioProvider";
+import "./features/audio/audio.css";
+import { App } from "./app/App";
+import "./app/styles/detail-chrome.css";
+import "./features/match/styles/arena.css";
+import "./features/decks/styles/deck-builder.css";
+import "./features/collection/styles/collection.css";
+import "./features/multiplayer/styles/multiplayer.css";
+import "./features/lobby/styles/start-screen.css";
+import "./features/tutorial/tutorial.css";
+import "./features/match/styles/combat-fx.css";
+import "./features/match/styles/match-summary.css";
+import "./features/profile/styles/profile.css";
+import "./features/collection/styles/collection-stats.css";
+import "./app/styles/form-controls.css";
+import "./features/onboarding/styles/onboarding.css";
+import "./app/styles/touch.css";
+import "./app/styles/plate.css";
+import "./app/styles/scene-transition.css";
+import "./features/match/styles/hand-fan.css";
+import "./lib/select-picker";
+import "./app/styles/ui-scale.css";
+import { watchUiScale } from "./lib/uiScale";
+import { RotateNotice } from "./components/RotateNotice";
+import { LoadingScreen } from "./components/LoadingScreen";
+import { installTouchDrag } from "./lib/touchDrag";
+import "./app/styles/loading.css";
 watchUiScale();
 installTouchDrag();
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ApplicationPreferences>
-      <AudioExperience>
+      <AudioProvider>
         <App />
-      </AudioExperience>
+      </AudioProvider>
       <RotateNotice />
       <LoadingScreen />
     </ApplicationPreferences>

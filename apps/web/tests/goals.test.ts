@@ -17,7 +17,7 @@ import {
   rollDay,
   type Goals,
   type MatchResult,
-} from "../src/goals";
+} from "../src/features/goals/lib/goals";
 
 const external = { collectionPercent: 0, boostersOpened: 0 };
 const win = (id: string, extra: Partial<MatchResult> = {}): MatchResult => ({

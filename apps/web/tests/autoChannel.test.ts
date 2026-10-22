@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { planChannels } from "../src/autoChannel";
+import { planChannels } from "../src/features/match/lib/autoChannel";
 
 import type { Pool } from "@realms/contracts";
 const cost = (generic: number, factions: Record<string, number> = {}) => ({ generic, factions });

@@ -1,6 +1,11 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { achievements, achievementStatus, claimAchievement, newGoals } from "../src/goals";
-import { cardBacks, isBackUnlocked } from "../src/cardBacks";
+import {
+  achievements,
+  achievementStatus,
+  claimAchievement,
+  newGoals,
+} from "../src/features/goals/lib/goals";
+import { cardBacks, isBackUnlocked } from "../src/features/card-backs/lib/cardBacks";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -22,14 +27,15 @@ it("grants sleeves and achievements independently and persists both without chan
     setItem: (key: string, value: string) => storage.set(key, value),
   });
 
-  const { unlockAllSleeves } = await import("../src/cardBackStore");
+  const { unlockAllSleeves } = await import("../src/features/card-backs/stores/cardBackStore");
   unlockAllSleeves();
   expect(storage.get("varhyr-goals-v1")).toBe(JSON.stringify(goals));
   const backsAfterUnlock = JSON.parse(storage.get("varhyr-card-backs-v1")!);
   expect(cardBacks.every((back) => isBackUnlocked(back, goals, backsAfterUnlock.bought))).toBe(
     true,
   );
-  const { currentGoals, completeAllAchievements } = await import("../src/goalsStore");
+  const { currentGoals, completeAllAchievements } =
+    await import("../src/features/goals/stores/goalsStore");
   completeAllAchievements();
   expect(JSON.parse(storage.get("varhyr-card-backs-v1")!)).toEqual(backsAfterUnlock);
   const completed = currentGoals(),
@@ -51,9 +57,9 @@ it("grants sleeves and achievements independently and persists both without chan
   expect([...storage]).toEqual(once);
 
   vi.resetModules();
-  const reloaded = await import("../src/goalsStore");
+  const reloaded = await import("../src/features/goals/stores/goalsStore");
   expect(reloaded.currentGoals().claimedTiers).toEqual(completed.claimedTiers);
-  const sleeves = await import("../src/cardBackStore");
+  const sleeves = await import("../src/features/card-backs/stores/cardBackStore");
   expect(sleeves.resolveCardBack("gilded")).toBe("gilded");
   expect(sleeves.resolveCardBack("peaks")).toBe("peaks");
 });
@@ -65,9 +71,9 @@ it("completes achievements without granting shop sleeves", async () => {
     getItem: (key: string) => storage.get(key) ?? null,
     setItem: (key: string, value: string) => storage.set(key, value),
   });
-  const { completeAllAchievements } = await import("../src/goalsStore");
+  const { completeAllAchievements } = await import("../src/features/goals/stores/goalsStore");
   completeAllAchievements();
-  const { resolveCardBack } = await import("../src/cardBackStore");
+  const { resolveCardBack } = await import("../src/features/card-backs/stores/cardBackStore");
   expect(resolveCardBack("gilded")).toBe("gilded");
   expect(resolveCardBack("peaks")).toBe("varhyr");
   expect(storage.has("varhyr-card-backs-v1")).toBe(false);

@@ -199,7 +199,7 @@ Browser check (Chromium, WebGL board, built site, saved turn-5 match): dragging 
 
 ## Battle log
 
-`apps/web/src/logEntries.ts` turns the visible event stream into readable entries (turn headers, plays, spells, attacks, blocks with both card names, damage with its source, deaths, heals, private draws, merged energy channels) and drops bookkeeping events. `BattleLog.tsx` shows it as a column beside the board (a drawer below 1180px) toggled by the Log button; your lines are gold, the opponent's rose. Event text now names the blocked attacker and the source of damage.
+`apps/web/src/features/match/lib/logEntries.ts` turns the visible event stream into readable entries (turn headers, plays, spells, attacks, blocks with both card names, damage with its source, deaths, heals, private draws, merged energy channels) and drops bookkeeping events. `BattleLog.tsx` shows it as a column beside the board (a drawer below 1180px) toggled by the Log button; your lines are gold, the opponent's rose. Event text now names the blocked attacker and the source of damage.
 
 ## Spell animations
 
@@ -215,7 +215,7 @@ Phones and portrait tablets size the board from its own aspect ratio (no dead ba
 
 ## Arena and menu look (0.11 UI pass 2)
 
-- The main menu always fits one screen (`.menu-screen` in `apps/web/src/arena.css`); only dialogs and the card/builder pages scroll.
+- The main menu always fits one screen (`.menu-screen` in `apps/web/src/features/match/styles/arena.css`); only dialogs and the card/builder pages scroll.
 - The battlefield sits on a framed playmat (brass-edged fir-green board with faint lane bands under each position). Lane bands brighten under the pointer or a drag.
 - Each player HUD is a portrait with a round life gem, a glowing energy capsule underneath the name, and card-back library and discard piles with count badges (the discard pile shows its top card).
 - The hand overlaps like a held fan (spacing driven by `--n`, the card count) and lifts on hover.
@@ -238,7 +238,7 @@ Phones and portrait tablets size the board from its own aspect ratio (no dead ba
 
 Source cards moved from `assets/<card-name>/` to `assets/cards/<card-name>/`. Factions are now authored as one JSON file each in `assets/factions/<faction-id>.json` (id, name, short label, color, symbol, an optional store booster pack and an optional starter deck; `neutral.json` is required and has its own booster pack drawing the factionless cards) instead of in `packages/content/src/factions.ts`. The importer validates every faction (file name matches ID, strict keys, `#rrggbb` color, unique symbols and pack IDs, `neutral` required), checks that cards only name defined factions, and generates `packages/content/src/factions.json` beside `cards.json`; `factions.ts` reads that file. Store booster packs are derived from the factions' `pack` entries (the general Bounty pack stays built in).
 
-2026-10-12 · Tutorial. A guided first match lives in `apps/web/src/tutorial.ts`: a fixed seed, both libraries stacked through the new `createMatch` `stack` option (`top` is drawn first, `bottom` is what an opening-hand mulligan draws), a scripted opponent in place of the bot, and one accepted command per step. Progress is derived from the commands already played, so reloading resumes it. The coach panel (`Coach.tsx`) rings the next target on screen and takes the battle log's slot so no life total is covered. It is offered once to new players and is always available from the main menu. Tutorial matches grant no rewards. `tests/tutorial.test.ts` plays the whole script, so a card, rule or content change that breaks the lesson fails the test.
+2026-10-12 · Tutorial. A guided first match lives in `apps/web/src/features/tutorial/tutorial.ts`: a fixed seed, both libraries stacked through the new `createMatch` `stack` option (`top` is drawn first, `bottom` is what an opening-hand mulligan draws), a scripted opponent in place of the bot, and one accepted command per step. Progress is derived from the commands already played, so reloading resumes it. The coach panel (`Coach.tsx`) rings the next target on screen and takes the battle log's slot so no life total is covered. It is offered once to new players and is always available from the main menu. Tutorial matches grant no rewards. `tests/tutorial.test.ts` plays the whole script, so a card, rule or content change that breaks the lesson fails the test.
 
 2026-10-12 · Rules `varhir-rules-0.12`: draw direction. The top of a library is the end of its array, so a card sent under the library now goes to the front and is no longer redrawn next turn, and the opening-hand mulligan draws its replacements from the top (it took them from the bottom). Old saved matches restart on the new rules. The recorded fixture match was re-recorded under 0.12 (`mercenaries-turn-9`). `createMatch` `stack` takes one card list per player, drawn in order.
 

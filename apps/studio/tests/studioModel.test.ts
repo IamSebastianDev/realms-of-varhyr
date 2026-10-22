@@ -11,7 +11,7 @@ import {
   setStats,
   validate,
   type Stored,
-} from "../src/model";
+} from "../src/lib/model";
 
 const root = new URL("../../../assets/cards", import.meta.url).pathname;
 const folders = readdirSync(root, { withFileTypes: true })
@@ -260,7 +260,7 @@ describe("card studio model", () => {
   });
 });
 
-import { deckProblems, deckSize, deckStats, generateDeck, poolFor } from "../src/decks";
+import { deckProblems, deckSize, deckStats, generateDeck, poolFor } from "../src/lib/decks";
 describe("starter decks", () => {
   const make = (id: string, over: Record<string, any> = {}): Stored => ({
     folder: id,

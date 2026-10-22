@@ -2,7 +2,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { registry } from "@realms/content";
 import type { RunState } from "@realms/quest";
 import { questRules } from "@realms/quest";
-import { collectionKey, emptyCollection, ownershipLimit, parseCollection } from "../src/collection";
+import {
+  collectionKey,
+  emptyCollection,
+  ownershipLimit,
+  parseCollection,
+} from "../src/features/collection/lib/collection";
 import {
   applyPayouts,
   availableQuestCopies,
@@ -11,7 +16,7 @@ import {
   purchasedQuestCopies,
   settleQuest,
   unpaidPayouts,
-} from "../src/quest/rewards";
+} from "../src/features/quest/lib/rewards";
 
 const cards = Object.values(registry.cards);
 const common = cards.find((card) => card.rarity === "common" && !card.legendary)!;
@@ -224,7 +229,7 @@ describe("quest reward settlement", () => {
         storage.set(key, value);
       },
     });
-    const { updateCollection } = await import("../src/collectionStore");
+    const { updateCollection } = await import("../src/features/collection/stores/collectionStore");
     updateCollection((current) => current);
     fail = true;
     expect(() =>
@@ -250,7 +255,7 @@ describe("quest reward settlement", () => {
     ).collection;
     expect(bought.counts[rare.id]).toBe(1);
     vi.resetModules();
-    const reloaded = await import("../src/collectionStore");
+    const reloaded = await import("../src/features/collection/stores/collectionStore");
     expect(
       reloaded.updateCollection((current) => settleQuest(current, run()), { requireSave: true })
         .collection,
@@ -279,7 +284,7 @@ describe("quest reward settlement", () => {
         storage.set(key, value);
       },
     });
-    const store = await import("../src/quest/questStore");
+    const store = await import("../src/features/quest/stores/questStore");
     store.saveRun(active);
     const report = { run: active.id, node: "boss", won: true, life: 4, finishedAt: 5_000 };
     store.reportFight(report);
@@ -288,7 +293,7 @@ describe("quest reward settlement", () => {
     fail = true;
     expect(store.saveRun(run())).toBe(false);
     vi.resetModules();
-    const reloaded = await import("../src/quest/questStore");
+    const reloaded = await import("../src/features/quest/stores/questStore");
     expect(reloaded.readRun()!.stage).toBe("map");
     expect(reloaded.readFightReport(active)).toEqual(report);
     fail = false;

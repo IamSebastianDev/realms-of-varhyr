@@ -1,4 +1,4 @@
-import { createLocalMatch } from "../src/match/localMatch";
+import { createLocalMatch } from "../src/features/match/lib/localMatch";
 import { describe, expect, it, vi } from "vitest";
 import type { Command, CommandEnvelope, GameState } from "@realms/contracts";
 import { apply, decisionPlayer, replay } from "@realms/core";
@@ -14,7 +14,7 @@ import {
   startTutorial,
   stepAfter,
   tutorialSteps,
-} from "../src/tutorial";
+} from "../src/features/tutorial/tutorial";
 
 /** The golden path: one command per action step, built from the live state so the test survives id changes. */
 const golden = (state: GameState, step: string): Command => {

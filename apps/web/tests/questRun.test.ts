@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { describeResult } from "../src/quest/results";
+import { describeResult } from "../src/features/quest/lib/results";
 import type { CardDefinition } from "@realms/contracts";
 import {
   affiliationAt,

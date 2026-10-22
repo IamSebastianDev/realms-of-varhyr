@@ -115,6 +115,23 @@ This is an npm-workspaces monorepo orchestrated by [turbo](https://turbo.build).
 | `assets`, `public` | Card, faction and set sources; static media |
 | `docs` | Design notes and specs |
 
+### Inside `apps/web/src`
+
+```text
+main.tsx               entry: styles, providers, root
+app/                   App shell, providers (audio) and global styles
+components/            shared UI used by more than one feature
+hooks/  lib/           shared hooks and plain helpers
+features/<name>/       one folder per area of the game
+  components/          screens and views
+  hooks/               React hooks of that feature
+  stores/              persisted state (localStorage, subscribed with useSyncExternalStore)
+  lib/                 rules and helpers without React
+  styles/              the feature's CSS
+```
+
+Features: `match` (the board, combat presentation, sessions), `lobby` (menu shell, start page, game setup), `decks`, `collection`, `store`, `boosters`, `card-backs`, `goals`, `profile`, `settings`, `onboarding`, `tutorial`, `draft`, `quest`, `multiplayer` and `audio`. The two big screens, the match and the deck builder, are split the same way: a controller hook built from small ordered hooks, shared through a context, and many small view components that read from it (`features/match/hooks/controller`, `features/match/components/screen`, `features/decks/hooks/builder`, `features/decks/components/builder`).
+
 The engine takes a command and returns a new state or a rejection; nothing outside `packages/core` decides legality. The client reads projections of that state, so a seat never sees what it should not.
 
 ## Deploying

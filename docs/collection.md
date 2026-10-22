@@ -4,7 +4,7 @@ An account begins empty, then receives the default starter deck's card copies an
 
 Ownership caps are three copies per card ID and one per legendary card ID. Deck limits still apply across alternate artwork variants through `deckLimitKey`. Packs contain five cards with the existing rarity odds. A pack can contain repeated IDs; every draw is applied in order, so duplicates within that pack can overflow the ownership cap and become Crowns.
 
-The provisional economy is centralized in `apps/web/src/collection.ts`:
+The provisional economy is centralized in `apps/web/src/features/collection/lib/collection.ts`:
 
 | Action | Amount |
 | --- | --- |

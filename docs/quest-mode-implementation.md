@@ -3,7 +3,7 @@
 Companion to quest-mode-design.md and `docs/quests.md`. Updated 2026-10-18.
 
 ## Status
-The expedition rework is implemented: engine (`packages/quest`), web screens (`apps/web/src/quest`) and the studio map editor. The old daily mode is gone. Saved v1 runs are converted on load (`migrateRun`).
+The expedition rework is implemented: engine (`packages/quest`), web screens (`apps/web/src/features/quest`) and the studio map editor. The old daily mode is gone. Saved v1 runs are converted on load (`migrateRun`).
 
 ## Map rules (decided 2026-10-18)
 - All nodes in `assets/quest/map.json` are hand-placed and stable: city, village, shrine, ruin, waymark, arena, capital, landmark. A node can be flagged as a start site or a boss site.
@@ -22,7 +22,7 @@ The expedition rework is implemented: engine (`packages/quest`), web screens (`a
 7. Legacy save transition policy: open (currently converted silently).
 
 ## Studio
-The Card Studio now uses the game's black and bronze look (plate with bracket corners, bronze chrome buttons, serif headings; tokens mirror `apps/web/src/plate.css`). The map tool has: select, add node, zone tool (P, B switches Allow/Block, order can be changed), land and sample-places toggles, per-node projection, boss/start flags, overview with warnings.
+The Card Studio now uses the game's black and bronze look (plate with bracket corners, bronze chrome buttons, serif headings; tokens mirror `apps/web/src/app/styles/plate.css`). The map tool has: select, add node, zone tool (P, B switches Allow/Block, order can be changed), land and sample-places toggles, per-node projection, boss/start flags, overview with warnings.
 
 ## Persistence worth keeping
 `questSettlements` receipts hold final deck copy counts, remaining silver budget, purchased copies, revision and closed state; account rewards and receipts share one storage write; closing is recorded before the active run is cleared; fight reports are acknowledged after the run is saved.

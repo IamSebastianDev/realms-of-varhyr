@@ -15,8 +15,8 @@ import {
   emptyCollection,
   ownedCopyCount,
   parseCollection,
-} from "../src/collection";
-import { enterDraft, payoutBooster, settleDraft } from "../src/draft/rewards";
+} from "../src/features/collection/lib/collection";
+import { enterDraft, payoutBooster, settleDraft } from "../src/features/draft/lib/rewards";
 
 const preset = draftPresets[0]!;
 function played(wins: number): DraftRun {

@@ -12,7 +12,7 @@ Deck actions (the ellipsis button) contains loading, New, Duplicate, Import and 
 
 Export offers a JSON file and a copyable deck code. Import accepts either and creates a new draft only after validating the whole composition. Unknown cards and invalid copy counts are rejected. Stable card IDs make exports independent of local deck IDs.
 
-The builder lives in `apps/web/src/DeckBuilder.tsx`; pure filtering, statistics and sharing helpers live in `deckTools.ts`. Card definitions and game rules are unchanged by these tools.
+The builder lives in `apps/web/src/features/decks/components/DeckBuilder.tsx`; pure filtering, statistics and sharing helpers live in `apps/web/src/features/decks/lib/deckTools.ts`. Card definitions and game rules are unchanged by these tools.
 
 ## Collection integration
 

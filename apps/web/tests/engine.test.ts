@@ -1,6 +1,6 @@
 import * as v from "valibot";
 import { describe, expect, it } from "vitest";
-import { combatForecast } from "../src/combatForecast";
+import { combatForecast } from "../src/features/match/lib/combatForecast";
 import type {
   AbilityExtension,
   CardDefinition,
@@ -24,7 +24,7 @@ import {
 } from "@realms/core";
 import { botCommand } from "@realms/core/bot";
 import raw, { abilities, compileContent, registry, starterDecks } from "@realms/testing/content";
-import { startMatch } from "@realms/testing/session";
+import { startMatch } from "./support/session";
 import {
   compileContent as compileContentFor,
   unknownCardReferences,

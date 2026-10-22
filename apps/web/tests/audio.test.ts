@@ -9,8 +9,8 @@ import {
   effects,
   screenBeds,
   soundOrder,
-} from "../src/audio/catalog";
-import { AudioController, type AudioSettings } from "../src/audioController";
+} from "../src/features/audio/catalog";
+import { AudioController, type AudioSettings } from "../src/features/audio/audioController";
 import { registry } from "@realms/content";
 import { defaultPreferences, parsePreferences } from "@realms/ui/preferences";
 

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { apply, createMatch, projectForPlayer } from "@realms/core";
 import type { CardDefinition, GameState, PlayerId } from "@realms/contracts";
 import { compileContent, registry as base, starterDecks } from "@realms/testing/content";
-import { hitDropZone, nextPlayStage, resolveDrop } from "../src/cardInteraction";
+import { hitDropZone, nextPlayStage, resolveDrop } from "../src/features/match/lib/cardInteraction";
 
 const enemy = (player: PlayerId): PlayerId => (player === "p1" ? "p2" : "p1");
 const spell = (id: string, cast: CardDefinition["cast"]): CardDefinition => ({
