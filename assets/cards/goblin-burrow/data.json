@@ -1,0 +1,34 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "goblin-burrow",
+  "revision": 1,
+  "name": "Goblin Burrow",
+  "deckLimitKey": "goblin-burrow",
+  "type": "holding",
+  "factions": [
+    "horde"
+  ],
+  "subtypes": [
+    "landmark"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0
+  },
+  "stats": {
+    "attack": 0,
+    "defense": 3
+  },
+  "abilities": [
+    {
+      "id": "channel",
+      "params": {
+        "amount": 1,
+        "energy": "horde"
+      }
+    }
+  ],
+  "lore": "Deep enough that the rain gives up. Crowded enough that nobody notices who left.",
+  "set": "foundations"
+}

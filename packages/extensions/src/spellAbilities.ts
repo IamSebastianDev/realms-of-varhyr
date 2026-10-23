@@ -14,6 +14,14 @@ const destroySchema = v.strictObject({
     v.pipe(v.array(v.picklist(["creature", "holding"])), v.minLength(1), v.maxLength(2)),
   ),
 });
+/** `target` lists whose creatures may be returned: ["friendly"], ["enemy"] or both. Left out, it means both. */
+const recallSchema = v.strictObject({
+  target: v.optional(
+    v.pipe(v.array(v.picklist(["friendly", "enemy"])), v.minLength(1), v.maxLength(2)),
+  ),
+});
+const recallSides = (params: Record<string, unknown>) =>
+  (params.target as ("friendly" | "enemy")[] | undefined) ?? ["friendly", "enemy"];
 const destroyTypes = (params: Record<string, unknown>) =>
   (params.type as string[] | undefined) ?? ["creature"];
 
@@ -126,11 +134,51 @@ export const spellAbilities: AbilityExtension[] = [
 
   extension("draw", amountSchema, {
     translations: {
-      de: { name: "Ziehen {amount}", description: "Ziehe {amount} Karten aus deiner Bibliothek." },
+      de: {
+        name: "Ziehen {amount}",
+        description: "Ziehe {amount} Karten aus deiner Bibliothek.",
+        fieldDescription: "Beim Ausspielen: Ziehe {amount} Karten aus deiner Bibliothek.",
+      },
     },
     name: "Draw {amount}",
     description: "Draw {amount} cards from your library.",
+    // On a creature or holding the same effect happens when it is played, like Muster and Charge.
+    fieldDescription: "When played, draw {amount} cards from your library.",
+    hooks: {
+      "card.played": (ctx, p) => {
+        if (ctx.event.cardId !== ctx.source.id) return;
+        ctx.issue({ type: "draw", player: ctx.source.controller, amount: amount(p) });
+      },
+    },
     cast: (ctx, p) => ctx.issue({ type: "draw", player: ctx.source.controller, amount: amount(p) }),
+  }),
+
+  extension("recall", recallSchema, {
+    translations: {
+      de: {
+        name: "Rückruf",
+        description: "Nimm eine {target} Kreatur auf die Hand ihres Besitzers zurück.",
+        fieldDescription:
+          "Beim Ausspielen: Nimm eine {target} Kreatur auf die Hand ihres Besitzers zurück.",
+      },
+    },
+    name: "Recall",
+    description: "Return target {target} creature to its owner's hand.",
+    // On a creature the same effect happens when it is played. Entering by other means (Rally, Raise) has no chosen target.
+    fieldDescription: "When played, return target {target} creature to its owner's hand.",
+    announce: true,
+    defaults: { target: ["friendly", "enemy"] },
+    target: "any-creature",
+    targetSides: recallSides,
+    hooks: {
+      "card.played": (ctx) => {
+        if (ctx.event.cardId !== ctx.source.id || !ctx.target) return;
+        ctx.issue({ type: "return", target: ctx.target });
+      },
+    },
+    cast: (ctx) => {
+      if (ctx.target) ctx.issue({ type: "return", target: ctx.target });
+    },
   }),
 
   extension("channel", channelSchema, {

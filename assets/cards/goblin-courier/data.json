@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "goblin-courier",
+  "revision": 1,
+  "name": "Goblin Courier",
+  "deckLimitKey": "goblin-courier",
+  "type": "creature",
+  "factions": [
+    "horde"
+  ],
+  "subtypes": [
+    "goblin"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "horde": 1
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 1,
+    "energyOutputs": [
+      {
+        "horde": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "forced-march",
+      "params": {}
+    }
+  ],
+  "lore": "The message is rarely right on arrival. It is always early.",
+  "set": "foundations"
+}

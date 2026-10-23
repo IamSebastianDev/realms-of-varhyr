@@ -1,5 +1,10 @@
 import * as v from "valibot";
-import type { AbilityExtension, CardDefinition, Registry } from "@realms/contracts";
+import {
+  spellSubtypes,
+  type AbilityExtension,
+  type CardDefinition,
+  type Registry,
+} from "@realms/contracts";
 import { abilities } from "@realms/extensions";
 import { describeAbility } from "@realms/extensions/describeAbility";
 import { factions } from "./factions";
@@ -116,6 +121,14 @@ export function compileContent(
       throw new Error(`Holding ${card.id} cannot produce energy`);
     if (card.type === "spell" && (card.stats || !card.cast?.length || !card.timing))
       throw new Error(`Invalid spell: ${card.id}`);
+    if (
+      card.type === "spell" &&
+      (card.subtypes.length > 1 ||
+        card.subtypes.some((subtype) => !(spellSubtypes as readonly string[]).includes(subtype)))
+    )
+      throw new Error(
+        `Spell ${card.id} needs at most one subtype from: ${spellSubtypes.join(", ")}`,
+      );
     for (const binding of [...card.abilities, ...(card.cast ?? [])]) {
       const extension = extensions[binding.id];
       if (!extension) throw new Error(`Unknown ability ${binding.id} on ${card.id}`);
@@ -126,10 +139,14 @@ export function compileContent(
       )
         throw new Error(`Unknown energy type ${binding.params.energy} on ${card.id}`);
       describeAbility(binding, extension);
+      describeAbility(binding, extension, "field");
       for (const translation of Object.values(extension.translations ?? {})) {
         if (!translation || !translation.name.trim() || !translation.description.trim())
           throw new Error(`Ability ${extension.id} needs translated names and descriptions`);
+        if (extension.fieldDescription && !translation.fieldDescription?.trim())
+          throw new Error(`Ability ${extension.id} needs a translated field description`);
         describeAbility(binding, { ...extension, ...translation });
+        describeAbility(binding, { ...extension, ...translation }, "field");
       }
       if (card.cast?.includes(binding) && !extension.cast)
         throw new Error(`Ability ${binding.id} is not a spell operation`);

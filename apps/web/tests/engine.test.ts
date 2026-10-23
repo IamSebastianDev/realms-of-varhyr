@@ -1050,6 +1050,499 @@ describe("simultaneous combat and response energy", () => {
       expect(play(s, { cardId: card, slot: 1 }).error).toBeTruthy();
     });
   });
+  describe("sacrifice", () => {
+    const sacrificeRegistry = compileContent([
+      ...raw,
+      {
+        ...registry.cards["wild-guardian"],
+        id: "sacrificer",
+        deckLimitKey: "sacrificer",
+        abilities: [{ id: "sacrifice", params: {} }],
+      },
+      {
+        ...registry.cards["wild-guardian"],
+        id: "sacrificer-two",
+        deckLimitKey: "sacrificer-two",
+        abilities: [{ id: "sacrifice", params: { amount: 2 } }],
+      },
+      { ...registry.cards["wild-guardian"], id: "stray", deckLimitKey: "stray", factions: [] },
+      {
+        ...registry.cards["crown-recruit"],
+        id: "hybrid-ally",
+        deckLimitKey: "hybrid-ally",
+        factions: ["crownlands", "ashen"],
+      },
+    ]);
+    const place = (s: GameState, owner: PlayerId, definitionId: string, slot: number) => {
+      const spare = Object.keys(s.cards).find(
+        (id) =>
+          s.cards[id].owner === owner &&
+          s.cards[id].zone === "deck" &&
+          registry.cards[s.cards[id].definitionId].type === "creature",
+      )!;
+      s.cards[spare].definitionId = definitionId;
+      return fixture(s, definitionId, owner, "board", slot);
+    };
+    const use = (s: GameState, source: string, target: string, content = sacrificeRegistry) =>
+      step(s, { type: "activate", cardId: source, ability: 0, target }, "p1", content);
+    const options = (s: GameState, source: string) =>
+      legalActions(s, sacrificeRegistry).activations.find((a) => a.cardId === source);
+    it("sacrifices the chosen creature and gives 1 energy of its faction", () => {
+      const s = setup(sacrificeRegistry),
+        source = place(s, "p1", "sacrificer", 0),
+        victim = place(s, "p1", "crown-recruit", 1);
+      const before = { ...s.players.p1.energy };
+      const r = use(s, source, victim);
+      expect(r.cards[victim].zone).toBe("discard");
+      expect(r.players.p1.energy.crownlands ?? 0).toBe((before.crownlands ?? 0) + 1);
+      assertInvariants(r);
+    });
+    it("never offers the card itself, or an enemy creature", () => {
+      const s = setup(sacrificeRegistry),
+        source = place(s, "p1", "sacrificer", 0),
+        friend = place(s, "p1", "crown-recruit", 1);
+      place(s, "p2", "crown-recruit", 2);
+      expect(options(s, source)!.targets).toEqual([friend]);
+    });
+    it("is not offered with no other friendly creature", () => {
+      const s = setup(sacrificeRegistry),
+        source = place(s, "p1", "sacrificer", 0);
+      place(s, "p2", "crown-recruit", 2);
+      expect(options(s, source)).toBeUndefined();
+    });
+    it("does not exhaust the card, so it can be used again", () => {
+      const s = setup(sacrificeRegistry),
+        source = place(s, "p1", "sacrificer", 0),
+        one = place(s, "p1", "crown-recruit", 1),
+        two = place(s, "p1", "crown-recruit", 2);
+      let r = use(s, source, one);
+      expect(r.cards[source].exhausted).toBe(false);
+      // The sacrificed creature opens its owner's response window, as any creature death does. Close it to go on.
+      expect(r.responseStep).toBe("p1");
+      r = step(r, { type: "end" }, "p1", sacrificeRegistry);
+      r = use(r, source, two);
+      expect(r.cards[two].zone).toBe("discard");
+      expect(r.players.p1.energy.crownlands ?? 0).toBeGreaterThanOrEqual(2);
+    });
+    it("can be used by a card that is already exhausted", () => {
+      const s = setup(sacrificeRegistry),
+        source = place(s, "p1", "sacrificer", 0),
+        victim = place(s, "p1", "crown-recruit", 1);
+      s.cards[source].exhausted = true;
+      expect(options(s, source)).toBeDefined();
+      expect(use(s, source, victim).cards[victim].zone).toBe("discard");
+    });
+    it("gives one energy of each faction for a hybrid creature", () => {
+      const s = setup(sacrificeRegistry),
+        source = place(s, "p1", "sacrificer", 0),
+        victim = place(s, "p1", "hybrid-ally", 1);
+      const before = { ...s.players.p1.energy };
+      const r = use(s, source, victim);
+      expect(r.players.p1.energy.ashen ?? 0).toBe((before.ashen ?? 0) + 1);
+      expect(r.players.p1.energy.crownlands ?? 0).toBe((before.crownlands ?? 0) + 1);
+    });
+    it("gives neutral energy for a creature with no faction, and honours the amount", () => {
+      const s = setup(sacrificeRegistry),
+        source = place(s, "p1", "sacrificer-two", 0),
+        victim = place(s, "p1", "stray", 1);
+      const before = s.players.p1.energy.neutral ?? 0;
+      expect(use(s, source, victim).players.p1.energy.neutral ?? 0).toBe(before + 2);
+    });
+    it.each([42, 731])("bots finish a legal, replayable game with it in play (seed %s)", (seed) => {
+      const initial = createMatch(
+        sacrificeRegistry,
+        [starterDecks.verdant, starterDecks.hollow],
+        seed,
+      );
+      for (const owner of ["p1", "p2"])
+        for (const id of Object.keys(initial.cards)
+          .filter(
+            (id) =>
+              initial.cards[id].owner === owner &&
+              registry.cards[initial.cards[id].definitionId].type === "creature",
+          )
+          .slice(0, 6))
+          initial.cards[id].definitionId = "sacrificer";
+      const commands: CommandEnvelope[] = [];
+      let s = initial;
+      for (let i = 0; i < 800 && !s.outcome; i++) {
+        const envelope = {
+          actor: decisionPlayer(s),
+          expectedRevision: s.revision,
+          command: botCommand(s, sacrificeRegistry),
+        };
+        s = step(s, envelope.command, envelope.actor, sacrificeRegistry);
+        commands.push(envelope);
+        assertInvariants(s);
+      }
+      expect(s.outcome).not.toBeNull();
+      expect(replay(initial, commands, sacrificeRegistry)).toEqual(s);
+    });
+    it("is described in both languages", () => {
+      const text = (language: "en" | "de", params = {}) =>
+        localizedAbility({ id: "sacrifice", params }, abilities.sacrifice, language).description;
+      expect(text("en")).toBe(
+        "Sacrifice another friendly creature: gain 1 energy of its type, of each type if it has several.",
+      );
+      expect(text("de", { amount: 2 })).toContain("Erhalte 2 Energie");
+    });
+  });
+
+  describe("recall", () => {
+    const content = compileContent([
+      ...raw,
+      {
+        ...registry.cards["wayfarer"],
+        id: "recaller",
+        deckLimitKey: "recaller",
+        cost: { generic: 0, factions: {} },
+        abilities: [{ id: "recall", params: {} }],
+      },
+      {
+        ...registry.cards["cleansing-light"],
+        id: "recall-spell",
+        deckLimitKey: "recall-spell",
+        cost: { generic: 0, factions: {} },
+        cast: [{ id: "recall", params: {} }],
+      },
+      ...(["friendly", "enemy"] as const).map((side) => ({
+        ...registry.cards["cleansing-light"],
+        id: `recall-${side}`,
+        deckLimitKey: `recall-${side}`,
+        cost: { generic: 0, factions: {} },
+        cast: [{ id: "recall", params: { target: [side] } }],
+      })),
+      {
+        ...registry.cards["wayfarer"],
+        id: "recall-holding",
+        deckLimitKey: "recall-holding",
+        type: "holding",
+        abilities: [],
+        stats: { attack: 0, defense: 3, energyOutputs: [] },
+      },
+    ]);
+    const scene = () => {
+      const s = setup(content);
+      const mine = fixture(s, "wayfarer", "p1", "board", 1),
+        theirs = fixture(s, "ashen-initiate", "p2", "board", 1);
+      return { s, mine, theirs };
+    };
+    const inHand = (s: GameState, definitionId: string, owner: PlayerId = "p1") => {
+      const id = fixture(s, definitionId, owner, "hand");
+      return id;
+    };
+    const play = (s: GameState, cardId: string, target?: string, slot?: number) =>
+      apply(
+        s,
+        {
+          actor: "p1",
+          expectedRevision: s.revision,
+          command: { type: "play", cardId, target, slot },
+        },
+        content,
+      );
+    it("as a spell, returns an enemy creature to its owner's hand and clears its damage", () => {
+      const { s, theirs } = scene();
+      const sturdy = fixture(s, "wayfarer", "p2", "board", 3);
+      s.cards[sturdy].damage = registry.cards["wayfarer"].stats!.defense - 1;
+      expect(s.cards[sturdy].damage).toBeGreaterThan(0);
+      const spell = inHand(s, "cleansing-light");
+      s.cards[spell].definitionId = "recall-spell";
+      const r = play(s, spell, sturdy);
+      expect(r.error).toBeUndefined();
+      expect(r.state.cards[sturdy].zone).toBe("hand");
+      expect(r.state.cards[sturdy].damage).toBe(0);
+      expect(r.state.cards[theirs].zone).toBe("board");
+      expect(r.state.players.p2.hand).toContain(sturdy);
+      expect(r.state.players.p2.board[3]).toBeNull();
+      assertInvariants(r.state);
+    });
+    it("as a spell, may also return one of your own creatures", () => {
+      const { s, mine } = scene();
+      const spell = inHand(s, "cleansing-light");
+      s.cards[spell].definitionId = "recall-spell";
+      const r = play(s, spell, mine);
+      expect(r.error).toBeUndefined();
+      expect(r.state.players.p1.hand).toContain(mine);
+    });
+    it("offers creatures on both sides, but never holdings or players", () => {
+      const { s, mine, theirs } = scene();
+      const holding = place(s, "p2", 3);
+      const spell = inHand(s, "cleansing-light");
+      s.cards[spell].definitionId = "recall-spell";
+      const legal = legalActions(s, content).playable.find((a) => a.cardId === spell)!;
+      expect(legal.requiresTarget).toBe(true);
+      expect([...legal.targets].sort()).toEqual([mine, theirs].sort());
+      expect(legal.targets).not.toContain(holding);
+      expect(legal.targets).not.toContain("p2");
+      function place(state: GameState, owner: PlayerId, slot: number) {
+        const id = fixture(state, "wayfarer", owner, "board", slot);
+        state.cards[id].definitionId = "recall-holding";
+        return id;
+      }
+    });
+    it.each([
+      ["friendly", "mine"],
+      ["enemy", "theirs"],
+    ] as const)("with target [%s], offers only those creatures", (side, which) => {
+      const { s, mine, theirs } = scene();
+      const spell = inHand(s, "cleansing-light");
+      s.cards[spell].definitionId = `recall-${side}`;
+      const legal = legalActions(s, content).playable.find((a) => a.cardId === spell)!;
+      expect(legal.targets).toEqual([which === "mine" ? mine : theirs]);
+      const other = which === "mine" ? theirs : mine;
+      expect(play(s, spell, other).error).toBeTruthy();
+    });
+    it("on a creature, returns the chosen creature when played and stays on the board", () => {
+      const { s, theirs } = scene();
+      const card = inHand(s, "wayfarer");
+      s.cards[card].definitionId = "recaller";
+      const r = play(s, card, theirs, 3);
+      expect(r.error).toBeUndefined();
+      expect(r.state.cards[theirs].zone).toBe("hand");
+      expect(r.state.cards[card].zone).toBe("board");
+      assertInvariants(r.state);
+    });
+    it("on a creature, can't target the creature itself and rejects a missing target", () => {
+      const { s, mine, theirs } = scene();
+      const card = inHand(s, "wayfarer");
+      s.cards[card].definitionId = "recaller";
+      const legal = legalActions(s, content).playable.find((a) => a.cardId === card)!;
+      expect([...legal.targets].sort()).toEqual([mine, theirs].sort());
+      expect(play(s, card, undefined, 3).error).toBeTruthy();
+    });
+    it("is playable with nothing to return, and then does nothing", () => {
+      const s = setup(content);
+      const card = inHand(s, "wayfarer");
+      s.cards[card].definitionId = "recaller";
+      const r = play(s, card, undefined, 2);
+      expect(r.error).toBeUndefined();
+      expect(r.state.cards[card].zone).toBe("board");
+    });
+    it("is not a death: no destroyed event and no response energy", () => {
+      const { s, theirs } = scene();
+      const spell = inHand(s, "cleansing-light");
+      s.cards[spell].definitionId = "recall-spell";
+      const r = play(s, spell, theirs);
+      expect(r.events.some((e) => e.type === "creature.destroyed")).toBe(false);
+      expect(r.state.responseStep ?? null).toBeNull();
+    });
+    it("is described for spells and for a creature's own line, in both languages", () => {
+      const binding = { id: "recall", params: {} };
+      const text = (language: "en" | "de", context?: "field") =>
+        localizedAbility(binding, content.abilities.recall, language, context).description;
+      expect(text("en")).toBe("Return target friendly or enemy creature to its owner's hand.");
+      expect(text("en", "field")).toBe(
+        "When played, return target friendly or enemy creature to its owner's hand.",
+      );
+      expect(text("de")).toBe(
+        "Nimm eine eigene oder gegnerische Kreatur auf die Hand ihres Besitzers zurück.",
+      );
+      expect(text("de", "field")).toContain("Beim Ausspielen");
+      const enemy = { id: "recall", params: { target: ["enemy"] } };
+      expect(localizedAbility(enemy, content.abilities.recall, "en").description).toBe(
+        "Return target enemy creature to its owner's hand.",
+      );
+      expect(localizedAbility(enemy, content.abilities.recall, "de").description).toContain(
+        "eine gegnerische Kreatur",
+      );
+    });
+  });
+
+  describe("hive", () => {
+    const content = compileContent([
+      ...raw,
+      {
+        ...registry.cards["wild-guardian"],
+        id: "scavenger",
+        deckLimitKey: "scavenger",
+        abilities: [
+          { id: "hive", params: { subtype: "goblin" } },
+          { id: "sacrifice", params: {} },
+        ],
+      },
+      {
+        ...registry.cards["crown-recruit"],
+        id: "gob",
+        deckLimitKey: "gob",
+        subtypes: ["goblin"],
+      },
+      {
+        ...registry.cards["crown-recruit"],
+        id: "gob-capital",
+        deckLimitKey: "gob-capital",
+        subtypes: ["Goblin"],
+      },
+      {
+        ...registry.cards["cleansing-light"],
+        id: "slayer",
+        deckLimitKey: "slayer",
+        cast: [{ id: "destroy", params: {} }],
+      },
+    ]);
+    /** Relabels library creatures and puts them on top of the library, last entry first drawn. */
+    const stock = (s: GameState, owner: PlayerId, topDown: string[]) => {
+      const spare = s.players[owner].deck
+        .filter((id) => registry.cards[s.cards[id].definitionId].type === "creature")
+        .slice(0, topDown.length);
+      topDown.forEach((definitionId, i) => (s.cards[spare[i]].definitionId = definitionId));
+      s.players[owner].deck = [
+        ...s.players[owner].deck.filter((id) => !spare.includes(id)),
+        ...[...spare].reverse(),
+      ];
+      return spare;
+    };
+    const board = (s: GameState, owner: PlayerId, definitionId: string, slot: number) => {
+      const spare = s.players[owner].deck.find(
+        (id) => registry.cards[s.cards[id].definitionId].type === "creature",
+      )!;
+      s.cards[spare].definitionId = definitionId;
+      return fixture(s, definitionId, owner, "board", slot);
+    };
+    const scene = () => {
+      const s = setup(content);
+      const source = board(s, "p1", "scavenger", 0);
+      const victim = board(s, "p1", "gob", 1);
+      return { s, source, victim };
+    };
+    const kill = (s: GameState, source: string, victim: string) =>
+      step(s, { type: "activate", cardId: source, ability: 1, target: victim }, "p1", content);
+    it("puts the first goblin from the top of the library into the hand when a goblin dies", () => {
+      const { s, source, victim } = scene();
+      const [plain, first, second] = stock(s, "p1", ["crown-recruit", "gob", "gob"]);
+      const handBefore = s.players.p1.hand.length;
+      const r = kill(s, source, victim);
+      expect(r.cards[first].zone).toBe("hand");
+      expect(r.cards[second].zone).toBe("deck");
+      expect(r.cards[plain].zone).toBe("deck");
+      expect(r.players.p1.hand.length).toBe(handBefore + 1);
+      expect(r.events.some((e) => e.type === "card.searched" && e.cardId === first)).toBe(true);
+      assertInvariants(r);
+    });
+    it("does nothing but say so when the library holds no goblin", () => {
+      const { s, source, victim } = scene();
+      const handBefore = s.players.p1.hand.length;
+      const r = kill(s, source, victim);
+      expect(r.players.p1.hand.length).toBe(handBefore);
+      expect(r.events.some((e) => e.type === "card.searched")).toBe(true);
+      assertInvariants(r);
+    });
+    it("ignores deaths of non-goblins", () => {
+      const { s, source } = scene();
+      const other = board(s, "p1", "crown-recruit", 2);
+      const [gob] = stock(s, "p1", ["gob"]);
+      const r = kill(s, source, other);
+      expect(r.cards[gob].zone).toBe("deck");
+    });
+    it("matches the subtype exactly, including case", () => {
+      const { s, source, victim } = scene();
+      const [capital] = stock(s, "p1", ["gob-capital"]);
+      expect(kill(s, source, victim).cards[capital].zone).toBe("deck");
+    });
+    it("ignores an enemy goblin dying", () => {
+      const { s } = scene();
+      const enemy = board(s, "p2", "gob", 1);
+      const [gob] = stock(s, "p1", ["gob"]);
+      const spell = fixture(s, "cleansing-light", "p1", "hand");
+      s.cards[spell].definitionId = "slayer";
+      s.players.p1.energy = { crownlands: 1, neutral: 1 };
+      const r = step(s, { type: "play", cardId: spell, target: enemy }, "p1", content);
+      expect(r.cards[enemy].zone).toBe("discard");
+      expect(r.cards[gob].zone).toBe("deck");
+    });
+    it("triggers once per goblin death and leaves the library intact otherwise", () => {
+      const { s, source, victim } = scene();
+      const second = board(s, "p1", "gob", 2);
+      const [a, b] = stock(s, "p1", ["gob", "gob"]);
+      let r = kill(s, source, victim);
+      r = step(r, { type: "end" }, "p1", content);
+      r = kill(r, source, second);
+      expect(r.cards[a].zone).toBe("hand");
+      expect(r.cards[b].zone).toBe("hand");
+      assertInvariants(r);
+    });
+    it("is described in both languages", () => {
+      const binding = { id: "hive", params: { subtype: "goblin" } };
+      expect(localizedAbility(binding, content.abilities.hive, "en").description).toMatch(
+        /goblin/i,
+      );
+      expect(localizedAbility(binding, content.abilities.hive, "de").description).toMatch(
+        /goblin/i,
+      );
+    });
+  });
+  describe("draw", () => {
+    const drawRegistry = compileContent([
+      ...raw,
+      {
+        ...registry.cards["wild-guardian"],
+        id: "draw-creature",
+        deckLimitKey: "draw-creature",
+        cost: { generic: 0, factions: {} },
+        abilities: [{ id: "draw", params: { amount: 2 } }],
+      },
+      {
+        ...registry.cards["cleansing-light"],
+        id: "draw-spell",
+        deckLimitKey: "draw-spell",
+        cast: [{ id: "draw", params: { amount: 2 } }],
+      },
+    ]);
+    it("draws when a creature carrying it is played", () => {
+      let s = setup(drawRegistry);
+      const id = fixture(s, "wild-guardian", "p1", "hand");
+      s.cards[id].definitionId = "draw-creature";
+      const hand = s.players.p1.hand.length,
+        deck = s.players.p1.deck.length;
+      s = step(s, { type: "play", cardId: id, slot: 0 }, "p1", drawRegistry);
+      expect(s.players.p1.hand.length).toBe(hand - 1 + 2);
+      expect(s.players.p1.deck.length).toBe(deck - 2);
+      assertInvariants(s);
+    });
+    it("does not draw again when another card is played", () => {
+      let s = setup(drawRegistry);
+      const id = fixture(s, "wild-guardian", "p1", "hand"),
+        other = fixture(s, "crown-recruit", "p1", "hand");
+      s.cards[id].definitionId = "draw-creature";
+      s = step(s, { type: "play", cardId: id, slot: 0 }, "p1", drawRegistry);
+      const hand = s.players.p1.hand.length;
+      s.players.p1.energy = { crownlands: 1, neutral: 1 };
+      s = step(s, { type: "play", cardId: other, slot: 1 }, "p1", drawRegistry);
+      expect(s.players.p1.hand.length).toBe(hand - 1);
+    });
+    it("still draws exactly once as a spell effect", () => {
+      let s = setup(drawRegistry);
+      const spell = fixture(s, "cleansing-light", "p1", "hand");
+      s.cards[spell].definitionId = "draw-spell";
+      s.players.p1.energy = { crownlands: 1, neutral: 1 };
+      const hand = s.players.p1.hand.length;
+      s = step(s, { type: "play", cardId: spell }, "p1", drawRegistry);
+      expect(s.players.p1.hand.length).toBe(hand - 1 + 2);
+    });
+    it("words the creature and spell versions differently, in both languages", () => {
+      const binding = { id: "draw", params: { amount: 2 } };
+      const text = (language: "en" | "de", context?: "field") =>
+        localizedAbility(binding, abilities.draw, language, context).description;
+      expect(text("en")).toBe("Draw 2 cards from your library.");
+      expect(text("en", "field")).toBe("When played, draw 2 cards from your library.");
+      expect(text("de")).toBe("Ziehe 2 Karten aus deiner Bibliothek.");
+      expect(text("de", "field")).toBe("Beim Ausspielen: Ziehe 2 Karten aus deiner Bibliothek.");
+    });
+    it("is offered on creatures in the studio, not only on spells", () => {
+      expect(abilities.draw.hooks).toBeDefined();
+      expect(() =>
+        compileContent([
+          ...raw,
+          {
+            ...registry.cards["wild-guardian"],
+            id: "draw-field-check",
+            deckLimitKey: "draw-field-check",
+            abilities: [{ id: "draw", params: { amount: 1 } }],
+          },
+        ]),
+      ).not.toThrow();
+    });
+  });
   describe("muster", () => {
     const musterRegistry = compileContent([
       ...raw,

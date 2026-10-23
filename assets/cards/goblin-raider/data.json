@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "goblin-raider",
+  "revision": 1,
+  "name": "Goblin Raider",
+  "deckLimitKey": "goblin-raider",
+  "type": "creature",
+  "factions": [
+    "horde"
+  ],
+  "subtypes": [
+    "goblin"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "horde": 1
+    }
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 1,
+    "energyOutputs": [
+      {
+        "horde": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "raid",
+      "params": {}
+    }
+  ],
+  "lore": "He takes what is not nailed down. Then he takes the nails.",
+  "set": "foundations"
+}

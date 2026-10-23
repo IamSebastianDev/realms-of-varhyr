@@ -2,5 +2,28 @@
   "id": "horde",
   "name": "The Horde",
   "short": "Horde",
-  "color": "#c36a49"
+  "color": "#c36a49",
+  "starter": {
+    "id": "horde",
+    "name": "Attack, Attack!",
+    "default": true,
+    "cards": {
+      "the-deep-gorge": 1,
+      "brut-chief-of-the-harpies": 1,
+      "crowfoots-cook": 3,
+      "goblin-burrow": 3,
+      "orkish-smallholder": 3,
+      "enrage": 1,
+      "goblin-courier": 1,
+      "goblin-raider": 2,
+      "timely-demise": 2,
+      "cleaverfield-brigade": 3,
+      "goblin-archers": 2,
+      "goblin-footsoldier": 2,
+      "goblin-ritualist": 1,
+      "goblin-siege-weapon": 2,
+      "relentless-wyvern": 1,
+      "warcamp": 2
+    }
+  }
 }

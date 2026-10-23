@@ -1,0 +1,35 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "return-home",
+  "revision": 1,
+  "name": "Return Home",
+  "deckLimitKey": "return-home",
+  "type": "spell",
+  "factions": [
+    "neutral"
+  ],
+  "subtypes": [
+    "rite"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 2
+  },
+  "abilities": [],
+  "timing": [
+    "play"
+  ],
+  "cast": [
+    {
+      "id": "recall",
+      "params": {
+        "target": [
+          "friendly",
+          "enemy"
+        ]
+      }
+    }
+  ],
+  "set": "foundations"
+}

@@ -11,9 +11,15 @@ import type { CardDefinition, EnergyType, Pool } from "@realms/contracts";
 import { factionInfo, registry } from "@realms/content";
 import { usePreferences } from "./preferences";
 export function cardAbilityDescriptions(card: CardDefinition) {
-  return [...card.abilities, ...(card.cast ?? [])].map((binding) =>
-    localizedAbility(binding, registry.abilities[binding.id]),
-  );
+  // Printed abilities come first and keep their index (creature actions rely on it); spell effects follow.
+  return [
+    ...card.abilities.map((binding) =>
+      localizedAbility(binding, registry.abilities[binding.id], undefined, "field"),
+    ),
+    ...(card.cast ?? []).map((binding) =>
+      localizedAbility(binding, registry.abilities[binding.id]),
+    ),
+  ];
 }
 export function CardLore({ card, className = "" }: { card: CardDefinition; className?: string }) {
   useLanguage();

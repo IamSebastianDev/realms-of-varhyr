@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Orkischer Kleinbauer",
+  "lore": "Auch ein Ork hat einen Acker. Er verteidigt ihn weit besser, als er ihn bestellt."
+}

@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "goblin-ritualist",
+  "revision": 1,
+  "name": "Goblin Ritualist",
+  "deckLimitKey": "goblin-ritualist",
+  "type": "creature",
+  "factions": [
+    "horde"
+  ],
+  "subtypes": [
+    "goblin"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "horde": 1
+    }
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "horde": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "sacrifice",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "lore": "The ritual calls for a volunteer. The ritualist has never once been the volunteer.",
+  "set": "foundations"
+}

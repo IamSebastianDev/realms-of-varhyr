@@ -1,0 +1,50 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "angus-orcish-diplomat",
+  "revision": 1,
+  "name": "Angus, Orcish Diplomat",
+  "deckLimitKey": "angus-orcish-diplomat",
+  "type": "creature",
+  "factions": [
+    "horde",
+    "winter-league"
+  ],
+  "subtypes": [
+    "orc"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "horde": 1,
+      "winter-league": 1
+    }
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "horde": 1
+      },
+      {
+        "winter-league": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "wayfarer",
+      "params": {}
+    },
+    {
+      "id": "draw",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "lore": "He learned the free cities' language in a week and their contracts in a year. The contracts were harder.",
+  "set": "foundations"
+}

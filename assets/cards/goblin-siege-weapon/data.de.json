@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Goblin-Belagerungswaffe",
+  "lore": "Die Mauer ist das Ziel. Die Besatzung ist die Munition."
+}

@@ -8,7 +8,9 @@
   "factions": [
     "horde"
   ],
-  "subtypes": [],
+  "subtypes": [
+    "curse"
+  ],
   "legendary": false,
   "rarity": "rare",
   "cost": {
@@ -38,5 +40,6 @@
       }
     }
   ],
+  "lore": "The wall is the target. The crew is the ammunition.",
   "set": "foundations"
 }

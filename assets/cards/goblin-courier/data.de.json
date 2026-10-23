@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Goblin-Kurier",
+  "lore": "Die Nachricht stimmt bei der Ankunft selten. Früh ist sie immer."
+}

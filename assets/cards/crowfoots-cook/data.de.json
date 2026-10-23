@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Crowfoots Koch",
+  "lore": "Der Eintopf schmeckt nie zweimal gleich. Der Clan hält das für eine Tugend."
+}

@@ -1,0 +1,36 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "warcamp",
+  "revision": 1,
+  "name": "Warcamp",
+  "deckLimitKey": "warcamp",
+  "type": "holding",
+  "factions": [
+    "horde"
+  ],
+  "subtypes": [
+    "fortification"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "horde": 2
+    }
+  },
+  "stats": {
+    "attack": 3,
+    "defense": 4
+  },
+  "abilities": [
+    {
+      "id": "banner",
+      "params": {
+        "amount": 2
+      }
+    }
+  ],
+  "lore": "Hides, stakes, a fire that is never quite out. By morning it is also a border.",
+  "set": "foundations"
+}

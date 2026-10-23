@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Aufstacheln",
+  "lore": "Goblins sind vorsichtig, bis ihnen jemand erzählt, sie seien es nicht."
+}

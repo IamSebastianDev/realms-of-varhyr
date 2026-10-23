@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Goblin-Fußsoldat",
+  "lore": "Wo ein Goblin marschiert, stehen die anderen schon hinter ihm. Er findet das ermutigend."
+}

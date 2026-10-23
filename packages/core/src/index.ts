@@ -831,6 +831,31 @@ class Transaction {
             cardId: id,
           });
         }
+      } else if (order.type === "search-subtype") {
+        requireRule(order.player === "p1" || order.player === "p2", "Invalid search player.");
+        requireRule(!!order.subtype, "Missing subtype to search for.");
+        const p = this.state.players[order.player];
+        // The top of the library is the end of the array.
+        let index = -1;
+        for (let i = p.deck.length - 1; i >= 0 && index < 0; i--) {
+          const def = this.registry.cards[this.state.cards[p.deck[i]].definitionId];
+          if (def.type === "creature" && def.subtypes.includes(order.subtype)) index = i;
+        }
+        if (index < 0)
+          this.emit("card.searched", `${p.name} finds no ${order.subtype} in the library.`, {
+            player: order.player,
+            cardId: order.source,
+          });
+        else {
+          const [id] = p.deck.splice(index, 1);
+          this.state.cards[id].zone = "hand";
+          p.hand.push(id);
+          this.emit(
+            "card.searched",
+            `${p.name} musters ${this.registry.cards[this.state.cards[id].definitionId].name} from the library.`,
+            { player: order.player, cardId: id },
+          );
+        }
       } else if (order.type === "mill") {
         requireRule(
           Number.isInteger(order.amount) && order.amount >= 0 && order.amount <= 100,
@@ -1081,6 +1106,8 @@ function targetOptions(
   actor: PlayerId,
   bindings: AbilityBinding[],
   registry: Registry,
+  /** The card using an activated ability, so a target may exclude it. */
+  sourceId?: string,
 ): { targets: string[]; required: boolean } {
   let targets: string[] | null = null;
   for (const b of bindings) {
@@ -1110,12 +1137,26 @@ function targetOptions(
             ? state.players[actor].hand.filter(
                 (id) => definition(state, id, registry).type !== "spell",
               )
-            : state.players[side].board.filter(
+            : (kind === "any-creature"
+                ? [
+                    ...((extension.targetSides?.(params) ?? ["friendly", "enemy"]).includes(
+                      "friendly",
+                    )
+                      ? state.players[actor].board
+                      : []),
+                    ...((extension.targetSides?.(params) ?? ["friendly", "enemy"]).includes("enemy")
+                      ? state.players[other(actor)].board
+                      : []),
+                  ]
+                : state.players[side].board
+              ).filter(
                 (id): id is string =>
                   !!id &&
+                  !(extension.targetOthers && id === sourceId) &&
                   (!(
                     kind === "friendly-creature" ||
                     kind === "enemy-creature" ||
+                    kind === "any-creature" ||
                     kind === "enemy-reach"
                   ) ||
                     definition(state, id, registry).type === "creature") &&
@@ -1214,11 +1255,14 @@ export function legalActions(state: GameState, registry: Registry): LegalActions
     }
     if (!inResponse)
       for (const id of p.board) {
-        if (!id || state.cards[id].exhausted) continue;
+        if (!id) continue;
+        const spent = state.cards[id].exhausted;
         const def = definition(state, id, registry);
-        if (def.type === "creature" && def.stats!.energyOutputs.length)
+        if (!spent && def.type === "creature" && def.stats!.energyOutputs.length)
           legal.energy.push({ cardId: id, options: def.stats!.energyOutputs });
         def.abilities.forEach((binding, ability) => {
+          // An exhausted card can only use abilities that do not exhaust it.
+          if (spent && registry.abilities[binding.id].exhausts !== false) return;
           if (
             !registry.abilities[binding.id].activate ||
             registry.abilities[binding.id].canActivate?.(
@@ -1229,7 +1273,7 @@ export function legalActions(state: GameState, registry: Registry): LegalActions
             ) === false
           )
             return;
-          const targeting = targetOptions(state, actor, [binding], registry);
+          const targeting = targetOptions(state, actor, [binding], registry, id);
           if (registry.abilities[binding.id].target && !targeting.targets.length) return;
           const slots = registry.abilities[binding.id].placement
             ? p.board.flatMap((id, slot) => (id === null ? [slot] : []))
@@ -1541,7 +1585,7 @@ export function apply(
         );
       const card = next.cards[command.cardId],
         binding = definition(next, card.id, registry).abilities[command.ability];
-      card.exhausted = true;
+      if (registry.abilities[binding.id].exhausts !== false) card.exhausted = true;
       tx.target = command.target;
       tx.slot = command.slot;
       const event = tx.emit(

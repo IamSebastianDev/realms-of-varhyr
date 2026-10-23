@@ -3,5 +3,30 @@
   "name": "The Mountain Clans",
   "short": "Clans",
   "color": "#bf966a",
-  "draft": "Sturdy and patient. Guard, Armor and cheap walls hold the line while mines, Trade and Channel build energy for large turns, and Outflank riders strike from the flanks. Take the economy and the walls early, and let Avalanche and Rockslide finish the board. Hybrids with the Ember Fields push it towards aggression."
+  "draft": "Sturdy and patient. Guard, Armor and cheap walls hold the line while mines, Trade and Channel build energy for large turns, and Outflank riders strike from the flanks. Take the economy and the walls early, and let Avalanche and Rockslide finish the board. Hybrids with the Ember Fields push it towards aggression.",
+  "starter": {
+    "id": "clans",
+    "name": "Of Tunnels Deep",
+    "cards": {
+      "alpaca-farmer": 3,
+      "gil-krag-prospector": 3,
+      "quarry-foreman": 3,
+      "gemstone-mine": 1,
+      "ill-tempered-alpaca": 2,
+      "rockslide": 1,
+      "clan-irregulars": 2,
+      "find-gold": 1,
+      "log-palisade": 2,
+      "alpaca-mountaineers": 1,
+      "dwell-merchant-of-the-mountains": 1,
+      "mountain-cavalry": 1,
+      "mountain-outpost": 2,
+      "dwarven-honourguard": 1,
+      "jaina-mistress-of-the-herd": 1,
+      "avalanche": 1,
+      "borrowed-wisdom": 1,
+      "mercenary-outriders": 2,
+      "gil-krag-mine": 1
+    }
+  }
 }

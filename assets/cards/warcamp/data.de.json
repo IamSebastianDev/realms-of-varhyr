@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Kriegslager",
+  "lore": "Felle, Pfähle, ein Feuer, das nie ganz erlischt. Am Morgen ist es auch eine Grenze."
+}

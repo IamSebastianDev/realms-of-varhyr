@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Angus, orkischer Diplomat",
+  "lore": "Die Sprache der freien Städte lernte er in einer Woche, ihre Verträge in einem Jahr. Die Verträge waren schwerer."
+}

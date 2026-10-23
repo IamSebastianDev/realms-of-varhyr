@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Der Besucher mit der Kapuze",
+  "lore": "Er zahlt in Silber und nennt nie einen Namen. Er geht, bevor jemand fragt, was er wollte."
+}

@@ -42,6 +42,7 @@ export function localizedAbility(
   binding: AbilityBinding,
   extension: AbilityExtension,
   language = getPreferences().language,
+  context?: "field",
 ) {
   const text = extension.translations?.[language];
   const params = Object.fromEntries(
@@ -60,7 +61,11 @@ export function localizedAbility(
                 : value,
     ]),
   );
-  return describeAbility({ ...binding, params }, text ? { ...extension, ...text } : extension);
+  return describeAbility(
+    { ...binding, params },
+    text ? { ...extension, ...text } : extension,
+    context,
+  );
 }
 const abilityPatterns = Object.values(registry.abilities).flatMap((extension) => {
   const de = extension.translations?.de;

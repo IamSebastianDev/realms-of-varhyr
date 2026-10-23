@@ -3,5 +3,27 @@
   "name": "The Ember Fields",
   "short": "Ember",
   "color": "#e57f45",
-  "draft": "Fast and disruptive. Raid and Forced March reward a full row that attacks at once, Scorch clears the way, and Ransack and Assassination take what the opponent needs most. It wants to end the game early, so draft cheap attackers over late plays. Hybrids with the Mountain Clans round it out."
+  "draft": "Fast and disruptive. Raid and Forced March reward a full row that attacks at once, Scorch clears the way, and Ransack and Assassination take what the opponent needs most. It wants to end the game early, so draft cheap attackers over late plays. Hybrids with the Mountain Clans round it out.",
+  "starter": {
+    "id": "ember",
+    "name": "Smoke on the Horizon",
+    "cards": {
+      "ashway-armourer": 3,
+      "charcoal-burner": 3,
+      "furnace-stoker": 3,
+      "ashway-raiders": 1,
+      "glimmfold-raider": 3,
+      "sabotage": 1,
+      "assassination": 2,
+      "black-regiment-cavalry": 1,
+      "hekata-lady-of-the-fields": 1,
+      "feared-infantry": 3,
+      "ashway-guard-captain": 1,
+      "vanguard-pikemen": 2,
+      "torch-the-rooftops": 2,
+      "song-of-war": 1,
+      "mercenary-outriders": 2,
+      "the-glimmfold": 1
+    }
+  }
 }

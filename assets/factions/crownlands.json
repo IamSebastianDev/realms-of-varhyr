@@ -7,7 +7,6 @@
   "starter": {
     "id": "crown",
     "name": "Banners of the Crown",
-    "default": true,
     "cards": {
       "goldfield-farmer": 3,
       "longvale-cutters": 3,

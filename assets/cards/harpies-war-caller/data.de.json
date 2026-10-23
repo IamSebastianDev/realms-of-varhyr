@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Kriegsrufer der Harpyien",
+  "lore": "Jeden Morgen geht der Ruf an die Harpyien. Der Himmel hat nicht geantwortet, also wird der Ruf lauter."
+}

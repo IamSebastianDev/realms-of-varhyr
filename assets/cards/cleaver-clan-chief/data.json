@@ -1,0 +1,49 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "cleaver-clan-chief",
+  "revision": 1,
+  "name": "Cleaver, Clan Chief",
+  "deckLimitKey": "cleaver-clan-chief",
+  "type": "creature",
+  "factions": [
+    "horde"
+  ],
+  "subtypes": [
+    "orc"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "horde": 2
+    }
+  },
+  "stats": {
+    "attack": 4,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "horde": 4
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "drillmaster",
+      "params": {
+        "amount": 1,
+        "subtype": "orc"
+      }
+    },
+    {
+      "id": "drillmaster",
+      "params": {
+        "amount": 1,
+        "subtype": "goblin"
+      }
+    }
+  ],
+  "lore": "He gives no orders. He stands where the fight will be, and the clan finds it has arrived.",
+  "set": "foundations"
+}

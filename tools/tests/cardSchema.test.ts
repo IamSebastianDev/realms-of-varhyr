@@ -21,6 +21,29 @@ const card = (id = "crownlands-recruit") => {
   return source as Record<string, unknown>;
 };
 
+describe("spell subtypes", () => {
+  const spell = () => card("timely-demise");
+  it("accepts one listed subtype or none", () => {
+    expect(validate({ ...spell(), subtypes: ["curse"] })).toBe(true);
+    expect(validate({ ...spell(), subtypes: [] })).toBe(true);
+  });
+  it("rejects an unlisted subtype and more than one", () => {
+    expect(validate({ ...spell(), subtypes: ["goblin"] })).toBe(false);
+    expect(validate({ ...spell(), subtypes: ["strike", "curse"] })).toBe(false);
+  });
+  it("is enforced when the content compiles", () => {
+    const base = { ...registry.cards["timely-demise"] };
+    expect(() => compileContent([{ ...base, subtypes: ["Strike"] }] as never)).toThrow(/subtype/);
+    expect(() => compileContent([{ ...base, subtypes: ["strike", "curse"] }] as never)).toThrow(
+      /subtype/,
+    );
+    expect(() => compileContent([{ ...base, subtypes: ["strike"] }] as never)).not.toThrow();
+  });
+  it("leaves creature and holding subtypes free", () => {
+    expect(validate({ ...card(), subtypes: ["anything-goes"] })).toBe(true);
+  });
+});
+
 describe("card authoring JSON Schema", () => {
   it("validates every actual card and keeps the committed schema synchronized with source metadata", async () => {
     expect(ajv.validateSchema(schema)).toBe(true);

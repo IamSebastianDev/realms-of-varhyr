@@ -1,7 +1,6 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "brut-chief-of-the-harpies",
-  "set": "foundations",
   "revision": 5,
   "name": "Brut, Chief of the Harpies",
   "deckLimitKey": "brut-chief-of-the-harpies",
@@ -26,7 +25,7 @@
     "defense": 3,
     "energyOutputs": [
       {
-        "horde": 2
+        "horde": 3
       }
     ]
   },
@@ -34,7 +33,12 @@
     {
       "id": "raid",
       "params": {}
+    },
+    {
+      "id": "forced-march",
+      "params": {}
     }
   ],
-  "lore": "No harpy ever flew above his clans. The banners look magnificent all the same."
+  "lore": "No harpy ever flew above his clans. The banners look magnificent all the same.",
+  "set": "foundations"
 }

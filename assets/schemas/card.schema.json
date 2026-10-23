@@ -727,6 +727,34 @@
       ],
       "additionalProperties": false
     },
+    "ability-hive": {
+      "type": "object",
+      "title": "Hive {subtype}",
+      "description": "Whenever a friendly {subtype} dies, search your library for the first {subtype} and put it into your hand.",
+      "properties": {
+        "id": {
+          "const": "hive"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "subtype": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "subtype"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
     "ability-longshot": {
       "type": "object",
       "title": "Longshot {amount}",
@@ -979,6 +1007,40 @@
       ],
       "additionalProperties": false
     },
+    "ability-recall": {
+      "type": "object",
+      "title": "Recall",
+      "description": "Return target {target} creature to its owner's hand.",
+      "properties": {
+        "id": {
+          "const": "recall"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "friendly",
+                  "enemy"
+                ],
+                "type": "string"
+              },
+              "minItems": 1,
+              "maxItems": 2
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
     "ability-rest": {
       "type": "object",
       "title": "Rest {amount}",
@@ -998,6 +1060,32 @@
           "required": [
             "amount"
           ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-sacrifice": {
+      "type": "object",
+      "title": "Sacrifice",
+      "description": "Sacrifice another friendly creature: gain {amount} energy of its type, of each type if it has several.",
+      "properties": {
+        "id": {
+          "const": "sacrifice"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [],
           "additionalProperties": false
         }
       },
@@ -1247,6 +1335,7 @@
             "forced-march",
             "guard",
             "heal",
+            "hive",
             "longshot",
             "marches-rally",
             "muster",
@@ -1257,7 +1346,9 @@
             "raid",
             "raise",
             "ransack",
+            "recall",
             "rest",
+            "sacrifice",
             "sanctuary",
             "scorch",
             "shield-wall",
@@ -1330,6 +1421,9 @@
           "$ref": "#/definitions/ability-heal"
         },
         {
+          "$ref": "#/definitions/ability-hive"
+        },
+        {
           "$ref": "#/definitions/ability-longshot"
         },
         {
@@ -1360,7 +1454,13 @@
           "$ref": "#/definitions/ability-ransack"
         },
         {
+          "$ref": "#/definitions/ability-recall"
+        },
+        {
           "$ref": "#/definitions/ability-rest"
+        },
+        {
+          "$ref": "#/definitions/ability-sacrifice"
         },
         {
           "$ref": "#/definitions/ability-sanctuary"
@@ -1412,6 +1512,7 @@
             "forced-march",
             "guard",
             "heal",
+            "hive",
             "muster",
             "outflank",
             "plague",
@@ -1419,6 +1520,7 @@
             "raid",
             "raise",
             "ransack",
+            "recall",
             "sanctuary",
             "scorch",
             "shield-wall",
@@ -1484,6 +1586,9 @@
           "$ref": "#/definitions/ability-heal"
         },
         {
+          "$ref": "#/definitions/ability-hive"
+        },
+        {
           "$ref": "#/definitions/ability-muster"
         },
         {
@@ -1503,6 +1608,9 @@
         },
         {
           "$ref": "#/definitions/ability-ransack"
+        },
+        {
+          "$ref": "#/definitions/ability-recall"
         },
         {
           "$ref": "#/definitions/ability-sanctuary"
@@ -1547,6 +1655,7 @@
             "rage",
             "raise",
             "ransack",
+            "recall",
             "steadfast"
           ]
         },
@@ -1593,6 +1702,9 @@
           "$ref": "#/definitions/ability-ransack"
         },
         {
+          "$ref": "#/definitions/ability-recall"
+        },
+        {
           "$ref": "#/definitions/ability-steadfast"
         }
       ]
@@ -1621,6 +1733,22 @@
             "items": {
               "$ref": "#/definitions/spell-ability"
             }
+          },
+          "subtypes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "strike",
+                "barrage",
+                "tactic",
+                "rite",
+                "curse",
+                "divination"
+              ]
+            },
+            "maxItems": 1,
+            "description": "A spell has at most one subtype: strike (damage to one target), barrage (damage to every enemy creature), tactic (combat bonus), rite (healing, reanimation, drawing), curse (destroys outright), divination (finding things)."
           }
         }
       },

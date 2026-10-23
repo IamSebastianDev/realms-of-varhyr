@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Goblin-Ritualist",
+  "lore": "Das Ritual verlangt einen Freiwilligen. Der Ritualist war noch nie der Freiwillige."
+}

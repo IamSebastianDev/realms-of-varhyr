@@ -1,0 +1,37 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "timely-demise",
+  "revision": 1,
+  "name": "Timely Demise",
+  "deckLimitKey": "timely-demise",
+  "type": "spell",
+  "factions": [
+    "horde"
+  ],
+  "subtypes": [
+    "strike"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "horde": 1
+    }
+  },
+  "abilities": [],
+  "timing": [
+    "play",
+    "response"
+  ],
+  "cast": [
+    {
+      "id": "damage",
+      "params": {
+        "amount": 3
+      }
+    }
+  ],
+  "lore": "Someone was going to die today. This only settles the schedule.",
+  "set": "foundations"
+}

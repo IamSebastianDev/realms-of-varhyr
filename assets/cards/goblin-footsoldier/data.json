@@ -1,0 +1,47 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "goblin-footsoldier",
+  "revision": 1,
+  "name": "Goblin Footsoldier",
+  "deckLimitKey": "goblin-footsoldier",
+  "type": "creature",
+  "factions": [
+    "horde"
+  ],
+  "subtypes": [
+    "goblin"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "horde": 1
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "horde": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "muster",
+      "params": {
+        "card": "goblin-footsoldier"
+      }
+    },
+    {
+      "id": "banner",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "lore": "Where one goblin marches, the rest are already behind him. He finds this encouraging.",
+  "set": "foundations"
+}

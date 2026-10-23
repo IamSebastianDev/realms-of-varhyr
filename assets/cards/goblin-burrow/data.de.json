@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Goblinbau",
+  "lore": "Tief genug, dass der Regen aufgibt. Voll genug, dass niemand merkt, wer gegangen ist."
+}

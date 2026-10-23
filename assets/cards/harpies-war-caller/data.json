@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "harpies-war-caller",
+  "revision": 1,
+  "name": "Harpies' War Caller",
+  "deckLimitKey": "harpies-war-caller",
+  "type": "creature",
+  "factions": [
+    "horde"
+  ],
+  "subtypes": [
+    "goblin"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "horde": 2
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "horde": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "fealty",
+      "params": {}
+    }
+  ],
+  "lore": "Every dawn the call goes out to the harpies. The sky has not answered, so the call gets louder.",
+  "set": "foundations"
+}

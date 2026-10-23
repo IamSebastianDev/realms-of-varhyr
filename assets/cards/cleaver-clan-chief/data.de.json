@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Cleaver, Clan-Häuptling",
+  "lore": "Er gibt keine Befehle. Er stellt sich dorthin, wo gekämpft wird, und der Clan stellt fest, dass er schon da ist."
+}

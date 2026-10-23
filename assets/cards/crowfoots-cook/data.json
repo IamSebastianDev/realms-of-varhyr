@@ -1,0 +1,31 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "crowfoots-cook",
+  "revision": 1,
+  "name": "Crowfoot's Cook",
+  "deckLimitKey": "crowfoots-cook",
+  "type": "creature",
+  "factions": [
+    "horde"
+  ],
+  "subtypes": [
+    "goblin"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0
+  },
+  "stats": {
+    "attack": 0,
+    "defense": 1,
+    "energyOutputs": [
+      {
+        "horde": 1
+      }
+    ]
+  },
+  "abilities": [],
+  "lore": "The stew is never the same twice. The clan considers this a virtue.",
+  "set": "foundations"
+}

@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Brigade von Cleaverfield",
+  "lore": "Cleaverfield schickt sie in Fünferreihen los. Wie viele davon in Fünferreihen zurückkehren, zählt dort niemand."
+}

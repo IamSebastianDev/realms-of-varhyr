@@ -69,7 +69,7 @@ describe("a draft table with other people", () => {
     expect(t.draft.awaiting).toBe(true);
     expect(waitingOn(t)).toEqual([0, 1]);
     expect(() => submitPick(t, preset, registry, 0, "x")).toThrow(/faction/);
-    expect(() => submitFaction(t, preset, registry, 0, "horde")).toThrow();
+    expect(() => submitFaction(t, preset, registry, 0, "conclave")).toThrow();
     t = submitFaction(t, preset, registry, 0, "black-host");
     expect(view(t, 1).draft.factions).toEqual([null, null, null]); // nothing is revealed yet
     expect(view(t, 0).draft.awaiting).toBe(true);

@@ -1,0 +1,32 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "ruined-fortress",
+  "revision": 1,
+  "name": "Ruined Fortress",
+  "deckLimitKey": "ruined-fortress",
+  "type": "holding",
+  "factions": [
+    "neutral"
+  ],
+  "subtypes": [
+    "fortification"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 3
+  },
+  "stats": {
+    "attack": 0,
+    "defense": 4
+  },
+  "abilities": [
+    {
+      "id": "shield-wall",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "set": "foundations"
+}

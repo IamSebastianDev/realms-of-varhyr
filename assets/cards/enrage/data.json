@@ -1,0 +1,36 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "enrage",
+  "revision": 1,
+  "name": "Enrage",
+  "deckLimitKey": "enrage",
+  "type": "spell",
+  "factions": [
+    "horde"
+  ],
+  "subtypes": [
+    "tactic"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "horde": 1
+    }
+  },
+  "abilities": [],
+  "timing": [
+    "play"
+  ],
+  "cast": [
+    {
+      "id": "rage",
+      "params": {
+        "amount": 3
+      }
+    }
+  ],
+  "lore": "Goblins are careful, right up until somebody tells them they are not.",
+  "set": "foundations"
+}

@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { join } from "node:path";
 import * as v from "valibot";
 import { toJsonSchema, type ConversionConfig, type JsonSchema } from "@valibot/to-json-schema";
+import { spellSubtypes } from "@realms/contracts";
 import { authoredCardSchema, cardTranslationSchema } from "@realms/content/compiler";
 import type { FactionDefinition } from "@realms/content/factionDefinition";
 import type { SetDefinition } from "@realms/content/setDefinition";
@@ -165,7 +166,17 @@ export function buildCardJsonSchema(
       if: condition("spell"),
       then: {
         required: ["cast", "timing"],
-        properties: { stats: false, abilities: { items: ref("spell-ability") } },
+        properties: {
+          stats: false,
+          abilities: { items: ref("spell-ability") },
+          subtypes: {
+            type: "array",
+            items: { type: "string", enum: [...spellSubtypes] },
+            maxItems: 1,
+            description:
+              "A spell has at most one subtype: strike (damage to one target), barrage (damage to every enemy creature), tactic (combat bonus), rite (healing, reanimation, drawing), curse (destroys outright), divination (finding things).",
+          },
+        },
       },
       else: { required: ["stats"], properties: { cast: false, timing: false } },
     },

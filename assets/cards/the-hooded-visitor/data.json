@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "the-hooded-visitor",
+  "revision": 1,
+  "name": "The Hooded Visitor",
+  "deckLimitKey": "the-hooded-visitor",
+  "type": "creature",
+  "factions": [
+    "horde"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "horde": 2
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "horde": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "draw",
+      "params": {
+        "amount": 2
+      }
+    }
+  ],
+  "lore": "He pays in silver and never gives a name. He leaves before anyone asks what he wanted.",
+  "set": "foundations"
+}

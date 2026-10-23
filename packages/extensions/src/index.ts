@@ -225,6 +225,33 @@ export const evergreenAbilities: AbilityExtension[] = [
       }),
   }),
 
+  extension("hive", v.strictObject({ subtype: v.pipe(v.string(), v.minLength(1)) }), {
+    translations: {
+      de: {
+        name: "Schwarm {subtype}",
+        description:
+          "Stirbt eine eigene Kreatur der Art {subtype}, suche in deiner Bibliothek die erste Kreatur dieser Art und nimm sie auf die Hand.",
+      },
+    },
+    name: "Hive {subtype}",
+    description:
+      "Whenever a friendly {subtype} dies, search your library for the first {subtype} and put it into your hand.",
+    announce: true,
+    hooks: {
+      "creature.destroyed": (ctx, p) => {
+        const dead = ctx.event.snapshot;
+        if (!dead || dead.controller !== ctx.source.controller) return;
+        if (!ctx.registry.cards[dead.definitionId].subtypes.includes(p.subtype as string)) return;
+        ctx.issue({
+          type: "search-subtype",
+          player: ctx.source.controller,
+          subtype: p.subtype as string,
+          source: ctx.source.id,
+        });
+      },
+    },
+  }),
+
   extension("ransack", empty, {
     translations: {
       de: {
@@ -278,6 +305,38 @@ export const evergreenAbilities: AbilityExtension[] = [
         if (id && ctx.registry.cards[ctx.state.cards[id].definitionId].type === "creature")
           ctx.issue({ type: "damage", target: id, amount: amount(p), source: ctx.source.id });
       },
+    },
+  }),
+
+  extension("sacrifice", v.strictObject({ amount: v.optional(positive) }), {
+    translations: {
+      de: {
+        name: "Opfern",
+        description:
+          "Opfere eine andere eigene Kreatur: Erhalte {amount} Energie ihrer Art, bei mehreren Arten von jeder.",
+      },
+    },
+    name: "Sacrifice",
+    description:
+      "Sacrifice another friendly creature: gain {amount} energy of its type, of each type if it has several.",
+    // Left out, the amount is 1. The card does not exhaust, so it can be used again for another creature.
+    defaults: { amount: 1 },
+    exhausts: false,
+    target: "friendly-creature",
+    targetOthers: true,
+    activate: (ctx, p) => {
+      if (!ctx.target) return;
+      const factions = ctx.registry.cards[ctx.state.cards[ctx.target].definitionId].factions,
+        gained = Number(p.amount ?? 1);
+      // A neutral creature has no faction and gives neutral energy.
+      const types = factions.length ? factions : ["neutral"];
+      ctx.issue({ type: "destroy", target: ctx.target });
+      ctx.issue({
+        type: "gain-energy",
+        player: ctx.source.controller,
+        output: Object.fromEntries(types.map((type) => [type, gained])),
+        source: ctx.source.id,
+      });
     },
   }),
 

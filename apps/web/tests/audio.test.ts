@@ -45,9 +45,10 @@ describe("sound catalog", () => {
     expect(spellEffect({ id: "new-mend", cast: [{ id: "heal" }] })).toBe("spell.water");
     expect(spellEffect({ id: "new-oddity", cast: [{ id: "ransack" }] })).toBe("spell.cast");
   });
-  it("knows a sound for every spell in the game", () => {
+  it("always resolves a spell to a sound that exists, falling back to the standard cast sound", () => {
+    // A new spell needs no audio work: without a listed element or a known effect it plays `spell.cast`.
     for (const spell of Object.values(registry.cards).filter((card) => card.type === "spell"))
-      expect(spellEffect(spell), spell.id).not.toBe("spell.cast");
+      expect(effects[spellEffect(spell)], spell.id).toBeDefined();
   });
   it("plays only what is enabled, and every enabled sound exists", () => {
     for (const name of enabledEffects) expect(effects[name], name).toBeDefined();

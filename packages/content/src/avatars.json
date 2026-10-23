@@ -30,6 +30,7 @@
   },
   {
     "id": "dwell",
+    "faction": "mountain-clans",
     "name": "Dwell",
     "title": "The Dwarf · Merchant of the Mountain Clans",
     "lore": "The biggest dwarf in the mountains and the biggest merchant outside the Vales, Dwell trades ore and gems with the empire. Imperial gold is good money, whatever troubles the court.",
@@ -57,6 +58,7 @@
   },
   {
     "id": "hekata",
+    "faction": "ember-fields",
     "name": "Hekata",
     "title": "Lady of the Ember Fields",
     "lore": "A merciless warlord risen in the east, Hekata eyes the empire’s gold and silver. She believes those riches belong to her, not the zealous weaklings sheltering in their towers.",
@@ -66,6 +68,7 @@
   },
   {
     "id": "brut",
+    "faction": "horde",
     "name": "Brut",
     "title": "Chief of the Harpies · Warlord of the Horde",
     "lore": "Brut united the goblin clans beneath the harpy banner. There are no harpies: the clans simply liked the name and the look of the banners. Now he leads them in search of fun and blood.",

@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Die Tiefe Schlucht",
+  "lore": "Die Goblins sagen, sie seien dort geboren. Die Schlucht bestätigt das nicht, bringt aber immer neue hervor."
+}

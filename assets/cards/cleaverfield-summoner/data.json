@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "cleaverfield-summoner",
+  "revision": 1,
+  "name": "Cleaverfield Summoner",
+  "deckLimitKey": "cleaverfield-summoner",
+  "type": "creature",
+  "factions": [
+    "horde"
+  ],
+  "subtypes": [
+    "goblin"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "horde": 2
+    }
+  },
+  "stats": {
+    "attack": 3,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "horde": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "muster",
+      "params": {
+        "card": "goblin-raider"
+      }
+    }
+  ],
+  "lore": "One blast of the horn, and the raiders remember where they were meant to be.",
+  "set": "foundations"
+}

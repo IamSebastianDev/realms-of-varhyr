@@ -4,6 +4,15 @@ export type { BattlefieldPosition } from "./positions";
 
 // Content validates these IDs against its faction configuration. The engine
 // treats them as names so adding a faction never requires changing engine code.
+/** The closed vocabulary of spell subtypes; a spell carries at most one. German labels live in the shared dictionary. */
+export const spellSubtypes = [
+  "strike",
+  "barrage",
+  "tactic",
+  "rite",
+  "curse",
+  "divination",
+] as const;
 export type Faction = string;
 /** 'neutral' is the stable data ID for generic energy; it cannot pay faction-specific costs. */
 export type EnergyType = Faction | "neutral";
@@ -13,7 +22,7 @@ export type PlayerId = "p1" | "p2";
 export type AbilityBinding = { id: string; params: Record<string, unknown> };
 export type ContentLanguage = "en" | "de";
 export type CardTranslation = { name?: string; lore?: string };
-export type AbilityTranslation = { name: string; description: string };
+export type AbilityTranslation = { name: string; description: string; fieldDescription?: string };
 export type CardDefinition = {
   id: string;
   revision: number;
@@ -155,6 +164,8 @@ export type InternalOrder =
   | { type: "draw"; player: PlayerId; amount: number }
   /** Moves every copy of a card definition from the player's library to their hand. Finding nothing is allowed. */
   | { type: "search"; player: PlayerId; card: string; source?: string }
+  /** Moves the first creature with the subtype, counted from the top of the library, to the hand. Finding nothing is allowed. */
+  | { type: "search-subtype"; player: PlayerId; subtype: string; source?: string }
   /** Reveals the opponent's hand to `player`, who then chooses one card for the opponent to discard. */
   | { type: "ransack"; player: PlayerId; source?: string }
   /** Puts cards from the top of a library into its owner's discard pile. Never empties the library on its own. */
@@ -201,6 +212,8 @@ export type AbilityExtension = {
   /** Player-facing templates; {param} placeholders come from the card binding. */
   name: string;
   description: string;
+  /** Wording on a creature or holding's own ability line, for abilities that read differently there than as a spell effect. Falls back to `description`. */
+  fieldDescription?: string;
   translations?: Partial<Record<ContentLanguage, AbilityTranslation>>;
   hooks?: Record<string, (ctx: HookContext, params: Record<string, unknown>) => void>;
   before?: Record<
@@ -241,6 +254,12 @@ export type AbilityExtension = {
     registry: Registry,
   ) => boolean;
   activate?: (ctx: HookContext, params: Record<string, unknown>) => void;
+  /** Activating exhausts the card by default. Set false for an ability the card may use while exhausted, and repeatedly. */
+  exhausts?: boolean;
+  /** The ability's target can never be the card using it. */
+  targetOthers?: boolean;
+  /** For `any-creature` targets: whose creatures may be chosen, from the binding's params with `defaults` applied. */
+  targetSides?: (params: Record<string, unknown>) => ("friendly" | "enemy")[];
   cast?: (ctx: HookContext, params: Record<string, unknown>) => void;
   /** Parameter values assumed when a binding leaves them out, so cards authored before a parameter existed keep working and keep their text. */
   defaults?: Record<string, unknown>;
@@ -258,6 +277,7 @@ export type AbilityExtension = {
     | "enemy-reach"
     | "friendly-creature"
     | "enemy-creature"
+    | "any-creature"
     | "friendly-field"
     | "enemy-field";
 };

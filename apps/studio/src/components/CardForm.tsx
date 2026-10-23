@@ -1,5 +1,6 @@
 import { useEffect, useId, useState } from "react";
 import { factionInfo, setDefinitions } from "@realms/content";
+import { spellSubtypes } from "@realms/contracts";
 import {
   abilityLabel,
   allowedAbilities,
@@ -304,7 +305,22 @@ export function CardForm({
           <Field title="Type">
             <select
               value={draft.type}
-              onChange={(event) => patch({ type: event.target.value as Draft["type"] })}
+              onChange={(event) => {
+                const type = event.target.value as Draft["type"];
+                // A spell's subtype is a fixed list: drop creature or holding subtypes that are not on it.
+                patch({
+                  type,
+                  ...(type === "spell"
+                    ? {
+                        subtypes: draft.subtypes
+                          .filter((subtype) =>
+                            (spellSubtypes as readonly string[]).includes(subtype),
+                          )
+                          .slice(0, 1),
+                      }
+                    : {}),
+                });
+              }}
             >
               <option value="creature">Creature</option>
               <option value="spell">Spell</option>
@@ -339,9 +355,30 @@ export function CardForm({
           />{" "}
           Legendary (one copy per deck)
         </label>
-        <Field title="Subtypes" hint="Separate with commas.">
-          <Subtypes value={draft.subtypes} onChange={(subtypes) => patch({ subtypes })} />
-        </Field>
+        {draft.type === "spell" ? (
+          <Field
+            title="Subtype"
+            hint="Strike: damage to one target. Barrage: damage to every enemy creature. Tactic: combat bonus. Rite: healing, reanimation, drawing. Curse: destroys outright. Divination: finding things."
+          >
+            <select
+              value={draft.subtypes[0] ?? ""}
+              onChange={(event) =>
+                patch({ subtypes: event.target.value ? [event.target.value] : [] })
+              }
+            >
+              <option value="">None</option>
+              {spellSubtypes.map((subtype) => (
+                <option key={subtype} value={subtype}>
+                  {subtype.charAt(0).toUpperCase() + subtype.slice(1)}
+                </option>
+              ))}
+            </select>
+          </Field>
+        ) : (
+          <Field title="Subtypes" hint="Separate with commas.">
+            <Subtypes value={draft.subtypes} onChange={(subtypes) => patch({ subtypes })} />
+          </Field>
+        )}
       </fieldset>
 
       <fieldset>

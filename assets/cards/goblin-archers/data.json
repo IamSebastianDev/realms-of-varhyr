@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "goblin-archers",
+  "revision": 1,
+  "name": "Goblin Archers",
+  "deckLimitKey": "goblin-archers",
+  "type": "creature",
+  "factions": [
+    "horde"
+  ],
+  "subtypes": [
+    "goblin"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "horde": 1
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "horde": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "longshot",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "lore": "Volume makes up for aim. So does the second volley.",
+  "set": "foundations"
+}

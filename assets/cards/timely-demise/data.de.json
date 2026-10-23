@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Rechtzeitiges Ableben",
+  "lore": "Heute sollte jemand sterben. Das hier legt nur den Zeitpunkt fest."
+}

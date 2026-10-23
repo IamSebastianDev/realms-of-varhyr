@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Goblin-Plünderer",
+  "lore": "Er nimmt, was nicht festgenagelt ist. Dann nimmt er die Nägel."
+}

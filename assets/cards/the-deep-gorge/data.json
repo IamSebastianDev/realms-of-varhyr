@@ -1,0 +1,42 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "the-deep-gorge",
+  "revision": 1,
+  "name": "The Deep Gorge",
+  "deckLimitKey": "the-deep-gorge",
+  "type": "holding",
+  "factions": [
+    "horde"
+  ],
+  "subtypes": [
+    "landmark"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "horde": 3
+    }
+  },
+  "stats": {
+    "attack": 3,
+    "defense": 4
+  },
+  "abilities": [
+    {
+      "id": "sacrifice",
+      "params": {
+        "amount": 1
+      }
+    },
+    {
+      "id": "hive",
+      "params": {
+        "subtype": "goblin"
+      }
+    }
+  ],
+  "lore": "The goblins say they were born in it. The gorge does not confirm this, but it keeps producing more.",
+  "set": "foundations"
+}
