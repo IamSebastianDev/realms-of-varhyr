@@ -70,9 +70,13 @@ export function localizedAbility(
 const abilityPatterns = Object.values(registry.abilities).flatMap((extension) => {
   const de = extension.translations?.de;
   if (!de) return [];
-  return (["name", "description"] as const).map((field) => {
+  return (["name", "description"] as const).flatMap((field) => {
+    const source = extension[field],
+      target = de[field];
+    // A one-off ability has no name to match.
+    if (!source || !target) return [];
     const keys: string[] = [];
-    const pattern = extension[field]
+    const pattern = source
       .split(/(\{\w+\})/)
       .map((part) => {
         if (/^\{\w+\}$/.test(part)) {
@@ -82,7 +86,7 @@ const abilityPatterns = Object.values(registry.abilities).flatMap((extension) =>
         return escape(part);
       })
       .join("");
-    return { expression: new RegExp("^" + pattern + "$"), keys, template: de[field] };
+    return [{ expression: new RegExp("^" + pattern + "$"), keys, template: target }];
   });
 });
 export function translate(
@@ -115,7 +119,8 @@ export function translate(
   let output = translated.replace(contentPattern, (name) => cardText[name]);
   for (const extension of Object.values(registry.abilities)) {
     const de = extension.translations?.de;
-    if (!de) continue;
+    const germanName = de?.name;
+    if (!germanName || !extension.name) continue;
     const keys: string[] = [];
     const pattern = extension.name
       .split(/(\{\w+\})/)
@@ -128,7 +133,7 @@ export function translate(
       })
       .join("");
     output = output.replace(new RegExp(pattern, "g"), (...args) =>
-      de.name.replace(/\{(\w+)\}/g, (_placeholder, key) => {
+      germanName.replace(/\{(\w+)\}/g, (_placeholder, key) => {
         const value = args[keys.indexOf(key) + 1];
         return dictionary[value] ?? value;
       }),

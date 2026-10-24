@@ -31,5 +31,5 @@ export function describeAbility(
   // Draw uses one shared template across card counts; keep its singular readable in both supported languages.
   if (binding.id === "draw" && binding.params.amount === 1)
     description = description.replace(/\b1 cards\b/g, "1 card").replace(/\b1 Karten\b/g, "1 Karte");
-  return { name: fill(extension.name), description };
+  return { name: extension.name ? fill(extension.name) : undefined, description };
 }

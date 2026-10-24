@@ -130,7 +130,7 @@ export function buildCardJsonSchema(
     if (energy) energy.enum = [...named, "neutral"];
     definitions[`ability-${id}`] = {
       type: "object",
-      title: ability.name,
+      ...(ability.name ? { title: ability.name } : {}),
       description: ability.description,
       properties: { id: { const: id }, params },
       required: ["id", "params"],

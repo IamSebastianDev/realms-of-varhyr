@@ -4,8 +4,7 @@ import * as v from "valibot";
 import { defineAbility } from "@realms/extensions/definition";
 import { legacyAbilities } from "./legacyAbilities";
 import { compileContent } from "@realms/content/compiler";
-/** Recorded games pin their card pool, faction IDs and registered ability list.
- * Newly enabled extensions must not rewrite a historical recording's content hash. */
+/** A recorded game is replayed on its own card pool and only the abilities it uses, so newly added abilities cannot change it. */
 const abilityIds = [
   "adjacent-banner",
   "armor",
@@ -51,35 +50,6 @@ const pinned: typeof abilities = {
   ...Object.fromEntries(legacyAbilities.map((a) => [a.id, a])),
   "channel-neutral": legacyChannelNeutral,
 };
-/** Rule texts as they were when the match was recorded (the live texts have since been shortened). */
-const recordedText: Record<string, { en: string; de: string }> = {
-  "shield-wall": {
-    en: "Adjacent friendly creatures and holdings get +{amount} Defense while this card is on the battlefield. Empty slots do not close the gap.",
-    de: "Benachbarte eigene Kreaturen und Besitzungen erhalten +{amount} Verteidigung, solange diese Karte auf dem Schlachtfeld liegt. Leere Plätze schließen die Lücke nicht.",
-  },
-  guard: {
-    en: "Attacks aimed at a lane next to this card are blocked by this card instead, even if that lane is empty. Stops one attacker per combat; the lane's own Guard blocks first.",
-    de: "Diese Karte blockt Angriffe auf eine benachbarte Bahn, selbst wenn die Bahn leer ist. Stoppt einen Angreifer pro Kampf; die Wache in der Zielbahn blockt zuerst.",
-  },
-};
-const frozen = (id: string) => {
-  const t = recordedText[id],
-    a = pinned[id];
-  return t
-    ? {
-        ...a,
-        description: t.en,
-        translations: {
-          ...a.translations,
-          de: { name: a.translations?.de?.name ?? a.name, description: t.de },
-        },
-      }
-    : a;
-};
-export const recordedAbilities = Object.fromEntries(
-  abilityIds.map((id) => [
-    id,
-    id === "rally" ? { ...frozen(id), name: "Rally {amount}" } : frozen(id),
-  ]),
-);
+/** The abilities the recording needs, by id. Texts and names do not matter for a replay, so the live ones are used. */
+export const recordedAbilities = Object.fromEntries(abilityIds.map((id) => [id, pinned[id]]));
 export const recordedRegistry = compileContent(cards, recordedAbilities, undefined, ["crownlands"]);

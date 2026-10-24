@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { registry } from "@realms/content";
+import { draftRegistry as registry } from "@realms/testing/draftContent";
 import { draftPresets, winsOf } from "@realms/draft";
 import { DraftTableHost, TableClient } from "../src/draftRoom";
 import { buildBotDeck } from "@realms/draft";

@@ -1590,7 +1590,7 @@ export function apply(
       tx.slot = command.slot;
       const event = tx.emit(
         "ability.activated",
-        `${definition(next, card.id, registry).name} activates ${describeAbility(binding, registry.abilities[binding.id]).name}.`,
+        `${definition(next, card.id, registry).name} activates ${describeAbility(binding, registry.abilities[binding.id]).name ?? "an ability"}.`,
         { cardId: card.id, player: envelope.actor, target: command.target, abilityId: binding.id },
       );
       registry.abilities[binding.id].activate!(tx.context(card, event), binding.params);

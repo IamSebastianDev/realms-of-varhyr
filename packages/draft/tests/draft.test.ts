@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { registry } from "@realms/content";
+import { draftRegistry as registry } from "@realms/testing/draftContent";
 import { apply, createMatch, decisionPlayer, validateDeck } from "@realms/core";
 import { botCommand } from "@realms/core/bot";
 import {

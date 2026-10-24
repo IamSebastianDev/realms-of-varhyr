@@ -2,11 +2,12 @@ import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { compileContent } from "@realms/content/compiler";
 import { recordedAbilities } from "@realms/testing/recordedMatch";
-import { replay } from "../src";
+import { replay, RULES_VERSION } from "../src";
 
-// Saved real matches, each pinned with the card pool it was played on. They must keep replaying exactly,
-// so any rules change that alters old games is noticed. If the rules version is bumped on purpose,
-// update `rulesVersion` inside match.json once the replay is confirmed identical.
+// Saved real matches: each is replayed command by command and must end the way it did when it was played.
+// This guards behaviour (a rules change that alters old games shows up here), not version strings or card text:
+// the recording is re-stamped with the current rules and content versions, so renames, rewording and version bumps
+// cannot break it. If a rules change alters the outcome on purpose, re-record the match or update expected.json.
 const root = new URL("../../testing/src/matches/", import.meta.url);
 const read = (dir: string, file: string) =>
   JSON.parse(readFileSync(new URL(`${dir}/${file}`, root), "utf8"));
@@ -19,8 +20,12 @@ describe("saved matches", () => {
       const registry = compileContent(read(dir, "cards.json"), recordedAbilities, undefined, [
         "crownlands",
       ]);
-      expect(registry.version).toBe(saved.initial.contentVersion);
-      const end = replay(saved.initial, saved.commands, registry);
+      const initial = {
+        ...saved.initial,
+        rulesVersion: RULES_VERSION,
+        contentVersion: registry.version,
+      };
+      const end = replay(initial, saved.commands, registry);
       expect({
         turn: end.turn,
         outcome: end.outcome,

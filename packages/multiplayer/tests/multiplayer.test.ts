@@ -14,7 +14,16 @@ import {
 } from "../src/protocol";
 
 // Fixed mechanics independent of authored decks: ten free producers, three copies each.
-const base = Object.values(live.cards).find((card) => card.type === "creature")!;
+const base = {
+  revision: 1,
+  type: "creature" as const,
+  factions: ["crownlands"],
+  subtypes: ["creature"],
+  text: "",
+  art: "",
+  timing: ["play" as const],
+  abilities: [],
+};
 const cards = Object.fromEntries(
   Array.from({ length: 10 }, (_, i) => {
     const id = `unit-${i}`;
@@ -249,18 +258,29 @@ describe("WebRTC match authority and protocol", () => {
     }
   });
   it("keeps activated-ability energy choices (Primal) across the wire", () => {
-    const ids = Object.values(live.cards)
-      .filter((c) => !c.legendary && c.id !== "ancient-unicorn")
-      .slice(0, 10)
-      .map((c) => c.id);
+    // A creature with Primal, defined here so the test does not depend on any authored card.
+    const primal: Registry = {
+      ...content,
+      cards: {
+        ...content.cards,
+        "primal-test": {
+          ...content.cards["unit-0"],
+          id: "primal-test",
+          deckLimitKey: "primal-test",
+          name: "primal-test",
+          abilities: [{ id: "primal", params: { amount: 1 } }],
+        },
+      },
+    };
+    const ids = Object.keys(cards);
     const state = createMatch(
-      live,
+      primal,
       [ids.flatMap((i) => [i, i, i]), ids.flatMap((i) => [i, i, i])],
       5,
       { mulligan: false },
     );
     const id = state.players.p1.hand[0];
-    state.cards[id].definitionId = "ancient-unicorn";
+    state.cards[id].definitionId = "primal-test";
     state.cards[id].zone = "board";
     state.cards[id].slot = 0;
     state.cards[id].exhausted = false;
@@ -269,7 +289,7 @@ describe("WebRTC match authority and protocol", () => {
     state.phase = "play";
     state.active = "p1";
     state.pending = null;
-    const view = projectForPlayer(state, "p1", live);
+    const view = projectForPlayer(state, "p1", primal);
     expect(view.legal.activations[0].energyOptions?.length).toBeGreaterThan(1);
     const wire = parseHostMessage(
       JSON.parse(

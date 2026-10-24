@@ -12,6 +12,7 @@ import { factionInfo, registry } from "@realms/content";
 import { usePreferences } from "./preferences";
 export function cardAbilityDescriptions(card: CardDefinition) {
   // Printed abilities come first and keep their index (creature actions rely on it); spell effects follow.
+  // `label` is for buttons: a one-off ability has no name, so its text stands in.
   return [
     ...card.abilities.map((binding) =>
       localizedAbility(binding, registry.abilities[binding.id], undefined, "field"),
@@ -19,7 +20,7 @@ export function cardAbilityDescriptions(card: CardDefinition) {
     ...(card.cast ?? []).map((binding) =>
       localizedAbility(binding, registry.abilities[binding.id]),
     ),
-  ];
+  ].map((ability) => ({ ...ability, label: ability.name ?? ability.description }));
 }
 export function CardLore({ card, className = "" }: { card: CardDefinition; className?: string }) {
   useLanguage();
@@ -457,7 +458,7 @@ export function CardFacts({
         >
           {abilities.map((ability, index) => (
             <div className="ability-fact" key={index}>
-              <dt>{ability.name}</dt>
+              {ability.name && <dt>{ability.name}</dt>}
               <dd>{ability.description}</dd>
             </div>
           ))}

@@ -77,7 +77,7 @@ export function builderCards(
         card.legendary ? "legendary" : "",
         ...bindings.map((binding) => {
           const ability = describeAbility(binding, content.abilities[binding.id]);
-          return `${ability.name} ${ability.description} ${Object.values(
+          return `${ability.name ?? ""} ${ability.description} ${Object.values(
             content.abilities[binding.id].translations ?? {},
           )
             .map((text) => `${text?.name ?? ""} ${text?.description ?? ""}`)

@@ -256,7 +256,6 @@
   "definitions": {
     "ability-accord": {
       "type": "object",
-      "title": "Accord",
       "description": "After the first spell you cast during your play phase each turn, gain 1 Winter energy.",
       "properties": {
         "id": {
@@ -333,7 +332,6 @@
     },
     "ability-barrage": {
       "type": "object",
-      "title": "Barrage {amount}",
       "description": "Deal {amount} damage to each enemy creature.",
       "properties": {
         "id": {
@@ -522,7 +520,6 @@
     },
     "ability-dark-harvest": {
       "type": "object",
-      "title": "Dark Harvest",
       "description": "Exhaust: put the top card of your library into your discard pile and gain 2 Host energy. Needs two cards in your library.",
       "properties": {
         "id": {
@@ -543,7 +540,6 @@
     },
     "ability-destroy": {
       "type": "object",
-      "title": "Destroy",
       "description": "Destroy target enemy {type}.",
       "properties": {
         "id": {
@@ -638,7 +634,6 @@
     },
     "ability-fealty": {
       "type": "object",
-      "title": "Fealty",
       "description": "All friendly creatures, including this one, have +1 Attack and +1 Defense.",
       "properties": {
         "id": {
@@ -659,7 +654,6 @@
     },
     "ability-forced-march": {
       "type": "object",
-      "title": "Forced March",
       "description": "Enters the battlefield ready: it can attack or channel energy the turn it is played.",
       "properties": {
         "id": {
@@ -701,7 +695,6 @@
     },
     "ability-heal": {
       "type": "object",
-      "title": "Heal {amount}",
       "description": "Restore {amount} life to yourself.",
       "properties": {
         "id": {
@@ -729,7 +722,6 @@
     },
     "ability-hive": {
       "type": "object",
-      "title": "Hive {subtype}",
       "description": "Whenever a friendly {subtype} dies, search your library for the first {subtype} and put it into your hand.",
       "properties": {
         "id": {
@@ -757,7 +749,6 @@
     },
     "ability-longshot": {
       "type": "object",
-      "title": "Longshot {amount}",
       "description": "Exhaust: deal {amount} damage to an enemy creature.",
       "properties": {
         "id": {
@@ -785,7 +776,6 @@
     },
     "ability-marches-rally": {
       "type": "object",
-      "title": "Rally",
       "description": "Exhaust: deploy a creature or holding from your hand to a free position without paying its cost. It enters exhausted.",
       "properties": {
         "id": {
@@ -834,7 +824,6 @@
     },
     "ability-outflank": {
       "type": "object",
-      "title": "Outflank {amount}",
       "description": "While on a flank, this creature has +{amount} Attack.",
       "properties": {
         "id": {
@@ -862,7 +851,6 @@
     },
     "ability-plague": {
       "type": "object",
-      "title": "Plague",
       "description": "Destroy each enemy creature.",
       "properties": {
         "id": {
@@ -883,7 +871,6 @@
     },
     "ability-primal": {
       "type": "object",
-      "title": "Primal {amount}",
       "description": "Exhaust: choose a faction and gain {amount} energy of that faction.",
       "properties": {
         "id": {
@@ -960,7 +947,6 @@
     },
     "ability-raise": {
       "type": "object",
-      "title": "Raise {subtype}",
       "description": "Return a {subtype} creature from your discard pile to a free position. It enters ready.",
       "properties": {
         "id": {
@@ -988,7 +974,6 @@
     },
     "ability-ransack": {
       "type": "object",
-      "title": "Ransack",
       "description": "When played, look at your opponent's hand and choose a card. They discard it.",
       "properties": {
         "id": {
@@ -1009,7 +994,6 @@
     },
     "ability-recall": {
       "type": "object",
-      "title": "Recall",
       "description": "Return target {target} creature to its owner's hand.",
       "properties": {
         "id": {
@@ -1071,7 +1055,6 @@
     },
     "ability-sacrifice": {
       "type": "object",
-      "title": "Sacrifice",
       "description": "Sacrifice another friendly creature: gain {amount} energy of its type, of each type if it has several.",
       "properties": {
         "id": {
@@ -1095,30 +1078,8 @@
       ],
       "additionalProperties": false
     },
-    "ability-sanctuary": {
-      "type": "object",
-      "title": "Sanctuary",
-      "description": "Adjacent friendly creatures have +1 Defense (+2 for Elves).",
-      "properties": {
-        "id": {
-          "const": "sanctuary"
-        },
-        "params": {
-          "type": "object",
-          "properties": {},
-          "required": [],
-          "additionalProperties": false
-        }
-      },
-      "required": [
-        "id",
-        "params"
-      ],
-      "additionalProperties": false
-    },
     "ability-scorch": {
       "type": "object",
-      "title": "Scorch {amount}",
       "description": "When played, deal {amount} damage to an enemy creature in range (opposite or in a neighbouring lane) or to the enemy player.",
       "properties": {
         "id": {
@@ -1146,7 +1107,6 @@
     },
     "ability-shield-wall": {
       "type": "object",
-      "title": "Shield Wall {amount}",
       "description": "Adjacent friendly creatures and holdings get +{amount} Defense.",
       "properties": {
         "id": {
@@ -1174,7 +1134,6 @@
     },
     "ability-sneaky": {
       "type": "object",
-      "title": "Sneaky",
       "description": "Cannot be blocked. Its attack always hits the opposing player.",
       "properties": {
         "id": {
@@ -1193,30 +1152,8 @@
       ],
       "additionalProperties": false
     },
-    "ability-soul-harvest": {
-      "type": "object",
-      "title": "Soul Harvest",
-      "description": "Whenever another friendly creature is destroyed, draw a card.",
-      "properties": {
-        "id": {
-          "const": "soul-harvest"
-        },
-        "params": {
-          "type": "object",
-          "properties": {},
-          "required": [],
-          "additionalProperties": false
-        }
-      },
-      "required": [
-        "id",
-        "params"
-      ],
-      "additionalProperties": false
-    },
     "ability-steadfast": {
       "type": "object",
-      "title": "Steadfast {amount}",
       "description": "Target friendly creature gets +{amount} Defense until end of turn.",
       "properties": {
         "id": {
@@ -1265,7 +1202,6 @@
     },
     "ability-wayfarer": {
       "type": "object",
-      "title": "Wayfarer",
       "description": "Exhaust: return a friendly creature (including this one) to its owner’s hand, clearing its damage.",
       "properties": {
         "id": {
@@ -1286,7 +1222,6 @@
     },
     "ability-weaken": {
       "type": "object",
-      "title": "Weaken {amount}",
       "description": "The enemy creature or holding opposite has -{amount} Attack.",
       "properties": {
         "id": {
@@ -1349,11 +1284,9 @@
             "recall",
             "rest",
             "sacrifice",
-            "sanctuary",
             "scorch",
             "shield-wall",
             "sneaky",
-            "soul-harvest",
             "steadfast",
             "trade",
             "wayfarer",
@@ -1463,9 +1396,6 @@
           "$ref": "#/definitions/ability-sacrifice"
         },
         {
-          "$ref": "#/definitions/ability-sanctuary"
-        },
-        {
           "$ref": "#/definitions/ability-scorch"
         },
         {
@@ -1473,9 +1403,6 @@
         },
         {
           "$ref": "#/definitions/ability-sneaky"
-        },
-        {
-          "$ref": "#/definitions/ability-soul-harvest"
         },
         {
           "$ref": "#/definitions/ability-steadfast"
@@ -1521,11 +1448,9 @@
             "raise",
             "ransack",
             "recall",
-            "sanctuary",
             "scorch",
             "shield-wall",
             "sneaky",
-            "soul-harvest",
             "steadfast",
             "trade",
             "weaken"
@@ -1613,9 +1538,6 @@
           "$ref": "#/definitions/ability-recall"
         },
         {
-          "$ref": "#/definitions/ability-sanctuary"
-        },
-        {
           "$ref": "#/definitions/ability-scorch"
         },
         {
@@ -1623,9 +1545,6 @@
         },
         {
           "$ref": "#/definitions/ability-sneaky"
-        },
-        {
-          "$ref": "#/definitions/ability-soul-harvest"
         },
         {
           "$ref": "#/definitions/ability-steadfast"

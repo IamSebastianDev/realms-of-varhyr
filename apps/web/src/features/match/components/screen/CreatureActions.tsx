@@ -41,7 +41,7 @@ export function CreatureActions() {
             action.kind === "channel"
               ? msg("Channel")
               : cardAbilityDescriptions(registry.cards[actionInstance.definitionId])[action.ability]
-                  .name
+                  .label
           }
         />
       )}
@@ -79,7 +79,7 @@ export function CreatureActions() {
                     {
                       cardAbilityDescriptions(registry.cards[actionInstance.definitionId])[
                         action.ability
-                      ].name
+                      ].label
                     }
                   </span>
                   {action.output && <Energy pool={action.output} />}

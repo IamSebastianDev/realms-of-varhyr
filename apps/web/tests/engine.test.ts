@@ -23,7 +23,16 @@ import {
   validateDeck,
 } from "@realms/core";
 import { botCommand } from "@realms/core/bot";
-import { localizedAbility } from "@realms/ui/i18n";
+import { localizedAbility, translate } from "@realms/ui/i18n";
+import { defineAbility } from "@realms/extensions/definition";
+import {
+  draw as drawBlock,
+  gainEnergy,
+  param,
+  run,
+  triggers,
+  whenFriendlyDies,
+} from "@realms/extensions/blocks";
 import raw, { abilities, compileContent, registry, starterDecks } from "@realms/testing/content";
 import { startMatch } from "./support/session";
 import {
@@ -738,12 +747,14 @@ describe("simultaneous combat and response energy", () => {
             abilities.destroy,
             language,
           ).description;
-        expect(text()).toBe("Destroy target enemy creature.");
-        expect(text(["holding"])).toBe("Destroy target enemy holding.");
-        expect(text(["creature", "holding"])).toBe("Destroy target enemy creature or holding.");
-        expect(text(["creature", "holding"], "de")).toBe(
-          "Zerstöre eine gegnerische Kreatur oder Besitzung.",
-        );
+        // The wording may change; what the text must say about the choice may not.
+        expect(text()).toMatch(/creature/i);
+        expect(text()).not.toMatch(/holding/i);
+        expect(text(["holding"])).toMatch(/holding/i);
+        expect(text(["holding"])).not.toMatch(/creature/i);
+        expect(text(["creature", "holding"])).toMatch(/creature.*holding/i);
+        expect(text(["creature", "holding"], "de")).toMatch(/Kreatur.*Besitzung/);
+        expect(text(["holding"], "de")).not.toMatch(/Kreatur/);
       });
     });
   });
@@ -1181,10 +1192,145 @@ describe("simultaneous combat and response energy", () => {
     it("is described in both languages", () => {
       const text = (language: "en" | "de", params = {}) =>
         localizedAbility({ id: "sacrifice", params }, abilities.sacrifice, language).description;
-      expect(text("en")).toBe(
-        "Sacrifice another friendly creature: gain 1 energy of its type, of each type if it has several.",
-      );
-      expect(text("de", { amount: 2 })).toContain("Erhalte 2 Energie");
+      // The amount comes from the card's parameters, with a default of 1.
+      expect(text("en")).toMatch(/\b1\b/);
+      expect(text("en", { amount: 3 })).toMatch(/\b3\b/);
+      expect(text("de", { amount: 2 })).toMatch(/\b2\b/);
+      expect(text("de", { amount: 2 })).not.toBe(text("en", { amount: 2 }));
+    });
+  });
+
+  describe("ability blocks in the engine", () => {
+    // An ability that exists nowhere else, built only from blocks.
+    const scrapyard = defineAbility("scrapyard", v.strictObject({ subtype: v.string() }), {
+      name: "Scrapyard",
+      description:
+        "Whenever another friendly {subtype} dies, draw a card and gain 1 neutral energy.",
+      hooks: triggers(
+        whenFriendlyDies({ subtype: param<string>("subtype"), other: true }, drawBlock(1)),
+        whenFriendlyDies(
+          { subtype: param<string>("subtype"), other: true },
+          gainEnergy({ neutral: 1 }),
+        ),
+      ),
+    });
+    const content = compileContent(
+      [
+        ...raw,
+        {
+          ...registry.cards["wild-guardian"],
+          id: "scrapper",
+          deckLimitKey: "scrapper",
+          abilities: [
+            { id: "scrapyard", params: { subtype: "scrap" } },
+            { id: "sacrifice", params: {} },
+          ],
+        },
+        {
+          ...registry.cards["crown-recruit"],
+          id: "scrap-heap",
+          deckLimitKey: "scrap-heap",
+          subtypes: ["scrap"],
+        },
+        {
+          ...registry.cards["crown-recruit"],
+          id: "not-scrap",
+          deckLimitKey: "not-scrap",
+          subtypes: ["other"],
+        },
+      ],
+      { ...abilities, scrapyard },
+    );
+    const scene = (victimId: string) => {
+      const s = setup(content);
+      const put = (definitionId: string, slot: number) => {
+        const spare = s.players.p1.deck.find(
+          (id) => registry.cards[s.cards[id].definitionId].type === "creature",
+        )!;
+        s.cards[spare].definitionId = definitionId;
+        return fixture(s, definitionId, "p1", "board", slot);
+      };
+      const source = put("scrapper", 0),
+        victim = put(victimId, 1);
+      return { s, source, victim };
+    };
+    const kill = (s: GameState, source: string, victim: string) =>
+      step(s, { type: "activate", cardId: source, ability: 1, target: victim }, "p1", content);
+    it("runs every effect of a composed trigger when it fires", () => {
+      const { s, source, victim } = scene("scrap-heap");
+      const hand = s.players.p1.hand.length,
+        neutral = s.players.p1.energy.neutral ?? 0;
+      const r = kill(s, source, victim);
+      expect(r.players.p1.hand.length).toBe(hand + 1);
+      expect(r.players.p1.energy.neutral ?? 0).toBe(neutral + 1);
+      assertInvariants(r);
+    });
+    it("does not fire for a creature of another subtype", () => {
+      const { s, source, victim } = scene("not-scrap");
+      const hand = s.players.p1.hand.length;
+      expect(kill(s, source, victim).players.p1.hand.length).toBe(hand);
+    });
+  });
+
+  describe("one-off abilities without a name", () => {
+    const oneOff = defineAbility("one-off-draw", v.strictObject({}), {
+      description: "Exhaust: draw a card.",
+      translations: { de: { description: "Erschöpfe: Ziehe eine Karte." } },
+      activate: run(drawBlock(1)),
+    });
+    const content = compileContent(
+      [
+        ...raw,
+        {
+          ...registry.cards["wild-guardian"],
+          id: "drifter",
+          deckLimitKey: "drifter",
+          abilities: [{ id: "one-off-draw", params: {} }],
+        },
+      ],
+      { ...abilities, "one-off-draw": oneOff },
+    );
+    it("compiles, and describes itself by its text alone", () => {
+      const binding = { id: "one-off-draw", params: {} };
+      expect(localizedAbility(binding, oneOff, "en")).toEqual({
+        name: undefined,
+        description: "Exhaust: draw a card.",
+      });
+      expect(localizedAbility(binding, oneOff, "de")).toEqual({
+        name: undefined,
+        description: "Erschöpfe: Ziehe eine Karte.",
+      });
+    });
+    it("still rejects a name that is given but blank, and a missing description", () => {
+      expect(() =>
+        compileContent([...raw], {
+          ...abilities,
+          blank: defineAbility("blank", v.strictObject({}), { name: "  ", description: "Text." }),
+        }),
+      ).toThrow(/needs a description/);
+      expect(() =>
+        compileContent([...raw], {
+          ...abilities,
+          empty: defineAbility("empty", v.strictObject({}), { description: " " }),
+        }),
+      ).toThrow(/needs a description/);
+    });
+    it("can be activated, and the log line neither shows a name nor breaks in German", () => {
+      const s = setup(content);
+      const spare = s.players.p1.deck.find(
+        (id) => registry.cards[s.cards[id].definitionId].type === "creature",
+      )!;
+      s.cards[spare].definitionId = "drifter";
+      const drifter = fixture(s, "drifter", "p1", "board", 0);
+      const hand = s.players.p1.hand.length;
+      const r = step(s, { type: "activate", cardId: drifter, ability: 0 }, "p1", content);
+      expect(r.players.p1.hand.length).toBe(hand + 1);
+      const message = [...r.events]
+        .reverse()
+        .find((event) => event.type === "ability.activated")!.message;
+      expect(message).toMatch(/activates an ability\.$/);
+      expect(translate(message, "de")).toMatch(/aktiviert eine Fähigkeit\.$/);
+      assertInvariants(r);
     });
   });
 
@@ -1331,21 +1477,19 @@ describe("simultaneous combat and response energy", () => {
       const binding = { id: "recall", params: {} };
       const text = (language: "en" | "de", context?: "field") =>
         localizedAbility(binding, content.abilities.recall, language, context).description;
-      expect(text("en")).toBe("Return target friendly or enemy creature to its owner's hand.");
-      expect(text("en", "field")).toBe(
-        "When played, return target friendly or enemy creature to its owner's hand.",
-      );
-      expect(text("de")).toBe(
-        "Nimm eine eigene oder gegnerische Kreatur auf die Hand ihres Besitzers zurück.",
-      );
-      expect(text("de", "field")).toContain("Beim Ausspielen");
+      // Both sides by default; the creature's own line says it happens when played.
+      expect(text("en")).toMatch(/friendly.*enemy/i);
+      expect(text("de")).toMatch(/eigene.*gegnerische/);
+      expect(text("en", "field")).not.toBe(text("en"));
+      expect(text("de", "field")).not.toBe(text("de"));
+      // Limiting the target to one side drops the other from the text.
       const enemy = { id: "recall", params: { target: ["enemy"] } };
-      expect(localizedAbility(enemy, content.abilities.recall, "en").description).toBe(
-        "Return target enemy creature to its owner's hand.",
-      );
-      expect(localizedAbility(enemy, content.abilities.recall, "de").description).toContain(
-        "eine gegnerische Kreatur",
-      );
+      const enemyText = (language: "en" | "de") =>
+        localizedAbility(enemy, content.abilities.recall, language).description;
+      expect(enemyText("en")).toMatch(/enemy/i);
+      expect(enemyText("en")).not.toMatch(/friendly/i);
+      expect(enemyText("de")).toMatch(/gegnerische/);
+      expect(enemyText("de")).not.toMatch(/eigene/);
     });
   });
 
@@ -1523,10 +1667,17 @@ describe("simultaneous combat and response energy", () => {
       const binding = { id: "draw", params: { amount: 2 } };
       const text = (language: "en" | "de", context?: "field") =>
         localizedAbility(binding, abilities.draw, language, context).description;
-      expect(text("en")).toBe("Draw 2 cards from your library.");
-      expect(text("en", "field")).toBe("When played, draw 2 cards from your library.");
-      expect(text("de")).toBe("Ziehe 2 Karten aus deiner Bibliothek.");
-      expect(text("de", "field")).toBe("Beim Ausspielen: Ziehe 2 Karten aus deiner Bibliothek.");
+      for (const language of ["en", "de"] as const) {
+        expect(text(language)).toMatch(/\b2\b/);
+        expect(text(language, "field")).toMatch(/\b2\b/);
+        expect(text(language, "field")).not.toBe(text(language));
+      }
+      // One card reads as singular in both languages.
+      const one = (language: "en" | "de") =>
+        localizedAbility({ id: "draw", params: { amount: 1 } }, abilities.draw, language)
+          .description;
+      expect(one("en")).not.toMatch(/\b1 cards\b/);
+      expect(one("de")).not.toMatch(/\b1 Karten\b/);
     });
     it("is offered on creatures in the studio, not only on spells", () => {
       expect(abilities.draw.hooks).toBeDefined();

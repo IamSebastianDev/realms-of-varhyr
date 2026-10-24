@@ -8,6 +8,7 @@ export const eventMessages: [RegExp, string][] = [
   [/^(.+) ends their turn\.$/, "$1 beendet den Zug."],
   [/^(.+) plays (.+) in (.+)\.$/, "$1 spielt $2 auf Position $3."],
   [/^(.+) casts (.+)\.$/, "$1 wirkt $2."],
+  [/^(.+) activates an ability\.$/, "$1 aktiviert eine Fähigkeit."],
   [/^(.+) activates (.+)\.$/, "$1 aktiviert $2."],
   [/^(.+) attacks (.+)\.$/, "$1 greift $2 an."],
   [/^(.+) blocks (.+)\.$/, "$1 blockt $2."],

@@ -22,7 +22,7 @@ export type PlayerId = "p1" | "p2";
 export type AbilityBinding = { id: string; params: Record<string, unknown> };
 export type ContentLanguage = "en" | "de";
 export type CardTranslation = { name?: string; lore?: string };
-export type AbilityTranslation = { name: string; description: string; fieldDescription?: string };
+export type AbilityTranslation = { name?: string; description: string; fieldDescription?: string };
 export type CardDefinition = {
   id: string;
   revision: number;
@@ -209,8 +209,8 @@ export type AbilityExtension = {
   validate: (params: unknown) => void;
   /** Record this ability's resolved effects on the triggering event, so players can see what happened. */
   announce?: boolean;
-  /** Player-facing templates; {param} placeholders come from the card binding. */
-  name: string;
+  /** Player-facing templates; {param} placeholders come from the card binding. A one-off ability has no name and shows only its description. */
+  name?: string;
   description: string;
   /** Wording on a creature or holding's own ability line, for abilities that read differently there than as a spell effect. Falls back to `description`. */
   fieldDescription?: string;

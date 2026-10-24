@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { registry } from "@realms/content";
+import { draftRegistry as registry, undraftableFaction } from "@realms/testing/draftContent";
 import { validateDeck } from "@realms/core";
 import { draftPresets, isRunComplete, winsOf, type DraftRun } from "../src";
 import {
@@ -69,7 +69,8 @@ describe("a draft table with other people", () => {
     expect(t.draft.awaiting).toBe(true);
     expect(waitingOn(t)).toEqual([0, 1]);
     expect(() => submitPick(t, preset, registry, 0, "x")).toThrow(/faction/);
-    expect(() => submitFaction(t, preset, registry, 0, "conclave")).toThrow();
+    // A faction without enough cards to draft cannot be chosen.
+    expect(() => submitFaction(t, preset, registry, 0, undraftableFaction)).toThrow();
     t = submitFaction(t, preset, registry, 0, "black-host");
     expect(view(t, 1).draft.factions).toEqual([null, null, null]); // nothing is revealed yet
     expect(view(t, 0).draft.awaiting).toBe(true);

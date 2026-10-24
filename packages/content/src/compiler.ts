@@ -92,13 +92,14 @@ export function compileContent(
   factionIds: readonly string[] = factions,
 ): Registry {
   for (const extension of Object.values(extensions)) {
+    // The name is optional: a one-off ability shows only its description. If it is given it cannot be blank.
     if (
-      typeof extension.name !== "string" ||
-      !extension.name.trim() ||
+      (extension.name !== undefined &&
+        (typeof extension.name !== "string" || !extension.name.trim())) ||
       typeof extension.description !== "string" ||
       !extension.description.trim()
     ) {
-      throw new Error(`Ability ${extension.id} needs a name and description`);
+      throw new Error(`Ability ${extension.id} needs a description, and a name if it has one`);
     }
   }
   const schema = cardSchema(factionIds);
@@ -141,8 +142,17 @@ export function compileContent(
       describeAbility(binding, extension);
       describeAbility(binding, extension, "field");
       for (const translation of Object.values(extension.translations ?? {})) {
-        if (!translation || !translation.name.trim() || !translation.description.trim())
-          throw new Error(`Ability ${extension.id} needs translated names and descriptions`);
+        // A named ability is translated by name and description; an unnamed one by description alone.
+        if (
+          !translation ||
+          !translation.description.trim() ||
+          (extension.name ? !translation.name?.trim() : translation.name !== undefined)
+        )
+          throw new Error(
+            extension.name
+              ? `Ability ${extension.id} needs translated names and descriptions`
+              : `Ability ${extension.id} has no name, so its translation needs a description only`,
+          );
         if (extension.fieldDescription && !translation.fieldDescription?.trim())
           throw new Error(`Ability ${extension.id} needs a translated field description`);
         describeAbility(binding, { ...extension, ...translation });
