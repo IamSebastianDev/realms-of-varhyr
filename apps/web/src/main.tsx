@@ -2,6 +2,7 @@ import "@realms/ui/fonts";
 import "./app/styles/styles.css";
 import "./app/styles/card-layout.css";
 import "./app/styles/layout.css";
+import "./app/styles/nav.css";
 import { ApplicationPreferences } from "@realms/ui/i18n";
 import React from "react";
 import ReactDOM from "react-dom/client";

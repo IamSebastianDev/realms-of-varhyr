@@ -1,0 +1,32 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "vantage-point",
+  "revision": 1,
+  "name": "Vantage Point",
+  "deckLimitKey": "vantage-point",
+  "type": "holding",
+  "factions": [
+    "neutral"
+  ],
+  "subtypes": [
+    "landmark"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 3
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 3
+  },
+  "abilities": [
+    {
+      "id": "draw",
+      "params": {
+        "amount": 2
+      }
+    }
+  ],
+  "set": "foundations"
+}

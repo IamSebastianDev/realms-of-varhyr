@@ -1,7 +1,13 @@
 import { t as msg, useLanguage } from "@realms/ui/i18n";
 import { ArrowRight, Check, Layers, Play, RefreshCw, Scroll, Swords } from "lucide-react";
 import type { Collection } from "../../collection/lib/collection";
-import { achievementText, closestAchievement, dailyDef, type Reward } from "../../goals/lib/goals";
+import {
+  achievementText,
+  closestAchievement,
+  dailyDef,
+  tierRewards,
+  type Reward,
+} from "../../goals/lib/goals";
 import {
   claimAchievementTier,
   externalOf,
@@ -24,42 +30,42 @@ type Props = {
   newQuest: () => void;
 };
 
-const rewardText = (reward: Reward) =>
-  [
-    reward.crowns ? msg("{v0} crowns", { v0: reward.crowns }) : "",
-    reward.boosters ? msg("{v0} booster", { v0: reward.boosters }) : "",
-  ]
-    .filter(Boolean)
-    .join(" + ");
-
 const art = (id: string) => ({ backgroundImage: `url(${cardArtUrl(id)})` });
 
-/** A small progress ring: the number inside is how far along the goal is. */
-function Ring({ progress, goal, onSwap }: { progress: number; goal: number; onSwap?: () => void }) {
-  const r = 17,
-    c = 2 * Math.PI * r,
-    done = progress >= goal;
-  const ring = (
+/** A gilt medallion showing the reward; the arc around it fills as the goal progresses. */
+function Medal({
+  progress,
+  goal,
+  reward,
+  onSwap,
+}: {
+  progress: number;
+  goal: number;
+  reward: Reward;
+  onSwap?: () => void;
+}) {
+  const done = progress >= goal;
+  const amount = reward.crowns ?? reward.boosters ?? 0;
+  const unit = reward.crowns ? msg("crowns") : msg("booster");
+  const medal = (
     <span
-      className={`goal-ring ${done ? "done" : ""} ${onSwap ? "swappable" : ""}`}
+      className={`goal-medal ${done ? "done" : ""}`}
+      style={{ "--p": Math.min(1, progress / goal) } as React.CSSProperties}
       role="progressbar"
       aria-valuemin={0}
       aria-valuemax={goal}
       aria-valuenow={progress}
     >
-      <svg viewBox="0 0 44 44" aria-hidden="true">
-        <circle cx="22" cy="22" r={r} />
-        <circle
-          className="fill"
-          cx="22"
-          cy="22"
-          r={r}
-          strokeDasharray={c}
-          strokeDashoffset={c * (1 - Math.min(1, progress / goal))}
-        />
-      </svg>
-      {done ? <Check size={15} /> : <b>{progress}</b>}
-      {onSwap && <RefreshCw className="ring-swap" size={16} />}
+      {done ? (
+        <Check size={26} />
+      ) : (
+        <>
+          <b>{amount}</b>
+          <small>{unit}</small>
+        </>
+      )}
+      {reward.crowns && reward.boosters ? <i>+{reward.boosters}</i> : null}
+      {onSwap && <RefreshCw className="medal-swap" size={20} strokeWidth={1.5} />}
     </span>
   );
   return onSwap ? (
@@ -69,10 +75,10 @@ function Ring({ progress, goal, onSwap }: { progress: number; goal: number; onSw
       title={msg("Swap this goal (once a day)")}
       onClick={onSwap}
     >
-      {ring}
+      {medal}
     </button>
   ) : (
-    ring
+    medal
   );
 }
 
@@ -155,15 +161,16 @@ export function StartPage({
                 const swappable = !complete && !goals.rerolled;
                 return (
                   <li key={`${slot.id}${index}`} className={complete ? "done" : ""}>
-                    <Ring
+                    <Medal
                       progress={slot.progress}
                       goal={def.goal}
+                      reward={def.reward}
                       onSwap={swappable ? () => rerollGoal(index) : undefined}
                     />
                     <span className="goal-text">
                       <b>{msg(def.title)}</b>
                       <small>
-                        {slot.progress} / {def.goal} · {rewardText(def.reward)}
+                        {slot.progress} / {def.goal}
                       </small>
                     </span>
                   </li>
@@ -175,9 +182,10 @@ export function StartPage({
             <h2>{msg("Closest achievement")}</h2>
             {closest ? (
               <div>
-                <Ring
+                <Medal
                   progress={Math.min(closest.value, closest.threshold!)}
                   goal={closest.threshold!}
+                  reward={tierRewards[closest.tier]}
                 />
                 <span className="goal-text">
                   <b>{msg(closest.def.title)}</b>

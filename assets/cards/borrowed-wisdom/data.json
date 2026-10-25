@@ -14,11 +14,9 @@
   "legendary": false,
   "rarity": "common",
   "cost": {
-    "generic": 2,
-    "factions": {}
+    "generic": 3
   },
   "abilities": [],
-  "lore": "Knowledge travels farther when someone lends the book.",
   "timing": [
     "play",
     "response"
@@ -31,5 +29,6 @@
       }
     }
   ],
+  "lore": "Knowledge travels farther when someone lends the book.",
   "set": "foundations"
 }

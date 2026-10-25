@@ -1,0 +1,30 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "sellwords",
+  "revision": 1,
+  "name": "Sellwords",
+  "deckLimitKey": "sellwords",
+  "type": "creature",
+  "factions": [
+    "neutral"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 1,
+    "energyOutputs": [
+      {
+        "neutral": 1
+      }
+    ]
+  },
+  "abilities": [],
+  "set": "foundations"
+}

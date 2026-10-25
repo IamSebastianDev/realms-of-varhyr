@@ -1,5 +1,5 @@
 {
   "$schema": "../../schemas/card-translation.schema.json",
-  "name": "Schnellschnitt-Brigade",
-  "lore": "Wo die Brigade vorbeikam, entstehen Wege. Am nächsten Morgen hat der Wald sie sich zurückgeholt."
+  "name": "Waldpartisanen",
+  "lore": "Sie schlagen zu, verschwinden und sind woanders, bevor sich jemand einig ist, wo sie waren."
 }
