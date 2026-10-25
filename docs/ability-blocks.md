@@ -17,7 +17,7 @@ Everything below lives in `blocks.ts`. Each ability uses the parts it needs and 
 
 - **Triggers** say when: `whenPlayed`, `whenFriendlyDies({ subtype?, other?, where? })`, and the generic `when(event, condition, ...effects)`. `triggers(a, b)` combines several on one ability.
 - **Selectors** say to what: `chosen` (the target picked on play or activation), `self`, `you`, `opponent`, `enemyCreatures`, `oppositeCreature`. `union(a, b)` gathers several. A selector that finds nothing makes its effect do nothing.
-- **Effects** say what happens: `draw`, `damage`, `heal`, `boost`, `destroy`, `returnToHand`, `searchLibrary`, `searchLibraryForSubtype`, `ransack`, `mill`, `gainEnergy`, `gainEnergyOfTypes`, `gainEnergyOfChosen`, `deployChosen({ ready? })`. `sequence`/`run` run several in order, `onlyIf` guards them.
+- **Effects** say what happens: `draw`, `damage`, `heal`, `boost`, `destroy`, `returnToHand`, `searchLibrary`, `searchLibraryForSubtype`, `searchLibraryByCost`, `ransack`, `mill`, `gainEnergy`, `gainEnergyOfTypes`, `gainEnergyOfChosen`, `deployChosen({ ready? })`. `sequence`/`run` run several in order, `onlyIf` guards them.
 - **Values** are literals or `param("name", fallback?)`, which reads the card's ability parameters.
 
 For `cast` and `activate`, use `run(...effects)`.

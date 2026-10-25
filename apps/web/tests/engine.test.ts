@@ -1493,6 +1493,27 @@ describe("simultaneous combat and response energy", () => {
     });
   });
 
+  describe("channel text", () => {
+    const binding = { id: "channel", params: { amount: 2, energy: "neutral" } };
+    const channel = registry.abilities.channel;
+    it("has no name", () => {
+      expect(channel.name).toBeUndefined();
+    });
+    it("reads as a gain on a spell and as an exhaust ability on a field card", () => {
+      const spell = localizedAbility(binding, channel, "en").description,
+        field = localizedAbility(binding, channel, "en", "field").description;
+      expect(spell).toMatch(/gain 2 .*energy/i);
+      expect(spell).not.toMatch(/exhaust/i);
+      expect(field).toMatch(/^exhaust/i);
+      expect(field).toMatch(/2/);
+    });
+    it("does the same in German", () => {
+      const spell = localizedAbility(binding, channel, "de").description,
+        field = localizedAbility(binding, channel, "de", "field").description;
+      expect(spell).not.toMatch(/Erschöpf/);
+      expect(field).toMatch(/^Erschöpf/);
+    });
+  });
   describe("hive", () => {
     const content = compileContent([
       ...raw,
@@ -1787,6 +1808,134 @@ describe("simultaneous combat and response energy", () => {
         { cardId: "muster-bad", message: "muster refers to unknown card 'no-such-card'." },
       ]);
       expect(unknownCardReferences(Object.values(musterRegistry.cards))).toEqual([]);
+    });
+  });
+  describe("searchForCreatureOrHolding", () => {
+    const priced = (generic: number, factions: Record<string, number> = {}) => ({
+      generic,
+      factions,
+    });
+    const searchRegistry = compileContent([
+      ...raw,
+      {
+        ...registry.cards["wild-guardian"],
+        id: "search-test",
+        deckLimitKey: "search-test",
+        abilities: [{ id: "searchForCreatureOrHolding", params: { maxCost: 3 } }],
+      },
+      {
+        ...registry.cards["cleansing-light"],
+        id: "search-spell",
+        deckLimitKey: "search-spell",
+        cast: [{ id: "searchForCreatureOrHolding", params: { maxCost: 3 } }],
+      },
+      {
+        ...registry.cards["crown-recruit"],
+        id: "cheap-creature",
+        deckLimitKey: "cheap-creature",
+        cost: priced(1, { crownlands: 1 }),
+      },
+      {
+        ...registry.cards["crown-recruit"],
+        id: "dear-creature",
+        deckLimitKey: "dear-creature",
+        cost: priced(1, { crownlands: 3 }),
+      },
+      {
+        ...registry.cards["wayfarer"],
+        id: "cheap-holding",
+        deckLimitKey: "cheap-holding",
+        type: "holding",
+        abilities: [],
+        stats: { attack: 0, defense: 3, energyOutputs: [] },
+        cost: priced(3),
+      },
+      {
+        ...registry.cards["cleansing-light"],
+        id: "cheap-spell",
+        deckLimitKey: "cheap-spell",
+        cost: priced(1),
+      },
+    ]);
+    const rich = (s: GameState) => {
+      s.players.p1.energy = {
+        neutral: 9,
+        elderwood: 9,
+        ironbound: 9,
+        crownlands: 9,
+        ashen: 9,
+        clans: 9,
+        conclave: 9,
+        abyssal: 9,
+        tidebound: 9,
+      };
+    };
+    /** Relabels the top cards of the library, first entry on top. */
+    const stock = (s: GameState, topDown: string[]) => {
+      const ids = s.players.p1.deck.slice(-topDown.length).reverse();
+      topDown.forEach((definitionId, i) => (s.cards[ids[i]].definitionId = definitionId));
+      return ids;
+    };
+    const playScout = (s: GameState) => {
+      const id = fixture(s, "wild-guardian", "p1", "hand");
+      s.cards[id].definitionId = "search-test";
+      rich(s);
+      return step(s, { type: "play", cardId: id, slot: 0 }, "p1", searchRegistry);
+    };
+    it("takes the first creature from the top that costs at most the limit in total", () => {
+      const s = setup(searchRegistry);
+      const [spell, dear, cheap, later] = stock(s, [
+        "cheap-spell",
+        "dear-creature",
+        "cheap-creature",
+        "cheap-creature",
+      ]);
+      const r = playScout(s);
+      expect(r.cards[cheap].zone).toBe("hand");
+      expect(r.cards[later].zone).toBe("deck");
+      expect(r.cards[dear].zone).toBe("deck");
+      expect(r.cards[spell].zone).toBe("deck");
+      assertInvariants(r);
+    });
+    it("also finds holdings and counts their whole cost", () => {
+      const s = setup(searchRegistry);
+      const [dear, holding] = stock(s, ["dear-creature", "cheap-holding"]);
+      const r = playScout(s);
+      expect(r.cards[holding].zone).toBe("hand");
+      expect(r.cards[dear].zone).toBe("deck");
+    });
+    it("says so and changes nothing when no card qualifies", () => {
+      let s = setup(searchRegistry);
+      const id = fixture(s, "wild-guardian", "p1", "hand");
+      s.cards[id].definitionId = "search-test";
+      rich(s);
+      for (const card of s.players.p1.deck) s.cards[card].definitionId = "dear-creature";
+      const before = s.players.p1.deck.length;
+      s = step(s, { type: "play", cardId: id, slot: 0 }, "p1", searchRegistry);
+      expect(s.players.p1.hand).toEqual([]);
+      expect(s.players.p1.deck.length).toBe(before);
+      expect(s.events.some((e) => e.type === "card.searched")).toBe(true);
+      assertInvariants(s);
+    });
+    it("works as a spell operation", () => {
+      let s = setup(searchRegistry);
+      const [cheap] = stock(s, ["cheap-creature"]);
+      const id = fixture(s, "cleansing-light", "p1", "hand");
+      s.cards[id].definitionId = "search-spell";
+      rich(s);
+      s = step(s, { type: "play", cardId: id }, "p1", searchRegistry);
+      expect(s.cards[cheap].zone).toBe("hand");
+    });
+    it("is described in both languages", () => {
+      const binding = { id: "searchForCreatureOrHolding", params: { maxCost: 3 } };
+      expect(
+        localizedAbility(binding, searchRegistry.abilities.searchForCreatureOrHolding, "en")
+          .description,
+      ).toMatch(/creature or holding.*3 or less/i);
+      expect(
+        localizedAbility(binding, searchRegistry.abilities.searchForCreatureOrHolding, "de")
+          .description,
+      ).toMatch(/Kreatur oder das erste Anwesen.*3 oder weniger/);
     });
   });
   describe("ransack", () => {

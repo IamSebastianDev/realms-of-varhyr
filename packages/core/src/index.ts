@@ -856,6 +856,34 @@ class Transaction {
             { player: order.player, cardId: id },
           );
         }
+      } else if (order.type === "search-cost") {
+        requireRule(order.player === "p1" || order.player === "p2", "Invalid search player.");
+        requireRule(Number.isInteger(order.maxCost) && order.maxCost >= 0, "Invalid cost limit.");
+        const p = this.state.players[order.player];
+        // The top of the library is the end of the array.
+        let index = -1;
+        for (let i = p.deck.length - 1; i >= 0 && index < 0; i--) {
+          const def = this.registry.cards[this.state.cards[p.deck[i]].definitionId];
+          const total =
+            def.cost.generic + Object.values(def.cost.factions).reduce((sum, n) => sum + n, 0);
+          if (def.type !== "spell" && total <= order.maxCost) index = i;
+        }
+        if (index < 0)
+          this.emit(
+            "card.searched",
+            `${p.name} finds no creature or holding costing ${order.maxCost} or less in the library.`,
+            { player: order.player, cardId: order.source },
+          );
+        else {
+          const [id] = p.deck.splice(index, 1);
+          this.state.cards[id].zone = "hand";
+          p.hand.push(id);
+          this.emit(
+            "card.searched",
+            `${p.name} finds ${this.registry.cards[this.state.cards[id].definitionId].name} in the library.`,
+            { player: order.player, cardId: id },
+          );
+        }
       } else if (order.type === "mill") {
         requireRule(
           Number.isInteger(order.amount) && order.amount >= 0 && order.amount <= 100,

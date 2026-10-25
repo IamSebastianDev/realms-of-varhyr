@@ -166,6 +166,8 @@ export type InternalOrder =
   | { type: "search"; player: PlayerId; card: string; source?: string }
   /** Moves the first creature with the subtype, counted from the top of the library, to the hand. Finding nothing is allowed. */
   | { type: "search-subtype"; player: PlayerId; subtype: string; source?: string }
+  /** Moves the first creature or holding with a total energy cost of `maxCost` or less, counted from the top of the library, to the hand. Finding nothing is allowed. */
+  | { type: "search-cost"; player: PlayerId; maxCost: number; source?: string }
   /** Reveals the opponent's hand to `player`, who then chooses one card for the opponent to discard. */
   | { type: "ransack"; player: PlayerId; source?: string }
   /** Puts cards from the top of a library into its owner's discard pile. Never empties the library on its own. */

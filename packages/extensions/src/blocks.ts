@@ -146,6 +146,16 @@ export const searchLibraryForSubtype =
       subtype: read(subtype, params),
       source: ctx.source.id,
     });
+/** The first creature or holding costing at most `maxCost` energy in total, counted from the top of the library, goes to the hand. */
+export const searchLibraryByCost =
+  (maxCost: Value<number>): Effect =>
+  (ctx, params) =>
+    ctx.issue({
+      type: "search-cost",
+      player: ctx.source.controller,
+      maxCost: read(maxCost, params),
+      source: ctx.source.id,
+    });
 export const ransack = (): Effect => (ctx) =>
   ctx.issue({ type: "ransack", player: ctx.source.controller, source: ctx.source.id });
 export const gainEnergy =

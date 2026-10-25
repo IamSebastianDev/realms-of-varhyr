@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Schneewehenpass",
+  "lore": "Niemand hält den Pass. Der Pass hält jeden fest, bis zum Frühling."
+}

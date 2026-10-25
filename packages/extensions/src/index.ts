@@ -39,6 +39,7 @@ import {
   run,
   sameController,
   searchLibrary,
+  searchLibraryByCost,
   searchLibraryForSubtype,
   sourceOnFlank,
   targetHasSubtype,
@@ -63,6 +64,10 @@ function leaderAbility(
 ): AbilityExtension {
   return extension(id, empty, { ...impl, announce: true }, version);
 }
+/** `maxCost` is the highest total energy cost (generic plus faction) the found card may have. */
+const searchForCreatureOrHoldingSchema = v.strictObject({
+  maxCost: v.pipe(v.number(), v.integer(), v.minValue(0)),
+});
 const drillSchema = v.strictObject({
   amount: positive,
   subtype: v.pipe(v.string(), v.minLength(1)),
@@ -221,6 +226,21 @@ export const evergreenAbilities: AbilityExtension[] = [
     hooks: whenPlayed(searchLibrary(param<string>("card"))),
     // As a spell operation, the same search resolves when the spell is cast.
     cast: run(searchLibrary(param<string>("card"))),
+  }),
+
+  extension("searchForCreatureOrHolding", searchForCreatureOrHoldingSchema, {
+    translations: {
+      de: {
+        description:
+          "Beim Ausspielen: Suche in deiner Bibliothek die erste Kreatur oder das erste Anwesen mit Energiekosten von {maxCost} oder weniger und nimm sie auf die Hand.",
+      },
+    },
+    description:
+      "When played, search your library for the first creature or holding with an energy cost of {maxCost} or less and put it into your hand.",
+    announce: true,
+    hooks: whenPlayed(searchLibraryByCost(param<number>("maxCost"))),
+    // As a spell operation, the same search resolves when the spell is cast.
+    cast: run(searchLibraryByCost(param<number>("maxCost"))),
   }),
 
   extension("hive", v.strictObject({ subtype: v.pipe(v.string(), v.minLength(1)) }), {

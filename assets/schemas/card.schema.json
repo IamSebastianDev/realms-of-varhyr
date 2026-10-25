@@ -392,8 +392,7 @@
     },
     "ability-channel": {
       "type": "object",
-      "title": "Channel {amount} {energy}",
-      "description": "Gain {amount} {energy} energy for this casting phase. On a field card, exhaust to use it.",
+      "description": "Gain {amount} {energy} energy for this casting phase.",
       "properties": {
         "id": {
           "const": "channel"
@@ -1104,6 +1103,33 @@
       ],
       "additionalProperties": false
     },
+    "ability-searchForCreatureOrHolding": {
+      "type": "object",
+      "description": "When played, search your library for the first creature or holding with an energy cost of {maxCost} or less and put it into your hand.",
+      "properties": {
+        "id": {
+          "const": "searchForCreatureOrHolding"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "maxCost": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "maxCost"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
     "ability-shield-wall": {
       "type": "object",
       "description": "Adjacent friendly creatures and holdings get +{amount} Defense.",
@@ -1284,6 +1310,7 @@
             "rest",
             "sacrifice",
             "scorch",
+            "searchForCreatureOrHolding",
             "shield-wall",
             "sneaky",
             "steadfast",
@@ -1398,6 +1425,9 @@
           "$ref": "#/definitions/ability-scorch"
         },
         {
+          "$ref": "#/definitions/ability-searchForCreatureOrHolding"
+        },
+        {
           "$ref": "#/definitions/ability-shield-wall"
         },
         {
@@ -1448,6 +1478,7 @@
             "ransack",
             "recall",
             "scorch",
+            "searchForCreatureOrHolding",
             "shield-wall",
             "sneaky",
             "steadfast",
@@ -1540,6 +1571,9 @@
           "$ref": "#/definitions/ability-scorch"
         },
         {
+          "$ref": "#/definitions/ability-searchForCreatureOrHolding"
+        },
+        {
           "$ref": "#/definitions/ability-shield-wall"
         },
         {
@@ -1574,6 +1608,7 @@
             "raise",
             "ransack",
             "recall",
+            "searchForCreatureOrHolding",
             "steadfast"
           ]
         },
@@ -1621,6 +1656,9 @@
         },
         {
           "$ref": "#/definitions/ability-recall"
+        },
+        {
+          "$ref": "#/definitions/ability-searchForCreatureOrHolding"
         },
         {
           "$ref": "#/definitions/ability-steadfast"

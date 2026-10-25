@@ -1,0 +1,40 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "edge-of-the-world",
+  "revision": 1,
+  "name": "Edge of the World",
+  "deckLimitKey": "edge-of-the-world",
+  "type": "holding",
+  "factions": [
+    "neutral"
+  ],
+  "subtypes": [
+    "landmark"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 0
+  },
+  "stats": {
+    "attack": 0,
+    "defense": 2
+  },
+  "abilities": [
+    {
+      "id": "channel",
+      "params": {
+        "amount": 1,
+        "energy": "neutral"
+      }
+    },
+    {
+      "id": "searchForCreatureOrHolding",
+      "params": {
+        "maxCost": 0
+      }
+    }
+  ],
+  "lore": "The map ends here. The tavern, somehow, does not.",
+  "set": "foundations"
+}

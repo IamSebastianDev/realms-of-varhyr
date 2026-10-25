@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Aussichtspunkt",
+  "lore": "Von hier oben sieht der ganze Krieg wie ein Plan aus."
+}

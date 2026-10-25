@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Rand der Welt",
+  "lore": "Hier endet die Karte. Die Schenke offenbar nicht."
+}

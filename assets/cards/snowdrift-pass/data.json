@@ -1,0 +1,31 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "snowdrift-pass",
+  "revision": 1,
+  "name": "Snowdrift Pass",
+  "deckLimitKey": "snowdrift-pass",
+  "type": "holding",
+  "factions": [
+    "neutral"
+  ],
+  "subtypes": [
+    "landmark"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 4
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 4
+  },
+  "abilities": [
+    {
+      "id": "guard",
+      "params": {}
+    }
+  ],
+  "lore": "Nobody holds the pass. The pass holds everybody until spring.",
+  "set": "foundations"
+}

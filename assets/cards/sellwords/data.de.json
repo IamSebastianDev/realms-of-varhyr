@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Söldlinge",
+  "lore": "Treue steht auf der Preisliste, gleich unter der Gefahrenzulage."
+}
