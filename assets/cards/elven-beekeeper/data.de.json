@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Elfischer Imker",
+  "lore": "Ihre Stöcke sind älter als jeder Vertrag mit dem Reich, und die Bienen haben nie einen unterzeichnet."
+}

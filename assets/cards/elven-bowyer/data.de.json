@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Elfischer Bogenbauer",
+  "lore": "Ein Bogen ist nur ein Baum, der sich bereit erklärt hat zu helfen."
+}

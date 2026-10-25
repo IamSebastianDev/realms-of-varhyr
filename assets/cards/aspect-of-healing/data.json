@@ -1,0 +1,36 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "aspect-of-healing",
+  "revision": 1,
+  "name": "Aspect of Healing",
+  "deckLimitKey": "aspect-of-healing",
+  "type": "spell",
+  "factions": [
+    "conclave"
+  ],
+  "subtypes": [
+    "rite"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "conclave": 2
+    }
+  },
+  "abilities": [],
+  "timing": [
+    "play"
+  ],
+  "cast": [
+    {
+      "id": "heal",
+      "params": {
+        "amount": 5
+      }
+    }
+  ],
+  "lore": "The forest does not mend you. It lends you a little of itself and expects it back.",
+  "set": "foundations"
+}

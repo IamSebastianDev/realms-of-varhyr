@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Gestalt des Bären",
+  "lore": "Ein Druide betritt die Lichtung. Etwas anderes verlässt sie."
+}

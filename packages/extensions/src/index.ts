@@ -211,12 +211,10 @@ export const evergreenAbilities: AbilityExtension[] = [
   extension("muster", musterSchema, {
     translations: {
       de: {
-        name: "Aufgebot: {card}",
         description:
           "Beim Ausspielen: Suche alle Exemplare von {card} in deiner Bibliothek und nimm sie auf die Hand.",
       },
     },
-    name: "Muster {card}",
     description:
       "When played, search your library for all copies of {card} and put them into your hand.",
     announce: true,

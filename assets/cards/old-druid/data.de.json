@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Alter Druide",
+  "lore": "Die meisten Riten sind längst vergessen. Der Wald erinnert sich an ihrer statt."
+}

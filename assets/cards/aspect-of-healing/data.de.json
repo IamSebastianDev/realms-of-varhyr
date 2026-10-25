@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Aspekt der Heilung",
+  "lore": "Der Wald heilt dich nicht. Er leiht dir ein wenig von sich und will es zurück."
+}

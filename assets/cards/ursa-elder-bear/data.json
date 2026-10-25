@@ -1,0 +1,42 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "ursa-elder-bear",
+  "revision": 1,
+  "name": "Ursa, Elder Bear",
+  "deckLimitKey": "ursa-elder-bear",
+  "type": "creature",
+  "factions": [
+    "conclave"
+  ],
+  "subtypes": [
+    "bear",
+    "druid"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 3,
+    "factions": {
+      "conclave": 2
+    }
+  },
+  "stats": {
+    "attack": 6,
+    "defense": 5,
+    "energyOutputs": [
+      {
+        "conclave": 3
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "charge",
+      "params": {
+        "amount": 4
+      }
+    }
+  ],
+  "lore": "She has not walked on two legs in a century, and nobody has dared to suggest she start again.",
+  "set": "foundations"
+}

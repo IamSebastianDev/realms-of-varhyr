@@ -1,0 +1,44 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "quick-cut-brigade",
+  "revision": 1,
+  "name": "Quick Cut Brigade",
+  "deckLimitKey": "quick-cut-brigade",
+  "type": "creature",
+  "factions": [
+    "conclave"
+  ],
+  "subtypes": [
+    "elf"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "conclave": 1
+    }
+  },
+  "stats": {
+    "attack": 3,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "conclave": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "recall",
+      "params": {
+        "target": [
+          "friendly",
+          "enemy"
+        ]
+      }
+    }
+  ],
+  "lore": "Roads appear wherever the brigade has passed. By the next dawn the forest has taken them back.",
+  "set": "foundations"
+}

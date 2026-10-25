@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Uralter Wuchs",
+  "lore": "Niemand hat es gepflanzt, und niemand durfte es je fällen."
+}

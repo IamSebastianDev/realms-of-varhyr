@@ -1,0 +1,43 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "ancient-growth",
+  "revision": 1,
+  "name": "Ancient Growth",
+  "deckLimitKey": "ancient-growth",
+  "type": "holding",
+  "factions": [
+    "conclave"
+  ],
+  "subtypes": [
+    "landmark"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "conclave": 1
+    }
+  },
+  "stats": {
+    "attack": 0,
+    "defense": 2
+  },
+  "abilities": [
+    {
+      "id": "consume",
+      "params": {
+        "amount": 1
+      }
+    },
+    {
+      "id": "channel",
+      "params": {
+        "amount": 1,
+        "energy": "conclave"
+      }
+    }
+  ],
+  "lore": "Nobody planted it, and nobody has ever been allowed to cut it.",
+  "set": "foundations"
+}

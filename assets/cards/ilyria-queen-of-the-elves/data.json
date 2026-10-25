@@ -1,7 +1,6 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "ilyria-queen-of-the-elves",
-  "set": "foundations",
   "revision": 5,
   "name": "Ilyria, Queen of the Elves",
   "deckLimitKey": "ilyria-queen-of-the-elves",
@@ -32,13 +31,16 @@
   },
   "abilities": [
     {
-      "id": "sanctuary",
+      "id": "guard",
       "params": {}
     },
     {
-      "id": "guard",
-      "params": {}
+      "id": "hive",
+      "params": {
+        "subtype": "elf"
+      }
     }
   ],
-  "lore": "Those who enter her woods are friends or already dead. An imperial axe is no kinder than an eastern flame."
+  "lore": "Those who enter her woods are friends or already dead. An imperial axe is no kinder than an eastern flame.",
+  "set": "foundations"
 }

@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Druide der Weiden",
+  "lore": "Wo die Weiden wachsen, halten die Elfen stand, und niemand hat je erklärt, warum."
+}

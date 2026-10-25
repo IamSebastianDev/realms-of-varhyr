@@ -1,0 +1,31 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "elven-beekeeper",
+  "revision": 1,
+  "name": "Elven Beekeeper",
+  "deckLimitKey": "elven-beekeeper",
+  "type": "creature",
+  "factions": [
+    "conclave"
+  ],
+  "subtypes": [
+    "elf"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0
+  },
+  "stats": {
+    "attack": 0,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "conclave": 1
+      }
+    ]
+  },
+  "abilities": [],
+  "lore": "Their hives are older than any treaty with the empire, and the bees have never signed one.",
+  "set": "foundations"
+}

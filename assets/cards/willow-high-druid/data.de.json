@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Willow, Hochdruidin",
+  "lore": "Wenn sie ruft, kommt jeder alte Druide des Waldes: murrend und auf die Minute pünktlich."
+}

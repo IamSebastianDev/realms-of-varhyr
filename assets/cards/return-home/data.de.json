@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Heimkehr",
+  "lore": "Jede Straße führt irgendwohin. Nur wenige führen zurück."
+}

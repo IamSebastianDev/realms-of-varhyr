@@ -1,0 +1,43 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "druid-of-the-willows",
+  "revision": 1,
+  "name": "Druid of the Willows",
+  "deckLimitKey": "druid-of-the-willows",
+  "type": "creature",
+  "factions": [
+    "conclave"
+  ],
+  "subtypes": [
+    "human",
+    "druid"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "conclave": 2
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "conclave": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "bind",
+      "params": {
+        "amount": 1,
+        "subtype": "elf"
+      }
+    }
+  ],
+  "lore": "Elves hold their ground where the willows grow, and nobody has ever explained why.",
+  "set": "foundations"
+}

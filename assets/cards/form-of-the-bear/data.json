@@ -1,0 +1,36 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "form-of-the-bear",
+  "revision": 1,
+  "name": "Form of the Bear",
+  "deckLimitKey": "form-of-the-bear",
+  "type": "spell",
+  "factions": [
+    "conclave"
+  ],
+  "subtypes": [
+    "rite"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "conclave": 2
+    }
+  },
+  "abilities": [],
+  "timing": [
+    "play"
+  ],
+  "cast": [
+    {
+      "id": "rage",
+      "params": {
+        "amount": 4
+      }
+    }
+  ],
+  "lore": "A druid walks into the clearing. Something else walks out.",
+  "set": "foundations"
+}

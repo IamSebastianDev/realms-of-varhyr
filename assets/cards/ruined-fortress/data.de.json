@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Festungsruine",
+  "lore": "Ihre letzte Belagerung liegt ein Jahrhundert zurück, doch sie hat nie aufgehört, sich zu verteidigen."
+}

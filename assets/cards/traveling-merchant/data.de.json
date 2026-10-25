@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Fahrender Händler",
+  "lore": "Verkauft Karten, Gerüchte und, wenn man höflich fragt, den Weg zurück zum Ausgangspunkt."
+}

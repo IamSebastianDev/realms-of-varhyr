@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "willow-high-druid",
+  "revision": 1,
+  "name": "Willow, High Druid",
+  "deckLimitKey": "willow-high-druid",
+  "type": "creature",
+  "factions": [
+    "conclave"
+  ],
+  "subtypes": [
+    "human",
+    "druid"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 0
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "conclave": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "muster",
+      "params": {
+        "card": "old-druid"
+      }
+    }
+  ],
+  "lore": "When she calls, every old druid in the wood comes: grumbling, and exactly on time.",
+  "set": "foundations"
+}

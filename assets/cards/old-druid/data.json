@@ -1,0 +1,31 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "old-druid",
+  "revision": 1,
+  "name": "Old Druid",
+  "deckLimitKey": "old-druid",
+  "type": "creature",
+  "factions": [
+    "conclave"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 1,
+    "energyOutputs": [
+      {
+        "conclave": 1
+      }
+    ]
+  },
+  "abilities": [],
+  "lore": "Most of the rites have slipped from memory by now. The forest remembers them instead.",
+  "set": "foundations"
+}

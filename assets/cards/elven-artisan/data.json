@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "elven-artisan",
+  "revision": 1,
+  "name": "Elven Artisan",
+  "deckLimitKey": "elven-artisan",
+  "type": "creature",
+  "factions": [
+    "conclave"
+  ],
+  "subtypes": [
+    "elf"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "conclave": 1
+    }
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "conclave": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "trade",
+      "params": {}
+    }
+  ],
+  "lore": "Not one nail in any of it, and the empire's merchants pay double for the lack.",
+  "set": "foundations"
+}

@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Elfischer Kunsthandwerker",
+  "lore": "Kein einziger Nagel steckt darin, und die Händler des Reiches zahlen doppelt für diesen Mangel."
+}

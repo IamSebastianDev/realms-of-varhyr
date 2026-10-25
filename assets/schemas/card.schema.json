@@ -796,7 +796,6 @@
     },
     "ability-muster": {
       "type": "object",
-      "title": "Muster {card}",
       "description": "When played, search your library for all copies of {card} and put them into your hand.",
       "properties": {
         "id": {
