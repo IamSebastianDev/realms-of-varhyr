@@ -1,0 +1,43 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "call-of-the-wolf",
+  "revision": 1,
+  "name": "Call of the Wolf",
+  "deckLimitKey": "call-of-the-wolf",
+  "type": "spell",
+  "factions": [
+    "conclave"
+  ],
+  "subtypes": [
+    "rite"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "conclave": 2
+    }
+  },
+  "abilities": [
+    {
+      "id": "consume",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "timing": [
+    "play"
+  ],
+  "cast": [
+    {
+      "id": "bolster",
+      "params": {
+        "attack": 2
+      }
+    }
+  ],
+  "lore": "One of the pack pays for it. The rest arrive louder.",
+  "set": "foundations"
+}

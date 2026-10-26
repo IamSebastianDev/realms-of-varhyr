@@ -1,4 +1,11 @@
-import type { Command, GameState, PlayerId, Pool, Registry } from "@realms/contracts";
+import {
+  castBindings,
+  type Command,
+  type GameState,
+  type PlayerId,
+  type Pool,
+  type Registry,
+} from "@realms/contracts";
 import { energyProductionOptions } from "./production";
 import { weights as W } from "./botWeights";
 import { features } from "./botFeatures";
@@ -62,6 +69,10 @@ function supportValue(state: GameState, id: string, registry: Registry): number 
   }
   return total;
 }
+/** A spell effect that can return one of the caster's own creatures to hand. */
+const friendlyBounce = (binding: { id: string; params: Record<string, unknown> }) =>
+  binding.id === "bounce" &&
+  ((binding.params.target as string[] | undefined) ?? ["friendly"]).includes("friendly");
 function creatureValue(state: GameState, id: string, registry: Registry): number {
   const def = registry.cards[state.cards[id].definitionId],
     stats = effectiveStats(state, id, registry);
@@ -191,23 +202,33 @@ function playOptions(state: GameState, id: string, registry: Registry): Command[
   const card = legalActions(state, registry).playable.find((c) => c.cardId === id);
   if (!card) return [];
   const commands: Command[] = [];
-  const def = registry.cards[state.cards[id].definitionId],
-    field = def.type !== "spell" || !!def.cast?.some((b) => registry.abilities[b.id].placement);
-  for (const consume of card.consumes.length ? card.consumes : [undefined]) {
-    const slots = field
-      ? [...new Set([...card.slots, ...(consume ? [state.cards[consume].slot!] : [])])]
-      : [undefined];
-    // Prefer central space on equal scores, but evaluate every legal deployment.
-    slots.sort((a, b) => [2, 1, 3, 0, 4].indexOf(a!) - [2, 1, 3, 0, 4].indexOf(b!));
-    for (const target of card.requiresTarget ? card.targets : [undefined])
-      for (const slot of slots)
-        commands.push({
-          type: "play",
-          cardId: id,
-          consume,
-          target,
-          slot,
-        });
+  const def = registry.cards[state.cards[id].definitionId];
+  // A modal spell is tried once per legal mode, each with that mode's own targets and positions.
+  for (const choice of card.modes ?? [undefined]) {
+    const mode = choice?.mode,
+      slotsLegal = choice ? choice.slots : card.slots,
+      targetsLegal = choice ? choice.targets : card.targets,
+      needsTarget = choice ? choice.requiresTarget : card.requiresTarget,
+      field =
+        def.type !== "spell" ||
+        castBindings(def, mode).some((b) => registry.abilities[b.id].placement);
+    for (const consume of card.consumes.length ? card.consumes : [undefined]) {
+      const slots = field
+        ? [...new Set([...slotsLegal, ...(consume ? [state.cards[consume].slot!] : [])])]
+        : [undefined];
+      // Prefer central space on equal scores, but evaluate every legal deployment.
+      slots.sort((a, b) => [2, 1, 3, 0, 4].indexOf(a!) - [2, 1, 3, 0, 4].indexOf(b!));
+      for (const target of needsTarget ? targetsLegal : [undefined])
+        for (const slot of slots)
+          commands.push({
+            type: "play",
+            cardId: id,
+            consume,
+            target,
+            slot,
+            ...(mode === undefined ? {} : { mode }),
+          });
+    }
   }
   return commands;
 }
@@ -298,7 +319,7 @@ function planPlay(state: GameState, registry: Registry): Command {
       }
       continue;
     }
-    if (def.cast?.some((a) => a.id === "return")) {
+    if (def.cast?.some(friendlyBounce)) {
       // Bounce only when the same turn can complete a material upgrade. Returning
       // and replaying the same creature would otherwise form an endless loop.
       if (state.phase !== "play" || inResponseStep(state) || p.board.includes(null)) continue;
@@ -494,8 +515,7 @@ function chooseMulligan(
 // human. It plans complete payments and evaluates casts with the actual engine.
 export function botCommand(state: GameState, registry: Registry): Command {
   const actor = decisionPlayer(state),
-    p = state.players[actor],
-    legal = legalActions(state, registry);
+    p = state.players[actor];
   if (state.pending) {
     const choice = state.pending;
     if (choice.kind === "mulligan")
@@ -503,6 +523,41 @@ export function botCommand(state: GameState, registry: Registry): Command {
         type: "mulligan",
         cardIds: chooseMulligan(state, registry, choice.options, choice.max),
       };
+    if (choice.kind === "library-pick") {
+      // Take the most valuable creature; holdings and ties keep the cheapest-first option order.
+      const value = (id: string) =>
+        registry.cards[state.cards[id].definitionId].type === "creature"
+          ? creatureValue(state, id, registry)
+          : 0;
+      const best = choice.options.reduce((a, b) => (value(b) > value(a) ? b : a));
+      return { type: "choose", choiceId: choice.id, option: best };
+    }
+    if (choice.kind === "reprise") {
+      // Cast the most expensive spell: it saves the most energy.
+      const price = (id: string) => {
+        const cost = registry.cards[state.cards[id].definitionId].cost;
+        return cost.generic + Object.values(cost.factions).reduce((a, b) => a + b, 0);
+      };
+      const best = choice.options.reduce((a, b) => (price(b) > price(a) ? b : a));
+      return { type: "choose", choiceId: choice.id, option: best };
+    }
+    if (choice.kind === "damage-target") {
+      // Finish off the most valuable creature the damage kills; otherwise hit the enemy player.
+      const kills = choice.options.filter((id) => {
+        const card = state.cards[id];
+        return (
+          card &&
+          registry.cards[card.definitionId].type === "creature" &&
+          effectiveStats(state, id, registry).defense - card.damage <= choice.amount
+        );
+      });
+      const best = kills.length
+        ? kills.reduce((a, c) =>
+            creatureValue(state, c, registry) > creatureValue(state, a, registry) ? c : a,
+          )
+        : choice.options[choice.options.length - 1];
+      return { type: "choose", choiceId: choice.id, option: best };
+    }
     if (choice.kind === "hand-discard") {
       // Take the most expensive card; ties keep hand order.
       const price = (id: string) => {
@@ -537,7 +592,7 @@ export function botCommand(state: GameState, registry: Registry): Command {
           (fits && plans.some((plan) => autoPayment(plan.pool, def.cost)) ? 3 : 0)
         );
       }
-      return def.cast?.some((a) => a.id === "return") ? (p.board.includes(null) ? 1 : 5) : 6;
+      return def.cast?.some(friendlyBounce) ? (p.board.includes(null) ? 1 : 5) : 6;
     };
     // Keep the best card. A promising second card goes under the library for later; a weak one is discarded.
     const ranked = [...choice.options].sort((a, b) => score(b) - score(a));
@@ -547,6 +602,16 @@ export function botCommand(state: GameState, registry: Registry): Command {
       option: ranked[0],
       other: ranked[1] && score(ranked[1]) >= 5 ? "bottom" : "discard",
     };
+  }
+  if (state.freeCast) {
+    // A free spell has to be cast: take the option that leaves the best position.
+    let best: { score: number; command: Command } | null = null;
+    for (const command of playOptions(state, state.freeCast.cardId, registry)) {
+      const after = tryCommand(state, command, registry);
+      const score = after ? positionValue(after, actor, registry) : -Infinity;
+      if (!best || score > best.score) best = { score, command };
+    }
+    if (best) return best.command;
   }
   if (state.phase === "play" || inResponseStep(state)) return planPlay(state, registry);
   if (state.combat?.stage === "declare") return chooseAttacks(state, registry);

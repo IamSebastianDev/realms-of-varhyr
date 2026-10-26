@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Faulwald",
+  "lore": "Mit den Wurzeln stimmt etwas nicht. Das Heer nennt es ein Geschenk."
+}

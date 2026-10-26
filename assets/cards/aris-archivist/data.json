@@ -1,0 +1,43 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "aris-archivist",
+  "revision": 1,
+  "name": "Aris, Archivist",
+  "lore": "Nothing is ever truly lost in the archives. It is merely filed where only she can find it.",
+  "deckLimitKey": "aris-archivist",
+  "type": "creature",
+  "factions": [
+    "northern-league"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "northern-league": 1
+    }
+  },
+  "stats": {
+    "attack": 3,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "northern-league": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "covert",
+      "params": {}
+    },
+    {
+      "id": "reprise",
+      "params": {}
+    }
+  ],
+  "set": "foundations"
+}

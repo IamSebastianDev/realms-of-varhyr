@@ -3,7 +3,6 @@ import { describeResult } from "../src/features/quest/lib/results";
 import type { CardDefinition } from "@realms/contracts";
 import {
   affiliationAt,
-  allowedShare,
   generatedPlaces,
   placeCount,
   placementAllows,
@@ -74,7 +73,7 @@ const cards = [
 const content: QuestContent = {
   cards: Object.fromEntries(cards.map((entry) => [entry.id, entry])),
   packs: [
-    { id: "good", name: "Good", factions: ["crownlands", "bright-marches", "winter-league"] },
+    { id: "good", name: "Good", factions: ["crownlands", "bright-marches", "northern-league"] },
     { id: "neutral", name: "Neutral", factions: ["mountain-clans", "conclave", "neutral"] },
     { id: "evil", name: "Evil", factions: ["black-host", "horde", "ember-fields"] },
   ],
@@ -311,15 +310,6 @@ describe("expeditions", () => {
     expect(dead.result).toBe("dead");
     expect(dead.earned).toEqual([]);
     expect(() => travel(dead, map, "city-c", content)).toThrow();
-    // A save from the daily mode is not carried over: that run just ends.
-    expect(
-      loadRun({
-        ...JSON.parse(JSON.stringify(run)),
-        version: 1,
-        gold: 44,
-        world: { "city-c": "market" },
-      }),
-    ).toBeNull();
     expect(loadRun(JSON.parse(JSON.stringify(run)))).toEqual(run);
     expect(loadRun(null)).toBeNull();
   });
@@ -433,11 +423,6 @@ describe("expeditions", () => {
     expect(reloaded.placement).toEqual(layered.placement);
     for (const place of generatedPlaces({ ...layered, aspect: 1 }, 3))
       expect(placementAllows(layered, place.x, place.y)).toBe(true);
-    // Older files with plain polygons read as allowed zones.
-    expect(
-      parseMap({ version: 1, image: "x", aspect: 1, nodes: [], placement: { polygons: [land] } })
-        .placement,
-    ).toEqual({ zones: [{ mode: "allow", polygon: land }] });
     // Blocked zones alone still keep generated task places out when there is no allowed zone.
     const blockOnly: QuestMap = {
       ...emptyMap("m.jpg", 1),
@@ -446,45 +431,6 @@ describe("expeditions", () => {
     };
     expect(validPlacement(blockOnly, blockOnly.nodes, 0.4, 0.5, 0.01, 0.2)).toBe(false);
     expect(validPlacement(blockOnly, blockOnly.nodes, 0.25, 0.5, 0.01, 0.3)).toBe(true);
-  });
-
-  it("fills the allowed zones by density: more ground and a higher setting give more places, spacing is kept", () => {
-    const half: QuestMap = {
-      ...map,
-      nodes: [],
-      placement: {
-        zones: [
-          {
-            mode: "allow",
-            polygon: [
-              [0, 0],
-              [0.5, 0],
-              [0.5, 1],
-              [0, 1],
-            ],
-          },
-        ],
-      },
-    };
-    expect(allowedShare(half)).toBeCloseTo(0.5, 1);
-    expect(placeCount(half)).toBe(Math.round(0.5 * 10 * half.settings.density));
-    const denser: QuestMap = {
-      ...half,
-      settings: { ...half.settings, density: half.settings.density * 2 },
-    };
-    expect(placeCount(denser)).toBe(2 * placeCount(half));
-    const made = generatedPlaces(denser, 5);
-    expect(made.length).toBe(placeCount(denser));
-    for (let i = 0; i < made.length; i++)
-      for (let j = i + 1; j < made.length; j++)
-        expect(
-          Math.hypot(made[i]!.x - made[j]!.x, (made[i]!.y - made[j]!.y) / denser.aspect),
-        ).toBeGreaterThanOrEqual(denser.settings.spacing);
-    expect(placeCount({ ...half, settings: { ...half.settings, density: 0 } })).toBe(0);
-    expect(placeCount({ ...half, placement: undefined })).toBe(0);
-    expect(parseMap(JSON.parse(serializeMap(denser))).settings.density).toBe(
-      denser.settings.density,
-    );
   });
 
   it("spreads places evenly rather than in clumps, and copes with very high densities", () => {

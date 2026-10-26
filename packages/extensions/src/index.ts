@@ -2,7 +2,7 @@ import { defineAbility as extension } from "./definition";
 import { spellAbilities } from "./spellAbilities";
 import { amount, amountSchema } from "./schemas";
 import * as v from "valibot";
-import type { AbilityExtension } from "@realms/contracts";
+import { spellSubtypes, type AbilityExtension } from "@realms/contracts";
 import { positive } from "./schemas";
 import {
   activatableWhen,
@@ -10,7 +10,12 @@ import {
   adjacent,
   adjacentCreatures,
   and,
+  cardsInDiscard,
+  forStat,
   byYou,
+  castSpellSubtype,
+  damageChosenEnemy,
+  perSpellCast,
   chosen,
   damage,
   deployChosen,
@@ -34,6 +39,7 @@ import {
   ransack,
   reduceDamage,
   replacing,
+  requireReturn,
   requireSacrifice,
   returnToHand,
   run,
@@ -49,6 +55,7 @@ import {
   unblockable,
   when,
   whenFriendlyDies,
+  repriseSpell,
   whenPlayed,
   you,
 } from "./blocks";
@@ -64,9 +71,29 @@ function leaderAbility(
 ): AbilityExtension {
   return extension(id, empty, { ...impl, announce: true }, version);
 }
-/** `maxCost` is the highest total energy cost (generic plus faction) the found card may have. */
+/** `maxCost` is the highest total energy cost (generic plus faction) the found card may have. The player picks the card unless `first` is set, which takes the topmost match. */
 const searchForCreatureOrHoldingSchema = v.strictObject({
   maxCost: v.pipe(v.number(), v.integer(), v.minValue(0)),
+  first: v.optional(v.boolean()),
+});
+/** Counts the discard-pile cards of these types; every friendly creature gets that much of `stat`. */
+const dirgeSchema = v.strictObject({
+  cards: v.pipe(
+    v.array(v.picklist(["creature", "holding", "spell"])),
+    v.minLength(1),
+    v.maxLength(3),
+  ),
+  stat: v.picklist(["attack", "defense"]),
+});
+/** At least one of `attack` and `defense`; each is the bonus this creature gets for every spell its controller has cast this turn. */
+const prowessSchema = v.union([
+  v.strictObject({ attack: positive, defense: v.optional(positive) }),
+  v.strictObject({ attack: v.optional(positive), defense: positive }),
+]);
+/** `subtype` limits the trigger to spells of that subtype; left out, any spell triggers it. */
+const kindleSchema = v.strictObject({
+  amount: positive,
+  subtype: v.optional(v.picklist(spellSubtypes)),
 });
 const drillSchema = v.strictObject({
   amount: positive,
@@ -76,10 +103,10 @@ const drillSchema = v.strictObject({
 /** Evergreen keywords: scalable vocabulary on the card itself, usable by any faction. */
 export const evergreenAbilities: AbilityExtension[] = [
   extension("primal", amountSchema, {
-    description: "Exhaust: choose a faction and gain {amount} energy of that faction.",
+    description: "Exhaust: gain {amount} energy of a faction of your choice.",
     translations: {
       de: {
-        description: "Erschöpfe: Wähle eine Fraktion und erhalte {amount} Energie dieser Fraktion.",
+        description: "Erschöpfen: Erhalte {amount} Energie einer Fraktion deiner Wahl.",
       },
     },
     target: "energy-type",
@@ -94,11 +121,11 @@ export const evergreenAbilities: AbilityExtension[] = [
     translations: {
       de: {
         name: "Rüstung {amount}",
-        description: "Verringere jeden erlittenen Schaden um {amount}, bis auf null.",
+        description: "Schaden, der dieser Karte zugefügt wird, ist um {amount} verringert.",
       },
     },
     name: "Armor {amount}",
-    description: "Reduce each incoming damage hit by {amount}, down to zero.",
+    description: "Damage dealt to this card is reduced by {amount}.",
     before: replacing("damage.before", reduceDamage(param<number>("amount"))),
   }),
 
@@ -117,10 +144,12 @@ export const evergreenAbilities: AbilityExtension[] = [
   extension("outflank", amountSchema, {
     translations: {
       de: {
-        description: "Solange diese Kreatur auf einer Flanke steht, hat sie +{amount} Angriff.",
+        name: "Flankieren {amount}",
+        description: "Auf einer Flanke erhält diese Kreatur +{amount} Angriff.",
       },
     },
-    description: "While on a flank, this creature has +{amount} Attack.",
+    name: "Outflank {amount}",
+    description: "While on a flank, this creature gets +{amount} Attack.",
     static: modifiers(
       modify(and(targetIsSource, sourceOnFlank), { attack: param<number>("amount") }),
     ),
@@ -129,11 +158,9 @@ export const evergreenAbilities: AbilityExtension[] = [
   extension("drillmaster", drillSchema, {
     translations: {
       de: {
-        name: "Drillmeister {amount}",
-        description: "Benachbarte eigene Kreaturen vom Typ {subtype} erhalten +{amount} Angriff.",
+        description: "Benachbarte eigene Kreaturen der Art {subtype} erhalten +{amount} Angriff.",
       },
     },
-    name: "Drillmaster {amount}",
     description: "Adjacent friendly {subtype} creatures get +{amount} Attack.",
     static: modifiers(
       modify(and(adjacent, targetIsCreature, targetHasSubtype(param<string>("subtype"))), {
@@ -145,12 +172,10 @@ export const evergreenAbilities: AbilityExtension[] = [
   extension("bind", drillSchema, {
     translations: {
       de: {
-        name: "Bindung {amount}",
-        description: "Eigene Kreaturen vom Typ {subtype} erhalten +{amount} Verteidigung.",
+        description: "Andere eigene Kreaturen der Art {subtype} erhalten +{amount} Verteidigung.",
       },
     },
-    name: "Bind {amount}",
-    description: "Friendly {subtype} creatures have +{amount} Defense.",
+    description: "Other friendly {subtype} creatures get +{amount} Defense.",
     static: modifiers(
       modify(
         and(
@@ -164,26 +189,101 @@ export const evergreenAbilities: AbilityExtension[] = [
     ),
   }),
 
+  extension("dirge", dirgeSchema, {
+    translations: {
+      de: {
+        description:
+          "Jede eigene Kreatur erhält +1 {stat} für jede Karte vom Typ {cards} in deinem Ablagestapel.",
+      },
+    },
+    description:
+      "Each friendly creature gets +1 {stat} for each {cards} card in your discard pile.",
+    static: modifiers(
+      modify(and(sameController, targetOnBoard, targetIsCreature), {
+        attack: forStat("attack", cardsInDiscard(param<string[]>("cards"))),
+        defense: forStat("defense", cardsInDiscard(param<string[]>("cards"))),
+      }),
+    ),
+  }),
+
+  extension("prowess", prowessSchema, {
+    translations: {
+      de: {
+        description:
+          "Diese Kreatur erhält {?attack|+{attack} Angriff|}{?attack&defense| und |}{?defense|+{defense} Verteidigung|} für jeden Zauber, den du in diesem Zug gewirkt hast.",
+      },
+    },
+    description:
+      "This creature gets {?attack|+{attack} Attack|}{?attack&defense| and |}{?defense|+{defense} Defense|} for each spell you cast this turn.",
+    static: modifiers(
+      modify(and(targetIsSource, targetOnBoard), {
+        attack: perSpellCast(param<number | undefined>("attack")),
+        defense: perSpellCast(param<number | undefined>("defense")),
+      }),
+    ),
+  }),
+
+  extension("kindle", kindleSchema, {
+    translations: {
+      de: {
+        description:
+          "Immer wenn du {?subtype|einen Zauber der Art {subtype}|einen Zauber} wirkst, füge einer gegnerischen Kreatur, einer gegnerischen Besitzung oder dem gegnerischen Spieler {amount} Schaden zu.",
+      },
+    },
+    description:
+      "Whenever you cast {?subtype|a {subtype} spell|a spell}, deal {amount} damage to target enemy creature, holding or player.",
+    announce: true,
+    hooks: when(
+      "spell.cast",
+      and(byYou, castSpellSubtype(param<string | undefined>("subtype"))),
+      damageChosenEnemy(param<number>("amount")),
+    ),
+  }),
+
+  extension("reprise", v.strictObject({}), {
+    translations: {
+      de: {
+        description:
+          "Beim Ausspielen: Wirke einen Zauber aus deinem Ablagestapel, ohne seine Kosten zu bezahlen.",
+      },
+    },
+    description: "When played, cast a spell from your discard pile without paying its cost.",
+    announce: true,
+    hooks: whenPlayed(repriseSpell()),
+  }),
+
+  extension("return", v.strictObject({}), {
+    translations: {
+      de: {
+        description:
+          "Zusätzliche Kosten: Nimm eine eigene Kreatur auf die Hand ihres Besitzers zurück.",
+      },
+    },
+    description: "Additional cost: return a friendly creature to its owner's hand.",
+    before: replacing("card.play.before", requireReturn()),
+  }),
+
   extension("consume", amountSchema, {
     translations: {
       de: {
-        name: "Verschlingen {amount}",
         description:
-          "Zusätzliche Kosten: Opfere eine eigene Kreatur mit Kosten von mindestens {amount}.",
+          "Zusätzliche Kosten: Opfere eine eigene Kreatur mit Energiekosten von {amount} oder mehr.",
       },
     },
-    name: "Consume {amount}",
-    description: "Additional cost: sacrifice one of your creatures that costs at least {amount}.",
+    description:
+      "Additional cost: sacrifice a friendly creature with an energy cost of {amount} or more.",
     before: replacing("card.play.before", requireSacrifice(param<number>("amount"))),
   }),
 
   extension("shield-wall", amountSchema, {
     translations: {
       de: {
+        name: "Schildwall {amount}",
         description:
           "Benachbarte eigene Kreaturen und Besitzungen erhalten +{amount} Verteidigung.",
       },
     },
+    name: "Shield Wall {amount}",
     description: "Adjacent friendly creatures and holdings get +{amount} Defense.",
     static: modifiers(modify(adjacent, { defense: param<number>("amount") })),
   }),
@@ -202,14 +302,17 @@ export const evergreenAbilities: AbilityExtension[] = [
     intercepts: guardsAdjacentLanes,
   }),
 
-  extension("sneaky", empty, {
+  extension("covert", empty, {
     translations: {
       de: {
-        description: "Kann nicht geblockt werden. Sein Angriff trifft immer den Spieler.",
+        name: "Verdeckt",
+        description:
+          "Diese Kreatur kann nicht geblockt werden. Ihr Angriff trifft immer den gegnerischen Spieler.",
       },
     },
-    description: "Cannot be blocked. Its attack always hits the opposing player.",
-    // Only restricts the carrier as an attacker; a Sneaky card still blocks normally.
+    name: "Covert",
+    description: "This creature can't be blocked. Its attack always hits the opposing player.",
+    // Only restricts the carrier as an attacker; a Covert card still blocks normally.
     canBlock: unblockable,
   }),
 
@@ -217,10 +320,13 @@ export const evergreenAbilities: AbilityExtension[] = [
     translations: {
       de: {
         description:
+          "Suche alle Exemplare von {card} in deiner Bibliothek und nimm sie auf die Hand.",
+        fieldDescription:
           "Beim Ausspielen: Suche alle Exemplare von {card} in deiner Bibliothek und nimm sie auf die Hand.",
       },
     },
-    description:
+    description: "Search your library for all copies of {card} and put them into your hand.",
+    fieldDescription:
       "When played, search your library for all copies of {card} and put them into your hand.",
     announce: true,
     hooks: whenPlayed(searchLibrary(param<string>("card"))),
@@ -232,68 +338,81 @@ export const evergreenAbilities: AbilityExtension[] = [
     translations: {
       de: {
         description:
-          "Beim Ausspielen: Suche in deiner Bibliothek die erste Kreatur oder das erste Anwesen mit Energiekosten von {maxCost} oder weniger und nimm sie auf die Hand.",
+          "{?first|Nimm die oberste Kreatur oder Besitzung mit Energiekosten von {maxCost} oder weniger aus deiner Bibliothek auf die Hand.|Suche in deiner Bibliothek eine Kreatur oder Besitzung mit Energiekosten von {maxCost} oder weniger und nimm sie auf die Hand.}",
+        fieldDescription:
+          "Beim Ausspielen: {?first|Nimm die oberste Kreatur oder Besitzung mit Energiekosten von {maxCost} oder weniger aus deiner Bibliothek auf die Hand.|Suche in deiner Bibliothek eine Kreatur oder Besitzung mit Energiekosten von {maxCost} oder weniger und nimm sie auf die Hand.}",
       },
     },
     description:
-      "When played, search your library for the first creature or holding with an energy cost of {maxCost} or less and put it into your hand.",
+      "{?first|Put the topmost creature or holding with an energy cost of {maxCost} or less from your library into your hand.|Search your library for a creature or holding with an energy cost of {maxCost} or less and put it into your hand.}",
+    fieldDescription:
+      "When played, {?first|put the topmost creature or holding with an energy cost of {maxCost} or less from your library into your hand.|search your library for a creature or holding with an energy cost of {maxCost} or less and put it into your hand.}",
     announce: true,
-    hooks: whenPlayed(searchLibraryByCost(param<number>("maxCost"))),
+    hooks: whenPlayed(
+      searchLibraryByCost(param<number>("maxCost"), param<boolean>("first", false)),
+    ),
     // As a spell operation, the same search resolves when the spell is cast.
-    cast: run(searchLibraryByCost(param<number>("maxCost"))),
+    cast: run(searchLibraryByCost(param<number>("maxCost"), param<boolean>("first", false))),
   }),
 
-  extension("hive", v.strictObject({ subtype: v.pipe(v.string(), v.minLength(1)) }), {
-    translations: {
-      de: {
-        description:
-          "Stirbt eine eigene Kreatur der Art {subtype}, suche in deiner Bibliothek die erste Kreatur dieser Art und nimm sie auf die Hand.",
+  extension(
+    "hive",
+    v.strictObject({ subtype: v.pipe(v.string(), v.minLength(1)), first: v.optional(v.boolean()) }),
+    {
+      translations: {
+        de: {
+          description:
+            "Wenn eine eigene Kreatur der Art {subtype} stirbt, {?first|nimm die oberste Kreatur der Art {subtype} aus deiner Bibliothek auf die Hand.|suche in deiner Bibliothek eine Kreatur der Art {subtype} und nimm sie auf die Hand.}",
+        },
       },
+      description:
+        "Whenever a friendly {subtype} creature dies, {?first|put the topmost {subtype} creature from your library into your hand.|search your library for one {subtype} creature and put it into your hand.}",
+      announce: true,
+      hooks: whenFriendlyDies(
+        { subtype: param<string>("subtype") },
+        searchLibraryForSubtype(param<string>("subtype"), param<boolean>("first", false)),
+      ),
     },
-    description:
-      "Whenever a friendly {subtype} dies, search your library for the first {subtype} and put it into your hand.",
-    announce: true,
-    hooks: whenFriendlyDies(
-      { subtype: param<string>("subtype") },
-      searchLibraryForSubtype(param<string>("subtype")),
-    ),
-  }),
+  ),
 
   extension("ransack", empty, {
     translations: {
       de: {
-        description:
-          "Beim Ausspielen: Sieh dir die Handkarten deines Gegners an und wähle eine davon. Dein Gegner legt sie ab.",
+        description: "Sieh dir die Hand deines Gegners an. Er legt eine Karte deiner Wahl ab.",
+        fieldDescription:
+          "Beim Ausspielen: Sieh dir die Hand deines Gegners an. Er legt eine Karte deiner Wahl ab.",
       },
     },
-    description: "When played, look at your opponent's hand and choose a card. They discard it.",
+    description: "Look at your opponent's hand. They discard a card of your choice.",
+    fieldDescription:
+      "When played, look at your opponent's hand. They discard a card of your choice.",
     announce: true,
     hooks: whenPlayed(ransack()),
     // As a spell operation, the same look-and-discard resolves when the spell is cast.
     cast: run(ransack()),
   }),
 
-  extension("forced-march", empty, {
+  extension("quickened", empty, {
     translations: {
       de: {
-        description: "Kommt bereit ins Spiel: Kann im selben Zug angreifen oder Energie erzeugen.",
+        name: "Beschleunigt",
+        description:
+          "Kommt bereit ins Spiel: Sie kann im selben Zug angreifen oder Energie kanalisieren.",
       },
     },
-    description:
-      "Enters the battlefield ready: it can attack or channel energy the turn it is played.",
+    name: "Quickened",
+    description: "Enters ready: it can attack or channel energy the turn it is played.",
     before: replacing("creature.enter.before", entersReady()),
   }),
 
   extension("charge", v.strictObject({ amount: positive }), {
     translations: {
       de: {
-        name: "Ansturm {amount}",
         description:
           "Beim Ausspielen: Füge der gegenüberliegenden gegnerischen Kreatur {amount} Schaden zu.",
       },
     },
-    name: "Charge {amount}",
-    description: "When played, deal {amount} damage to the enemy creature opposite.",
+    description: "When played, deal {amount} damage to the opposite enemy creature.",
     hooks: whenPlayed(damage(oppositeCreature, param<number>("amount"))),
   }),
 
@@ -301,11 +420,10 @@ export const evergreenAbilities: AbilityExtension[] = [
     translations: {
       de: {
         description:
-          "Opfere eine andere eigene Kreatur: Erhalte {amount} Energie ihrer Art, bei mehreren Arten von jeder.",
+          "Opfere eine andere eigene Kreatur: Erhalte {amount} Energie jedes ihrer Typen.",
       },
     },
-    description:
-      "Sacrifice another friendly creature: gain {amount} energy of its type, of each type if it has several.",
+    description: "Sacrifice another friendly creature: gain {amount} energy of each of its types.",
     // Left out, the amount is 1. The card does not exhaust, so it can be used again for another creature.
     defaults: { amount: 1 },
     exhausts: false,
@@ -317,29 +435,28 @@ export const evergreenAbilities: AbilityExtension[] = [
 
   extension("rest", amountSchema, {
     translations: {
-      de: { name: "Rast {amount}", description: "Erschöpfe: Stelle {amount} Leben wieder her." },
+      de: { description: "Erschöpfen: Stelle {amount} Leben wieder her." },
     },
-    name: "Rest {amount}",
     description: "Exhaust: restore {amount} life.",
     activate: run(heal(you, param<number>("amount"))),
   }),
 
   extension("weaken", amountSchema, {
-    description: "The enemy creature or holding opposite has -{amount} Attack.",
+    description: "The opposite enemy creature or holding gets -{amount} Attack.",
     translations: {
       de: {
         description:
-          "Die gegenüberliegende gegnerische Kreatur oder Besitzung hat -{amount} Angriff.",
+          "Die gegenüberliegende gegnerische Kreatur oder Besitzung erhält -{amount} Angriff.",
       },
     },
     static: modifiers(modify(opposite, { attack: (params) => -(params.amount as number) })),
   }),
 
   extension("longshot", amountSchema, {
-    description: "Exhaust: deal {amount} damage to an enemy creature.",
+    description: "Exhaust: deal {amount} damage to target enemy creature.",
     translations: {
       de: {
-        description: "Erschöpfe: Füge einer gegnerischen Kreatur {amount} Schaden zu.",
+        description: "Erschöpfen: Füge einer gegnerischen Kreatur {amount} Schaden zu.",
       },
     },
     target: "enemy-creature",
@@ -348,7 +465,7 @@ export const evergreenAbilities: AbilityExtension[] = [
   leaderAbility(
     "fealty",
     {
-      description: "All friendly creatures, including this one, have +1 Attack and +1 Defense.",
+      description: "All friendly creatures, including this one, get +1 Attack and +1 Defense.",
       translations: {
         de: {
           description:
@@ -363,17 +480,17 @@ export const evergreenAbilities: AbilityExtension[] = [
   ),
   leaderAbility("accord", {
     description:
-      "After the first spell you cast during your play phase each turn, gain 1 Winter energy.",
+      "After you cast your first spell each turn during your play phase, gain 1 Northern League energy.",
     translations: {
       de: {
         description:
-          "Nach dem ersten Zauber, den du während deiner Spielphase in einem Zug wirkst, erhältst du 1 Winterenergie.",
+          "Nachdem du in deiner Spielphase deinen ersten Zauber des Zuges gewirkt hast, erhältst du 1 Nordbund-Energie.",
       },
     },
     hooks: when(
       "spell.cast",
       and(duringYourPlayPhase, byYou, firstThisTurn("spell.cast")),
-      gainEnergy({ "winter-league": 1 }),
+      gainEnergy({ "northern-league": 1 }),
     ),
   }),
   leaderAbility("marches-rally", {
@@ -382,7 +499,7 @@ export const evergreenAbilities: AbilityExtension[] = [
     translations: {
       de: {
         description:
-          "Erschöpfe: Setze eine Kreatur oder Besitzung aus deiner Hand ohne Kosten auf einen freien Platz ein. Sie kommt erschöpft ins Spiel.",
+          "Erschöpfen: Setze eine Kreatur oder Besitzung aus deiner Hand ohne Kosten auf eine freie Position ein. Sie kommt erschöpft ins Spiel.",
       },
     },
     target: "friendly-hand-field",
@@ -390,14 +507,12 @@ export const evergreenAbilities: AbilityExtension[] = [
     activate: run(deployChosen()),
   }),
   leaderAbility("trade", {
-    name: "Trade",
     description:
       "When this creature channels during your play phase, it also produces 1 neutral energy.",
     translations: {
       de: {
-        name: "Handel",
         description:
-          "Wenn diese Kreatur während deiner Spielphase Energie kanalisiert, erzeugt sie zusätzlich 1 neutrale Energie.",
+          "Wenn diese Kreatur in deiner Spielphase Energie kanalisiert, erzeugt sie zusätzlich 1 neutrale Energie.",
       },
     },
     before: replacing("energy.generate.before", addEnergy("neutral", 1)),
@@ -407,11 +522,11 @@ export const evergreenAbilities: AbilityExtension[] = [
     amountSchema,
     {
       description:
-        "When played, deal {amount} damage to an enemy creature in range (opposite or in a neighbouring lane) or to the enemy player.",
+        "When played, deal {amount} damage to target enemy creature opposite or in an adjacent lane, or to the enemy player.",
       translations: {
         de: {
           description:
-            "Beim Ausspielen: Füge einer gegnerischen Kreatur in Reichweite (gegenüber oder in einer Nachbarbahn) oder dem gegnerischen Spieler {amount} Schaden zu.",
+            "Beim Ausspielen: Füge einer gegnerischen Kreatur gegenüber oder in einer benachbarten Bahn oder dem gegnerischen Spieler {amount} Schaden zu.",
         },
       },
       announce: true,
@@ -424,11 +539,9 @@ export const evergreenAbilities: AbilityExtension[] = [
   leaderAbility(
     "raid",
     {
-      name: "Raid",
       description: "This card has +1 Attack for each adjacent friendly creature.",
       translations: {
         de: {
-          name: "Überfall",
           description: "Diese Karte erhält +1 Angriff für jede benachbarte eigene Kreatur.",
         },
       },
@@ -438,11 +551,11 @@ export const evergreenAbilities: AbilityExtension[] = [
   ),
   leaderAbility("dark-harvest", {
     description:
-      "Exhaust: put the top card of your library into your discard pile and gain 2 Host energy. Needs two cards in your library.",
+      "Exhaust: put the top card of your library into your discard pile and gain 2 Host energy. Requires at least 2 cards in your library.",
     translations: {
       de: {
         description:
-          "Erschöpfe: Lege die oberste Karte deiner Bibliothek auf den Ablagestapel und erhalte 2 Heerenergie. Benötigt zwei Karten in der Bibliothek.",
+          "Erschöpfen: Lege die oberste Karte deiner Bibliothek auf den Ablagestapel und erhalte 2 Heerenergie. Erfordert mindestens 2 Karten in deiner Bibliothek.",
       },
     },
     canActivate: activatableWhen(libraryHasAtLeast(2)),
@@ -451,12 +564,11 @@ export const evergreenAbilities: AbilityExtension[] = [
   leaderAbility(
     "wayfarer",
     {
-      description:
-        "Exhaust: return a friendly creature (including this one) to its owner’s hand, clearing its damage.",
+      description: "Exhaust: return a friendly creature, including this one, to its owner’s hand.",
       translations: {
         de: {
           description:
-            "Erschöpfe: Nimm eine eigene Kreatur (auch diese) auf die Hand ihres Besitzers zurück und entferne ihren Schaden.",
+            "Erschöpfen: Nimm eine eigene Kreatur, auch diese, auf die Hand ihres Besitzers zurück.",
         },
       },
       target: "friendly-creature",

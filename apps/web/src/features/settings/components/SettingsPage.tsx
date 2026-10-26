@@ -3,8 +3,8 @@ import { useState } from "react";
 import { useAudio } from "../../../app/providers/AudioProvider";
 import { useFullscreen } from "../../../hooks/useFullscreen";
 import { Eye, GraduationCap, Plus, Unlock } from "lucide-react";
-import { gainDebugCrowns } from "../../collection/lib/collection";
-import { updateCollection } from "../../collection/stores/collectionStore";
+import { gainDebugCrowns, ownsEveryCard, unlockAllCards } from "../../collection/lib/collection";
+import { updateCollection, useCollection } from "../../collection/stores/collectionStore";
 import { cardBacks, isBackUnlocked } from "../../card-backs/lib/cardBacks";
 import { unlockAllSleeves, useBoughtBacks } from "../../card-backs/stores/cardBackStore";
 import { achievements } from "../../goals/lib/goals";
@@ -247,10 +247,12 @@ export function SettingsPage({
 }) {
   useLanguage();
   const goals = useGoals(),
-    boughtBacks = useBoughtBacks();
+    boughtBacks = useBoughtBacks(),
+    { collection } = useCollection();
   const achievementsComplete = achievements.every(
     (def) => (goals.claimedTiers[def.id] ?? 0) >= def.tiers.length,
   );
+  const cardsUnlocked = ownsEveryCard(collection, registry);
   const sleevesUnlocked = cardBacks.every((back) => isBackUnlocked(back, goals, boughtBacks));
   const [error, setError] = useState("");
   const [tab, setTab] = useState<"general" | "audio" | "learn" | "data">("general");
@@ -346,6 +348,16 @@ export function SettingsPage({
               >
                 <Plus size={16} />
                 {msg("Gain 1,000 crowns")}
+              </button>
+              <button
+                className="outline-button"
+                disabled={cardsUnlocked}
+                onClick={() => {
+                  updateCollection((current) => unlockAllCards(current, registry));
+                }}
+              >
+                <Unlock size={16} />
+                {msg("Unlock all cards")}
               </button>
               <button
                 className="outline-button"

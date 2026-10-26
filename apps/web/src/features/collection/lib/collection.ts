@@ -335,6 +335,19 @@ export function buyMissingDeckCards(
 export function gainDebugCrowns(collection: Collection): Collection {
   return { ...collection, crowns: addNumber(collection.crowns, 1000) };
 }
+/** Debug: owns the full playable number of copies of every card. Never lowers a count and leaves the wallet alone. */
+export function ownsEveryCard(collection: Collection, content: Registry): boolean {
+  return Object.values(content.cards).every(
+    (card) => ownedCopyCount(collection.counts, card.id) >= ownershipLimit(card),
+  );
+}
+export function unlockAllCards(collection: Collection, content: Registry): Collection {
+  if (ownsEveryCard(collection, content)) return collection;
+  const counts = { ...collection.counts };
+  for (const card of Object.values(content.cards))
+    counts[card.id] = Math.max(ownedCopyCount(counts, card.id), ownershipLimit(card));
+  return { ...collection, counts };
+}
 
 /** Wins by the collection owner (p1) earn rewards. Replaying, reloading, or revisiting a result cannot grant twice. */
 export function claimVictory(

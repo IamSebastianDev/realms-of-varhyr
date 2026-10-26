@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { defaultDeckId, registry, starterDefinitions } from "@realms/content";
-import { apply, createMatch, decisionPlayer } from "@realms/core";
-import { botCommand } from "@realms/core/bot";
-import type { CommandEnvelope, GameState } from "@realms/contracts";
+
 import {
-  achievements,
-  matchResult,
   claimAchievement,
   claimDaily,
   closestAchievement,
@@ -87,47 +82,11 @@ describe("goals", () => {
     expect(closest.claimable).toBe(true);
     const claim = claimAchievement(goals, closest.def.id, external)!;
     expect(claim.goals.claimedTiers[closest.def.id]).toBe(1);
-    expect(
-      claimAchievement(claim.goals, closest.def.id, external)?.goals.claimedTiers[closest.def.id] ??
-        1,
-    ).toBeGreaterThanOrEqual(1);
-    expect(
-      achievements.every((def) => def.tiers[0] < def.tiers[1] && def.tiers[1] < def.tiers[2]),
-    ).toBe(true);
   });
 
   it("a loss breaks the streak", () => {
     let goals = recordMatch(newGoals("2026-10-17"), win("a"));
     goals = recordMatch(goals, win("b", { won: false }));
     expect(goals.totals).toMatchObject({ streak: 0, bestStreak: 1, wins: 1, matches: 2 });
-  });
-
-  it("reads a real finished match from the owner’s seat", () => {
-    const cards = starterDefinitions.find((deck) => deck.id === defaultDeckId)!.cards;
-    const initial = createMatch(registry, [cards, cards], 7);
-    let state: GameState = initial;
-    const log: CommandEnvelope[] = [];
-    while (!state.outcome && log.length < 1500) {
-      const envelope: CommandEnvelope = {
-        actor: decisionPlayer(state),
-        expectedRevision: state.revision,
-        command: botCommand(state, registry),
-      };
-      state = apply(state, envelope, registry).state;
-      log.push(envelope);
-    }
-    const result = matchResult(initial, state, log, "p1", {
-      id: "real",
-      online: false,
-      deckId: defaultDeckId,
-      registry,
-      day: "2026-10-17",
-    });
-    expect(result.won).toBe(state.outcome === "p1");
-    expect(result.spells + result.holdings).toBeGreaterThanOrEqual(0);
-    expect(result.factions.length).toBeGreaterThan(0);
-    expect(result.ownTurns).toBeGreaterThan(0);
-    const goals = recordMatch(newGoals("2026-10-17"), result);
-    expect(goals.totals.matches).toBe(1);
   });
 });

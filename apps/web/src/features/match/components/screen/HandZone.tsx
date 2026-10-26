@@ -11,10 +11,12 @@ export function HandZone() {
     dragEnabled,
     live,
     pinPreview,
+    quickBegin,
     quickPlay,
     reduced,
     requestPreview,
     selected,
+    selectedLegal,
     sendTarget,
     setDraft,
     setStage,
@@ -27,14 +29,30 @@ export function HandZone() {
   return (
     <>
       <section className="hand-zone">
+        {stage === "none" && live && view.freeCast && (
+          <div className="hand-caption">
+            <p>
+              {msg("Cast {v0} for free", {
+                v0: msg(registry.cards[view.cards[view.freeCast.cardId].definitionId].name),
+              })}
+            </p>
+            <button className="outline-button" onClick={() => quickBegin(view.freeCast!.cardId)}>
+              {msg("Cast")}
+            </button>
+          </div>
+        )}
         {stage !== "none" && (
           <div className="hand-caption">
             <p>
-              {stage === "consume"
-                ? msg("Choose what to Consume")
-                : stage === "position"
-                  ? msg("Choose your position")
-                  : msg("Choose your target")}
+              {stage === "mode"
+                ? msg("Choose the effect")
+                : stage === "consume"
+                  ? selectedLegal?.returns
+                    ? msg("Choose what to return")
+                    : msg("Choose what to Consume")
+                  : stage === "position"
+                    ? msg("Choose your position")
+                    : msg("Choose your target")}
             </p>
           </div>
         )}

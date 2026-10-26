@@ -16,8 +16,8 @@ Everything below lives in `blocks.ts`. Each ability uses the parts it needs and 
 ### Triggers, selectors, effects (`hooks`, `cast`, `activate`)
 
 - **Triggers** say when: `whenPlayed`, `whenFriendlyDies({ subtype?, other?, where? })`, and the generic `when(event, condition, ...effects)`. `triggers(a, b)` combines several on one ability.
-- **Selectors** say to what: `chosen` (the target picked on play or activation), `self`, `you`, `opponent`, `enemyCreatures`, `oppositeCreature`. `union(a, b)` gathers several. A selector that finds nothing makes its effect do nothing.
-- **Effects** say what happens: `draw`, `damage`, `heal`, `boost`, `destroy`, `returnToHand`, `searchLibrary`, `searchLibraryForSubtype`, `searchLibraryByCost`, `ransack`, `mill`, `gainEnergy`, `gainEnergyOfTypes`, `gainEnergyOfChosen`, `deployChosen({ ready? })`. `sequence`/`run` run several in order, `onlyIf` guards them.
+- **Selectors** say to what: `chosen` (the target picked on play or activation), `self`, `you`, `opponent`, `friendlyCreatures`, `enemyCreatures`, `oppositeCreature`. `union(a, b)` gathers several. A selector that finds nothing makes its effect do nothing.
+- **Effects** say what happens: `draw`, `damage`, `heal`, `boost`, `destroy`, `returnToHand`, `searchLibrary`, `searchLibraryForSubtype`, `searchLibraryByCost` (both let the player pick from a dialog; a `first` parameter takes the topmost match instead), `ransack`, `mill`, `gainEnergy`, `gainEnergyOfTypes`, `gainEnergyOfChosen`, `deployChosen({ ready? })`. `sequence`/`run` run several in order, `onlyIf` guards them.
 - **Values** are literals or `param("name", fallback?)`, which reads the card's ability parameters.
 
 For `cast` and `activate`, use `run(...effects)`.
@@ -35,7 +35,7 @@ when("spell.cast", and(duringYourPlayPhase, byYou, firstThisTurn("spell.cast")),
 
 ### Static modifiers (`static`)
 
-`modify(condition, { attack?, defense? })` gives a bonus to every target that meets the condition. `modifiers(a, b)` puts several together and adds their bonuses. Conditions: `targetIsSource`, `sameController`, `otherController`, `adjacent`, `opposite`, `targetOnBoard`, `targetIsCreature`, `targetHasSubtype(subtype)`, `sourceOnFlank`. An amount can be a literal, `param(...)`, or computed (`adjacentCreatures`).
+`modify(condition, { attack?, defense? })` gives a bonus to every target that meets the condition. `modifiers(a, b)` puts several together and adds their bonuses. Conditions: `targetIsSource`, `sameController`, `otherController`, `adjacent`, `opposite`, `targetOnBoard`, `targetIsCreature`, `targetHasSubtype(subtype)`, `sourceOnFlank`. An amount can be a literal, `param(...)`, or computed (`adjacentCreatures`, `cardsInDiscard(types)`; `forStat("attack", amount)` limits one to the ability's `stat` parameter).
 
 ```ts
 static: modifiers(

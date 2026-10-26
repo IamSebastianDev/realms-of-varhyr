@@ -22,7 +22,7 @@ import type {
   Pool,
   Registry,
 } from "@realms/contracts";
-import { battlefieldPositions, deckRules, positionName } from "@realms/contracts";
+import { battlefieldPositions, castBindings, deckRules, positionName } from "@realms/contracts";
 import { describeAbility } from "@realms/extensions/describeAbility";
 import { energyProductionOptions } from "./production";
 export const RULES_VERSION = "varhir-rules-0.20";
@@ -36,6 +36,7 @@ const commandSchema = v.variant("type", [
     target: v.optional(v.string()),
     consume: v.optional(v.string()),
     payment: v.optional(paymentSchema),
+    mode: v.optional(nonnegative),
   }),
   v.object({ type: v.literal("energy"), cardId: v.string(), option: nonnegative }),
   v.object({
@@ -129,14 +130,26 @@ export function effectiveStats(
     defense = printed.defense + (card.defenseBonus ?? 0);
   // Give continuous effects the same public battlefield context in the engine and player-view renderer.
   // Private hands/libraries and other match fields must not influence a static modifier.
+  // Both discard piles are public too, so abilities may count what lies in them.
   const battlefield: BattlefieldState = {
     cards: Object.fromEntries(
       [state.players.p1, state.players.p2]
-        .flatMap((player) => player.board)
+        .flatMap((player) => [...player.board, ...player.discard])
         .filter((id): id is string => !!id)
         .map((id) => [id, state.cards[id]]),
     ),
-    players: { p1: { board: state.players.p1.board }, p2: { board: state.players.p2.board } },
+    players: {
+      p1: {
+        board: state.players.p1.board,
+        discard: state.players.p1.discard,
+        spellsCast: state.players.p1.spellsCast,
+      },
+      p2: {
+        board: state.players.p2.board,
+        discard: state.players.p2.discard,
+        spellsCast: state.players.p2.spellsCast,
+      },
+    },
   };
   for (const player of [state.players.p1, state.players.p2])
     for (const sid of player.board) {
@@ -685,7 +698,7 @@ class Transaction {
     card.exhausted = false;
     this.state.players[card.owner].discard.push(id);
   }
-  destroy(id: string, combat = false) {
+  destroy(id: string) {
     const card = this.state.cards[id];
     if (!card || card.zone !== "board") return;
     const snapshot = { ...card };
@@ -705,12 +718,12 @@ class Transaction {
   }
   stateChecks() {
     for (const p of [this.state.players.p1, this.state.players.p2])
-      for (const id of [...p.board]) {
+      for (const id of p.board) {
         if (
           id &&
           this.state.cards[id].damage >= effectiveStats(this.state, id, this.registry).defense
         )
-          this.destroy(id, this.inCombat);
+          this.destroy(id);
       }
   }
   sourceNote(source?: string) {
@@ -785,6 +798,32 @@ class Transaction {
           "Invalid draw amount.",
         );
         this.draw(order.player, order.amount);
+      } else if (order.type === "damage-pick") {
+        requireRule(order.player === "p1" || order.player === "p2", "Invalid damage chooser.");
+        requireRule(
+          Number.isSafeInteger(order.amount) && order.amount >= 0 && order.amount <= 100,
+          "Invalid damage amount.",
+        );
+        const foe = other(order.player),
+          source = this.state.cards[order.source];
+        // Only one choice can be open at a time; any further one simply hits the enemy player.
+        if (this.state.pending || !source)
+          this.dealDamage({
+            type: "damage",
+            target: foe,
+            amount: order.amount,
+            source: order.source,
+          });
+        else
+          this.state.pending = {
+            id: `damage-${this.state.sequence}`,
+            player: order.player,
+            kind: "damage-target",
+            options: [...this.state.players[foe].board.filter((id): id is string => !!id), foe],
+            amount: order.amount,
+            source: order.source,
+            sourceName: this.registry.cards[source.definitionId].name,
+          };
       } else if (order.type === "ransack") {
         requireRule(order.player === "p1" || order.player === "p2", "Invalid ransack player.");
         const me = this.state.players[order.player],
@@ -831,51 +870,39 @@ class Transaction {
             cardId: id,
           });
         }
-      } else if (order.type === "search-subtype") {
+      } else if (order.type === "search-subtype" || order.type === "search-cost") {
         requireRule(order.player === "p1" || order.player === "p2", "Invalid search player.");
-        requireRule(!!order.subtype, "Missing subtype to search for.");
+        if (order.type === "search-subtype")
+          requireRule(!!order.subtype, "Missing subtype to search for.");
+        else
+          requireRule(Number.isInteger(order.maxCost) && order.maxCost >= 0, "Invalid cost limit.");
         const p = this.state.players[order.player];
+        const matches = (id: string) => {
+          const def = this.registry.cards[this.state.cards[id].definitionId];
+          if (order.type === "search-subtype")
+            return def.type === "creature" && def.subtypes.includes(order.subtype);
+          const total =
+            def.cost.generic + Object.values(def.cost.factions).reduce((sum, n) => sum + n, 0);
+          return def.type !== "spell" && total <= order.maxCost;
+        };
         // The top of the library is the end of the array.
-        let index = -1;
-        for (let i = p.deck.length - 1; i >= 0 && index < 0; i--) {
-          const def = this.registry.cards[this.state.cards[p.deck[i]].definitionId];
-          if (def.type === "creature" && def.subtypes.includes(order.subtype)) index = i;
-        }
-        if (index < 0)
-          this.emit("card.searched", `${p.name} finds no ${order.subtype} in the library.`, {
+        const found = p.deck.filter(matches).reverse();
+        const what =
+          order.type === "search-subtype"
+            ? order.subtype
+            : `creature or holding costing ${order.maxCost} or less`;
+        const sourceName = order.source
+          ? this.registry.cards[this.state.cards[order.source].definitionId].name
+          : "Search";
+        if (!found.length)
+          this.emit("card.searched", `${p.name} finds no ${what} in the library.`, {
             player: order.player,
             cardId: order.source,
           });
-        else {
-          const [id] = p.deck.splice(index, 1);
-          this.state.cards[id].zone = "hand";
-          p.hand.push(id);
-          this.emit(
-            "card.searched",
-            `${p.name} musters ${this.registry.cards[this.state.cards[id].definitionId].name} from the library.`,
-            { player: order.player, cardId: id },
-          );
-        }
-      } else if (order.type === "search-cost") {
-        requireRule(order.player === "p1" || order.player === "p2", "Invalid search player.");
-        requireRule(Number.isInteger(order.maxCost) && order.maxCost >= 0, "Invalid cost limit.");
-        const p = this.state.players[order.player];
-        // The top of the library is the end of the array.
-        let index = -1;
-        for (let i = p.deck.length - 1; i >= 0 && index < 0; i--) {
-          const def = this.registry.cards[this.state.cards[p.deck[i]].definitionId];
-          const total =
-            def.cost.generic + Object.values(def.cost.factions).reduce((sum, n) => sum + n, 0);
-          if (def.type !== "spell" && total <= order.maxCost) index = i;
-        }
-        if (index < 0)
-          this.emit(
-            "card.searched",
-            `${p.name} finds no creature or holding costing ${order.maxCost} or less in the library.`,
-            { player: order.player, cardId: order.source },
-          );
-        else {
-          const [id] = p.deck.splice(index, 1);
+        // A second choice cannot open while one is pending; the topmost match is taken instead.
+        else if (order.first || this.state.pending) {
+          const id = found[0];
+          p.deck.splice(p.deck.indexOf(id), 1);
           this.state.cards[id].zone = "hand";
           p.hand.push(id);
           this.emit(
@@ -883,6 +910,34 @@ class Transaction {
             `${p.name} finds ${this.registry.cards[this.state.cards[id].definitionId].name} in the library.`,
             { player: order.player, cardId: id },
           );
+        } else {
+          // One entry per distinct card, cheapest first, so the choice does not reveal the library order.
+          const price = (id: string) => {
+            const cost = this.registry.cards[this.state.cards[id].definitionId].cost;
+            return cost.generic + Object.values(cost.factions).reduce((sum, n) => sum + n, 0);
+          };
+          const seen = new Set<string>();
+          const options = found
+            .filter((id) => {
+              const key = this.state.cards[id].definitionId;
+              return seen.has(key) ? false : (seen.add(key), true);
+            })
+            .sort((a, b) => {
+              const da = this.registry.cards[this.state.cards[a].definitionId],
+                db = this.registry.cards[this.state.cards[b].definitionId];
+              return price(a) - price(b) || (da.name < db.name ? -1 : da.name > db.name ? 1 : 0);
+            });
+          this.state.pending = {
+            id: `search-${this.state.sequence}`,
+            player: order.player,
+            kind: "library-pick",
+            options,
+            sourceName,
+          };
+          this.emit("card.searched", `${p.name} searches the library.`, {
+            player: order.player,
+            cardId: order.source,
+          });
         }
       } else if (order.type === "mill") {
         requireRule(
@@ -939,8 +994,30 @@ class Transaction {
         this.target = undefined;
         this.deploy(card, order.player, order.slot, order.ready);
         this.target = previousTarget;
-      } else if (order.type === "destroy") this.destroy(order.target, order.combat);
-      else if (order.type === "return") {
+      } else if (order.type === "destroy") this.destroy(order.target);
+      else if (order.type === "reprise") {
+        requireRule(order.player === "p1" || order.player === "p2", "Invalid reprise player.");
+        const options = repriseChoices(this.state, order.player, this.registry);
+        // Nothing to cast, or another choice already waiting: the effect does nothing.
+        if (options.length && !this.state.pending)
+          this.state.pending = {
+            id: `reprise-${this.state.sequence}`,
+            player: order.player,
+            kind: "reprise",
+            options,
+            sourceName: order.source
+              ? this.registry.cards[this.state.cards[order.source].definitionId].name
+              : "Reprise",
+          };
+      } else if (order.type === "ready") {
+        const card = this.state.cards[order.target];
+        if (card?.zone === "board" && card.exhausted) {
+          card.exhausted = false;
+          this.emit("card.readied", `${this.registry.cards[card.definitionId].name} is readied.`, {
+            cardId: card.id,
+          });
+        }
+      } else if (order.type === "return") {
         const card = this.state.cards[order.target];
         if (card?.zone === "board") {
           this.detach(card);
@@ -1195,7 +1272,24 @@ function targetOptions(
   }
   return { targets: targets ?? [], required: targets !== null && targets.length > 0 };
 }
+/** Spells in the player's discard pile that could be cast for free right now: one per distinct card, and only if the engine would let the player play it. */
+function repriseChoices(state: GameState, actor: PlayerId, registry: Registry): string[] {
+  const seen = new Set<string>(),
+    options: string[] = [];
+  for (const id of state.players[actor].discard) {
+    const def = registry.cards[state.cards[id].definitionId];
+    if (def.type !== "spell" || seen.has(def.id)) continue;
+    const probe = { ...state, pending: null, freeCast: { player: actor, cardId: id } };
+    if (!legalActions(probe, registry).playable.some((a) => a.cardId === id)) continue;
+    seen.add(def.id);
+    options.push(id);
+  }
+  return options;
+}
 function playPayload(state: GameState, card: CardInstance, registry: Registry) {
+  // A free cast pays nothing, not even additional costs.
+  if (state.freeCast?.cardId === card.id)
+    return { cost: { generic: 0, factions: {} }, consume: false };
   return new Transaction(state, registry).before("card.play.before", card, {
     cost: structuredClone(registry.cards[card.definitionId].cost),
     consume: false,
@@ -1216,7 +1310,8 @@ export function legalActions(state: GameState, registry: Registry): LegalActions
   const p = state.players[actor];
   if (state.phase === "play" || inResponseStep(state)) {
     const inResponse = inResponseStep(state);
-    for (const id of p.hand) {
+    // A spell being cast for free is the only thing the player can do.
+    for (const id of state.freeCast ? [state.freeCast.cardId] : p.hand) {
       const card = state.cards[id],
         def = registry.cards[card.definitionId];
       if (inResponse && (def.type !== "spell" || !def.timing!.includes("response"))) continue;
@@ -1241,12 +1336,36 @@ export function legalActions(state: GameState, registry: Registry): LegalActions
         : [];
       if (payload.consume && !consumes.length) continue;
       if (def.type !== "spell" && !slots.length && !consumes.length) continue;
-      const targeting = targetOptions(
-        state,
-        actor,
-        [...def.abilities.filter((b) => !registry.abilities[b.id].activate), ...(def.cast ?? [])],
-        registry,
-      );
+      const printed = def.abilities.filter((b) => !registry.abilities[b.id].activate);
+      // A modal spell offers each mode with its own targets and positions; only modes that can resolve now are listed.
+      if (def.type === "spell" && def.modal) {
+        const modes = (def.cast ?? []).flatMap((binding, mode) => {
+          const extension = registry.abilities[binding.id],
+            options = targetOptions(state, actor, [...printed, binding], registry);
+          if (extension.target && !options.targets.length) return [];
+          if (extension.placement && !slots.length) return [];
+          return [
+            {
+              mode,
+              targets: options.targets,
+              requiresTarget: options.required,
+              slots: extension.placement ? slots : [],
+            },
+          ];
+        });
+        if (!modes.length) continue;
+        legal.playable.push({
+          cardId: id,
+          slots: [],
+          targets: [],
+          requiresTarget: false,
+          consumes,
+          ...(payload.returns ? { returns: true } : {}),
+          modes,
+        });
+        continue;
+      }
+      const targeting = targetOptions(state, actor, [...printed, ...(def.cast ?? [])], registry);
       // Required spell targets cannot disappear into an illegal target-free cast.
       if (
         def.type === "spell" &&
@@ -1269,6 +1388,7 @@ export function legalActions(state: GameState, registry: Registry): LegalActions
         targets: targeting.targets,
         requiresTarget: targeting.required,
         consumes,
+        ...(payload.returns ? { returns: true } : {}),
         ...(reach
           ? {
               slotTargets: Object.fromEntries(
@@ -1281,7 +1401,7 @@ export function legalActions(state: GameState, registry: Registry): LegalActions
           : {}),
       });
     }
-    if (!inResponse)
+    if (!inResponse && !state.freeCast)
       for (const id of p.board) {
         if (!id) continue;
         const spent = state.cards[id].exhausted;
@@ -1324,7 +1444,7 @@ export function legalActions(state: GameState, registry: Registry): LegalActions
           });
         });
       }
-    legal.canEnd = true;
+    legal.canEnd = !state.freeCast;
   } else if (state.phase === "attack" && state.combat?.stage === "declare") {
     legal.attackers = p.board.filter(
       (id): id is string =>
@@ -1479,6 +1599,50 @@ export function apply(
           `${name} is discarded from ${next.players[victim.owner].name}'s hand.`,
           { player: victim.owner, cardId: victim.id },
         );
+      } else if (choice!.kind === "damage-target") {
+        const target = command.option;
+        const foe = other(envelope.actor);
+        requireRule(
+          typeof target === "string" &&
+            (choice!.options as string[]).includes(target) &&
+            (target === foe || next.players[foe].board.includes(target)),
+          "Choose one of the highlighted targets.",
+        );
+        next.pending = null;
+        tx.dealDamage({
+          type: "damage",
+          target: target as string,
+          amount: choice!.amount,
+          source: choice!.source,
+        });
+      } else if (choice!.kind === "reprise") {
+        const id = command.option;
+        requireRule(
+          typeof id === "string" &&
+            (choice!.options as string[]).includes(id) &&
+            next.cards[id].zone === "discard",
+          "Choose one of the spells.",
+        );
+        next.pending = null;
+        next.freeCast = { player: envelope.actor, cardId: id as string };
+      } else if (choice!.kind === "library-pick") {
+        const id = command.option;
+        requireRule(
+          typeof id === "string" &&
+            (choice!.options as string[]).includes(id) &&
+            next.cards[id].zone === "deck" &&
+            p.deck.includes(id),
+          "Choose one of the found cards.",
+        );
+        p.deck.splice(p.deck.indexOf(id as string), 1);
+        next.cards[id as string].zone = "hand";
+        p.hand.push(id as string);
+        next.pending = null;
+        tx.emit(
+          "card.searched",
+          `${p.name} finds ${definition(next, id as string, registry).name} in the library.`,
+          { player: envelope.actor, cardId: id as string },
+        );
       } else {
         requireRule(
           typeof command.option === "number" &&
@@ -1492,10 +1656,23 @@ export function apply(
         tx.responseOutputs(choice!.player, remaining);
       }
     } else if (command.type === "play") {
-      const legal = legalActions(next, registry).playable.find((a) => a.cardId === command.cardId);
-      requireRule(legal, "That card cannot be played: check timing, energy and free slots.");
+      const found = legalActions(next, registry).playable.find((a) => a.cardId === command.cardId);
+      requireRule(found, "That card cannot be played: check timing, energy and free slots.");
       const card = next.cards[command.cardId],
         def = registry.cards[card.definitionId];
+      const mode = def.modal ? found!.modes?.find((m) => m.mode === command.mode) : undefined;
+      if (def.modal) requireRule(mode, "Choose one of the spell's modes.");
+      else requireRule(command.mode === undefined, "This card has no modes.");
+      // From here on a modal spell is judged by the targets and positions of the chosen mode.
+      const legal = mode
+        ? {
+            ...found!,
+            targets: mode.targets,
+            requiresTarget: mode.requiresTarget,
+            slots: mode.slots,
+          }
+        : found;
+      const cast = castBindings(def, command.mode);
       const payload = playPayload(next, card, registry);
       if (legal!.requiresTarget)
         requireRule(
@@ -1513,8 +1690,7 @@ export function apply(
         slot = command.slot ?? consumedSlot;
         requireRule(slot === consumedSlot || legal!.slots.includes(slot), "That slot is occupied.");
       } else requireRule(!command.consume, "This card does not have Consume.");
-      const placed =
-        def.type === "spell" && !!def.cast?.some((b) => registry.abilities[b.id].placement);
+      const placed = def.type === "spell" && cast.some((b) => registry.abilities[b.id].placement);
       if (placed)
         requireRule(
           command.slot !== undefined && legal!.slots.includes(command.slot),
@@ -1544,21 +1720,30 @@ export function apply(
       );
       for (const color of Object.keys(payment))
         if (payment[color]) pool[color] = (pool[color] ?? 0) - payment[color]!;
+      next.freeCast = null;
       tx.target = command.target;
       tx.slot = placed ? command.slot : undefined;
-      if (payload.consume) tx.destroy(command.consume!);
+      if (payload.consume && payload.returns) {
+        // The additional cost: the chosen creature returns to its owner's hand before the card is played.
+        tx.queue.push({ order: { type: "return", target: command.consume! } });
+        tx.drain();
+      } else if (payload.consume) tx.destroy(command.consume!);
       if (def.type !== "spell") {
         tx.deploy(card, envelope.actor, slot);
       } else {
-        tx.detach(card);
-        card.zone = "discard";
-        p.discard.push(card.id);
+        // A spell cast for free is already in the discard pile and stays there.
+        if (card.zone !== "discard") {
+          tx.detach(card);
+          card.zone = "discard";
+          p.discard.push(card.id);
+        }
+        p.spellsCast = (p.spellsCast ?? 0) + 1;
         const event = tx.emit("spell.cast", `${p.name} casts ${def.name}.`, {
           player: envelope.actor,
           cardId: card.id,
           target: command.target,
         });
-        for (const binding of def.cast!)
+        for (const binding of cast)
           registry.abilities[binding.id].cast!(tx.context(card, event), binding.params);
       }
     } else if (command.type === "energy") {
@@ -1717,6 +1902,7 @@ export function apply(
           for (const id of ["p1", "p2"] as PlayerId[]) {
             next.players[id].energy = {};
             next.players[id].responseEnergy = {};
+            if (next.players[id].spellsCast) next.players[id].spellsCast = 0;
           }
           next.active = other(next.active);
           next.turn++;
@@ -1807,7 +1993,11 @@ export function projectForPlayer(
     .filter((id): id is string => !!id);
   const hand = viewer ? [...state.players[viewer].hand] : [];
   const pending = state.pending?.player === viewer ? structuredClone(state.pending) : null;
-  if (pending?.kind === "draw" || pending?.kind === "hand-discard")
+  if (
+    pending?.kind === "draw" ||
+    pending?.kind === "hand-discard" ||
+    pending?.kind === "library-pick"
+  )
     publicIds.push(...pending.options);
   const cards = Object.fromEntries(
     [...publicIds, ...hand].map((id) => [id, structuredClone(state.cards[id])]),
@@ -1834,6 +2024,7 @@ export function projectForPlayer(
     outcome: state.outcome,
     outcomeReason: state.outcomeReason,
     responseStep: state.responseStep ?? null,
+    freeCast: state.freeCast ?? null,
     events: state.events
       .filter((e) => e.visibility === "public" || e.visibility === viewer)
       .map((e) => structuredClone(e)),

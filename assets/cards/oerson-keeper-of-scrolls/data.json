@@ -1,0 +1,47 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "oerson-keeper-of-scrolls",
+  "revision": 1,
+  "name": "Oerson, Keeper of Scrolls",
+  "lore": "He has read every scroll in the vault. He will tell you which ones, and for how long, at length.",
+  "deckLimitKey": "oerson-keeper-of-scrolls",
+  "type": "creature",
+  "factions": [
+    "northern-league"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "northern-league": 1
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 4,
+    "energyOutputs": [
+      {
+        "northern-league": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "draw",
+      "params": {
+        "amount": 1
+      }
+    },
+    {
+      "id": "prowess",
+      "params": {
+        "attack": 1
+      }
+    }
+  ],
+  "set": "foundations"
+}

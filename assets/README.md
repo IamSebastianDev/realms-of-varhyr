@@ -16,8 +16,8 @@ Author one file per set at `assets/sets/<set-id>.json`, with a matching stable `
   "description": "The first age of Varhyr.",
   "color": "#d4bd85",
   "symbol": "⟐",
-  "factions": ["crownlands", "winter-league", "neutral"],
-  "introduces": ["crownlands", "winter-league"],
+  "factions": ["crownlands", "northern-league", "neutral"],
+  "introduces": ["crownlands", "northern-league"],
   "pack": {
     "id": "foundations",
     "name": "RoV: Foundations",
@@ -342,14 +342,14 @@ Leaders are normal legendary creatures with the `leader` subtype, not a separate
 | Faction | Leader / card ID | Role |
 | --- | --- | --- |
 | Crownlands | Alderic / `alderic-warmaster-of-the-empire` | Fealty strengthens every friendly creature, including its source |
-| League of Winter | Morie / `morie-grandmistress-of-winter` | Accord fuels the first spell each turn; Charge hits the lane opposite |
+| Northern League | Morie / `morie-grandmistress-of-winter` | Accord fuels the first spell each turn; Charge hits the lane opposite |
 | Bright Marches | Bosci / `bosci-lord-of-seacliffe` | Rally deploys reinforcements from hand for free; Guard holds the frontier |
 | Mountain Clans | Dwell / `dwell-merchant-of-the-mountains` | Trade adds neutral energy to Clan production |
 | Neutral | The Lonely Wanderer / `the-lonely-wanderer` | Wayfarer returns a friendly creature to hand |
 | Conclave | Ilyria / `ilyria-queen-of-the-elves` | Sanctuary and Guard protect forest approaches |
 | Ember Fields | Hekata / `hekata-lady-of-the-fields` | Scorch burns the deployment lane; Charge strikes the opposite creature |
 | Horde | Brut / `brut-chief-of-the-harpies` | Raid rewards neighboring creatures |
-| Black Host | Dark Priest of Run / `dark-priest-of-run` | Weaken and Soul Harvest turn casualties into cards; Dark Harvest (Black Shaman) trades library cards for Host energy |
+| Black Host | Dark Priest of Run / `the-dark-priest-of-run` | Weaken and Soul Harvest turn casualties into cards; Dark Harvest (Black Shaman) trades library cards for Host energy |
 
 Alderic's original `alderic-warmaster-of-the-empire` ID and deck-limit key are retained for existing collections and the Crown starter. Winter's retired mechanics remain test-only fixtures; do not restore them under `assets/cards/` unless you intend them to rejoin the live catalogue. The three existing neutral Winter-era support cards remain neutral cards.
 
@@ -363,7 +363,7 @@ A card binds a keyword with an explicit entry in `abilities`. Abilities are not 
 | Faction | Ability ID | Example params | Effect |
 | --- | --- | --- | --- |
 | Crownlands | `fealty` | `{}` | All friendly creatures, including self, gain +1 Attack and +1 Defense |
-| League of Winter | `accord` | `{}` | First spell cast during your play phase each turn grants 1 Winter energy; earlier casts count |
+| Northern League | `accord` | `{}` | First spell cast during your play phase each turn grants 1 Northern League energy; earlier casts count |
 | Bright Marches | `marches-rally` | `{}` | Rally: exhaust to deploy a creature or holding from hand into a free position without paying energy; normal entry effects apply |
 | Mountain Clans | `trade` | `{}` | Channeling adds 1 neutral energy; death energy remains the printed output |
 | Conclave | `sanctuary` | `{}` | Adjacent friendly creatures gain +1 Defense, or +2 if they are elves; always continuous |

@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Oerson, Hüter der Schriftrollen",
+  "lore": "Er hat jede Schriftrolle im Gewölbe gelesen. Er wird Ihnen ausführlich sagen, welche, und wie lange."
+}

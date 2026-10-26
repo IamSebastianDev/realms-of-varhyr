@@ -54,6 +54,7 @@ export function cardSchema(factionIds: readonly string[]) {
     ),
     timing: v.optional(v.pipe(v.array(v.picklist(["play", "response"])), v.minLength(1))),
     cast: v.optional(v.array(binding)),
+    modal: v.optional(v.boolean()),
   });
 }
 
@@ -122,6 +123,8 @@ export function compileContent(
       throw new Error(`Holding ${card.id} cannot produce energy`);
     if (card.type === "spell" && (card.stats || !card.cast?.length || !card.timing))
       throw new Error(`Invalid spell: ${card.id}`);
+    if (card.modal && (card.type !== "spell" || (card.cast?.length ?? 0) < 2))
+      throw new Error(`Modal card ${card.id} must be a spell with at least two modes in cast`);
     if (
       card.type === "spell" &&
       (card.subtypes.length > 1 ||

@@ -27,8 +27,18 @@
   flex-direction: column;
   gap: 10px;
   padding: 14px;
-  overflow-y: auto;
+  overflow: hidden;
   min-height: 0;
+}
+/* The decks scroll on their own; the footer buttons stay visible however many decks there are. */
+.deck-list-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  padding-inline-end: 4px;
 }
 .deck-import {
   margin-top: auto;
@@ -399,7 +409,8 @@
   color: #f0b46a !important;
 }
 .deck-list-foot {
-  margin-top: auto;
+  flex: none;
+  margin-top: 0;
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
@@ -413,8 +424,11 @@
   gap: 8px;
   min-height: 44px;
 }
-.deck-list {
+.deck-list,
+.deck-list-scroll {
   gap: 12px;
+}
+.deck-list {
   padding: 16px;
 }
 .deck-strip {

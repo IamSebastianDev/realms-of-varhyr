@@ -57,7 +57,7 @@ export function useMatchActions(
         return;
       }
       send({ type: "activate", cardId: draft.cardId, ability: draft.activation, target });
-    } else if (placesCard(draft.cardId) && draft.slot === undefined) {
+    } else if (placesCard(draft.cardId, draft.mode) && draft.slot === undefined) {
       setPreviewRequest(null);
       setPreview(null);
       setDraft({ ...draft, target });

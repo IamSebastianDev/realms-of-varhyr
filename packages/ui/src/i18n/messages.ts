@@ -20,6 +20,7 @@ export const eventMessages: [RegExp, string][] = [
   [/^(.+) enters exhausted\.$/, "$1 kommt erschöpft ins Spiel."],
   [/^(.+) enters ready\.$/, "$1 kommt bereit ins Spiel."],
   [/^(.+) exhausts\.$/, "$1 erschöpft sich."],
+  [/^(.+) is readied\.$/, "$1 ist wieder bereit."],
   [/^Drew (.+)\.$/, "$1 gezogen."],
   [/^(.+) looks at (.+)'s empty hand\.$/, "$1 sieht sich die leere Hand von $2 an."],
   [/^(.+) looks at (.+)'s hand\.$/, "$1 sieht sich die Hand von $2 an."],

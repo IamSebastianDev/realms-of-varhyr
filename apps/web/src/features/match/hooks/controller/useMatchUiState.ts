@@ -12,9 +12,9 @@ export function useMatchUiState(c: ReturnType<typeof useMatchBasics>) {
   const [viewer, setViewer] = useState<PlayerId>(sessionSnapshot.seat ?? decisionPlayer(state)),
     [covered, setCovered] = useState(false);
   const [selected, setSelected] = useState<string | null>(null),
-    [hovered, setHovered] = useState<string | null>(null),
+    [, setHovered] = useState<string | null>(null),
     [draft, setDraft] = useState<Draft | null>(null),
-    [stage, setStage] = useState<"none" | "consume" | "position" | "target">("none");
+    [stage, setStage] = useState<"none" | "mode" | "consume" | "position" | "target">("none");
   const [attackers, setAttackers] = useState<string[]>([]),
     [lanes, setLanes] = useState<Record<string, number>>({});
   const [mulliganPick, setMulliganPick] = useState<string[]>([]),

@@ -53,10 +53,10 @@ const alignmentPacks: BoosterPack[] = [
     id: packIds.good,
     name: "The Hearth and the Crown",
     blurb:
-      "Five cards from the Bright Marches, the League of Winter and the Crownlands. Legendaries are rare.",
+      "Five cards from the Bright Marches, the Northern League and the Crownlands. Legendaries are rare.",
     color: "#e3c46f",
     icon: "crownlands",
-    factions: ["bright-marches", "winter-league", "crownlands"],
+    factions: ["bright-marches", "northern-league", "crownlands"],
   },
   {
     id: packIds.neutral,

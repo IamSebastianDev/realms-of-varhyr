@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Hafenarbeiter-Konstrukt",
+  "lore": "Es verlangt weder Lohn noch Pause noch einen Namen. Die Hafengilde ist zutiefst beunruhigt."
+}

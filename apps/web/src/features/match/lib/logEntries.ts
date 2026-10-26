@@ -33,6 +33,7 @@ const kinds: Record<string, LogKind> = {
   "holding.destroyed": "death",
   "life.restored": "heal",
   "card.returned": "info",
+  "card.readied": "info",
   "card.discarded": "info",
   "card.bottomed": "info",
   "card.drawn": "draw",

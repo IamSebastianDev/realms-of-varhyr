@@ -1,80 +1,30 @@
-import { afterEach, expect, it, vi } from "vitest";
+import { expect, it } from "vitest";
+
+import { registry } from "@realms/content";
 import {
-  achievements,
-  achievementStatus,
-  claimAchievement,
-  newGoals,
-} from "../src/features/goals/lib/goals";
-import { cardBacks, isBackUnlocked } from "../src/features/card-backs/lib/cardBacks";
+  emptyCollection,
+  ownedCopyCount,
+  ownershipLimit,
+  ownsEveryCard,
+  unlockAllCards,
+} from "../src/features/collection/lib/collection";
 
-afterEach(() => {
-  vi.unstubAllGlobals();
-  vi.resetModules();
+it("unlocks every card up to its copy limit without touching crowns or packs", () => {
+  const start = { ...emptyCollection(), crowns: 7, packs: { good: 2 } };
+  expect(ownsEveryCard(start, registry)).toBe(false);
+  const all = unlockAllCards(start, registry);
+  for (const card of Object.values(registry.cards))
+    expect(ownedCopyCount(all.counts, card.id), card.id).toBe(ownershipLimit(card));
+  expect(all.crowns).toBe(7);
+  expect(all.packs).toEqual({ good: 2 });
+  expect(ownsEveryCard(all, registry)).toBe(true);
+  expect(unlockAllCards(all, registry)).toBe(all);
 });
 
-it("grants sleeves and achievements independently and persists both without changing currency or match progress", async () => {
-  vi.resetModules();
-  const goals = newGoals();
-  goals.totals.wins = 4;
-  goals.claimedTiers.victories = 1;
-  const storage = new Map([
-    ["varhyr-goals-v1", JSON.stringify(goals)],
-    ["varhyr-card-backs-v1", JSON.stringify({ bought: ["retired-sleeve"], favorite: "varhyr" })],
-    ["varhyr-collection-v1", "untouched-collection"],
-  ]);
-  vi.stubGlobal("localStorage", {
-    getItem: (key: string) => storage.get(key) ?? null,
-    setItem: (key: string, value: string) => storage.set(key, value),
-  });
-
-  const { unlockAllSleeves } = await import("../src/features/card-backs/stores/cardBackStore");
-  unlockAllSleeves();
-  expect(storage.get("varhyr-goals-v1")).toBe(JSON.stringify(goals));
-  const backsAfterUnlock = JSON.parse(storage.get("varhyr-card-backs-v1")!);
-  expect(cardBacks.every((back) => isBackUnlocked(back, goals, backsAfterUnlock.bought))).toBe(
-    true,
+it("never lowers a count that is already above the limit", () => {
+  const first = Object.values(registry.cards)[0];
+  const rich = { ...emptyCollection(), counts: { [first.id]: ownershipLimit(first) + 5 } };
+  expect(ownedCopyCount(unlockAllCards(rich, registry).counts, first.id)).toBe(
+    ownershipLimit(first) + 5,
   );
-  const { currentGoals, completeAllAchievements } =
-    await import("../src/features/goals/stores/goalsStore");
-  completeAllAchievements();
-  expect(JSON.parse(storage.get("varhyr-card-backs-v1")!)).toEqual(backsAfterUnlock);
-  const completed = currentGoals(),
-    backs = JSON.parse(storage.get("varhyr-card-backs-v1")!);
-  const external = { collectionPercent: 0, boostersOpened: 0 };
-  for (const def of achievements) {
-    expect(achievementStatus(completed, def, external).done, def.id).toBe(true);
-    expect(claimAchievement(completed, def.id, external)).toBeNull();
-  }
-  expect(cardBacks.every((back) => isBackUnlocked(back, completed, backs.bought))).toBe(true);
-  expect(backs.favorite).toBe("varhyr");
-  expect(backs.bought).toContain("retired-sleeve");
-  expect(completed.totals).toEqual(goals.totals);
-  expect(completed.daily).toEqual(goals.daily);
-  expect(storage.get("varhyr-collection-v1")).toBe("untouched-collection");
-  const once = [...storage];
-  unlockAllSleeves();
-  completeAllAchievements();
-  expect([...storage]).toEqual(once);
-
-  vi.resetModules();
-  const reloaded = await import("../src/features/goals/stores/goalsStore");
-  expect(reloaded.currentGoals().claimedTiers).toEqual(completed.claimedTiers);
-  const sleeves = await import("../src/features/card-backs/stores/cardBackStore");
-  expect(sleeves.resolveCardBack("gilded")).toBe("gilded");
-  expect(sleeves.resolveCardBack("peaks")).toBe("peaks");
-});
-
-it("completes achievements without granting shop sleeves", async () => {
-  vi.resetModules();
-  const storage = new Map<string, string>();
-  vi.stubGlobal("localStorage", {
-    getItem: (key: string) => storage.get(key) ?? null,
-    setItem: (key: string, value: string) => storage.set(key, value),
-  });
-  const { completeAllAchievements } = await import("../src/features/goals/stores/goalsStore");
-  completeAllAchievements();
-  const { resolveCardBack } = await import("../src/features/card-backs/stores/cardBackStore");
-  expect(resolveCardBack("gilded")).toBe("gilded");
-  expect(resolveCardBack("peaks")).toBe("varhyr");
-  expect(storage.has("varhyr-card-backs-v1")).toBe(false);
 });

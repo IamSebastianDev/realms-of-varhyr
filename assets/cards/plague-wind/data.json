@@ -14,9 +14,9 @@
   "legendary": true,
   "rarity": "legendary",
   "cost": {
-    "generic": 3,
+    "generic": 2,
     "factions": {
-      "black-host": 3
+      "black-host": 2
     }
   },
   "abilities": [],

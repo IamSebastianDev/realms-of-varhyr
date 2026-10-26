@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Akademie-Lehrling",
+  "lore": "Drei Jahre Studium, und das Erste, was man ihr anvertraute, war die Lampe."
+}

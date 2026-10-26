@@ -1,0 +1,36 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "search-the-archives",
+  "revision": 1,
+  "name": "Search the Archives",
+  "lore": "The answer is in there. So are nine thousand other answers, and a mild opinion about the question.",
+  "deckLimitKey": "search-the-archives",
+  "type": "spell",
+  "factions": [
+    "northern-league"
+  ],
+  "subtypes": [
+    "divination"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "northern-league": 2
+    }
+  },
+  "abilities": [],
+  "timing": [
+    "play"
+  ],
+  "cast": [
+    {
+      "id": "draw",
+      "params": {
+        "amount": 3
+      }
+    }
+  ],
+  "set": "foundations"
+}

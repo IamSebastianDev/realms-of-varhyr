@@ -1,0 +1,34 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "elven-bear-rider",
+  "revision": 1,
+  "name": "Elven Bear Rider",
+  "deckLimitKey": "elven-bear-rider",
+  "type": "creature",
+  "factions": [
+    "conclave"
+  ],
+  "subtypes": [
+    "elf"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "conclave": 1
+    }
+  },
+  "stats": {
+    "attack": 4,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "conclave": 2
+      }
+    ]
+  },
+  "abilities": [],
+  "lore": "The elf steers. The bear considers it a suggestion.",
+  "set": "foundations"
+}

@@ -30,7 +30,7 @@
   },
   "abilities": [
     {
-      "id": "recall",
+      "id": "bounce",
       "params": {
         "target": [
           "friendly",

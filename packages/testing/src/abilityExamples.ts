@@ -97,14 +97,6 @@ const all: AbilityExtension[] = [
     description: "Draw {amount} from your library.",
     cast: (ctx, p) => ctx.issue({ type: "draw", player: ctx.source.controller, amount: n(p) }),
   }),
-  extension("return", empty, {
-    name: "Return",
-    description: "Return a friendly creature to its owner's hand.",
-    target: "friendly-creature",
-    cast: (ctx) => {
-      if (ctx.target) ctx.issue({ type: "return", target: ctx.target });
-    },
-  }),
   extension("blood-price", amountSchema, {
     name: "Blood Price {amount}",
     description: "When played, lose {amount} life.",

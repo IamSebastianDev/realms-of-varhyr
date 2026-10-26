@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Einlass verweigert",
+  "lore": "Das Wort des Hafenmeisters ist endgültig, und im Bund ist es außerdem sehr laut."
+}

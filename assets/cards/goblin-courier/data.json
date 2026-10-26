@@ -30,7 +30,7 @@
   },
   "abilities": [
     {
-      "id": "forced-march",
+      "id": "quickened",
       "params": {}
     }
   ],

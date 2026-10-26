@@ -47,7 +47,7 @@
           "ember-fields",
           "horde",
           "mountain-clans",
-          "winter-league",
+          "northern-league",
           "neutral"
         ],
         "type": "string"
@@ -115,7 +115,7 @@
               "type": "integer",
               "minimum": 0
             },
-            "winter-league": {
+            "northern-league": {
               "type": "integer",
               "minimum": 0
             }
@@ -186,7 +186,7 @@
                 "type": "integer",
                 "minimum": 0
               },
-              "winter-league": {
+              "northern-league": {
                 "type": "integer",
                 "minimum": 0
               },
@@ -227,6 +227,10 @@
       "minItems": 1,
       "description": "Spell operations resolved in list order."
     },
+    "modal": {
+      "type": "boolean",
+      "description": "Choose one: the caster picks a single entry of cast when playing the spell, so cast needs at least two entries. Without it every entry resolves in list order."
+    },
     "$schema": {
       "type": "string",
       "description": "Editor schema reference; ignored by the game importer.",
@@ -256,7 +260,7 @@
   "definitions": {
     "ability-accord": {
       "type": "object",
-      "description": "After the first spell you cast during your play phase each turn, gain 1 Winter energy.",
+      "description": "After you cast your first spell each turn during your play phase, gain 1 Northern League energy.",
       "properties": {
         "id": {
           "const": "accord"
@@ -277,7 +281,7 @@
     "ability-armor": {
       "type": "object",
       "title": "Armor {amount}",
-      "description": "Reduce each incoming damage hit by {amount}, down to zero.",
+      "description": "Damage dealt to this card is reduced by {amount}.",
       "properties": {
         "id": {
           "const": "armor"
@@ -359,8 +363,7 @@
     },
     "ability-bind": {
       "type": "object",
-      "title": "Bind {amount}",
-      "description": "Friendly {subtype} creatures have +{amount} Defense.",
+      "description": "Other friendly {subtype} creatures get +{amount} Defense.",
       "properties": {
         "id": {
           "const": "bind"
@@ -390,9 +393,94 @@
       ],
       "additionalProperties": false
     },
+    "ability-bolster": {
+      "type": "object",
+      "description": "Each friendly creature gets {?attack|+{attack} Attack|}{?attack&defense| and |}{?defense|+{defense} Defense|} until end of turn.",
+      "properties": {
+        "id": {
+          "const": "bolster"
+        },
+        "params": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "attack": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "defense": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "attack"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "attack": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "defense": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "defense"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-bounce": {
+      "type": "object",
+      "description": "Return target {target} creature to its owner's hand.",
+      "properties": {
+        "id": {
+          "const": "bounce"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "friendly",
+                  "enemy"
+                ],
+                "type": "string"
+              },
+              "minItems": 1,
+              "maxItems": 2
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
     "ability-channel": {
       "type": "object",
-      "description": "Gain {amount} {energy} energy for this casting phase.",
+      "description": "Gain {amount} {energy} energy this casting phase.",
       "properties": {
         "id": {
           "const": "channel"
@@ -415,7 +503,7 @@
                 "ember-fields",
                 "horde",
                 "mountain-clans",
-                "winter-league",
+                "northern-league",
                 "neutral"
               ]
             }
@@ -435,8 +523,7 @@
     },
     "ability-charge": {
       "type": "object",
-      "title": "Charge {amount}",
-      "description": "When played, deal {amount} damage to the enemy creature opposite.",
+      "description": "When played, deal {amount} damage to the opposite enemy creature.",
       "properties": {
         "id": {
           "const": "charge"
@@ -463,8 +550,7 @@
     },
     "ability-consume": {
       "type": "object",
-      "title": "Consume {amount}",
-      "description": "Additional cost: sacrifice one of your creatures that costs at least {amount}.",
+      "description": "Additional cost: sacrifice a friendly creature with an energy cost of {amount} or more.",
       "properties": {
         "id": {
           "const": "consume"
@@ -489,10 +575,30 @@
       ],
       "additionalProperties": false
     },
+    "ability-covert": {
+      "type": "object",
+      "title": "Covert",
+      "description": "This creature can't be blocked. Its attack always hits the opposing player.",
+      "properties": {
+        "id": {
+          "const": "covert"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
     "ability-damage": {
       "type": "object",
-      "title": "Damage {amount}",
-      "description": "Deal {amount} damage to an enemy field card or player.",
+      "description": "Deal {amount} damage to target enemy creature, holding or player.",
       "properties": {
         "id": {
           "const": "damage"
@@ -519,7 +625,7 @@
     },
     "ability-dark-harvest": {
       "type": "object",
-      "description": "Exhaust: put the top card of your library into your discard pile and gain 2 Host energy. Needs two cards in your library.",
+      "description": "Exhaust: put the top card of your library into your discard pile and gain 2 Host energy. Requires at least 2 cards in your library.",
       "properties": {
         "id": {
           "const": "dark-harvest"
@@ -570,10 +676,53 @@
       ],
       "additionalProperties": false
     },
+    "ability-dirge": {
+      "type": "object",
+      "description": "Each friendly creature gets +1 {stat} for each {cards} card in your discard pile.",
+      "properties": {
+        "id": {
+          "const": "dirge"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "cards": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "creature",
+                  "holding",
+                  "spell"
+                ],
+                "type": "string"
+              },
+              "minItems": 1,
+              "maxItems": 3
+            },
+            "stat": {
+              "enum": [
+                "attack",
+                "defense"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "cards",
+            "stat"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
     "ability-draw": {
       "type": "object",
-      "title": "Draw {amount}",
-      "description": "Draw {amount} cards from your library.",
+      "description": "Draw {amount} cards.",
       "properties": {
         "id": {
           "const": "draw"
@@ -600,7 +749,6 @@
     },
     "ability-drillmaster": {
       "type": "object",
-      "title": "Drillmaster {amount}",
       "description": "Adjacent friendly {subtype} creatures get +{amount} Attack.",
       "properties": {
         "id": {
@@ -633,30 +781,10 @@
     },
     "ability-fealty": {
       "type": "object",
-      "description": "All friendly creatures, including this one, have +1 Attack and +1 Defense.",
+      "description": "All friendly creatures, including this one, get +1 Attack and +1 Defense.",
       "properties": {
         "id": {
           "const": "fealty"
-        },
-        "params": {
-          "type": "object",
-          "properties": {},
-          "required": [],
-          "additionalProperties": false
-        }
-      },
-      "required": [
-        "id",
-        "params"
-      ],
-      "additionalProperties": false
-    },
-    "ability-forced-march": {
-      "type": "object",
-      "description": "Enters the battlefield ready: it can attack or channel energy the turn it is played.",
-      "properties": {
-        "id": {
-          "const": "forced-march"
         },
         "params": {
           "type": "object",
@@ -694,7 +822,7 @@
     },
     "ability-heal": {
       "type": "object",
-      "description": "Restore {amount} life to yourself.",
+      "description": "Restore {amount} life.",
       "properties": {
         "id": {
           "const": "heal"
@@ -721,7 +849,7 @@
     },
     "ability-hive": {
       "type": "object",
-      "description": "Whenever a friendly {subtype} dies, search your library for the first {subtype} and put it into your hand.",
+      "description": "Whenever a friendly {subtype} creature dies, {?first|put the topmost {subtype} creature from your library into your hand.|search your library for one {subtype} creature and put it into your hand.}",
       "properties": {
         "id": {
           "const": "hive"
@@ -732,6 +860,9 @@
             "subtype": {
               "type": "string",
               "minLength": 1
+            },
+            "first": {
+              "type": "boolean"
             }
           },
           "required": [
@@ -746,9 +877,47 @@
       ],
       "additionalProperties": false
     },
+    "ability-kindle": {
+      "type": "object",
+      "description": "Whenever you cast {?subtype|a {subtype} spell|a spell}, deal {amount} damage to target enemy creature, holding or player.",
+      "properties": {
+        "id": {
+          "const": "kindle"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "subtype": {
+              "enum": [
+                "strike",
+                "barrage",
+                "tactic",
+                "rite",
+                "curse",
+                "divination"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
     "ability-longshot": {
       "type": "object",
-      "description": "Exhaust: deal {amount} damage to an enemy creature.",
+      "description": "Exhaust: deal {amount} damage to target enemy creature.",
       "properties": {
         "id": {
           "const": "longshot"
@@ -795,7 +964,7 @@
     },
     "ability-muster": {
       "type": "object",
-      "description": "When played, search your library for all copies of {card} and put them into your hand.",
+      "description": "Search your library for all copies of {card} and put them into your hand.",
       "properties": {
         "id": {
           "const": "muster"
@@ -822,7 +991,8 @@
     },
     "ability-outflank": {
       "type": "object",
-      "description": "While on a flank, this creature has +{amount} Attack.",
+      "title": "Outflank {amount}",
+      "description": "While on a flank, this creature gets +{amount} Attack.",
       "properties": {
         "id": {
           "const": "outflank"
@@ -869,7 +1039,7 @@
     },
     "ability-primal": {
       "type": "object",
-      "description": "Exhaust: choose a faction and gain {amount} energy of that faction.",
+      "description": "Exhaust: gain {amount} energy of a faction of your choice.",
       "properties": {
         "id": {
           "const": "primal"
@@ -894,9 +1064,81 @@
       ],
       "additionalProperties": false
     },
+    "ability-prowess": {
+      "type": "object",
+      "description": "This creature gets {?attack|+{attack} Attack|}{?attack&defense| and |}{?defense|+{defense} Defense|} for each spell you cast this turn.",
+      "properties": {
+        "id": {
+          "const": "prowess"
+        },
+        "params": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "attack": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "defense": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "attack"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "attack": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "defense": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "defense"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-quickened": {
+      "type": "object",
+      "title": "Quickened",
+      "description": "Enters ready: it can attack or channel energy the turn it is played.",
+      "properties": {
+        "id": {
+          "const": "quickened"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
     "ability-rage": {
       "type": "object",
-      "title": "Rage {amount}",
       "description": "Target friendly creature gets +{amount} Attack until end of turn.",
       "properties": {
         "id": {
@@ -924,7 +1166,6 @@
     },
     "ability-raid": {
       "type": "object",
-      "title": "Raid",
       "description": "This card has +1 Attack for each adjacent friendly creature.",
       "properties": {
         "id": {
@@ -945,7 +1186,7 @@
     },
     "ability-raise": {
       "type": "object",
-      "description": "Return a {subtype} creature from your discard pile to a free position. It enters ready.",
+      "description": "Return one {subtype} creature from your discard pile to a free position. It enters ready.",
       "properties": {
         "id": {
           "const": "raise"
@@ -972,7 +1213,7 @@
     },
     "ability-ransack": {
       "type": "object",
-      "description": "When played, look at your opponent's hand and choose a card. They discard it.",
+      "description": "Look at your opponent's hand. They discard a card of your choice.",
       "properties": {
         "id": {
           "const": "ransack"
@@ -990,29 +1231,56 @@
       ],
       "additionalProperties": false
     },
-    "ability-recall": {
+    "ability-refresh": {
       "type": "object",
-      "description": "Return target {target} creature to its owner's hand.",
+      "description": "Ready target friendly creature.",
       "properties": {
         "id": {
-          "const": "recall"
+          "const": "refresh"
         },
         "params": {
           "type": "object",
-          "properties": {
-            "target": {
-              "type": "array",
-              "items": {
-                "enum": [
-                  "friendly",
-                  "enemy"
-                ],
-                "type": "string"
-              },
-              "minItems": 1,
-              "maxItems": 2
-            }
-          },
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-refresh-all": {
+      "type": "object",
+      "description": "Ready each friendly creature.",
+      "properties": {
+        "id": {
+          "const": "refresh-all"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ability-reprise": {
+      "type": "object",
+      "description": "When played, cast a spell from your discard pile without paying its cost.",
+      "properties": {
+        "id": {
+          "const": "reprise"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
           "required": [],
           "additionalProperties": false
         }
@@ -1025,7 +1293,6 @@
     },
     "ability-rest": {
       "type": "object",
-      "title": "Rest {amount}",
       "description": "Exhaust: restore {amount} life.",
       "properties": {
         "id": {
@@ -1051,9 +1318,29 @@
       ],
       "additionalProperties": false
     },
+    "ability-return": {
+      "type": "object",
+      "description": "Additional cost: return a friendly creature to its owner's hand.",
+      "properties": {
+        "id": {
+          "const": "return"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "params"
+      ],
+      "additionalProperties": false
+    },
     "ability-sacrifice": {
       "type": "object",
-      "description": "Sacrifice another friendly creature: gain {amount} energy of its type, of each type if it has several.",
+      "description": "Sacrifice another friendly creature: gain {amount} energy of each of its types.",
       "properties": {
         "id": {
           "const": "sacrifice"
@@ -1078,7 +1365,7 @@
     },
     "ability-scorch": {
       "type": "object",
-      "description": "When played, deal {amount} damage to an enemy creature in range (opposite or in a neighbouring lane) or to the enemy player.",
+      "description": "When played, deal {amount} damage to target enemy creature opposite or in an adjacent lane, or to the enemy player.",
       "properties": {
         "id": {
           "const": "scorch"
@@ -1105,7 +1392,7 @@
     },
     "ability-searchForCreatureOrHolding": {
       "type": "object",
-      "description": "When played, search your library for the first creature or holding with an energy cost of {maxCost} or less and put it into your hand.",
+      "description": "{?first|Put the topmost creature or holding with an energy cost of {maxCost} or less from your library into your hand.|Search your library for a creature or holding with an energy cost of {maxCost} or less and put it into your hand.}",
       "properties": {
         "id": {
           "const": "searchForCreatureOrHolding"
@@ -1116,6 +1403,9 @@
             "maxCost": {
               "type": "integer",
               "minimum": 0
+            },
+            "first": {
+              "type": "boolean"
             }
           },
           "required": [
@@ -1132,6 +1422,7 @@
     },
     "ability-shield-wall": {
       "type": "object",
+      "title": "Shield Wall {amount}",
       "description": "Adjacent friendly creatures and holdings get +{amount} Defense.",
       "properties": {
         "id": {
@@ -1148,26 +1439,6 @@
           "required": [
             "amount"
           ],
-          "additionalProperties": false
-        }
-      },
-      "required": [
-        "id",
-        "params"
-      ],
-      "additionalProperties": false
-    },
-    "ability-sneaky": {
-      "type": "object",
-      "description": "Cannot be blocked. Its attack always hits the opposing player.",
-      "properties": {
-        "id": {
-          "const": "sneaky"
-        },
-        "params": {
-          "type": "object",
-          "properties": {},
-          "required": [],
           "additionalProperties": false
         }
       },
@@ -1206,7 +1477,6 @@
     },
     "ability-trade": {
       "type": "object",
-      "title": "Trade",
       "description": "When this creature channels during your play phase, it also produces 1 neutral energy.",
       "properties": {
         "id": {
@@ -1227,7 +1497,7 @@
     },
     "ability-wayfarer": {
       "type": "object",
-      "description": "Exhaust: return a friendly creature (including this one) to its owner’s hand, clearing its damage.",
+      "description": "Exhaust: return a friendly creature, including this one, to its owner’s hand.",
       "properties": {
         "id": {
           "const": "wayfarer"
@@ -1247,7 +1517,7 @@
     },
     "ability-weaken": {
       "type": "object",
-      "description": "The enemy creature or holding opposite has -{amount} Attack.",
+      "description": "The opposite enemy creature or holding gets -{amount} Attack.",
       "properties": {
         "id": {
           "const": "weaken"
@@ -1283,36 +1553,44 @@
             "banner",
             "barrage",
             "bind",
+            "bolster",
+            "bounce",
             "channel",
             "charge",
             "consume",
+            "covert",
             "damage",
             "dark-harvest",
             "destroy",
+            "dirge",
             "draw",
             "drillmaster",
             "fealty",
-            "forced-march",
             "guard",
             "heal",
             "hive",
+            "kindle",
             "longshot",
             "marches-rally",
             "muster",
             "outflank",
             "plague",
             "primal",
+            "prowess",
+            "quickened",
             "rage",
             "raid",
             "raise",
             "ransack",
-            "recall",
+            "refresh",
+            "refresh-all",
+            "reprise",
             "rest",
+            "return",
             "sacrifice",
             "scorch",
             "searchForCreatureOrHolding",
             "shield-wall",
-            "sneaky",
             "steadfast",
             "trade",
             "wayfarer",
@@ -1344,6 +1622,12 @@
           "$ref": "#/definitions/ability-bind"
         },
         {
+          "$ref": "#/definitions/ability-bolster"
+        },
+        {
+          "$ref": "#/definitions/ability-bounce"
+        },
+        {
           "$ref": "#/definitions/ability-channel"
         },
         {
@@ -1351,6 +1635,9 @@
         },
         {
           "$ref": "#/definitions/ability-consume"
+        },
+        {
+          "$ref": "#/definitions/ability-covert"
         },
         {
           "$ref": "#/definitions/ability-damage"
@@ -1362,6 +1649,9 @@
           "$ref": "#/definitions/ability-destroy"
         },
         {
+          "$ref": "#/definitions/ability-dirge"
+        },
+        {
           "$ref": "#/definitions/ability-draw"
         },
         {
@@ -1371,9 +1661,6 @@
           "$ref": "#/definitions/ability-fealty"
         },
         {
-          "$ref": "#/definitions/ability-forced-march"
-        },
-        {
           "$ref": "#/definitions/ability-guard"
         },
         {
@@ -1381,6 +1668,9 @@
         },
         {
           "$ref": "#/definitions/ability-hive"
+        },
+        {
+          "$ref": "#/definitions/ability-kindle"
         },
         {
           "$ref": "#/definitions/ability-longshot"
@@ -1401,6 +1691,12 @@
           "$ref": "#/definitions/ability-primal"
         },
         {
+          "$ref": "#/definitions/ability-prowess"
+        },
+        {
+          "$ref": "#/definitions/ability-quickened"
+        },
+        {
           "$ref": "#/definitions/ability-rage"
         },
         {
@@ -1413,10 +1709,19 @@
           "$ref": "#/definitions/ability-ransack"
         },
         {
-          "$ref": "#/definitions/ability-recall"
+          "$ref": "#/definitions/ability-refresh"
+        },
+        {
+          "$ref": "#/definitions/ability-refresh-all"
+        },
+        {
+          "$ref": "#/definitions/ability-reprise"
         },
         {
           "$ref": "#/definitions/ability-rest"
+        },
+        {
+          "$ref": "#/definitions/ability-return"
         },
         {
           "$ref": "#/definitions/ability-sacrifice"
@@ -1429,9 +1734,6 @@
         },
         {
           "$ref": "#/definitions/ability-shield-wall"
-        },
-        {
-          "$ref": "#/definitions/ability-sneaky"
         },
         {
           "$ref": "#/definitions/ability-steadfast"
@@ -1458,29 +1760,37 @@
             "banner",
             "barrage",
             "bind",
+            "bolster",
+            "bounce",
             "charge",
             "consume",
+            "covert",
             "damage",
             "destroy",
+            "dirge",
             "draw",
             "drillmaster",
             "fealty",
-            "forced-march",
             "guard",
             "heal",
             "hive",
+            "kindle",
             "muster",
             "outflank",
             "plague",
+            "prowess",
+            "quickened",
             "rage",
             "raid",
             "raise",
             "ransack",
-            "recall",
+            "refresh",
+            "refresh-all",
+            "reprise",
+            "return",
             "scorch",
             "searchForCreatureOrHolding",
             "shield-wall",
-            "sneaky",
             "steadfast",
             "trade",
             "weaken"
@@ -1511,16 +1821,28 @@
           "$ref": "#/definitions/ability-bind"
         },
         {
+          "$ref": "#/definitions/ability-bolster"
+        },
+        {
+          "$ref": "#/definitions/ability-bounce"
+        },
+        {
           "$ref": "#/definitions/ability-charge"
         },
         {
           "$ref": "#/definitions/ability-consume"
         },
         {
+          "$ref": "#/definitions/ability-covert"
+        },
+        {
           "$ref": "#/definitions/ability-damage"
         },
         {
           "$ref": "#/definitions/ability-destroy"
+        },
+        {
+          "$ref": "#/definitions/ability-dirge"
         },
         {
           "$ref": "#/definitions/ability-draw"
@@ -1532,9 +1854,6 @@
           "$ref": "#/definitions/ability-fealty"
         },
         {
-          "$ref": "#/definitions/ability-forced-march"
-        },
-        {
           "$ref": "#/definitions/ability-guard"
         },
         {
@@ -1544,6 +1863,9 @@
           "$ref": "#/definitions/ability-hive"
         },
         {
+          "$ref": "#/definitions/ability-kindle"
+        },
+        {
           "$ref": "#/definitions/ability-muster"
         },
         {
@@ -1551,6 +1873,12 @@
         },
         {
           "$ref": "#/definitions/ability-plague"
+        },
+        {
+          "$ref": "#/definitions/ability-prowess"
+        },
+        {
+          "$ref": "#/definitions/ability-quickened"
         },
         {
           "$ref": "#/definitions/ability-rage"
@@ -1565,7 +1893,16 @@
           "$ref": "#/definitions/ability-ransack"
         },
         {
-          "$ref": "#/definitions/ability-recall"
+          "$ref": "#/definitions/ability-refresh"
+        },
+        {
+          "$ref": "#/definitions/ability-refresh-all"
+        },
+        {
+          "$ref": "#/definitions/ability-reprise"
+        },
+        {
+          "$ref": "#/definitions/ability-return"
         },
         {
           "$ref": "#/definitions/ability-scorch"
@@ -1575,9 +1912,6 @@
         },
         {
           "$ref": "#/definitions/ability-shield-wall"
-        },
-        {
-          "$ref": "#/definitions/ability-sneaky"
         },
         {
           "$ref": "#/definitions/ability-steadfast"
@@ -1597,6 +1931,8 @@
           "type": "string",
           "enum": [
             "barrage",
+            "bolster",
+            "bounce",
             "channel",
             "damage",
             "destroy",
@@ -1607,7 +1943,8 @@
             "rage",
             "raise",
             "ransack",
-            "recall",
+            "refresh",
+            "refresh-all",
             "searchForCreatureOrHolding",
             "steadfast"
           ]
@@ -1623,6 +1960,12 @@
       "oneOf": [
         {
           "$ref": "#/definitions/ability-barrage"
+        },
+        {
+          "$ref": "#/definitions/ability-bolster"
+        },
+        {
+          "$ref": "#/definitions/ability-bounce"
         },
         {
           "$ref": "#/definitions/ability-channel"
@@ -1655,7 +1998,10 @@
           "$ref": "#/definitions/ability-ransack"
         },
         {
-          "$ref": "#/definitions/ability-recall"
+          "$ref": "#/definitions/ability-refresh"
+        },
+        {
+          "$ref": "#/definitions/ability-refresh-all"
         },
         {
           "$ref": "#/definitions/ability-searchForCreatureOrHolding"
@@ -1714,7 +2060,8 @@
         ],
         "properties": {
           "cast": false,
-          "timing": false
+          "timing": false,
+          "modal": false
         }
       }
     },

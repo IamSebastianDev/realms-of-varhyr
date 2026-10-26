@@ -138,7 +138,9 @@ export function SlotLabels() {
               {legal && (
                 <span className="drop-label">
                   {legal.consume
-                    ? msg("Consume")
+                    ? view.legal.playable.find((a) => a.cardId === legal.cardId)?.returns
+                      ? msg("Return")
+                      : msg("Consume")
                     : dragDef?.type === "spell"
                       ? legal.target
                         ? msg("Target")

@@ -1,0 +1,44 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "undergrowth-shaman",
+  "revision": 1,
+  "name": "Undergrowth Shaman",
+  "deckLimitKey": "undergrowth-shaman",
+  "type": "creature",
+  "factions": [
+    "conclave"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "conclave": 1
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "conclave": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "dirge",
+      "params": {
+        "cards": [
+          "creature"
+        ],
+        "stat": "attack"
+      }
+    }
+  ],
+  "lore": "The fallen are not gone. They lie among the roots, and they have opinions.",
+  "set": "foundations"
+}

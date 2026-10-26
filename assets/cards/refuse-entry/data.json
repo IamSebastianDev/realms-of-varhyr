@@ -1,0 +1,46 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "refuse-entry",
+  "revision": 1,
+  "name": "Refuse Entry",
+  "lore": "The harbourmaster's word is final, and in the League it is also very loud.",
+  "deckLimitKey": "refuse-entry",
+  "type": "spell",
+  "factions": [
+    "northern-league"
+  ],
+  "subtypes": [
+    "tactic"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "northern-league": 1
+    }
+  },
+  "abilities": [],
+  "timing": [
+    "play",
+    "response"
+  ],
+  "cast": [
+    {
+      "id": "bounce",
+      "params": {
+        "target": [
+          "friendly",
+          "enemy"
+        ]
+      }
+    },
+    {
+      "id": "draw",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "set": "foundations"
+}

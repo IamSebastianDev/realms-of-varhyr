@@ -1,0 +1,42 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "arcane-missile",
+  "revision": 1,
+  "name": "Arcane Missile",
+  "lore": "Magic needs no aim. It needs only a very clear opinion.",
+  "deckLimitKey": "arcane-missile",
+  "type": "spell",
+  "factions": [
+    "northern-league"
+  ],
+  "subtypes": [
+    "strike"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "northern-league": 1
+    }
+  },
+  "abilities": [],
+  "timing": [
+    "play"
+  ],
+  "cast": [
+    {
+      "id": "draw",
+      "params": {
+        "amount": 1
+      }
+    },
+    {
+      "id": "damage",
+      "params": {
+        "amount": 2
+      }
+    }
+  ],
+  "set": "foundations"
+}

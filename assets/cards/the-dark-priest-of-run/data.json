@@ -1,9 +1,9 @@
 {
   "$schema": "../../schemas/card.schema.json",
-  "id": "dark-priest-of-run",
+  "id": "the-dark-priest-of-run",
   "revision": 6,
   "name": "The Dark Priest of Run",
-  "deckLimitKey": "dark-priest-of-run",
+  "deckLimitKey": "the-dark-priest-of-run",
   "type": "creature",
   "factions": [
     "black-host"

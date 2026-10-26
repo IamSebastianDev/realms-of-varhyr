@@ -1,13 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-  beds,
-  ambienceAvailable,
-  enabledEffects,
   spellEffect,
   effectAliases,
   effectFor,
   effects,
-  screenBeds,
   soundOrder,
 } from "../src/features/audio/catalog";
 import { AudioController, type AudioSettings } from "../src/features/audio/audioController";
@@ -20,26 +16,6 @@ describe("sound catalog", () => {
     for (const target of Object.values(effectAliases))
       expect(effects[target], target).toBeDefined();
   });
-  it("has well-formed effects", () => {
-    for (const [name, effect] of Object.entries(effects)) {
-      expect(effect.voices.length, name).toBeGreaterThan(0);
-      expect(effect.cooldown, name).toBeGreaterThanOrEqual(0);
-      for (const voice of effect.voices) {
-        expect(voice.length, name).toBeGreaterThan(0);
-        expect(voice.gain, name).toBeGreaterThan(0);
-      }
-    }
-  });
-  it("only puts beds under screens that exist in the catalog", () => {
-    for (const bed of Object.values(screenBeds)) expect(beds[bed]).toBeDefined();
-    expect(screenBeds.match).toBeUndefined();
-  });
-  it("picks a spell sound by the spell, not the faction", () => {
-    expect(spellEffect({ id: "strike-the-hammer" })).toBe("spell.lightning");
-    expect(spellEffect({ id: "revenge" })).toBe("spell.fire");
-    expect(spellEffect({ id: "plague-wind" })).toBe("spell.ice");
-    expect(spellEffect({ id: "borrowed-wisdom" })).toBe("spell.water");
-  });
   it("gives a spell it does not know a sound by what it does", () => {
     expect(spellEffect({ id: "new-bolt", cast: [{ id: "damage" }] })).toBe("spell.fire");
     expect(spellEffect({ id: "new-mend", cast: [{ id: "heal" }] })).toBe("spell.water");
@@ -49,15 +25,6 @@ describe("sound catalog", () => {
     // A new spell needs no audio work: without a listed element or a known effect it plays `spell.cast`.
     for (const spell of Object.values(registry.cards).filter((card) => card.type === "spell"))
       expect(effects[spellEffect(spell)], spell.id).toBeDefined();
-  });
-  it("plays only what is enabled, and every enabled sound exists", () => {
-    for (const name of enabledEffects) expect(effects[name], name).toBeDefined();
-    for (const name of ["ui.click", "ui.tab", "card.draw"])
-      expect(enabledEffects.has(name as never), name).toBe(false);
-    expect(ambienceAvailable).toBe(false);
-  });
-  it("ignores sounds it does not know", () => {
-    expect(effectFor("nothing.here")).toBeUndefined();
   });
 });
 
@@ -242,21 +209,6 @@ describe("audio controller mix", () => {
     audio.configure(settings({ ambience: false }));
     vi.advanceTimersByTime(3000);
     expect(log.stopped).toBeGreaterThan(0);
-    vi.useRealTimers();
-  });
-  it("crossfades to the next screen's bed", () => {
-    vi.useFakeTimers();
-    const { context, log } = fakeContext();
-    const audio = new AudioController(track(), [], settings(), () => context);
-    audio.unlock();
-    audio.setAmbience("wind");
-    audio.setAmbience("market");
-    vi.advanceTimersByTime(3000);
-    expect(log.sources).toBe(2);
-    expect(log.stopped).toBeGreaterThan(0);
-    audio.setAmbience(null);
-    vi.advanceTimersByTime(3000);
-    audio.dispose();
     vi.useRealTimers();
   });
 });

@@ -38,10 +38,6 @@ const condition = (type: string): JsonSchema => ({
   properties: { type: { const: type } },
   required: ["type"],
 });
-const bindingContains = (field: string, id: string): JsonSchema => ({
-  properties: { [field]: { contains: { properties: { id: { const: id } }, required: ["id"] } } },
-  required: [field],
-});
 
 /** Enum lists come from source metadata; parameter schemas come from the runtime ability definitions. */
 export function buildCardJsonSchema(
@@ -125,7 +121,8 @@ export function buildCardJsonSchema(
     const ability = abilities[id],
       params = toJsonSchema(abilityParameterSchema(ability), config);
     delete params.$schema;
-    params.additionalProperties = false;
+    // An either-or list of parameter sets (anyOf) closes each branch itself; closing the wrapper would reject every set.
+    if (!params.anyOf) params.additionalProperties = false;
     const energy = (params.properties as Record<string, JsonSchema> | undefined)?.energy;
     if (energy) energy.enum = [...named, "neutral"];
     definitions[`ability-${id}`] = {
@@ -159,6 +156,11 @@ export function buildCardJsonSchema(
     minItems: 1,
     description: "Spell operations resolved in list order.",
   };
+  properties.modal = {
+    type: "boolean",
+    description:
+      "Choose one: the caster picks a single entry of cast when playing the spell, so cast needs at least two entries. Without it every entry resolves in list order.",
+  };
   (properties.timing as JsonSchema).uniqueItems = true;
 
   schema.allOf = [
@@ -178,7 +180,7 @@ export function buildCardJsonSchema(
           },
         },
       },
-      else: { required: ["stats"], properties: { cast: false, timing: false } },
+      else: { required: ["stats"], properties: { cast: false, timing: false, modal: false } },
     },
     {
       if: condition("holding"),

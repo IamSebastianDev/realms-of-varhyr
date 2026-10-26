@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Lagerhaus",
+  "lore": "Jedes Fass wird zweimal gezählt. Der Bund vertraut seinen Gezeiten, nicht seinen Nachbarn."
+}

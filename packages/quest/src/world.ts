@@ -278,7 +278,7 @@ const bossNames: Record<string, string[]> = {
   conclave: ["The Veiled Archivist", "Warden of the Sealed Library", "The Hollow Magister"],
   horde: ["The Red Khan", "Breaker of Gates", "The Skull-Chanter"],
   "ember-fields": ["The Cinder Queen", "Warden of the Burning Fields", "The Ash-Lord"],
-  "winter-league": ["The Frost Syndic", "Warden of the Ice Ledger", "The Pale Admiral"],
+  "northern-league": ["The Frost Syndic", "Warden of the Ice Ledger", "The Pale Admiral"],
   neutral: ["The Wandering Tyrant", "The Hermit of the Wastes", "The Unclaimed King"],
 };
 /** A boss belongs to whoever owns the ground; the name is fixed by the seed and the place. */

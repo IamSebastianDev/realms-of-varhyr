@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Rimholdter Kanalisierer",
+  "lore": "In Rimholdt erledigt die Flut die Arbeit. Sie muss nur höflich darum bitten."
+}

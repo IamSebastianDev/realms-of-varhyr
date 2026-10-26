@@ -6,7 +6,28 @@ import type {
   Registry,
 } from "@realms/contracts";
 
-export type PlayDraft = { cardId: string; slot?: number; consume?: string; target?: string };
+export type PlayDraft = {
+  cardId: string;
+  slot?: number;
+  consume?: string;
+  target?: string;
+  /** The chosen mode of a modal spell. */ mode?: number;
+};
+/** The legal options of a play, narrowed to the chosen mode for a modal spell. */
+export function modeLegal(
+  legal: LegalActions["playable"][number],
+  mode: number | undefined,
+): LegalActions["playable"][number] {
+  const chosen = mode === undefined ? undefined : legal.modes?.find((m) => m.mode === mode);
+  return chosen
+    ? {
+        ...legal,
+        targets: chosen.targets,
+        requiresTarget: chosen.requiresTarget,
+        slots: chosen.slots,
+      }
+    : legal;
+}
 export type DropZone = { player: PlayerId; slot?: number; area?: "battlefield" | "player" };
 export type DropPlay = PlayDraft & { target?: string };
 
@@ -59,7 +80,10 @@ export function nextPlayStage(
   legal: LegalActions["playable"][number],
   draft: PlayDraft,
   placement = false,
-): "consume" | "position" | "target" | "none" {
+): "mode" | "consume" | "position" | "target" | "none" {
+  // A modal spell asks which effect first; targets and positions depend on it.
+  if (legal.modes && draft.mode === undefined) return "mode";
+  legal = modeLegal(legal, draft.mode);
   if (legal.consumes.length && !draft.consume) return "consume";
   if (card.type !== "spell" && draft.slot === undefined) return "position";
   if (legal.requiresTarget && !draft.target) return "target";
@@ -86,6 +110,8 @@ export function resolveDrop(
         : zone.player
       : view.players[zone.player].board[zone.slot];
   if (definition.type === "spell") {
+    // A modal spell picks its effect after the drop.
+    if (legal.modes) return { cardId };
     if (definition.cast?.some((b) => registry.abilities[b.id].placement)) {
       // Preserve an explicit legal position; otherwise choose the pile target and its position after dropping.
       return zone.player === viewer &&

@@ -1,5 +1,6 @@
 import { compileContent } from "@realms/content/compiler";
 import { abilities } from "@realms/extensions";
+import { describeAbility } from "@realms/extensions/describeAbility";
 import { factions as factionIds } from "@realms/content/factions";
 import schema from "../../../../assets/schemas/card.schema.json";
 
@@ -27,6 +28,8 @@ export type Draft = {
   abilities: Binding[];
   timing: Timing[];
   cast: Binding[];
+  /** Choose one: the caster picks a single entry of `cast`. */
+  modal: boolean;
   lore: string;
   de: { name: string; lore: string };
 };
@@ -61,6 +64,7 @@ export function newDraft(set = "foundations", faction = ""): Draft {
     abilities: [],
     timing: ["play"],
     cast: [],
+    modal: false,
     lore: "",
     de: { name: "", lore: "" },
   };
@@ -83,7 +87,7 @@ export function draftFromFiles(folder: string, data: Json, de?: Json): Draft {
     legendary: !!data.legendary,
     factions: [...(data.factions ?? [])].filter((id: string) => id !== "neutral"),
     subtypes: [...(data.subtypes ?? [])],
-    cost: { generic: data.cost?.generic ?? 0, factions: { ...(data.cost?.factions ?? {}) } },
+    cost: { generic: data.cost?.generic ?? 0, factions: { ...data.cost?.factions } },
     attack: data.stats?.attack ?? 0,
     defense: data.stats?.defense ?? 1,
     outputs: (data.stats?.energyOutputs ?? []).map((pool: Record<string, number>) => ({ ...pool })),
@@ -92,6 +96,7 @@ export function draftFromFiles(folder: string, data: Json, de?: Json): Draft {
       t === "death" ? "response" : t,
     ) as Timing[],
     cast: (data.cast ?? []).map((b: Binding) => ({ id: b.id, params: { ...b.params } })),
+    modal: data.modal === true,
     lore: data.lore ?? "",
     de: { name: de?.name ?? "", lore: de?.lore ?? "" },
   };
@@ -135,6 +140,7 @@ export function serialize(draft: Draft): { data: Json; de: Json | null } {
   if (!field) {
     data.timing = draft.timing;
     data.cast = draft.cast;
+    if (draft.modal) data.modal = true;
   }
   if (draft.lore.trim()) data.lore = draft.lore.trim();
   data.set = draft.set;
@@ -169,6 +175,8 @@ export function validate(
   if (!draft.set) errors.push("Choose a set.");
   if (draft.type === "spell" && !draft.cast.length)
     errors.push("A spell needs at least one spell effect.");
+  if (draft.type === "spell" && draft.modal && draft.cast.length < 2)
+    errors.push("A modal spell needs at least two effects to choose from.");
   if (draft.type === "spell" && !draft.timing.length)
     errors.push("Choose when the spell can be played.");
   if (draft.type === "holding" && draft.defense < 1)
@@ -203,21 +211,42 @@ export function validate(
 export type ParamField = {
   key: string;
   /** "multi" is a list of the allowed options, at least one of them. */
-  kind: "number" | "text" | "choice" | "multi";
+  kind: "number" | "text" | "choice" | "multi" | "boolean";
   options?: string[];
   min?: number;
   initial: unknown;
+  /** A number, flag or choice the card may leave out. Flags are set by ticking them; a choice has an "Any" entry that omits it. */
+  optional?: boolean;
+  /** Whether a new binding starts with this field present. */
+  seed: boolean;
 };
 export function paramFields(id: string): ParamField[] {
   const definition = (schema.definitions as Record<string, any>)[`ability-${id}`];
-  const properties: Record<string, any> = definition?.properties?.params?.properties ?? {};
-  return Object.entries(properties).map(([key, spec]) => {
+  const params = definition?.properties?.params ?? {};
+  // "Either this set of parameters or that one" (for example at least one of two bonuses) lists each branch.
+  const branches: any[] = params.anyOf ?? [params];
+  const specs = new Map<string, any>();
+  for (const branch of branches)
+    for (const [key, spec] of Object.entries<any>(branch.properties ?? {}))
+      if (!specs.has(key)) specs.set(key, spec);
+  const needs = (branch: any, key: string) => ((branch.required ?? []) as string[]).includes(key);
+  return [...specs].map(([key, spec]) => {
+    const always = branches.every((branch) => needs(branch, key)),
+      optional =
+        !always &&
+        (spec.type === "boolean" ||
+          spec.type === "integer" ||
+          spec.type === "number" ||
+          !!spec.enum),
+      seed = !optional || (branches.length > 1 && needs(branches[0], key));
     if (spec.enum)
       return {
         key,
         kind: "choice" as const,
         options: spec.enum as string[],
         initial: spec.enum[0],
+        optional,
+        seed,
       };
     if (spec.type === "array" && spec.items?.enum)
       return {
@@ -225,15 +254,29 @@ export function paramFields(id: string): ParamField[] {
         kind: "multi" as const,
         options: spec.items.enum as string[],
         initial: [spec.items.enum[0]],
+        seed,
       };
+    if (spec.type === "boolean")
+      return { key, kind: "boolean" as const, initial: true, optional, seed };
     if (spec.type === "integer" || spec.type === "number")
-      return { key, kind: "number" as const, min: spec.minimum, initial: spec.minimum ?? 1 };
-    return { key, kind: "text" as const, initial: "" };
+      return {
+        key,
+        kind: "number" as const,
+        min: spec.minimum,
+        initial: spec.minimum ?? 1,
+        optional,
+        seed,
+      };
+    return { key, kind: "text" as const, initial: "", seed };
   });
 }
 export const newBinding = (id: string): Binding => ({
   id,
-  params: Object.fromEntries(paramFields(id).map((field) => [field.key, field.initial])),
+  params: Object.fromEntries(
+    paramFields(id)
+      .filter((field) => field.seed)
+      .map((field) => [field.key, field.initial]),
+  ),
 });
 
 /** Abilities a card of this kind may carry: field abilities, or spell effects. */
@@ -259,8 +302,131 @@ export function allowedAbilities(draft: Draft, slot: "field" | "cast" | "cost"):
     .map((ability) => ability.id)
     .sort();
 }
-export const abilityLabel = (id: string) =>
-  (abilities[id]?.name ?? id).replace(/\s*\{[^}]+\}/g, "");
+/** The keyword name, or the ID read as words ("searchForCreatureOrHolding" is "Search for creature or holding"). */
+export const abilityLabel = (id: string) => {
+  const name = abilities[id]?.name;
+  if (name) return name.replace(/\s*\{[^}]+\}/g, "");
+  const words = id
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/-/g, " ")
+    .toLowerCase();
+  return words.charAt(0).toUpperCase() + words.slice(1);
+};
+
+/** What an ability does, for browsing. Keywords come first by themselves; a new ability without an entry lands in "Other". */
+const abilityThemes: Record<string, string[]> = {
+  "Damage and removal": [
+    "damage",
+    "barrage",
+    "plague",
+    "destroy",
+    "charge",
+    "scorch",
+    "longshot",
+    "weaken",
+  ],
+  "Bonuses and auras": [
+    "rage",
+    "steadfast",
+    "bolster",
+    "drillmaster",
+    "bind",
+    "fealty",
+    "raid",
+    "dirge",
+    "prowess",
+    "kindle",
+  ],
+  Energy: ["primal", "channel", "sacrifice", "trade", "accord", "consume", "return"],
+  "Cards and library": [
+    "draw",
+    "muster",
+    "searchForCreatureOrHolding",
+    "hive",
+    "ransack",
+    "dark-harvest",
+  ],
+  "Board and life": [
+    "bounce",
+    "reprise",
+    "refresh",
+    "refresh-all",
+    "raise",
+    "wayfarer",
+    "marches-rally",
+    "heal",
+    "rest",
+  ],
+};
+export const keywordGroup = "Keywords";
+export const themeOf = (id: string) =>
+  abilities[id]?.name
+    ? keywordGroup
+    : (Object.entries(abilityThemes).find(([, ids]) => ids.includes(id))?.[0] ?? "Other");
+
+/** The rules text of an ability with its parameters as placeholders (X, a subtype), so the picker shows what it does. */
+export function abilityPreview(id: string, slot: "field" | "cast" | "cost"): string {
+  const ability = abilities[id];
+  if (!ability) return "";
+  const params = Object.fromEntries(
+    paramFields(id).map((field) => [
+      field.key,
+      field.kind === "number"
+        ? "X"
+        : field.kind === "boolean"
+          ? false
+          : field.kind === "choice"
+            ? field.key === "energy"
+              ? "faction"
+              : field.options![0]
+            : field.kind === "multi"
+              ? field.options!.join("/")
+              : field.key,
+    ]),
+  );
+  return describeAbility({ id, params }, ability, slot === "field" ? "field" : undefined)
+    .description;
+}
+/** The rules text of one card's binding, as the card will show it. */
+export function bindingText(binding: Binding, slot: "field" | "cast" | "cost"): string {
+  const ability = abilities[binding.id];
+  if (!ability) return "";
+  try {
+    return describeAbility(
+      { ...binding, params: { ...ability.defaults, ...binding.params } },
+      ability,
+      slot === "field" ? "field" : undefined,
+    ).description;
+  } catch {
+    return abilityPreview(binding.id, slot);
+  }
+}
+
+export type AbilityChoice = { id: string; title: string; text: string; keyword: boolean };
+/** The abilities a slot offers, grouped for browsing: keywords first, then by theme, each group alphabetical. */
+export function abilityChoices(
+  draft: Draft,
+  slot: "field" | "cast" | "cost",
+): { group: string; items: AbilityChoice[] }[] {
+  const groups = new Map<string, AbilityChoice[]>();
+  for (const id of allowedAbilities(draft, slot)) {
+    const group = themeOf(id);
+    const item = {
+      id,
+      title: abilityLabel(id),
+      text: abilityPreview(id, slot),
+      keyword: group === keywordGroup,
+    };
+    groups.set(group, [...(groups.get(group) ?? []), item]);
+  }
+  const order = [keywordGroup, ...Object.keys(abilityThemes), "Other"];
+  return order
+    .filter((group) => groups.has(group))
+    .map((group) => ({
+      group,
+      items: groups.get(group)!.sort((a, b) => a.title.localeCompare(b.title)),
+    }));
+}
 export const energyTypes = [...factionIds, "neutral"];
 
 /** Filters for the card list. An empty string means "any". */

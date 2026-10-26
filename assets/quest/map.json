@@ -1359,7 +1359,7 @@
     {"id":"n46","x":0.90134,"y":0.76726,"kind":"permanent","site":"capital","affiliation":"black-host"},
     {"id":"n47","x":0.86455,"y":0.25738,"kind":"permanent","site":"capital","affiliation":"mountain-clans"},
     {"id":"n48","x":0.31354,"y":0.53965,"kind":"permanent","site":"capital","affiliation":"mountain-clans"},
-    {"id":"n49","x":0.49789,"y":0.2556,"kind":"permanent","site":"capital","affiliation":"winter-league"},
+    {"id":"n49","x":0.49789,"y":0.2556,"kind":"permanent","site":"capital","affiliation":"northern-league"},
     {"id":"n50","x":0.64449,"y":0.40061,"kind":"permanent","site":"capital","affiliation":"neutral"},
     {"id":"n51","x":0.33566,"y":0.72184,"kind":"permanent","site":"ruin","affiliation":"crownlands","name":"Tower of Stars"},
     {"id":"n52","x":0.50022,"y":0.69415,"kind":"permanent","site":"ruin","affiliation":"crownlands"}

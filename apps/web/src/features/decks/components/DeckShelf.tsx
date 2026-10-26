@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import {
   BookOpen,
   Check,
@@ -11,7 +11,7 @@ import {
   TriangleAlert,
   Upload,
 } from "lucide-react";
-import { localizedCard, t as msg, useLanguage } from "@realms/ui/i18n";
+import { t as msg, useLanguage } from "@realms/ui/i18n";
 import { avatarDefinitions, factionInfo, registry } from "@realms/content";
 import { validateDeck } from "@realms/core";
 import { FactionIcon } from "@realms/renderer/FactionIcon";
@@ -144,19 +144,21 @@ export function DeckShelf({
       });
     return [...sorted, ...starters];
   }, [decks, draft, favorites, ownedCopies]);
-  const [chosen, setChosen] = useState<string | null>(entries[0]?.id ?? null);
-  useEffect(() => {
-    if (!entries.some((entry) => entry.id === chosen)) setChosen(entries[0]?.id ?? null);
-  }, [entries, chosen]);
+  const [picked, setChosen] = useState<string | null>(entries[0]?.id ?? null);
+  // A deck that went away falls back to the first one.
+  const chosen = entries.some((entry) => entry.id === picked) ? picked : (entries[0]?.id ?? null);
   const current = entries.find((entry) => entry.id === chosen);
   const [renaming, setRenaming] = useState<string | null>(null),
     [confirming, setConfirming] = useState(false),
     [problem, setProblem] = useState("");
-  useEffect(() => {
+  // Choosing another deck drops any rename, confirmation or message left over from the last one.
+  const [shown, setShown] = useState(chosen);
+  if (shown !== chosen) {
+    setShown(chosen);
     setRenaming(null);
     setConfirming(false);
     setProblem("");
-  }, [chosen]);
+  }
   const commitRename = () => {
     const name = (renaming ?? "").trim();
     if (!current || !name) {
@@ -185,64 +187,67 @@ export function DeckShelf({
     <main className="collection-page deck-shelf" aria-label={msg("Your decks")}>
       <div className="deck-shelf-body">
         <section className="deck-list" aria-label={msg("Your decks")}>
-          <button className="deck-strip deck-strip-new" onClick={create}>
-            <span className="deck-sigil">
-              <Plus size={20} />
-            </span>
-            <strong>{msg("New deck")}</strong>
-          </button>
-          {entries.map((entry) => {
-            const { colour, main, hero } = look(entry.deck),
-              selected = entry.id === chosen,
-              favorite = favorites.includes(entry.id);
-            return (
-              <div key={entry.id} className="deck-row">
-                <button
-                  className={`deck-strip ${selected ? "selected" : ""} ${entry.starter && entry.missing ? "locked" : ""}`}
-                  aria-pressed={selected}
-                  style={
-                    {
-                      "--box": colour,
-                      "--art": hero ? `url("${hero.art}")` : "none",
-                    } as CSSProperties
-                  }
-                  onClick={() => setChosen(entry.id)}
-                  onDoubleClick={() => go(entry)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" && selected) {
-                      event.preventDefault();
-                      go(entry);
-                    }
-                  }}
-                >
-                  <span className="deck-sigil">
-                    <FactionIcon faction={main} />
-                  </span>
-                  <span className="deck-strip-text">
-                    <strong>{entry.deck.name.trim() || msg("Untitled deck")}</strong>
-                    {entry.missing > 0 ? (
-                      <small className="deck-strip-missing">{missingLabel(entry.missing)}</small>
-                    ) : (
-                      <small>
-                        {entry.starter ? msg("Starter deck") : hero ? msg(hero.name) : ""}
-                      </small>
-                    )}
-                  </span>
-                </button>
-                {!entry.starter && !entry.unsaved && (
+          {/* Only the decks scroll; Collection and Import deck stay in view below them. */}
+          <div className="deck-list-scroll">
+            <button className="deck-strip deck-strip-new" onClick={create}>
+              <span className="deck-sigil">
+                <Plus size={20} />
+              </span>
+              <strong>{msg("New deck")}</strong>
+            </button>
+            {entries.map((entry) => {
+              const { colour, main, hero } = look(entry.deck),
+                selected = entry.id === chosen,
+                favorite = favorites.includes(entry.id);
+              return (
+                <div key={entry.id} className="deck-row">
                   <button
-                    className={`deck-star ${favorite ? "on" : ""}`}
-                    aria-pressed={favorite}
-                    aria-label={favorite ? msg("Remove from favorites") : msg("Add to favorites")}
-                    title={favorite ? msg("Remove from favorites") : msg("Add to favorites")}
-                    onClick={() => toggleFavorite(entry.id)}
+                    className={`deck-strip ${selected ? "selected" : ""} ${entry.starter && entry.missing ? "locked" : ""}`}
+                    aria-pressed={selected}
+                    style={
+                      {
+                        "--box": colour,
+                        "--art": hero ? `url("${hero.art}")` : "none",
+                      } as CSSProperties
+                    }
+                    onClick={() => setChosen(entry.id)}
+                    onDoubleClick={() => go(entry)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" && selected) {
+                        event.preventDefault();
+                        go(entry);
+                      }
+                    }}
                   >
-                    <Star size={17} />
+                    <span className="deck-sigil">
+                      <FactionIcon faction={main} />
+                    </span>
+                    <span className="deck-strip-text">
+                      <strong>{entry.deck.name.trim() || msg("Untitled deck")}</strong>
+                      {entry.missing > 0 ? (
+                        <small className="deck-strip-missing">{missingLabel(entry.missing)}</small>
+                      ) : (
+                        <small>
+                          {entry.starter ? msg("Starter deck") : hero ? msg(hero.name) : ""}
+                        </small>
+                      )}
+                    </span>
                   </button>
-                )}
-              </div>
-            );
-          })}
+                  {!entry.starter && !entry.unsaved && (
+                    <button
+                      className={`deck-star ${favorite ? "on" : ""}`}
+                      aria-pressed={favorite}
+                      aria-label={favorite ? msg("Remove from favorites") : msg("Add to favorites")}
+                      title={favorite ? msg("Remove from favorites") : msg("Add to favorites")}
+                      onClick={() => toggleFavorite(entry.id)}
+                    >
+                      <Star size={17} />
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
           <div className="deck-list-foot">
             <button className="outline-button" onClick={openCollection}>
               <BookOpen size={15} />

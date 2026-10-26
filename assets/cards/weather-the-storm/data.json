@@ -1,0 +1,44 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "weather-the-storm",
+  "revision": 1,
+  "name": "Weather the Storm",
+  "lore": "Close the shutters. Count to ten. Read something. It has worked every time.",
+  "deckLimitKey": "weather-the-storm",
+  "type": "spell",
+  "factions": [
+    "northern-league"
+  ],
+  "subtypes": [
+    "tactic"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "northern-league": 1
+    }
+  },
+  "abilities": [],
+  "timing": [
+    "play",
+    "response"
+  ],
+  "cast": [
+    {
+      "id": "draw",
+      "params": {
+        "amount": 1
+      }
+    },
+    {
+      "id": "steadfast",
+      "params": {
+        "amount": 2
+      }
+    }
+  ],
+  "modal": true,
+  "set": "foundations"
+}

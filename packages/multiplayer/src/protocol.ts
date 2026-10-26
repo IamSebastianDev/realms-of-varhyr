@@ -86,6 +86,29 @@ const pending = v.variant("kind", [
     options: v.array(text),
     sourceName: v.string(),
   }),
+  v.object({
+    id: text,
+    player: seat,
+    kind: v.literal("library-pick"),
+    options: v.array(text),
+    sourceName: v.string(),
+  }),
+  v.object({
+    id: text,
+    player: seat,
+    kind: v.literal("damage-target"),
+    options: v.array(text),
+    amount: number,
+    source: text,
+    sourceName: v.string(),
+  }),
+  v.object({
+    id: text,
+    player: seat,
+    kind: v.literal("reprise"),
+    options: v.array(text),
+    sourceName: v.string(),
+  }),
 ]);
 const avatarId = v.optional(v.pipe(v.string(), v.maxLength(64)));
 const player = v.object({
@@ -98,6 +121,7 @@ const player = v.object({
   discard: v.array(text),
   energy: pool,
   responseEnergy: pool,
+  spellsCast: v.optional(number),
   deckCount: zoneCount,
   handCount: zoneCount,
 });
@@ -124,8 +148,19 @@ const legal = v.object({
       slots: v.array(number),
       targets: v.array(text),
       consumes: v.array(text),
+      returns: v.optional(v.boolean()),
       requiresTarget: v.boolean(),
       slotTargets: v.optional(v.record(text, v.array(text))),
+      modes: v.optional(
+        v.array(
+          v.object({
+            mode: number,
+            targets: v.array(text),
+            requiresTarget: v.boolean(),
+            slots: v.array(number),
+          }),
+        ),
+      ),
     }),
   ),
   energy: v.array(v.object({ cardId: text, options: v.array(pool) })),
@@ -166,6 +201,7 @@ const view = v.object({
   outcome: v.nullable(v.picklist(["p1", "p2", "draw"])),
   outcomeReason: v.nullable(v.picklist(["life", "empty-library", "concede"])),
   responseStep: v.optional(v.nullable(seat)),
+  freeCast: v.optional(v.nullable(v.object({ player: seat, cardId: text }))),
   events: v.array(event),
   legal,
 });

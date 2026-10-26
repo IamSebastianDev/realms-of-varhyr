@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Rimholdter Förster",
+  "lore": "Die Schiffe des Bundes sind aus Rimholdter Eiche gebaut. Die Eichen wurden nicht gefragt."
+}

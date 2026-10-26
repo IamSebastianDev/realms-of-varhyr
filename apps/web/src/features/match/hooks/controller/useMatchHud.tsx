@@ -53,6 +53,7 @@ export function useMatchHud(
     rewardId,
     screen,
     selectedActivation,
+    selectedLegal,
     send,
     sessionSnapshot,
     skipEmptyWindows,
@@ -87,6 +88,7 @@ export function useMatchHud(
     connection,
     stage,
     selectedActivation,
+    returns: !!selectedLegal?.returns,
     undoable,
     attackers,
   };
@@ -137,7 +139,7 @@ export function useMatchHud(
     if (!skippable) return;
     const t = setTimeout(() => send({ type: "end" }), 450);
     return () => clearTimeout(t);
-  }, [skippable, windowKey]);
+  }, [skippable, windowKey, send]);
   const phaseAdvance = usePhaseAdvance(
     { enabled: advanceEnabled, phaseKey: advancePhaseKey },
     mainAction,

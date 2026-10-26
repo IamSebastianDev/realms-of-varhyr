@@ -2031,6 +2031,15 @@ body,
   gap: 12px;
   justify-content: center;
 }
+.mode-options {
+  display: grid;
+  gap: 10px;
+  width: min(100%, 480px);
+}
+.mode-option {
+  text-align: start;
+  white-space: normal;
+}
 .pile-picker-card {
   width: 132px;
   cursor: pointer;

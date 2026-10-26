@@ -1,0 +1,67 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "winds-of-the-north",
+  "revision": 1,
+  "name": "Winds of the North",
+  "lore": "Every sailor knows the wind has a price. The League simply wrote it down first.",
+  "deckLimitKey": "winds-of-the-north",
+  "type": "spell",
+  "factions": [
+    "northern-league"
+  ],
+  "subtypes": [
+    "divination"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "northern-league": 2
+    }
+  },
+  "abilities": [
+    {
+      "id": "consume",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "timing": [
+    "play",
+    "response"
+  ],
+  "cast": [
+    {
+      "id": "bolster",
+      "params": {
+        "attack": 2
+      }
+    },
+    {
+      "id": "channel",
+      "params": {
+        "amount": 3,
+        "energy": "northern-league"
+      }
+    },
+    {
+      "id": "draw",
+      "params": {
+        "amount": 3
+      }
+    },
+    {
+      "id": "bounce",
+      "params": {
+        "target": [
+          "friendly",
+          "enemy"
+        ]
+      }
+    }
+  ],
+  "modal": true,
+  "set": "foundations"
+}

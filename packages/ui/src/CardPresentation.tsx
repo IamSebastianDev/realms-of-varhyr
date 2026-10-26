@@ -13,14 +13,27 @@ import { usePreferences } from "./preferences";
 export function cardAbilityDescriptions(card: CardDefinition) {
   // Printed abilities come first and keep their index (creature actions rely on it); spell effects follow.
   // `label` is for buttons: a one-off ability has no name, so its text stands in.
+  const effects = (card.cast ?? []).map((binding) => ({
+    ...localizedAbility(binding, registry.abilities[binding.id]),
+    mode: !!card.modal,
+  }));
   return [
-    ...card.abilities.map((binding) =>
-      localizedAbility(binding, registry.abilities[binding.id], undefined, "field"),
-    ),
-    ...(card.cast ?? []).map((binding) =>
-      localizedAbility(binding, registry.abilities[binding.id]),
-    ),
-  ].map((ability) => ({ ...ability, label: ability.name ?? ability.description }));
+    ...card.abilities.map((binding) => ({
+      ...localizedAbility(binding, registry.abilities[binding.id], undefined, "field"),
+      mode: false,
+    })),
+    // A modal spell reads "Choose one:" followed by one line per mode.
+    ...(card.modal
+      ? [{ name: undefined, description: msg("Choose one:"), mode: false, lead: true }]
+      : []),
+    ...effects,
+  ].map((ability) => ({
+    ...ability,
+    lead: "lead" in ability && !!ability.lead,
+    // A keyword has a name and only reminder text; a one-off ability has rules text and no name.
+    keyword: ability.name !== undefined,
+    label: ability.name ?? ability.description,
+  }));
 }
 export function CardLore({ card, className = "" }: { card: CardDefinition; className?: string }) {
   useLanguage();
@@ -457,7 +470,10 @@ export function CardFacts({
           aria-label={card.type === "spell" ? msg("Spell effects") : msg("Abilities")}
         >
           {abilities.map((ability, index) => (
-            <div className="ability-fact" key={index}>
+            <div
+              className={`ability-fact ${ability.keyword ? "keyword" : "rules"}${ability.mode ? " mode" : ""}${ability.lead ? " lead" : ""}`}
+              key={index}
+            >
               {ability.name && <dt>{ability.name}</dt>}
               <dd>{ability.description}</dd>
             </div>

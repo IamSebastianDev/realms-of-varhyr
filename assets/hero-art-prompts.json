@@ -92,7 +92,7 @@
       "savedArtwork": "assets/cards/brut-chief-of-the-harpies/data.png"
     },
     {
-      "folder": "dark-priest-of-run",
+      "folder": "the-dark-priest-of-run",
       "name": "The Dark Priest of Run",
       "prompt": "Use case: style-transfer. Asset type: spectacular fantasy trading-card illustration for Realms of Varhyr. Transform the supplied hero portrait (Image 3) into a new full-scene painting. Images 1 (Ban Vale Cavalry) and 2 (Borrowed Wisdom) are STYLE REFERENCES ONLY: match their traditional oil-paint illustration, visible confident brush strokes, textured canvas, muted earth pigments, rich atmospheric light, believable medieval materials and strong painterly shapes. Avoid polished digital portrait aesthetics, photorealism, CGI, glossy skin, anime and neon magic. Final composition MUST be vertical 2:3 portrait, ideally 1024x1536, edge-to-edge artwork without any card frame, text, typography, logos or watermark. Hero's recognizable face is in the upper-middle, around 35% of image height, with unobstructed face and enough headroom. Three-quarter or full-body figure has a commanding silhouette, landscape-scale drama and tangible narrative setting. Bottom 20% can carry landscape/robes so game labels don't cover the face. Preserve the hero's core appearance from Image 3 while making the anatomy, clothing and lighting convincingly painterly.\nSubject and scene: A mysterious always-hooded necromancer, his face almost entirely swallowed by deep shadow beneath layered charcoal and muted violet priestly robes. Preserve the general hooded silhouette of the portrait, but do not present a handsome exposed face: he is an unknowable priest. He lifts a bone-and-iron ritual staff in the nave of a ruined cathedral open to a vast cold night sky. A tide of undead soldiers and skeletal banners emerges from crypt arches below him. Faint ghostly silver-lavender souls spiral around the staff like pale candle smoke, feeding the ritual. Monumental gothic stone, burial earth, tattered wool and aged iron; moonlight and dim candles with thick painterly shadows. Ominous, beautiful, spectacular and restrained, no neon-green game effects, no gore.",
       "referenced_image_paths": [
@@ -100,7 +100,7 @@
         "/Volumes/Repositories/lands-of-varhir/assets/cards/borrowed-wisdom/data.png",
         "/Volumes/Repositories/lands-of-varhir/assets/avatars/coraxdigitalart-realistic-human-heroes (405).png"
       ],
-      "savedArtwork": "assets/cards/dark-priest-of-run/data.png"
+      "savedArtwork": "assets/cards/the-dark-priest-of-run/data.png"
     }
   ]
 }

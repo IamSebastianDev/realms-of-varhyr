@@ -31,19 +31,19 @@ Status 2026-10-18. What the expedition needs painted, in the order it pays off. 
 
 Capital and boss for all nine owners (including Neutral), city, village and shrine for the eight factions (Neutral falls back to the generic piece).
 
-| Faction          | Look to carry through                                                   |
-| ---------------- | ----------------------------------------------------------------------- |
-| Crownlands       | Golden stone, pennants, orderly roads, royal blue and gold              |
-| Bright Marches   | Whitewashed timber, hearth light, marsh lanterns, warm and rural        |
-| Ember Fields     | Scorched earth, black stone and glowing seams, ash plumes, orange light |
-| Conclave         | Libraries, green glass, sealed doors, lamplit and cool                  |
-| Mountain Clans   | Cut stone, high passes, heavy timbers, hammers, cold light              |
-| League of Winter | Ice harbours, slate roofs, ledgers and lanterns, pale blue              |
-| Black Host       | Bone-pale stone, purple fog, gravestones, torchlight                    |
-| Horde            | Hide tents, palisades, trophy poles, red dust                           |
-| Neutral          | No owner: wasteland, weathered, unclaimed                               |
+| Faction         | Look to carry through                                                   |
+| --------------- | ----------------------------------------------------------------------- |
+| Crownlands      | Golden stone, pennants, orderly roads, royal blue and gold              |
+| Bright Marches  | Whitewashed timber, hearth light, marsh lanterns, warm and rural        |
+| Ember Fields    | Scorched earth, black stone and glowing seams, ash plumes, orange light |
+| Conclave        | Libraries, green glass, sealed doors, lamplit and cool                  |
+| Mountain Clans  | Cut stone, high passes, heavy timbers, hammers, cold light              |
+| Northern League | Brick harbours, dykes and windmills, grey-blue North Sea light          |
+| Black Host      | Bone-pale stone, purple fog, gravestones, torchlight                    |
+| Horde           | Hide tents, palisades, trophy poles, red dust                           |
+| Neutral         | No owner: wasteland, weathered, unclaimed                               |
 
-Files: `capital-<faction>.webp`, `boss-<faction>.webp`, `city-<faction>.webp`, `village-<faction>.webp`, `shrine-<faction>.webp`, faction ids as in `assets/factions` (`crownlands`, `bright-marches`, `ember-fields`, `conclave`, `mountain-clans`, `winter-league`, `black-host`, `horde`, `neutral`).
+Files: `capital-<faction>.webp`, `boss-<faction>.webp`, `city-<faction>.webp`, `village-<faction>.webp`, `shrine-<faction>.webp`, faction ids as in `assets/factions` (`crownlands`, `bright-marches`, `ember-fields`, `conclave`, `mountain-clans`, `northern-league`, `black-host`, `horde`, `neutral`).
 The Horde only needs boss and capital for now (not playable yet).
 
 ## Priority 3: result pieces (6), for the feedback problem

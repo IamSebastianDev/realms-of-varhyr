@@ -1,0 +1,40 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "league-mediator",
+  "revision": 1,
+  "name": "League Mediator",
+  "lore": "He has settled forty-one disputes between the free cities and the clans. Both sides still insist they won.",
+  "deckLimitKey": "league-mediator",
+  "type": "creature",
+  "factions": [
+    "northern-league",
+    "horde"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 0
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "northern-league": 1
+      },
+      {
+        "horde": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "accord",
+      "params": {}
+    }
+  ],
+  "set": "foundations"
+}

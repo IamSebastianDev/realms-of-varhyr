@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "acolyte-of-the-flames",
+  "revision": 1,
+  "name": "Acolyte of the Flames",
+  "lore": "The League keeps its lighthouses burning all night. He keeps the lighthouse keepers burning too.",
+  "deckLimitKey": "acolyte-of-the-flames",
+  "type": "creature",
+  "factions": [
+    "northern-league"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "northern-league": 1
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "northern-league": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "kindle",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "set": "foundations"
+}

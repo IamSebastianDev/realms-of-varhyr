@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Sturmflut",
+  "lore": "Die Hafenmauer wurde gebaut, um zu halten. Dem Meer hat man es nicht gesagt."
+}

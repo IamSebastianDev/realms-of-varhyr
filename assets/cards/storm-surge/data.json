@@ -1,0 +1,35 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "storm-surge",
+  "revision": 1,
+  "name": "Storm Surge",
+  "lore": "The harbour wall was built to hold. The sea was not told.",
+  "deckLimitKey": "storm-surge",
+  "type": "spell",
+  "factions": [
+    "northern-league"
+  ],
+  "subtypes": [
+    "barrage"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "northern-league": 3
+    }
+  },
+  "abilities": [],
+  "timing": [
+    "play",
+    "response"
+  ],
+  "cast": [
+    {
+      "id": "plague",
+      "params": {}
+    }
+  ],
+  "set": "foundations"
+}

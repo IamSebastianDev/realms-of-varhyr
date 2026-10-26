@@ -1,0 +1,43 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "bronwin-tree-guard",
+  "revision": 1,
+  "name": "Bronwin, Tree Guard",
+  "deckLimitKey": "bronwin-tree-guard",
+  "type": "creature",
+  "factions": [
+    "conclave"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "conclave": 2
+    }
+  },
+  "stats": {
+    "attack": 3,
+    "defense": 4,
+    "energyOutputs": [
+      {
+        "conclave": 3
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "guard",
+      "params": {}
+    },
+    {
+      "id": "wayfarer",
+      "params": {}
+    }
+  ],
+  "lore": "Posted to guard one tree and never told which, she has settled the matter by guarding all of them.",
+  "set": "foundations"
+}

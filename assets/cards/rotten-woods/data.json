@@ -1,0 +1,42 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "rotten-woods",
+  "revision": 1,
+  "name": "Rotten Woods",
+  "deckLimitKey": "rotten-woods",
+  "type": "holding",
+  "factions": [
+    "conclave",
+    "black-host"
+  ],
+  "subtypes": [
+    "landmark"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "conclave": 1,
+      "black-host": 1
+    }
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 3
+  },
+  "abilities": [
+    {
+      "id": "weaken",
+      "params": {
+        "amount": 2
+      }
+    },
+    {
+      "id": "dark-harvest",
+      "params": {}
+    }
+  ],
+  "lore": "Something is wrong with the roots. The Host calls it a gift.",
+  "set": "foundations"
+}

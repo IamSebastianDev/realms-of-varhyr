@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Sturmgeborener Kapitän",
+  "lore": "Im Sturm geboren, traut sie ruhigem Wetter nicht. Es will immer etwas."
+}

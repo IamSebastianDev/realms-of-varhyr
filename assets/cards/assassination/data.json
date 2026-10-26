@@ -8,7 +8,9 @@
   "factions": [
     "ember-fields"
   ],
-  "subtypes": [],
+  "subtypes": [
+    "strike"
+  ],
   "legendary": false,
   "rarity": "common",
   "cost": {

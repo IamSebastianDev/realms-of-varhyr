@@ -43,7 +43,10 @@ export type CardDefinition = {
   abilities: AbilityBinding[];
   stats?: { attack: number; defense: number; energyOutputs: Pool[] };
   timing?: ("play" | "response")[];
+  /** The spell's effects. Resolved in list order, or, when `modal`, only the one the caster chooses. */
   cast?: AbilityBinding[];
+  /** Choose one: the caster picks a single entry of `cast` when playing the spell. */
+  modal?: boolean;
 };
 export type CardInstance = {
   id: string;
@@ -69,6 +72,8 @@ export type Player = {
   discard: string[];
   energy: Pool;
   responseEnergy: Pool;
+  /** Spells this player has cast during the current turn. Absent means none. */
+  spellsCast?: number;
 };
 export type Phase = "draw" | "play" | "attack" | "end";
 export type DeadSnapshot = { card: CardInstance; outputs: Pool[] };
@@ -85,7 +90,22 @@ export type PendingChoice =
       remaining: DeadSnapshot[];
     }
   /** The player sees the opponent's hand (`options` are those card IDs) and picks one; the opponent discards it. */
-  | { id: string; player: PlayerId; kind: "hand-discard"; options: string[]; sourceName: string };
+  | { id: string; player: PlayerId; kind: "hand-discard"; options: string[]; sourceName: string }
+  /** The player picks one of their own library cards (`options`, one per distinct card, cheapest first) to put into their hand. */
+  | { id: string; player: PlayerId; kind: "library-pick"; options: string[]; sourceName: string }
+  /** The player picks what a triggered ability damages: `options` are the enemy cards on the field and the enemy player's id. */
+  | {
+      id: string;
+      player: PlayerId;
+      kind: "damage-target";
+      options: string[];
+      amount: number;
+      /** The card whose ability deals the damage. */
+      source: string;
+      sourceName: string;
+    }
+  /** The player picks a spell in their discard pile to cast for free: the options are card IDs, one per distinct spell that can be cast now. The chosen spell then becomes `freeCast`. */
+  | { id: string; player: PlayerId; kind: "reprise"; options: string[]; sourceName: string };
 /** `lanes` maps each declared attacker to the enemy position it attacks; `blocks` is derived from it automatically. */
 export type Combat = {
   stage: "declare" | "review" | "response";
@@ -126,6 +146,8 @@ export type GameState = {
   events: GameEvent[];
   /** Set while a player may answer fresh deaths with response spells outside combat: the player whose creature died. */
   responseStep?: PlayerId | null;
+  /** A spell the player must now cast from their discard pile without paying its cost. It is the only thing they can do until it is cast. */
+  freeCast?: { player: PlayerId; cardId: string } | null;
   /** Players still waiting for their response step, in turn order, with the creatures that died for them. */
   responseQueue?: { player: PlayerId; dead: DeadSnapshot[] }[];
 };
@@ -137,6 +159,8 @@ export type Command =
       target?: string;
       consume?: string;
       payment?: Pool;
+      /** Index into the spell's `cast` list. Required for a modal spell, not allowed otherwise. */
+      mode?: number;
     }
   | { type: "energy"; cardId: string; option: number }
   | { type: "activate"; cardId: string; ability: number; target?: string; slot?: number }
@@ -159,21 +183,27 @@ export type CommandEnvelope = {
 export type InternalOrder =
   | { type: "damage"; target: string; amount: number; source?: string }
   | { type: "heal"; target: PlayerId; amount: number }
+  /** `player` chooses one enemy creature, holding or the enemy player and `source` deals `amount` damage to it. A choice already pending sends the damage to the enemy player. */
+  | { type: "damage-pick"; player: PlayerId; amount: number; source: string }
   /** Temporary stat bonus on a field creature; cleared when the turn ends. */
   | { type: "boost"; target: string; attack?: number; defense?: number; source?: string }
   | { type: "draw"; player: PlayerId; amount: number }
   /** Moves every copy of a card definition from the player's library to their hand. Finding nothing is allowed. */
   | { type: "search"; player: PlayerId; card: string; source?: string }
-  /** Moves the first creature with the subtype, counted from the top of the library, to the hand. Finding nothing is allowed. */
-  | { type: "search-subtype"; player: PlayerId; subtype: string; source?: string }
-  /** Moves the first creature or holding with a total energy cost of `maxCost` or less, counted from the top of the library, to the hand. Finding nothing is allowed. */
-  | { type: "search-cost"; player: PlayerId; maxCost: number; source?: string }
+  /** Lets the player pick a creature with the subtype from the library for the hand; `first` takes the topmost one instead. Finding nothing is allowed. */
+  | { type: "search-subtype"; player: PlayerId; subtype: string; first?: boolean; source?: string }
+  /** Lets the player pick a creature or holding with a total energy cost of `maxCost` or less from the library for the hand; `first` takes the topmost one instead. Finding nothing is allowed. */
+  | { type: "search-cost"; player: PlayerId; maxCost: number; first?: boolean; source?: string }
   /** Reveals the opponent's hand to `player`, who then chooses one card for the opponent to discard. */
   | { type: "ransack"; player: PlayerId; source?: string }
   /** Puts cards from the top of a library into its owner's discard pile. Never empties the library on its own. */
   | { type: "mill"; player: PlayerId; amount: number }
   | { type: "gain-energy"; player: PlayerId; output: Pool; source?: string }
   | { type: "return"; target: string }
+  /** Readies an exhausted creature on the board. */
+  | { type: "ready"; target: string }
+  /** Lets `player` choose a spell in their discard pile and cast it without paying its cost. */
+  | { type: "reprise"; player: PlayerId; source?: string }
   | {
       type: "deploy";
       target: string;
@@ -187,6 +217,8 @@ export type BeforePayload = {
   exhausted?: boolean;
   consume?: boolean;
   consumeMin?: number;
+  /** With `consume`: the chosen friendly creature returns to its owner's hand instead of being sacrificed. */
+  returns?: boolean;
   amount?: number;
   cost?: Cost;
   output?: Pool;
@@ -203,7 +235,12 @@ export type HookContext = {
 /** Public battlefield information available to continuous abilities in both engine states and player views. */
 export type BattlefieldState = Readonly<{
   cards: Readonly<Record<string, CardInstance>>;
-  players: Readonly<Record<PlayerId, { board: readonly (string | null)[] }>>;
+  players: Readonly<
+    Record<
+      PlayerId,
+      { board: readonly (string | null)[]; discard?: readonly string[]; spellsCast?: number }
+    >
+  >;
 }>;
 export type AbilityExtension = {
   id: string;
@@ -283,6 +320,11 @@ export type AbilityExtension = {
     | "friendly-field"
     | "enemy-field";
 };
+/** The cast bindings that resolve when the spell is played: all of them, or for a modal spell only the chosen mode. */
+export function castBindings(def: CardDefinition, mode?: number): AbilityBinding[] {
+  const cast = def.cast ?? [];
+  return def.modal ? (mode !== undefined && cast[mode] ? [cast[mode]] : []) : cast;
+}
 export type Registry = {
   version: string;
   energyTypes: EnergyType[];
@@ -296,11 +338,15 @@ export type LegalActions = {
     slots: number[];
     targets: string[];
     consumes: string[];
+    /** The creature in `consumes` that the player picks goes back to the hand instead of being sacrificed. */
+    returns?: boolean;
     requiresTarget: boolean;
     /** Legal targets by deployment position, when they depend on it (ranged deployment effects). */ slotTargets?: Record<
       string,
       string[]
     >;
+    /** A modal spell: the modes (indexes into `cast`) that can be chosen now, each with its own targets and positions. `targets`, `requiresTarget` and `slots` of the entry itself stay empty until a mode is picked. */
+    modes?: { mode: number; targets: string[]; requiresTarget: boolean; slots: number[] }[];
   }[];
   energy: { cardId: string; options: Pool[] }[];
   activations: {
@@ -336,6 +382,8 @@ export type PlayerView = {
   outcome: GameState["outcome"];
   outcomeReason: GameState["outcomeReason"];
   responseStep?: PlayerId | null;
+  /** A spell the player must now cast from their discard pile without paying its cost. It is the only thing they can do until it is cast. */
+  freeCast?: { player: PlayerId; cardId: string } | null;
   events: GameEvent[];
   legal: LegalActions;
 };

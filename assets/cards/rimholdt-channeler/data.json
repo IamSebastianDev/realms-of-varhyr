@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "rimholdt-channeler",
+  "revision": 1,
+  "name": "Rimholdt Channeler",
+  "lore": "In Rimholdt the tide does the work. She only has to ask politely.",
+  "deckLimitKey": "rimholdt-channeler",
+  "type": "creature",
+  "factions": [
+    "northern-league"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "northern-league": 1
+    }
+  },
+  "stats": {
+    "attack": 1,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "northern-league": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "accord",
+      "params": {}
+    }
+  ],
+  "set": "foundations"
+}

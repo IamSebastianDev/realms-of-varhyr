@@ -1,5 +1,5 @@
 import { useLayoutEffect, useState, type CSSProperties } from "react";
-import { Coins, Crown, Flame, Leaf, Shield, Snowflake, Sparkles, Swords, Wind } from "lucide-react";
+import { Coins, Crown, Flame, Leaf, Shield, Waves, Sparkles, Swords, Wind } from "lucide-react";
 import type { PlayerId } from "@realms/contracts";
 import type { SlotLayout } from "@realms/renderer/Board";
 import type {
@@ -17,7 +17,7 @@ const icons = {
   trade: Coins,
   scorch: Flame,
   sanctuary: Leaf,
-  accord: Snowflake,
+  accord: Waves,
   "soul-harvest": Sparkles,
   wayfarer: Wind,
 };

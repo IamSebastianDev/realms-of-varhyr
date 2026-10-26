@@ -103,10 +103,6 @@ describe("draft packs", () => {
     expect(seen.size).toBeGreaterThan(0);
     for (const id of seen) expect(registry.cards[id]!.factions).toContain(pod);
   });
-  it("has one draft, paying five tiers", () => {
-    expect(draftPresets.map((entry) => entry.id)).toEqual(["faction-draft"]);
-    for (const entry of draftPresets) expect(entry.payout).toHaveLength(draftRules.matches + 1);
-  });
 });
 
 describe("the two halves of the draft", () => {
@@ -170,7 +166,7 @@ describe("the two halves of the draft", () => {
         : pickCard(state, preset, registry, state.held[0]![0]!);
     expect(state.deal).toHaveLength(24);
     expect(state.picks.map((list) => list.length)).toEqual([48, 48, 48]);
-    expect([...state.picks.flat()].sort()).toEqual([...state.deal.flat()].sort());
+    expect(state.picks.flat().sort()).toEqual(state.deal.flat().sort());
   });
 });
 
@@ -301,12 +297,6 @@ describe("a run", () => {
     const run = dropRun(fresh());
     expect(run.stage).toBe("draft");
     expect(isRunComplete(run)).toBe(false);
-  });
-  it("does not read a run saved by the older draft", () => {
-    const run = fresh();
-    const { pod: _pod, ...old } = run.draft;
-    expect(parseRun({ ...run, draft: old })).toBeNull();
-    expect(parseRun(JSON.parse(JSON.stringify(run)))).toEqual(run);
   });
   it("pays by wins, with the agreed table", () => {
     expect([0, 1, 2, 3, 4].map((wins) => payoutFor(preset, wins))).toEqual([

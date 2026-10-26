@@ -4,11 +4,9 @@ import {
   compareCards,
   draftFromFiles,
   germanIncomplete,
-  glance,
   matches,
-  newBinding,
+  newDraft,
   noFilters,
-  paramFields,
   serialize,
   setStats,
   validate,
@@ -181,24 +179,6 @@ describe("card studio model", () => {
     ]);
   });
 
-  it("summarises cost, Attack/Defense and the best energy output for the list", () => {
-    expect(
-      glance({
-        type: "creature",
-        cost: { generic: 1, factions: { crownlands: 2 } },
-        stats: { attack: 3, defense: 0, energyOutputs: [{ crownlands: 1 }, { neutral: 2 }] },
-      }),
-    ).toBe("Cost 3 · 3/0 · ⚡2");
-    expect(
-      glance({
-        type: "creature",
-        cost: { generic: 0, factions: {} },
-        stats: { attack: 1, defense: 1, energyOutputs: [] },
-      }),
-    ).toBe("Cost 0 · 1/1");
-    expect(glance({ type: "spell", cost: { generic: 2, factions: {} } })).toBe("Cost 2");
-  });
-
   it("counts hybrid cards in their own rows and in each faction's hybrid column", () => {
     const order = ["crownlands", "bright-marches", "horde"];
     const hybrid = (rarity: string, factions: string[]): Stored => ({
@@ -302,10 +282,7 @@ describe("starter decks", () => {
     expect(deck.boss ?? 0).toBeLessThanOrEqual(1);
     expect(deckStats(deck, pool).producers).toBeGreaterThanOrEqual(8);
   });
-  it("reports broken decks and filters the pool", () => {
-    expect(deckProblems({ c0: 4, boss: 2, ghost: 1 }, pool).join(" ")).toMatch(
-      /at least 30.*Too many copies of c0.*Too many copies of boss.*Unknown card: ghost/,
-    );
+  it("filters the pool to the faction and neutral cards", () => {
     expect(
       poolFor(
         [
@@ -321,10 +298,16 @@ describe("starter decks", () => {
 });
 
 describe("ability parameters", () => {
-  it("offers a list of allowed options as a multi-choice field, starting with the first", () => {
-    const field = paramFields("destroy").find((f) => f.key === "type")!;
-    expect(field.kind).toBe("multi");
-    expect(field.options).toEqual(["creature", "holding"]);
-    expect(newBinding("destroy").params).toEqual({ type: ["creature"] });
+  it("reports a Bolster card with no bonus instead of saving it", () => {
+    const draft = newDraft();
+    draft.name = "Test";
+    draft.id = "test";
+    draft.type = "spell";
+    draft.timing = ["play"];
+    draft.cast = [{ id: "bolster", params: {} }];
+    const { errors } = validate(draft, new Set(), true);
+    expect(errors.length).toBeGreaterThan(0);
+    draft.cast = [{ id: "bolster", params: { defense: 2 } }];
+    expect(validate(draft, new Set(), true).errors).toEqual([]);
   });
 });

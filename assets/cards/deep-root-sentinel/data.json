@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "deep-root-sentinel",
+  "revision": 1,
+  "name": "Deep Root Sentinel",
+  "deckLimitKey": "deep-root-sentinel",
+  "type": "creature",
+  "factions": [
+    "conclave"
+  ],
+  "subtypes": [
+    "treant"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "conclave": 1
+    }
+  },
+  "stats": {
+    "attack": 3,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "conclave": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "longshot",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "lore": "It does not chase anyone. It waits for them to finish arriving.",
+  "set": "foundations"
+}

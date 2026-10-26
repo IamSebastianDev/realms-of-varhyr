@@ -7,7 +7,7 @@
   "type": "creature",
   "factions": [
     "horde",
-    "winter-league"
+    "northern-league"
   ],
   "subtypes": [
     "orc"
@@ -18,7 +18,7 @@
     "generic": 0,
     "factions": {
       "horde": 1,
-      "winter-league": 1
+      "northern-league": 1
     }
   },
   "stats": {
@@ -29,7 +29,7 @@
         "horde": 1
       },
       {
-        "winter-league": 1
+        "northern-league": 1
       }
     ]
   },

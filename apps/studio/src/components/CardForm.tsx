@@ -1,9 +1,11 @@
-import { useEffect, useId, useState } from "react";
+import { useState } from "react";
 import { factionInfo, setDefinitions } from "@realms/content";
 import { spellSubtypes } from "@realms/contracts";
+import { AbilityPicker } from "./AbilityPicker";
 import {
+  abilityChoices,
   abilityLabel,
-  allowedAbilities,
+  bindingText,
   energyTypes,
   newBinding,
   paramFields,
@@ -24,9 +26,11 @@ const parseList = (text: string) =>
 function Subtypes({ value, onChange }: { value: string[]; onChange: (next: string[]) => void }) {
   const [text, setText] = useState(value.join(", "));
   // Another card was opened (or the list changed from outside): show its subtypes instead.
-  useEffect(() => {
+  const [seen, setSeen] = useState(value);
+  if (seen !== value) {
+    setSeen(value);
     if (parseList(text).join("|") !== value.join("|")) setText(value.join(", "));
-  }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
+  }
   return (
     <input
       value={text}
@@ -120,8 +124,8 @@ function Bindings({
   list: Binding[];
   onChange: (next: Binding[]) => void;
 }) {
-  const options = allowedAbilities(draft, slot),
-    id = useId();
+  // Picking either adds an ability or replaces the one at `index`.
+  const [picking, setPicking] = useState<{ index: number } | "add" | null>(null);
   const set = (index: number, binding: Binding) =>
     onChange(list.map((entry, i) => (i === index ? binding : entry)));
   return (
@@ -129,89 +133,126 @@ function Bindings({
       <legend>{title}</legend>
       {list.map((binding, index) => (
         <div className="binding" key={index}>
-          <select
-            aria-label="Ability"
-            value={binding.id}
-            onChange={(event) => set(index, newBinding(event.target.value))}
-          >
-            {[...new Set([binding.id, ...options])].map((option) => (
-              <option key={option} value={option}>
-                {abilityLabel(option)}
-              </option>
-            ))}
-          </select>
-          {paramFields(binding.id).map((field) => (
-            <div key={field.key} className="param">
-              <span>{field.key}</span>
-              {field.kind === "choice" ? (
-                <select
-                  aria-label={field.key}
-                  value={String(binding.params[field.key] ?? field.initial)}
-                  onChange={(event) =>
-                    set(index, {
-                      ...binding,
-                      params: { ...binding.params, [field.key]: event.target.value },
-                    })
-                  }
-                >
-                  {field.options!.map((option) => (
-                    <option key={option} value={option}>
-                      {label(option)}
-                    </option>
-                  ))}
-                </select>
-              ) : field.kind === "multi" ? (
-                <span role="group" aria-label={field.key}>
-                  {field.options!.map((option) => {
-                    const chosen = (binding.params[field.key] ?? field.initial) as string[],
-                      on = chosen.includes(option);
-                    return (
-                      <label key={option}>
-                        <input
-                          type="checkbox"
-                          checked={on}
-                          // At least one option stays chosen: an empty list is not a valid card.
-                          disabled={on && chosen.length === 1}
-                          onChange={() =>
-                            set(index, {
-                              ...binding,
-                              params: {
-                                ...binding.params,
-                                [field.key]: field.options!.filter((o) =>
-                                  o === option ? !on : chosen.includes(o),
-                                ),
-                              },
-                            })
-                          }
-                        />
-                        {label(option)}
-                      </label>
-                    );
-                  })}
-                </span>
-              ) : field.kind === "number" ? (
-                <Num
-                  name={field.key}
-                  min={field.min ?? 0}
-                  value={Number(binding.params[field.key] ?? field.initial)}
-                  onChange={(n) =>
-                    set(index, { ...binding, params: { ...binding.params, [field.key]: n } })
-                  }
-                />
-              ) : (
-                <input
-                  aria-label={field.key}
-                  value={String(binding.params[field.key] ?? "")}
-                  onChange={(event) =>
-                    set(index, {
-                      ...binding,
-                      params: { ...binding.params, [field.key]: event.target.value },
-                    })
-                  }
-                />
-              )}
+          <div className="binding-head">
+            <div>
+              <strong>{abilityLabel(binding.id)}</strong>
+              <p>{bindingText(binding, slot)}</p>
             </div>
-          ))}
+            <button
+              type="button"
+              className="quiet"
+              aria-label={`Change ${abilityLabel(binding.id)}`}
+              onClick={() => setPicking({ index })}
+            >
+              Change
+            </button>
+          </div>
+          {paramFields(binding.id).map((field) => {
+            const present = binding.params[field.key] !== undefined;
+            const toggle = (on: boolean) => {
+              const { [field.key]: _removed, ...rest } = binding.params;
+              set(index, {
+                ...binding,
+                params: on ? { ...rest, [field.key]: field.initial } : rest,
+              });
+            };
+            return (
+              <div key={field.key} className="param">
+                <span className="param-label">
+                  {field.key}
+                  {field.optional && field.kind === "number" && (
+                    <input
+                      type="checkbox"
+                      aria-label={`Use ${field.key}`}
+                      checked={present}
+                      onChange={(event) => toggle(event.target.checked)}
+                    />
+                  )}
+                </span>
+                {field.kind === "boolean" ? (
+                  <input
+                    type="checkbox"
+                    aria-label={field.key}
+                    checked={binding.params[field.key] === true}
+                    onChange={(event) => toggle(event.target.checked)}
+                  />
+                ) : field.optional && field.kind === "number" && !present ? null : field.kind ===
+                  "choice" ? (
+                  <select
+                    aria-label={field.key}
+                    value={String(
+                      binding.params[field.key] ?? (field.optional ? "" : field.initial),
+                    )}
+                    onChange={(event) => {
+                      const { [field.key]: _left, ...rest } = binding.params;
+                      set(index, {
+                        ...binding,
+                        params: event.target.value
+                          ? { ...rest, [field.key]: event.target.value }
+                          : rest,
+                      });
+                    }}
+                  >
+                    {field.optional && <option value="">Any</option>}
+                    {field.options!.map((option) => (
+                      <option key={option} value={option}>
+                        {label(option)}
+                      </option>
+                    ))}
+                  </select>
+                ) : field.kind === "multi" ? (
+                  <span role="group" aria-label={field.key}>
+                    {field.options!.map((option) => {
+                      const chosen = (binding.params[field.key] ?? field.initial) as string[],
+                        on = chosen.includes(option);
+                      return (
+                        <label key={option}>
+                          <input
+                            type="checkbox"
+                            checked={on}
+                            // At least one option stays chosen: an empty list is not a valid card.
+                            disabled={on && chosen.length === 1}
+                            onChange={() =>
+                              set(index, {
+                                ...binding,
+                                params: {
+                                  ...binding.params,
+                                  [field.key]: field.options!.filter((o) =>
+                                    o === option ? !on : chosen.includes(o),
+                                  ),
+                                },
+                              })
+                            }
+                          />
+                          {label(option)}
+                        </label>
+                      );
+                    })}
+                  </span>
+                ) : field.kind === "number" ? (
+                  <Num
+                    name={field.key}
+                    min={field.min ?? 0}
+                    value={Number(binding.params[field.key] ?? field.initial)}
+                    onChange={(n) =>
+                      set(index, { ...binding, params: { ...binding.params, [field.key]: n } })
+                    }
+                  />
+                ) : (
+                  <input
+                    aria-label={field.key}
+                    value={String(binding.params[field.key] ?? "")}
+                    onChange={(event) =>
+                      set(index, {
+                        ...binding,
+                        params: { ...binding.params, [field.key]: event.target.value },
+                      })
+                    }
+                  />
+                )}
+              </div>
+            );
+          })}
           <button
             type="button"
             className="quiet"
@@ -222,21 +263,27 @@ function Bindings({
           </button>
         </div>
       ))}
-      <select
-        id={id}
+      <button
+        type="button"
+        className="add-ability"
         aria-label={`Add to ${title}`}
-        value=""
-        onChange={(event) =>
-          event.target.value && onChange([...list, newBinding(event.target.value)])
-        }
+        onClick={() => setPicking("add")}
       >
-        <option value="">Add…</option>
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {abilityLabel(option)}
-          </option>
-        ))}
-      </select>
+        Add…
+      </button>
+      {picking && (
+        <AbilityPicker
+          title={picking === "add" ? `Add to ${title}` : `Change ${title}`}
+          groups={abilityChoices(draft, slot)}
+          current={picking === "add" ? undefined : list[picking.index]?.id}
+          onClose={() => setPicking(null)}
+          onPick={(pick) => {
+            if (picking === "add") onChange([...list, newBinding(pick)]);
+            else set(picking.index, newBinding(pick));
+            setPicking(null);
+          }}
+        />
+      )}
     </fieldset>
   );
 }
@@ -505,8 +552,16 @@ export function CardForm({
               ))}
             </div>
           </fieldset>
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={draft.modal}
+              onChange={(e) => patch({ modal: e.target.checked })}
+            />
+            Choose one: the caster picks a single effect when playing the spell
+          </label>
           <Bindings
-            title="Spell effects"
+            title={draft.modal ? "Effects to choose from" : "Spell effects"}
             draft={draft}
             slot="cast"
             list={draft.cast}

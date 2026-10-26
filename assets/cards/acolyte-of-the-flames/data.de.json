@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Akolyth der Flammen",
+  "lore": "Der Bund hält seine Leuchttürme die ganze Nacht am Brennen. Er hält auch die Leuchtturmwärter am Brennen."
+}

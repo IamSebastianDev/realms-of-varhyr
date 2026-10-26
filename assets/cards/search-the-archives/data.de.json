@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Die Archive durchsuchen",
+  "lore": "Die Antwort steht dort drin. Neuntausend andere Antworten auch, und eine milde Meinung zur Frage."
+}

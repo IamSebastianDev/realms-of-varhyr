@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Aris, Archivarin",
+  "lore": "In den Archiven geht nie etwas wirklich verloren. Es ist nur dort abgelegt, wo allein sie es findet."
+}

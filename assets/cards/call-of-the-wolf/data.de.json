@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Ruf des Wolfs",
+  "lore": "Einer aus dem Rudel zahlt dafür. Der Rest trifft lauter ein."
+}

@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Stavnay-Fjord",
+  "lore": "Das Wasser ist tief, die Klippen sind steiler, und jedes Schiff, das hier ankerte, ist pünktlich wieder ausgelaufen."
+}

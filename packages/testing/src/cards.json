@@ -459,8 +459,8 @@
     "timing": ["play", "response"],
     "cast": [
       {
-        "id": "return",
-        "params": {}
+        "id": "bounce",
+        "params": { "target": ["friendly"] }
       }
     ]
   },

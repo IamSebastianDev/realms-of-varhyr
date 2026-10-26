@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Winde des Nordens",
+  "lore": "Jeder Seemann weiß, dass der Wind seinen Preis hat. Der Bund hat ihn nur als Erster aufgeschrieben."
+}

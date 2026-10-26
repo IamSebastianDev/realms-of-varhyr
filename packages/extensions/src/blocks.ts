@@ -69,6 +69,11 @@ export const opponent: Selector = (ctx) => [enemyOf(ctx)];
 /** Every enemy creature on the battlefield. */
 export const enemyCreatures: Selector = (ctx) =>
   ctx.state.players[enemyOf(ctx)].board.filter((id): id is string => !!id && isCreature(ctx, id));
+/** Every friendly creature on the battlefield. */
+export const friendlyCreatures: Selector = (ctx) =>
+  ctx.state.players[ctx.source.controller].board.filter(
+    (id): id is string => !!id && isCreature(ctx, id),
+  );
 /** The enemy creature in the lane opposite this card, if there is one. */
 export const oppositeCreature: Selector = (ctx) => {
   if (ctx.source.slot === null) return [];
@@ -97,6 +102,16 @@ export const damage =
         source: ctx.source.id,
       });
   };
+/** The controller picks one enemy creature, holding or the enemy player, and this card deals the damage to it. */
+export const damageChosenEnemy =
+  (amount: Value<number>): Effect =>
+  (ctx, params) =>
+    ctx.issue({
+      type: "damage-pick",
+      player: ctx.source.controller,
+      amount: read(amount, params),
+      source: ctx.source.id,
+    });
 export const heal =
   (targets: Selector, amount: Value<number>): Effect =>
   (ctx, params) => {
@@ -105,14 +120,20 @@ export const heal =
   };
 /** Until-end-of-turn bonus on creatures. */
 export const boost =
-  (targets: Selector, bonus: { attack?: Value<number>; defense?: Value<number> }): Effect =>
+  (
+    targets: Selector,
+    bonus: { attack?: Value<number | undefined>; defense?: Value<number | undefined> },
+  ): Effect =>
   (ctx, params) => {
+    // A bonus read from a parameter the card leaves out is simply not given.
+    const attack = bonus.attack === undefined ? undefined : read(bonus.attack, params),
+      defense = bonus.defense === undefined ? undefined : read(bonus.defense, params);
     for (const target of targets(ctx, params))
       ctx.issue({
         type: "boost",
         target,
-        ...(bonus.attack !== undefined ? { attack: read(bonus.attack, params) } : {}),
-        ...(bonus.defense !== undefined ? { defense: read(bonus.defense, params) } : {}),
+        ...(attack !== undefined ? { attack } : {}),
+        ...(defense !== undefined ? { defense } : {}),
         source: ctx.source.id,
       });
   };
@@ -120,6 +141,15 @@ export const destroy =
   (targets: Selector): Effect =>
   (ctx, params) => {
     for (const target of targets(ctx, params)) ctx.issue({ type: "destroy", target });
+  };
+/** The controller chooses a spell in their discard pile and casts it without paying its cost. */
+export const repriseSpell = (): Effect => (ctx) =>
+  ctx.issue({ type: "reprise", player: ctx.source.controller, source: ctx.source.id });
+/** Exhausted creatures become ready again. Ready ones are left alone. */
+export const readyCards =
+  (targets: Selector): Effect =>
+  (ctx, params) => {
+    for (const target of targets(ctx, params)) ctx.issue({ type: "ready", target });
   };
 export const returnToHand =
   (targets: Selector): Effect =>
@@ -136,24 +166,26 @@ export const searchLibrary =
       card: read(card, params),
       source: ctx.source.id,
     });
-/** The first creature with the subtype, counted from the top of the library, goes to the hand. */
+/** The player picks a creature with the subtype from the library for the hand; `first` takes the topmost one instead. */
 export const searchLibraryForSubtype =
-  (subtype: Value<string>): Effect =>
+  (subtype: Value<string>, first?: Value<boolean>): Effect =>
   (ctx, params) =>
     ctx.issue({
       type: "search-subtype",
       player: ctx.source.controller,
       subtype: read(subtype, params),
+      first: first === undefined ? false : read(first, params),
       source: ctx.source.id,
     });
-/** The first creature or holding costing at most `maxCost` energy in total, counted from the top of the library, goes to the hand. */
+/** The player picks a creature or holding costing at most `maxCost` energy in total from the library for the hand; `first` takes the topmost one instead. */
 export const searchLibraryByCost =
-  (maxCost: Value<number>): Effect =>
+  (maxCost: Value<number>, first?: Value<boolean>): Effect =>
   (ctx, params) =>
     ctx.issue({
       type: "search-cost",
       player: ctx.source.controller,
       maxCost: read(maxCost, params),
+      first: first === undefined ? false : read(first, params),
       source: ctx.source.id,
     });
 export const ransack = (): Effect => (ctx) =>
@@ -285,6 +317,15 @@ export const diedWithSubtype =
   };
 /** The event was caused by this card's controller. */
 export const byYou: Condition = (ctx) => ctx.event.player === ctx.source.controller;
+/** The spell that was just cast has this subtype. Left out (undefined), any spell qualifies. */
+export const castSpellSubtype =
+  (subtype: Value<string | undefined>): Condition =>
+  (ctx, params) => {
+    const wanted = read(subtype, params);
+    if (!wanted) return true;
+    const id = ctx.event.cardId;
+    return !!id && ctx.registry.cards[ctx.state.cards[id].definitionId].subtypes.includes(wanted);
+  };
 export const duringYourPlayPhase: Condition = (ctx) =>
   ctx.state.phase === "play" && ctx.state.active === ctx.source.controller;
 /** The event is the controller's first of its type since the current turn started. */
@@ -352,6 +393,26 @@ export const adjacentCreatures: StaticAmount = (_params, { source, registry, sta
       ).length
     : 0;
 
+/** How many cards of the given types lie in the discard pile of the card's controller. Zero when the piles are not available. */
+export const cardsInDiscard =
+  (types: Value<readonly string[]>): StaticAmount =>
+  (params, { source, registry, state }) => {
+    const wanted = read(types, params);
+    return (state?.players[source.controller].discard ?? []).filter((id) =>
+      wanted.includes(registry.cards[state!.cards[id].definitionId].type),
+    ).length;
+  };
+/** The parameter's value for every spell its controller has cast this turn. Zero when the count is not available or the parameter is left out. */
+export const perSpellCast =
+  (value: Value<number | undefined>): StaticAmount =>
+  (params, { source, state }) =>
+    (read(value, params) ?? 0) * (state?.players[source.controller].spellsCast ?? 0);
+/** The amount, but only while the ability's `stat` parameter names this stat. */
+export const forStat =
+  (stat: "attack" | "defense", amount: StaticAmount): StaticAmount =>
+  (params, context) =>
+    params.stat === stat ? readStatic(amount, params, context) : 0;
+
 const readStatic = (amount: StaticAmount, params: Params, context: StaticContext) =>
   typeof amount === "function" ? amount(params, context) : amount;
 /** While the condition holds for a (source, target) pair, the target gets the bonus. */
@@ -402,6 +463,12 @@ export const requireSacrifice =
     consume: true,
     consumeMin: Math.max(payload.consumeMin ?? 0, read(minimumCost, params)),
   });
+/** Playing the card also costs returning a creature of yours to its owner's hand. */
+export const requireReturn = (): Replacement => (payload) => ({
+  ...payload,
+  consume: true,
+  returns: true,
+});
 /** Energy being produced includes more of one type. */
 export const addEnergy =
   (type: string, amount: Value<number>): Replacement =>

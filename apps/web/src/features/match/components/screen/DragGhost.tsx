@@ -17,7 +17,9 @@ export function DragGhost() {
                 : msg("Choose a highlighted lane")
               : dropPlay
                 ? dropPlay.consume
-                  ? msg("Release to Consume")
+                  ? view.legal.playable.find((a) => a.cardId === drag.cardId)?.returns
+                    ? msg("Release to return")
+                    : msg("Release to Consume")
                   : dropPlay.target || dragDef.type === "spell"
                     ? needsDropTarget
                       ? msg("Release to choose a target")

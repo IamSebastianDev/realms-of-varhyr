@@ -7,7 +7,7 @@
   "symbol": "⟐",
   "factions": [
     "crownlands",
-    "winter-league",
+    "northern-league",
     "bright-marches",
     "mountain-clans",
     "conclave",
@@ -18,7 +18,7 @@
   ],
   "introduces": [
     "crownlands",
-    "winter-league",
+    "northern-league",
     "bright-marches",
     "mountain-clans",
     "conclave",

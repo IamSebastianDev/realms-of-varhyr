@@ -1,0 +1,49 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "stormborn-captain",
+  "revision": 1,
+  "name": "Stormborn Captain",
+  "lore": "Born in a gale, she has never trusted calm weather. It always wants something.",
+  "deckLimitKey": "stormborn-captain",
+  "type": "creature",
+  "factions": [
+    "northern-league"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "northern-league": 1
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "northern-league": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "refresh",
+      "params": {}
+    },
+    {
+      "id": "prowess",
+      "params": {
+        "attack": 1
+      }
+    },
+    {
+      "id": "trade",
+      "params": {}
+    }
+  ],
+  "set": "foundations"
+}

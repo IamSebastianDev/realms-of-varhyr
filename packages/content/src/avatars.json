@@ -12,7 +12,7 @@
   {
     "id": "morie",
     "name": "Morie",
-    "title": "Grandmistress of the League of Winter",
+    "title": "Grandmistress of the Northern League",
     "lore": "Wise in diplomacy and magic, Morie protects the freedom of the League’s rich cities. For now, that means keeping the empire weak and the Marches at a distance.",
     "accent": "#8fd6e8",
     "art": "/avatars/morie.webp",
@@ -77,13 +77,13 @@
     "source": "coraxdigitalart-realistic-human-heroes (221).png"
   },
   {
-    "id": "dark-priest-of-run",
+    "id": "the-dark-priest-of-run",
     "faction": "black-host",
     "name": "The Dark Priest of Run",
     "title": "Master of the Black Host",
     "lore": "Always hooded, the Dark Priest of Run gathers vast undead hordes. He seeks to plunge the world into darkness and make Varhyr an everlasting crypt.",
     "accent": "#a58abd",
-    "art": "/avatars/dark-priest-of-run.webp",
+    "art": "/avatars/the-dark-priest-of-run.webp",
     "source": "coraxdigitalart-realistic-human-heroes (405).png"
   }
 ]

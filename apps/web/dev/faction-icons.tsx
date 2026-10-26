@@ -5,7 +5,7 @@ import { FactionIcon, GenericEnergyIcon } from "@realms/renderer/FactionIcon";
 import { Energy } from "@realms/ui/CardPresentation";
 const order = [
   "crownlands",
-  "winter-league",
+  "northern-league",
   "bright-marches",
   "mountain-clans",
   "neutral",

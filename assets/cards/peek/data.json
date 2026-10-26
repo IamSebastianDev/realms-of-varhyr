@@ -1,0 +1,36 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "peek",
+  "revision": 1,
+  "name": "Peek",
+  "lore": "One quick look. The library has been charging for it since before the League existed.",
+  "deckLimitKey": "peek",
+  "type": "spell",
+  "factions": [
+    "northern-league"
+  ],
+  "subtypes": [
+    "tactic"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "northern-league": 1
+    }
+  },
+  "abilities": [],
+  "timing": [
+    "play"
+  ],
+  "cast": [
+    {
+      "id": "draw",
+      "params": {
+        "amount": 1
+      }
+    }
+  ],
+  "set": "foundations"
+}

@@ -1,0 +1,34 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "stavnay-fjord",
+  "revision": 1,
+  "name": "Stavnay Fjord",
+  "lore": "The water is deep, the cliffs are steeper, and every ship that has ever anchored here has left on time.",
+  "deckLimitKey": "stavnay-fjord",
+  "type": "holding",
+  "factions": [
+    "northern-league"
+  ],
+  "subtypes": [
+    "landmark"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "northern-league": 2
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 4
+  },
+  "abilities": [
+    {
+      "id": "wayfarer",
+      "params": {}
+    }
+  ],
+  "set": "foundations"
+}

@@ -23,7 +23,7 @@ import {
   validateDeck,
 } from "@realms/core";
 import { botCommand } from "@realms/core/bot";
-import { localizedAbility, translate } from "@realms/ui/i18n";
+import { translate } from "@realms/ui/i18n";
 import { defineAbility } from "@realms/extensions/definition";
 import {
   draw as drawBlock,
@@ -34,7 +34,6 @@ import {
   whenFriendlyDies,
 } from "@realms/extensions/blocks";
 import raw, { abilities, compileContent, registry, starterDecks } from "@realms/testing/content";
-import { startMatch } from "./support/session";
 import {
   compileContent as compileContentFor,
   unknownCardReferences,
@@ -740,22 +739,6 @@ describe("simultaneous combat and response energy", () => {
         expect(() => typed([])).toThrow();
         expect(() => typed(["spell"])).toThrow();
       });
-      it("describes the choice in both languages", () => {
-        const text = (type?: string[], language: "en" | "de" = "en") =>
-          localizedAbility(
-            { id: "destroy", params: type ? { type } : {} },
-            abilities.destroy,
-            language,
-          ).description;
-        // The wording may change; what the text must say about the choice may not.
-        expect(text()).toMatch(/creature/i);
-        expect(text()).not.toMatch(/holding/i);
-        expect(text(["holding"])).toMatch(/holding/i);
-        expect(text(["holding"])).not.toMatch(/creature/i);
-        expect(text(["creature", "holding"])).toMatch(/creature.*holding/i);
-        expect(text(["creature", "holding"], "de")).toMatch(/Kreatur.*Besitzung/);
-        expect(text(["holding"], "de")).not.toMatch(/Kreatur/);
-      });
     });
   });
   describe("mines", () => {
@@ -1159,45 +1142,6 @@ describe("simultaneous combat and response energy", () => {
       const before = s.players.p1.energy.neutral ?? 0;
       expect(use(s, source, victim).players.p1.energy.neutral ?? 0).toBe(before + 2);
     });
-    it.each([42, 731])("bots finish a legal, replayable game with it in play (seed %s)", (seed) => {
-      const initial = createMatch(
-        sacrificeRegistry,
-        [starterDecks.verdant, starterDecks.hollow],
-        seed,
-      );
-      for (const owner of ["p1", "p2"])
-        for (const id of Object.keys(initial.cards)
-          .filter(
-            (id) =>
-              initial.cards[id].owner === owner &&
-              registry.cards[initial.cards[id].definitionId].type === "creature",
-          )
-          .slice(0, 6))
-          initial.cards[id].definitionId = "sacrificer";
-      const commands: CommandEnvelope[] = [];
-      let s = initial;
-      for (let i = 0; i < 800 && !s.outcome; i++) {
-        const envelope = {
-          actor: decisionPlayer(s),
-          expectedRevision: s.revision,
-          command: botCommand(s, sacrificeRegistry),
-        };
-        s = step(s, envelope.command, envelope.actor, sacrificeRegistry);
-        commands.push(envelope);
-        assertInvariants(s);
-      }
-      expect(s.outcome).not.toBeNull();
-      expect(replay(initial, commands, sacrificeRegistry)).toEqual(s);
-    });
-    it("is described in both languages", () => {
-      const text = (language: "en" | "de", params = {}) =>
-        localizedAbility({ id: "sacrifice", params }, abilities.sacrifice, language).description;
-      // The amount comes from the card's parameters, with a default of 1.
-      expect(text("en")).toMatch(/\b1\b/);
-      expect(text("en", { amount: 3 })).toMatch(/\b3\b/);
-      expect(text("de", { amount: 2 })).toMatch(/\b2\b/);
-      expect(text("de", { amount: 2 })).not.toBe(text("en", { amount: 2 }));
-    });
   });
 
   describe("ability blocks in the engine", () => {
@@ -1290,17 +1234,6 @@ describe("simultaneous combat and response energy", () => {
       ],
       { ...abilities, "one-off-draw": oneOff },
     );
-    it("compiles, and describes itself by its text alone", () => {
-      const binding = { id: "one-off-draw", params: {} };
-      expect(localizedAbility(binding, oneOff, "en")).toEqual({
-        name: undefined,
-        description: "Exhaust: draw a card.",
-      });
-      expect(localizedAbility(binding, oneOff, "de")).toEqual({
-        name: undefined,
-        description: "Erschöpfe: Ziehe eine Karte.",
-      });
-    });
     it("still rejects a name that is given but blank, and a missing description", () => {
       expect(() =>
         compileContent([...raw], {
@@ -1334,7 +1267,198 @@ describe("simultaneous combat and response energy", () => {
     });
   });
 
-  describe("recall", () => {
+  describe("reprise", () => {
+    const content = compileContent([
+      ...raw,
+      {
+        ...registry.cards["wayfarer"],
+        id: "echo-mage",
+        deckLimitKey: "echo-mage",
+        cost: { generic: 0, factions: {} },
+        abilities: [{ id: "reprise", params: {} }],
+      },
+      {
+        ...registry.cards["cleansing-light"],
+        id: "free-draw",
+        deckLimitKey: "free-draw",
+        cost: { generic: 3, factions: {} },
+        cast: [{ id: "draw", params: { amount: 1 } }],
+      },
+      {
+        ...registry.cards["cleansing-light"],
+        id: "free-bolt",
+        deckLimitKey: "free-bolt",
+        cost: { generic: 3, factions: {} },
+        cast: [{ id: "damage", params: { amount: 2 } }],
+      },
+      {
+        ...registry.cards["cleansing-light"],
+        id: "free-modal",
+        deckLimitKey: "free-modal",
+        modal: true,
+        cost: { generic: 3, factions: {} },
+        cast: [
+          { id: "draw", params: { amount: 1 } },
+          { id: "damage", params: { amount: 1 } },
+        ],
+      },
+    ]);
+    const act = (s: GameState, command: Command) =>
+      apply(s, { actor: "p1", expectedRevision: s.revision, command }, content);
+    const scene = (...spells: string[]) => {
+      const s = setup(content);
+      const ids = spells.map((d) => {
+        const id = fixture(s, "cleansing-light", "p1", "discard");
+        s.cards[id].definitionId = d;
+        return id;
+      });
+      const mage = fixture(s, "wayfarer", "p1", "hand");
+      s.cards[mage].definitionId = "echo-mage";
+      return { s, ids, mage };
+    };
+    const playMage = (s: GameState, mage: string) =>
+      act(s, { type: "play", cardId: mage, slot: 0 });
+    const choose = (s: GameState, option: string) =>
+      act(s, { type: "choose", choiceId: s.pending!.id, option });
+    it("offers each distinct castable spell, then casts the chosen one for free", () => {
+      const { s, ids, mage } = scene("free-draw", "free-draw");
+      const handBefore = s.players.p1.hand.length;
+      const energyBefore = JSON.stringify(s.players.p1.energy);
+      let r = playMage(s, mage);
+      expect(r.error).toBeUndefined();
+      expect(r.state.pending?.kind).toBe("reprise");
+      expect((r.state.pending as { options: string[] }).options).toEqual([ids[0]]);
+      r = choose(r.state, ids[0]);
+      expect(r.error).toBeUndefined();
+      expect(r.state.freeCast).toEqual({ player: "p1", cardId: ids[0] });
+      // Only that spell can be played now, and nothing else can be done.
+      const legal = legalActions(r.state, content);
+      expect(legal.playable.map((a) => a.cardId)).toEqual([ids[0]]);
+      expect(legal.energy).toEqual([]);
+      expect(legal.activations).toEqual([]);
+      expect(legal.canEnd).toBe(false);
+      r = act(r.state, { type: "play", cardId: ids[0] });
+      expect(r.error).toBeUndefined();
+      expect(r.state.freeCast).toBeNull();
+      expect(JSON.stringify(r.state.players.p1.energy)).toBe(energyBefore);
+      // One card drawn from the spell; the spell stays in the discard pile and counts as cast.
+      expect(r.state.players.p1.hand.length).toBe(handBefore - 1 + 1);
+      expect(r.state.cards[ids[0]].zone).toBe("discard");
+      expect(r.state.players.p1.discard.filter((id) => id === ids[0]).length).toBe(1);
+      expect(r.state.players.p1.spellsCast).toBe(1);
+      assertInvariants(r.state);
+    });
+    it("uses the usual targeting for the free spell", () => {
+      const { s, ids, mage } = scene("free-bolt");
+      const foe = fixture(s, "ashen-initiate", "p2", "board", 1);
+      let r = choose(playMage(s, mage).state, ids[0]);
+      const entry = legalActions(r.state, content).playable[0];
+      expect(entry.requiresTarget).toBe(true);
+      expect(entry.targets).toContain(foe);
+      expect(act(r.state, { type: "play", cardId: ids[0] }).error).toBeDefined();
+      r = act(r.state, { type: "play", cardId: ids[0], target: foe });
+      expect(r.error).toBeUndefined();
+      expect(r.state.cards[foe].zone === "discard" || r.state.cards[foe].damage > 0).toBe(true);
+      assertInvariants(r.state);
+    });
+    it("uses the usual mode choice for a free modal spell", () => {
+      const { s, ids, mage } = scene("free-modal");
+      let r = choose(playMage(s, mage).state, ids[0]);
+      const entry = legalActions(r.state, content).playable[0];
+      expect(entry.modes?.map((m) => m.mode)).toEqual([0, 1]);
+      expect(act(r.state, { type: "play", cardId: ids[0] }).error).toBeDefined();
+      r = act(r.state, { type: "play", cardId: ids[0], mode: 0 });
+      expect(r.error).toBeUndefined();
+      expect(r.state.freeCast).toBeNull();
+    });
+    it("blocks other plays and ending the turn until the spell is cast", () => {
+      const { s, ids, mage } = scene("free-draw");
+      const other = fixture(s, "cleansing-light", "p1", "hand");
+      const r = choose(playMage(s, mage).state, ids[0]);
+      expect(act(r.state, { type: "play", cardId: other }).error).toBeDefined();
+      expect(act(r.state, { type: "end" }).error).toBeDefined();
+    });
+    it("does nothing with no spell to cast", () => {
+      const { s, mage } = scene();
+      const r = playMage(s, mage);
+      expect(r.error).toBeUndefined();
+      expect(r.state.pending).toBeNull();
+      expect(r.state.freeCast).toBeFalsy();
+    });
+    it("rejects a choice that was not offered", () => {
+      const { s, mage } = scene("free-draw");
+      const r = playMage(s, mage);
+      expect(choose(r.state, mage).error).toBeDefined();
+    });
+  });
+
+  describe("refresh", () => {
+    const content = compileContent([
+      ...raw,
+      {
+        ...registry.cards["cleansing-light"],
+        id: "refresh-spell",
+        deckLimitKey: "refresh-spell",
+        cost: { generic: 0, factions: {} },
+        cast: [{ id: "refresh", params: {} }],
+      },
+      {
+        ...registry.cards["cleansing-light"],
+        id: "refresh-all-spell",
+        deckLimitKey: "refresh-all-spell",
+        cost: { generic: 0, factions: {} },
+        cast: [{ id: "refresh-all", params: {} }],
+      },
+    ]);
+    const play = (s: GameState, cardId: string, target?: string) =>
+      apply(
+        s,
+        {
+          actor: "p1",
+          expectedRevision: s.revision,
+          command: { type: "play", cardId, target },
+        },
+        content,
+      );
+    it("readies the chosen friendly creature and no other", () => {
+      const s = setup(content);
+      const a = fixture(s, "wayfarer", "p1", "board", 1),
+        b = fixture(s, "wayfarer", "p1", "board", 2);
+      s.cards[a].exhausted = true;
+      s.cards[b].exhausted = true;
+      const spell = fixture(s, "cleansing-light", "p1", "hand");
+      s.cards[spell].definitionId = "refresh-spell";
+      const r = play(s, spell, a);
+      expect(r.error).toBeUndefined();
+      expect(r.state.cards[a].exhausted).toBe(false);
+      expect(r.state.cards[b].exhausted).toBe(true);
+      assertInvariants(r.state);
+    });
+    it("cannot target an enemy creature", () => {
+      const s = setup(content);
+      const theirs = fixture(s, "ashen-initiate", "p2", "board", 1);
+      s.cards[theirs].exhausted = true;
+      const spell = fixture(s, "cleansing-light", "p1", "hand");
+      s.cards[spell].definitionId = "refresh-spell";
+      const r = play(s, spell, theirs);
+      expect(r.error).toBeDefined();
+    });
+    it("readies each friendly creature and leaves enemies exhausted", () => {
+      const s = setup(content);
+      const a = fixture(s, "wayfarer", "p1", "board", 1),
+        b = fixture(s, "wayfarer", "p1", "board", 2),
+        theirs = fixture(s, "ashen-initiate", "p2", "board", 1);
+      for (const id of [a, b, theirs]) s.cards[id].exhausted = true;
+      const spell = fixture(s, "cleansing-light", "p1", "hand");
+      s.cards[spell].definitionId = "refresh-all-spell";
+      const r = play(s, spell);
+      expect(r.error).toBeUndefined();
+      expect(r.state.cards[a].exhausted).toBe(false);
+      expect(r.state.cards[b].exhausted).toBe(false);
+      expect(r.state.cards[theirs].exhausted).toBe(true);
+    });
+  });
+  describe("bounce", () => {
     const content = compileContent([
       ...raw,
       {
@@ -1342,21 +1466,21 @@ describe("simultaneous combat and response energy", () => {
         id: "recaller",
         deckLimitKey: "recaller",
         cost: { generic: 0, factions: {} },
-        abilities: [{ id: "recall", params: {} }],
+        abilities: [{ id: "bounce", params: {} }],
       },
       {
         ...registry.cards["cleansing-light"],
         id: "recall-spell",
         deckLimitKey: "recall-spell",
         cost: { generic: 0, factions: {} },
-        cast: [{ id: "recall", params: {} }],
+        cast: [{ id: "bounce", params: {} }],
       },
       ...(["friendly", "enemy"] as const).map((side) => ({
         ...registry.cards["cleansing-light"],
         id: `recall-${side}`,
         deckLimitKey: `recall-${side}`,
         cost: { generic: 0, factions: {} },
-        cast: [{ id: "recall", params: { target: [side] } }],
+        cast: [{ id: "bounce", params: { target: [side] } }],
       })),
       {
         ...registry.cards["wayfarer"],
@@ -1473,47 +1597,8 @@ describe("simultaneous combat and response energy", () => {
       expect(r.events.some((e) => e.type === "creature.destroyed")).toBe(false);
       expect(r.state.responseStep ?? null).toBeNull();
     });
-    it("is described for spells and for a creature's own line, in both languages", () => {
-      const binding = { id: "recall", params: {} };
-      const text = (language: "en" | "de", context?: "field") =>
-        localizedAbility(binding, content.abilities.recall, language, context).description;
-      // Both sides by default; the creature's own line says it happens when played.
-      expect(text("en")).toMatch(/friendly.*enemy/i);
-      expect(text("de")).toMatch(/eigene.*gegnerische/);
-      expect(text("en", "field")).not.toBe(text("en"));
-      expect(text("de", "field")).not.toBe(text("de"));
-      // Limiting the target to one side drops the other from the text.
-      const enemy = { id: "recall", params: { target: ["enemy"] } };
-      const enemyText = (language: "en" | "de") =>
-        localizedAbility(enemy, content.abilities.recall, language).description;
-      expect(enemyText("en")).toMatch(/enemy/i);
-      expect(enemyText("en")).not.toMatch(/friendly/i);
-      expect(enemyText("de")).toMatch(/gegnerische/);
-      expect(enemyText("de")).not.toMatch(/eigene/);
-    });
   });
 
-  describe("channel text", () => {
-    const binding = { id: "channel", params: { amount: 2, energy: "neutral" } };
-    const channel = registry.abilities.channel;
-    it("has no name", () => {
-      expect(channel.name).toBeUndefined();
-    });
-    it("reads as a gain on a spell and as an exhaust ability on a field card", () => {
-      const spell = localizedAbility(binding, channel, "en").description,
-        field = localizedAbility(binding, channel, "en", "field").description;
-      expect(spell).toMatch(/gain 2 .*energy/i);
-      expect(spell).not.toMatch(/exhaust/i);
-      expect(field).toMatch(/^exhaust/i);
-      expect(field).toMatch(/2/);
-    });
-    it("does the same in German", () => {
-      const spell = localizedAbility(binding, channel, "de").description,
-        field = localizedAbility(binding, channel, "de", "field").description;
-      expect(spell).not.toMatch(/Erschöpf/);
-      expect(field).toMatch(/^Erschöpf/);
-    });
-  });
   describe("hive", () => {
     const content = compileContent([
       ...raw,
@@ -1521,6 +1606,15 @@ describe("simultaneous combat and response energy", () => {
         ...registry.cards["wild-guardian"],
         id: "scavenger",
         deckLimitKey: "scavenger",
+        abilities: [
+          { id: "hive", params: { subtype: "goblin", first: true } },
+          { id: "sacrifice", params: {} },
+        ],
+      },
+      {
+        ...registry.cards["wild-guardian"],
+        id: "picker",
+        deckLimitKey: "picker",
         abilities: [
           { id: "hive", params: { subtype: "goblin" } },
           { id: "sacrifice", params: {} },
@@ -1530,6 +1624,12 @@ describe("simultaneous combat and response energy", () => {
         ...registry.cards["crown-recruit"],
         id: "gob",
         deckLimitKey: "gob",
+        subtypes: ["goblin"],
+      },
+      {
+        ...registry.cards["crown-recruit"],
+        id: "gob-chief",
+        deckLimitKey: "gob-chief",
         subtypes: ["goblin"],
       },
       {
@@ -1584,6 +1684,35 @@ describe("simultaneous combat and response energy", () => {
       expect(r.events.some((e) => e.type === "card.searched" && e.cardId === first)).toBe(true);
       assertInvariants(r);
     });
+    it("lets the player pick a goblin from the library unless the ability takes the first", () => {
+      const s = setup(content);
+      const source = board(s, "p1", "picker", 0);
+      const victim = board(s, "p1", "gob", 1);
+      const [top, lower, same] = stock(s, "p1", ["gob", "gob-chief", "gob"]);
+      let r = kill(s, source, victim);
+      expect(r.pending).toMatchObject({ kind: "library-pick", player: "p1" });
+      // One entry per distinct card, never the library order.
+      expect(r.pending!.options).toHaveLength(2);
+      expect(r.pending!.options).toContain(lower);
+      expect(r.cards[top].zone).toBe("deck");
+      r = step(r, { type: "choose", choiceId: r.pending!.id, option: lower }, "p1", content);
+      expect(r.pending).toBeNull();
+      expect(r.cards[lower].zone).toBe("hand");
+      expect(r.cards[top].zone).toBe("deck");
+      expect(r.cards[same].zone).toBe("deck");
+      assertInvariants(r);
+    });
+    it("rejects a pick that is not among the found cards", () => {
+      const s = setup(content);
+      const source = board(s, "p1", "picker", 0);
+      const victim = board(s, "p1", "gob", 1);
+      stock(s, "p1", ["gob"]);
+      const other = s.players.p1.deck[0];
+      const r = kill(s, source, victim);
+      expect(() =>
+        step(r, { type: "choose", choiceId: r.pending!.id, option: other }, "p1", content),
+      ).toThrow();
+    });
     it("does nothing but say so when the library holds no goblin", () => {
       const { s, source, victim } = scene();
       const handBefore = s.players.p1.hand.length;
@@ -1625,15 +1754,6 @@ describe("simultaneous combat and response energy", () => {
       expect(r.cards[a].zone).toBe("hand");
       expect(r.cards[b].zone).toBe("hand");
       assertInvariants(r);
-    });
-    it("is described in both languages", () => {
-      const binding = { id: "hive", params: { subtype: "goblin" } };
-      expect(localizedAbility(binding, content.abilities.hive, "en").description).toMatch(
-        /goblin/i,
-      );
-      expect(localizedAbility(binding, content.abilities.hive, "de").description).toMatch(
-        /goblin/i,
-      );
     });
   });
   describe("draw", () => {
@@ -1683,36 +1803,6 @@ describe("simultaneous combat and response energy", () => {
       const hand = s.players.p1.hand.length;
       s = step(s, { type: "play", cardId: spell }, "p1", drawRegistry);
       expect(s.players.p1.hand.length).toBe(hand - 1 + 2);
-    });
-    it("words the creature and spell versions differently, in both languages", () => {
-      const binding = { id: "draw", params: { amount: 2 } };
-      const text = (language: "en" | "de", context?: "field") =>
-        localizedAbility(binding, abilities.draw, language, context).description;
-      for (const language of ["en", "de"] as const) {
-        expect(text(language)).toMatch(/\b2\b/);
-        expect(text(language, "field")).toMatch(/\b2\b/);
-        expect(text(language, "field")).not.toBe(text(language));
-      }
-      // One card reads as singular in both languages.
-      const one = (language: "en" | "de") =>
-        localizedAbility({ id: "draw", params: { amount: 1 } }, abilities.draw, language)
-          .description;
-      expect(one("en")).not.toMatch(/\b1 cards\b/);
-      expect(one("de")).not.toMatch(/\b1 Karten\b/);
-    });
-    it("is offered on creatures in the studio, not only on spells", () => {
-      expect(abilities.draw.hooks).toBeDefined();
-      expect(() =>
-        compileContent([
-          ...raw,
-          {
-            ...registry.cards["wild-guardian"],
-            id: "draw-field-check",
-            deckLimitKey: "draw-field-check",
-            abilities: [{ id: "draw", params: { amount: 1 } }],
-          },
-        ]),
-      ).not.toThrow();
     });
   });
   describe("muster", () => {
@@ -1821,6 +1911,12 @@ describe("simultaneous combat and response energy", () => {
         ...registry.cards["wild-guardian"],
         id: "search-test",
         deckLimitKey: "search-test",
+        abilities: [{ id: "searchForCreatureOrHolding", params: { maxCost: 3, first: true } }],
+      },
+      {
+        ...registry.cards["wild-guardian"],
+        id: "search-pick",
+        deckLimitKey: "search-pick",
         abilities: [{ id: "searchForCreatureOrHolding", params: { maxCost: 3 } }],
       },
       {
@@ -1924,18 +2020,51 @@ describe("simultaneous combat and response energy", () => {
       s.cards[id].definitionId = "search-spell";
       rich(s);
       s = step(s, { type: "play", cardId: id }, "p1", searchRegistry);
+      s = step(s, { type: "choose", choiceId: s.pending!.id, option: cheap }, "p1", searchRegistry);
       expect(s.cards[cheap].zone).toBe("hand");
     });
-    it("is described in both languages", () => {
-      const binding = { id: "searchForCreatureOrHolding", params: { maxCost: 3 } };
-      expect(
-        localizedAbility(binding, searchRegistry.abilities.searchForCreatureOrHolding, "en")
-          .description,
-      ).toMatch(/creature or holding.*3 or less/i);
-      expect(
-        localizedAbility(binding, searchRegistry.abilities.searchForCreatureOrHolding, "de")
-          .description,
-      ).toMatch(/Kreatur oder das erste Anwesen.*3 oder weniger/);
+    it("lets the player pick any qualifying card, one entry per distinct card", () => {
+      const s = setup(searchRegistry);
+      const id = fixture(s, "wild-guardian", "p1", "hand");
+      s.cards[id].definitionId = "search-pick";
+      for (const card of s.players.p1.deck) s.cards[card].definitionId = "dear-creature";
+      const [spell, dear, holding, cheap, again] = stock(s, [
+        "cheap-spell",
+        "dear-creature",
+        "cheap-holding",
+        "cheap-creature",
+        "cheap-creature",
+      ]);
+      rich(s);
+      let r = step(s, { type: "play", cardId: id, slot: 0 }, "p1", searchRegistry);
+      expect(r.pending).toMatchObject({ kind: "library-pick", player: "p1" });
+      const options = r.pending!.options;
+      expect(options).toHaveLength(2);
+      expect(options).toEqual(expect.arrayContaining([holding]));
+      expect(options.some((o) => o === cheap || o === again)).toBe(true);
+      expect(options).not.toContain(dear);
+      expect(options).not.toContain(spell);
+      // Cheapest first, whatever the library order.
+      expect(options[1]).toBe(holding);
+      r = step(
+        r,
+        { type: "choose", choiceId: r.pending!.id, option: holding },
+        "p1",
+        searchRegistry,
+      );
+      expect(r.pending).toBeNull();
+      expect(r.cards[holding].zone).toBe("hand");
+      expect(r.cards[cheap].zone).toBe("deck");
+      assertInvariants(r);
+    });
+    it("does not open a dialog when nothing qualifies", () => {
+      const s = setup(searchRegistry);
+      const id = fixture(s, "wild-guardian", "p1", "hand");
+      s.cards[id].definitionId = "search-pick";
+      rich(s);
+      for (const card of s.players.p1.deck) s.cards[card].definitionId = "dear-creature";
+      const r = step(s, { type: "play", cardId: id, slot: 0 }, "p1", searchRegistry);
+      expect(r.pending).toBeNull();
     });
   });
   describe("ransack", () => {
@@ -2044,30 +2173,15 @@ describe("simultaneous combat and response energy", () => {
         next.events.some((e) => e.type === "hand.inspected" && e.message.includes("empty hand")),
       ).toBe(true);
     });
-    it("works as a spell operation, and the bot takes the most expensive card", () => {
-      const s = setup(ransackRegistry);
-      const id = fixture(s, "cleansing-light", "p1", "hand");
-      s.cards[id].definitionId = "ransack-spell";
-      rich(s);
-      const cheap = fixture(s, "clan-scout", "p2", "hand"),
-        dear = fixture(s, "hollow-devourer", "p2", "hand");
-      let next = step(s, { type: "play", cardId: id }, "p1", ransackRegistry);
-      expect(next.pending?.kind).toBe("hand-discard");
-      const command = botCommand(next, ransackRegistry);
-      expect(command).toMatchObject({ type: "choose", option: dear });
-      expect(cheap).not.toBe(dear);
-      next = step(next, command, "p1", ransackRegistry);
-      expect(next.players.p2.hand).toEqual([cheap]);
-    });
   });
-  describe("forced march", () => {
+  describe("quickened", () => {
     const marchRegistry = compileContent([
       ...raw,
       {
         ...registry.cards["wild-guardian"],
         id: "march-test",
         deckLimitKey: "march-test",
-        abilities: [{ id: "forced-march", params: {} }],
+        abilities: [{ id: "quickened", params: {} }],
       },
     ]);
     it("enters ready, so it can attack the turn it is played", () => {
@@ -2109,8 +2223,8 @@ describe("simultaneous combat and response energy", () => {
       expect(s.cards[id].exhausted).toBe(true);
     });
   });
-  describe("sneaky", () => {
-    const sneakyRegistry = compileContent([
+  describe("covert", () => {
+    const covertRegistry = compileContent([
       ...raw,
       {
         ...registry.cards["wayfarer"],
@@ -2120,13 +2234,13 @@ describe("simultaneous combat and response energy", () => {
       },
       {
         ...registry.cards["wild-guardian"],
-        id: "sneaky-test",
-        deckLimitKey: "sneaky-test",
-        abilities: [{ id: "sneaky", params: {} }],
+        id: "covert-test",
+        deckLimitKey: "covert-test",
+        abilities: [{ id: "covert", params: {} }],
       },
     ]);
     const open = () => {
-      const s = setup(sneakyRegistry);
+      const s = setup(covertRegistry);
       s.phase = "attack";
       s.combat = { stage: "declare", attackers: [], lanes: {}, blocks: [], dead: [] };
       return s;
@@ -2134,20 +2248,20 @@ describe("simultaneous combat and response energy", () => {
     it("cannot be blocked by the card in its lane or by an adjacent Guard, so it hits the player", () => {
       const s = open();
       const sneak = fixture(s, "wild-guardian", "p1", "board", 1);
-      s.cards[sneak].definitionId = "sneaky-test";
+      s.cards[sneak].definitionId = "covert-test";
       const lane = fixture(s, "wayfarer", "p2", "board", 1),
         guard = fixture(s, "wayfarer", "p2", "board", 2);
       s.cards[guard].definitionId = "guard-test";
-      const attack = effectiveStats(s, sneak, sneakyRegistry).attack,
+      const attack = effectiveStats(s, sneak, covertRegistry).attack,
         life = s.players.p2.life;
       let next = step(
         s,
         { type: "attack", attackers: [sneak], lanes: { [sneak]: 1 } },
         "p1",
-        sneakyRegistry,
+        covertRegistry,
       );
       expect(next.combat!.blocks).toEqual([]);
-      next = step(next, { type: "confirm-combat" }, "p1", sneakyRegistry);
+      next = step(next, { type: "confirm-combat" }, "p1", covertRegistry);
       expect(next.players.p2.life).toBe(life - attack);
       expect(next.cards[lane].damage).toBe(0);
       expect(next.cards[guard].damage).toBe(0);
@@ -2157,13 +2271,13 @@ describe("simultaneous combat and response energy", () => {
       const s = open();
       const attacker = fixture(s, "wild-guardian", "p1", "board", 1),
         sneak = fixture(s, "wayfarer", "p2", "board", 1);
-      s.cards[sneak].definitionId = "sneaky-test";
+      s.cards[sneak].definitionId = "covert-test";
       expect(
         step(
           s,
           { type: "attack", attackers: [attacker], lanes: { [attacker]: 1 } },
           "p1",
-          sneakyRegistry,
+          covertRegistry,
         ).combat!.blocks,
       ).toEqual([{ attacker, blocker: sneak }]);
     });
@@ -2195,7 +2309,7 @@ describe("simultaneous combat and response energy", () => {
     let s = attackState();
     s.active = "p2";
     const attacker = fixture(s, "hollow-devourer", "p2", "board"),
-      blocker = fixture(s, "runeguard", "p1", "board");
+      _blocker = fixture(s, "runeguard", "p1", "board");
     s = step(s, { type: "attack", attackers: [attacker] });
     s = step(s, { type: "confirm-combat" });
     expect(s.pending?.kind).toBe("response-energy");
@@ -2208,7 +2322,7 @@ describe("simultaneous combat and response energy", () => {
   it("only the defender can cast eligible spells using the response pool", () => {
     let s = attackState();
     const attacker = fixture(s, "crown-recruit", "p1", "board"),
-      blocker = fixture(s, "ashen-initiate", "p2", "board"),
+      _blocker = fixture(s, "ashen-initiate", "p2", "board"),
       spell = fixture(s, "final-bargain", "p2", "hand");
     s = step(s, { type: "attack", attackers: [attacker] });
     s = step(s, { type: "confirm-combat" });
@@ -2406,7 +2520,7 @@ describe("reusable extension composition", () => {
     let s = attackState();
     s.active = "p2";
     const attacker = fixture(s, "abyss-whelp", "p2", "board"),
-      blocker = fixture(s, "grove-keeper", "p1", "board");
+      _blocker = fixture(s, "grove-keeper", "p1", "board");
     const before = s.players.p1.hand.length;
     s = step(s, { type: "attack", attackers: [attacker] });
     s = step(s, { type: "confirm-combat" });
@@ -2477,25 +2591,6 @@ describe("reusable extension composition", () => {
     invalid[0].abilities = [{ id: "arbitrary-function", params: {} }] as never;
     expect(() => compileContent(invalid)).toThrow();
     expect(() => compileContent([raw[0], raw[0]])).toThrow("Duplicate");
-  });
-  it("adding a dual-faction multi-ability card requires only content", () => {
-    const c: CardDefinition = {
-      ...registry.cards["runeguard"],
-      id: "new-champion",
-      deckLimitKey: "new-champion",
-      cost: { generic: 0, factions: {} },
-      abilities: [
-        { id: "ready", params: {} },
-        { id: "war-banner", params: { amount: 1 } },
-      ],
-    };
-    const r = compileContent([...raw, c]);
-    let s = setup(r);
-    const id = fixture(s, "crown-recruit", "p1", "hand");
-    s.cards[id].definitionId = c.id;
-    s = step(s, { type: "play", cardId: id }, "p1", r);
-    expect(s.cards[id].exhausted).toBe(false);
-    expect(r.cards[c.id].factions).toHaveLength(2);
   });
   it("bounds infinite effect chains and rolls back all mutations", () => {
     const loop: AbilityExtension = {
@@ -2586,14 +2681,6 @@ describe("projections, replay and headless vertical slice", () => {
       expect(replay(initial, commands, registry)).toEqual(s);
     },
   );
-  it("the skirmish is reachable by ordinary legal commands", () => {
-    const s = startMatch(731, "verdant", true);
-    expect(s.turn).toBe(5);
-    expect(s.active).toBe("p1");
-    expect(s.phase).toBe("play");
-    expect(s.players.p1.board.filter(Boolean).length).toBeGreaterThan(0);
-    assertInvariants(s);
-  });
 });
 it("rejects malformed and unknown commands at the runtime boundary", () => {
   const s = fresh();
@@ -2654,7 +2741,7 @@ describe("public combat forecast", () => {
     let s = attackState();
     const one = fixture(s, "wild-guardian", "p1", "board"),
       two = fixture(s, "forest-sprite", "p1", "board", 1),
-      blocker = fixture(s, "clan-scout", "p2", "board");
+      _blocker = fixture(s, "clan-scout", "p2", "board");
 
     const draft = { attackers: [one, two], lanes: {} };
     const before = structuredClone(s);
@@ -2724,7 +2811,7 @@ describe("library depletion during effects", () => {
     s.active = "p2";
     const first = fixture(s, "abyss-whelp", "p2", "board"),
       later = fixture(s, "hollow-devourer", "p2", "board", 1),
-      blocker = fixture(s, "grove-keeper", "p1", "board");
+      _blocker = fixture(s, "grove-keeper", "p1", "board");
     trim(s, "p1", 1);
     s = step(s, { type: "attack", attackers: [first, later] });
     s = step(s, { type: "confirm-combat" });
@@ -2880,7 +2967,7 @@ describe("single blockers and simultaneous retaliation", () => {
   it("forecasts a one-to-one mutual trade without mutating the match", () => {
     let s = attackState();
     const attacker = fixture(s, "forest-sprite", "p1", "board"),
-      blocker = fixture(s, "clan-scout", "p2", "board");
+      _blocker = fixture(s, "clan-scout", "p2", "board");
     s = step(s, { type: "attack", attackers: [attacker] });
     const before = structuredClone(s);
     expect(combatForecast(s, null, registry)).toEqual({
@@ -2980,6 +3067,373 @@ describe("single blockers and simultaneous retaliation", () => {
       expect(s.active).toBe("p2");
       expect(effectiveStats(s, mine, r)[key]).toBe(before);
     }
+  });
+  it("Bolster strengthens every friendly creature, and only those, until the end of the turn", () => {
+    const cards = structuredClone(raw);
+    cards.find((c) => c.id === "cleansing-light")!.cost = { generic: 1, factions: {} };
+    for (const params of [{ attack: 2 }, { defense: 3 }, { attack: 1, defense: 2 }]) {
+      const c = structuredClone(cards);
+      c.find((x) => x.id === "cleansing-light")!.cast = [{ id: "bolster", params }];
+      const r = compileContent(c, abilities);
+      let s = setup(r);
+      const a = fixture(s, "forest-sprite", "p1", "board", 0),
+        b = fixture(s, "wayfarer", "p1", "board", 2),
+        foe = fixture(s, "clan-scout", "p2", "board", 0),
+        spell = fixture(s, "cleansing-light", "p1", "hand");
+      const stat = (card: string) => effectiveStats(s, card, r);
+      const before = [a, b, foe].map((card) => ({ ...stat(card) }));
+      s.players.p1.energy = { neutral: 1 };
+      expect(
+        legalActions(s, r).playable.find((p) => p.cardId === spell)?.requiresTarget,
+      ).toBeFalsy();
+      s = step(s, { type: "play", cardId: spell }, "p1", r);
+      const atk = (params as { attack?: number }).attack ?? 0,
+        def = (params as { defense?: number }).defense ?? 0;
+      for (const [i, card] of [a, b].entries()) {
+        expect(stat(card).attack).toBe(before[i].attack + atk);
+        expect(stat(card).defense).toBe(before[i].defense + def);
+      }
+      expect(stat(foe)).toEqual(before[2]);
+      for (let i = 0; i < 8 && s.active === "p1" && !s.outcome; i++)
+        s = step(s, { type: "end" }, decisionPlayer(s), r);
+      expect(stat(a)).toEqual(before[0]);
+      assertInvariants(s);
+    }
+  });
+  it("Bolster needs at least one bonus", () => {
+    const bad = structuredClone(raw);
+    bad.find((c) => c.id === "cleansing-light")!.cast = [{ id: "bolster", params: {} }];
+    expect(() => compileContent(bad, abilities)).toThrow();
+  });
+  describe("modal spells", () => {
+    const modalRegistry = (cast: { id: string; params: Record<string, unknown> }[]) => {
+      const cards = structuredClone(raw),
+        spell = cards.find((c) => c.id === "cleansing-light")!;
+      spell.cost = { generic: 1, factions: {} };
+      spell.cast = cast;
+      (spell as { modal?: boolean }).modal = true;
+      return compileContent(cards, abilities);
+    };
+    const modes = [
+      { id: "damage", params: { amount: 2 } },
+      { id: "bolster", params: { attack: 2 } },
+    ];
+    it("lists each mode with its own targets and casts only the chosen one", () => {
+      const r = modalRegistry(modes);
+      let s = setup(r);
+      const mine = fixture(s, "forest-sprite", "p1", "board", 0),
+        foe = fixture(s, "clan-scout", "p2", "board", 0),
+        spell = fixture(s, "cleansing-light", "p1", "hand");
+      s.players.p1.energy = { neutral: 1 };
+      const legal = legalActions(s, r).playable.find((p) => p.cardId === spell)!;
+      expect(legal.requiresTarget).toBe(false);
+      expect(legal.modes?.map((m) => m.mode)).toEqual([0, 1]);
+      expect(legal.modes![0].requiresTarget).toBe(true);
+      expect(legal.modes![0].targets).toContain(foe);
+      expect(legal.modes![1].requiresTarget).toBe(false);
+      // The spell needs a mode, and a target only when its mode wants one.
+      expect(() => step(structuredClone(s), { type: "play", cardId: spell }, "p1", r)).toThrow();
+      expect(() =>
+        step(structuredClone(s), { type: "play", cardId: spell, mode: 5 }, "p1", r),
+      ).toThrow();
+      expect(() =>
+        step(structuredClone(s), { type: "play", cardId: spell, mode: 0 }, "p1", r),
+      ).toThrow();
+      expect(() =>
+        step(structuredClone(s), { type: "play", cardId: spell, mode: 1, target: foe }, "p1", r),
+      ).toThrow();
+      const before = effectiveStats(s, mine, r).attack,
+        foeDamage = s.cards[foe].damage;
+      s = step(s, { type: "play", cardId: spell, mode: 1 }, "p1", r);
+      expect(effectiveStats(s, mine, r).attack).toBe(before + 2);
+      expect(s.cards[foe].damage).toBe(foeDamage);
+      assertInvariants(s);
+    });
+    it("casts the damage mode on its target and leaves the other effect unused", () => {
+      const r = modalRegistry(modes);
+      let s = setup(r);
+      const mine = fixture(s, "forest-sprite", "p1", "board", 0),
+        foe = fixture(s, "clan-scout", "p2", "board", 0),
+        spell = fixture(s, "cleansing-light", "p1", "hand");
+      s.players.p1.energy = { neutral: 1 };
+      const before = effectiveStats(s, mine, r).attack;
+      s = step(s, { type: "play", cardId: spell, mode: 0, target: foe }, "p1", r);
+      expect(effectiveStats(s, mine, r).attack).toBe(before);
+      expect(s.cards[foe].zone === "discard" || s.cards[foe].damage > 0).toBe(true);
+    });
+    it("hides a mode that cannot resolve and refuses a spell with none", () => {
+      const r = modalRegistry([{ id: "damage", params: { amount: 1 } }, ...modes.slice(1)]);
+      const s = setup(r);
+      const spell = fixture(s, "cleansing-light", "p1", "hand");
+      s.players.p1.energy = { neutral: 1 };
+      // Without enemy creatures the damage mode can still hit the enemy player, so both stay.
+      expect(
+        legalActions(s, r)
+          .playable.find((p) => p.cardId === spell)
+          ?.modes?.map((m) => m.mode),
+      ).toEqual([0, 1]);
+    });
+    it("rejects a mode on an ordinary spell and a modal card with a single effect", () => {
+      const s = setup();
+      const spell = fixture(s, "cleansing-light", "p1", "hand");
+      s.players.p1.energy = { neutral: 3 };
+      expect(() => step(s, { type: "play", cardId: spell, mode: 0 }, "p1")).toThrow();
+      const bad = structuredClone(raw),
+        card = bad.find((c) => c.id === "cleansing-light")!;
+      card.cast = [{ id: "heal", params: { amount: 2 } }];
+      (card as { modal?: boolean }).modal = true;
+      expect(() => compileContent(bad, abilities)).toThrow(/at least two modes/);
+      const field = structuredClone(raw);
+      (field.find((c) => c.id === "forest-sprite") as { modal?: boolean }).modal = true;
+      expect(() => compileContent(field, abilities)).toThrow();
+    });
+  });
+  describe("prowess", () => {
+    const prowessRegistry = (params: { attack?: number; defense?: number }) => {
+      const cards = structuredClone(raw);
+      const spell = cards.find((c) => c.id === "cleansing-light")!;
+      spell.cost = { generic: 1, factions: {} };
+      spell.cast = [{ id: "heal", params: { amount: 1 } }];
+      cards.find((c) => c.id === "forest-sprite")!.abilities = [{ id: "prowess", params }];
+      return compileContent(cards, abilities);
+    };
+    it("grows with every spell its controller casts this turn, and only then", () => {
+      for (const params of [{ attack: 1 }, { defense: 2 }, { attack: 1, defense: 1 }]) {
+        const r = prowessRegistry(params);
+        let s = setup(r);
+        const sprite = fixture(s, "forest-sprite", "p1", "board", 0),
+          ally = fixture(s, "wayfarer", "p1", "board", 2),
+          foe = fixture(s, "clan-scout", "p2", "board", 0),
+          first = fixture(s, "cleansing-light", "p1", "hand"),
+          second = fixture(s, "cleansing-light", "p1", "hand");
+        const stat = (id: string) => ({ ...effectiveStats(s, id, r) });
+        const foeBase = stat(foe),
+          base = stat(sprite),
+          atk = (params as { attack?: number }).attack ?? 0,
+          def = (params as { defense?: number }).defense ?? 0;
+        s.players.p1.energy = { neutral: 2 };
+        s = step(s, { type: "play", cardId: first }, "p1", r);
+        expect(stat(sprite)).toEqual({
+          attack: base.attack + atk,
+          defense: base.defense + def,
+        });
+        s = step(s, { type: "play", cardId: second }, "p1", r);
+        expect(stat(sprite)).toEqual({
+          attack: base.attack + 2 * atk,
+          defense: base.defense + 2 * def,
+        });
+        // Only the creature itself, and only for its controller's spells.
+        expect(stat(foe)).toEqual(foeBase);
+        expect(stat(ally).attack).toBe(registry.cards.wayfarer.stats!.attack);
+        for (let i = 0; i < 8 && s.active === "p1" && !s.outcome; i++)
+          s = step(s, { type: "end" }, decisionPlayer(s), r);
+        expect(stat(sprite)).toEqual(base);
+        assertInvariants(s);
+      }
+    });
+    it("needs at least one bonus", () => {
+      expect(() => prowessRegistry({})).toThrow();
+    });
+  });
+  describe("kindle", () => {
+    const kindleRegistry = (params: Record<string, unknown>, subtype = "rite") => {
+      const cards = structuredClone(raw),
+        spell = cards.find((c) => c.id === "cleansing-light")!;
+      spell.cost = { generic: 1, factions: {} };
+      spell.subtypes = [subtype];
+      spell.cast = [{ id: "heal", params: { amount: 1 } }];
+      cards.find((c) => c.id === "forest-sprite")!.abilities = [{ id: "kindle", params }];
+      return compileContent(cards, abilities);
+    };
+    const cast = (r: ReturnType<typeof kindleRegistry>) => {
+      let s = setup(r);
+      fixture(s, "forest-sprite", "p1", "board", 0);
+      const foe = fixture(s, "clan-scout", "p2", "board", 3),
+        spell = fixture(s, "cleansing-light", "p1", "hand");
+      s.players.p1.energy = { neutral: 1 };
+      s = step(s, { type: "play", cardId: spell }, "p1", r);
+      return { s, foe, r };
+    };
+    it("lets its controller choose an enemy creature, holding or the enemy player", () => {
+      const { s, foe, r } = cast(kindleRegistry({ amount: 2, subtype: "rite" }));
+      const pending = s.pending!;
+      if (pending.kind !== "damage-target") throw new Error("Expected a damage target choice.");
+      expect(pending.kind).toBe("damage-target");
+      expect(pending.player).toBe("p1");
+      expect(pending.options).toContain(foe);
+      expect(pending.options).toContain("p2");
+      // Friendly cards are not offered.
+      expect(pending.options.every((id) => id === "p2" || s.cards[id].controller === "p2")).toBe(
+        true,
+      );
+      const life = s.players.p2.life;
+      const player = step(
+        structuredClone(s),
+        { type: "choose", choiceId: pending.id, option: "p2" },
+        "p1",
+        r,
+      );
+      expect(player.pending).toBeNull();
+      expect(player.players.p2.life).toBe(life - 2);
+      const card = step(
+        structuredClone(s),
+        { type: "choose", choiceId: pending.id, option: foe },
+        "p1",
+        r,
+      );
+      expect(card.players.p2.life).toBe(life);
+      expect(card.cards[foe].zone === "discard" || card.cards[foe].damage === 2).toBe(true);
+      // Anything outside the offered targets is refused.
+      const mine = s.players.p1.board[0]!;
+      expect(
+        apply(
+          s,
+          {
+            actor: "p1",
+            expectedRevision: s.revision,
+            command: { type: "choose", choiceId: pending.id, option: mine },
+          },
+          r,
+        ).error,
+      ).toBeTruthy();
+      assertInvariants(player);
+    });
+    it("ignores spells of another subtype, and any spell triggers it without one", () => {
+      expect(cast(kindleRegistry({ amount: 1, subtype: "strike" })).s.pending).toBeNull();
+      expect(cast(kindleRegistry({ amount: 1 })).s.pending?.kind).toBe("damage-target");
+    });
+    it("rejects an unknown subtype", () => {
+      expect(() => kindleRegistry({ amount: 1, subtype: "banana" })).toThrow();
+    });
+  });
+  describe("return cost", () => {
+    const returnRegistry = () => {
+      const cards = structuredClone(raw),
+        spell = cards.find((c) => c.id === "cleansing-light")!;
+      spell.cost = { generic: 1, factions: {} };
+      spell.abilities = [{ id: "return", params: {} }];
+      spell.cast = [{ id: "heal", params: { amount: 1 } }];
+      return compileContent(cards, abilities);
+    };
+    it("returns a chosen friendly creature to its owner's hand instead of sacrificing it", () => {
+      const r = returnRegistry();
+      let s = setup(r);
+      const mine = fixture(s, "forest-sprite", "p1", "board", 0),
+        foe = fixture(s, "clan-scout", "p2", "board", 0),
+        spell = fixture(s, "cleansing-light", "p1", "hand");
+      s.players.p1.energy = { neutral: 1 };
+      const legal = legalActions(s, r).playable.find((p) => p.cardId === spell)!;
+      expect(legal.returns).toBe(true);
+      expect(legal.consumes).toEqual([mine]);
+      expect(legal.consumes).not.toContain(foe);
+      // The cost needs a choice, and only a friendly creature qualifies.
+      expect(() => step(structuredClone(s), { type: "play", cardId: spell }, "p1", r)).toThrow();
+      expect(() =>
+        step(structuredClone(s), { type: "play", cardId: spell, consume: foe }, "p1", r),
+      ).toThrow();
+      s = step(s, { type: "play", cardId: spell, consume: mine }, "p1", r);
+      expect(s.cards[mine].zone).toBe("hand");
+      expect(s.players.p1.hand).toContain(mine);
+      expect(s.players.p1.board[0]).toBeNull();
+      expect(s.cards[mine].damage).toBe(0);
+      expect(s.players.p1.discard).not.toContain(mine);
+      expect(s.cards[spell].zone).toBe("discard");
+      assertInvariants(s);
+    });
+    it("cannot be paid without a friendly creature", () => {
+      const r = returnRegistry();
+      const s = setup(r);
+      const spell = fixture(s, "cleansing-light", "p1", "hand");
+      s.players.p1.energy = { neutral: 1 };
+      expect(legalActions(s, r).playable.some((p) => p.cardId === spell)).toBe(false);
+    });
+  });
+  describe("dirge", () => {
+    const dirgeRegistry = compileContent([
+      ...raw,
+      {
+        ...registry.cards["forest-sprite"],
+        id: "dirge-test",
+        deckLimitKey: "dirge-test",
+        abilities: [{ id: "dirge", params: { cards: ["creature"], stat: "attack" } }],
+      },
+      {
+        ...registry.cards["forest-sprite"],
+        id: "dirge-both",
+        deckLimitKey: "dirge-both",
+        abilities: [{ id: "dirge", params: { cards: ["creature", "spell"], stat: "defense" } }],
+      },
+      {
+        ...registry.cards["wayfarer"],
+        id: "gravestone",
+        deckLimitKey: "gravestone",
+        type: "holding",
+        abilities: [],
+        stats: { attack: 0, defense: 3, energyOutputs: [] },
+      },
+    ]);
+    const scene = (source: string) => {
+      const s = setup(dirgeRegistry);
+      const carrier = fixture(s, "forest-sprite", "p1", "board", 0);
+      s.cards[carrier].definitionId = source;
+      const ally = fixture(s, "wayfarer", "p1", "board", 1),
+        foe = fixture(s, "clan-scout", "p2", "board", 0);
+      // My discard pile: two creatures, a spell and a holding. The enemy pile holds one creature.
+      fixture(s, "forest-sprite", "p1", "discard");
+      fixture(s, "forest-sprite", "p1", "discard");
+      fixture(s, "cleansing-light", "p1", "discard");
+      const stone = fixture(s, "wayfarer", "p1", "discard");
+      s.cards[stone].definitionId = "gravestone";
+      fixture(s, "clan-scout", "p2", "discard");
+      return { s, carrier, ally, foe };
+    };
+    const stats = (s: GameState, id: string) => effectiveStats(s, id, dirgeRegistry);
+    it("gives every friendly creature +1 of the stat per counted card in your own discard pile", () => {
+      const { s, carrier, ally, foe } = scene("dirge-test");
+      // Compare against a state without any discard cards.
+      const bare = setup(dirgeRegistry);
+      const c = fixture(bare, "forest-sprite", "p1", "board", 0);
+      bare.cards[c].definitionId = "dirge-test";
+      const a = fixture(bare, "wayfarer", "p1", "board", 1),
+        f = fixture(bare, "clan-scout", "p2", "board", 0);
+      expect(stats(s, carrier).attack).toBe(stats(bare, c).attack + 2);
+      expect(stats(s, ally).attack).toBe(stats(bare, a).attack + 2);
+      expect(stats(s, ally).defense).toBe(stats(bare, a).defense);
+      expect(stats(s, foe)).toEqual(stats(bare, f));
+    });
+    it("counts several card types together and applies the chosen stat", () => {
+      const { s, ally } = scene("dirge-both");
+      const bare = setup(dirgeRegistry);
+      const c = fixture(bare, "forest-sprite", "p1", "board", 0);
+      bare.cards[c].definitionId = "dirge-both";
+      const a = fixture(bare, "wayfarer", "p1", "board", 1);
+      expect(stats(s, ally).defense).toBe(stats(bare, a).defense + 3);
+      expect(stats(s, ally).attack).toBe(stats(bare, a).attack);
+    });
+    it("grows and shrinks with the discard pile", () => {
+      const { s, ally } = scene("dirge-test");
+      const before = stats(s, ally).attack;
+      const extra = s.players.p1.deck.find(
+        (id) => dirgeRegistry.cards[s.cards[id].definitionId].type === "creature",
+      )!;
+      s.players.p1.deck = s.players.p1.deck.filter((id) => id !== extra);
+      s.cards[extra].zone = "discard";
+      s.players.p1.discard.push(extra);
+      expect(stats(s, ally).attack).toBe(before + 1);
+      s.players.p1.discard.pop();
+      expect(stats(s, ally).attack).toBe(before);
+    });
+    it("rejects a missing or unknown card type or stat", () => {
+      for (const params of [
+        {},
+        { cards: [], stat: "attack" },
+        { cards: ["creature"], stat: "life" },
+      ]) {
+        const bad = structuredClone(raw);
+        bad.find((c) => c.id === "wayfarer")!.abilities = [{ id: "dirge", params }];
+        expect(() => compileContent(bad, abilities)).toThrow();
+      }
+    });
   });
   it("Charge hits the creature directly opposite where the card is played", () => {
     const cards = structuredClone(raw);

@@ -7,7 +7,7 @@
   "deckLimitKey": "morie-grandmistress-of-winter",
   "type": "creature",
   "factions": [
-    "winter-league"
+    "northern-league"
   ],
   "subtypes": [
     "human",
@@ -19,7 +19,7 @@
   "cost": {
     "generic": 2,
     "factions": {
-      "winter-league": 2
+      "northern-league": 2
     }
   },
   "stats": {
@@ -27,7 +27,7 @@
     "defense": 6,
     "energyOutputs": [
       {
-        "winter-league": 3
+        "northern-league": 3
       }
     ]
   },

@@ -8,8 +8,12 @@ import { ReplayBar } from "./ReplayBar";
 import { PrivacyCover } from "./PrivacyCover";
 import { MulliganDialog } from "./MulliganDialog";
 import { RaisePicker } from "./RaisePicker";
+import { ModePicker } from "./ModePicker";
+import { DamageTargetDialog } from "./DamageTargetDialog";
 import { DrawChoiceDialog } from "./DrawChoiceDialog";
 import { HandDiscardDialog } from "./HandDiscardDialog";
+import { LibraryPickDialog } from "./LibraryPickDialog";
+import { RepriseDialog } from "./RepriseDialog";
 import { ResponseEnergyDialog } from "./ResponseEnergyDialog";
 import { SummaryLayer } from "./SummaryLayer";
 import { CreatureActions } from "./CreatureActions";
@@ -39,8 +43,12 @@ export function MatchView() {
       <PrivacyCover />
       <MulliganDialog />
       <RaisePicker />
+      <ModePicker />
       <DrawChoiceDialog />
       <HandDiscardDialog />
+      <LibraryPickDialog />
+      <DamageTargetDialog />
+      <RepriseDialog />
       <ResponseEnergyDialog />
       <SummaryLayer />
       <CreatureActions />

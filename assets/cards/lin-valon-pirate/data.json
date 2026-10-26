@@ -8,8 +8,10 @@
   "factions": [
     "ember-fields"
   ],
-  "subtypes": [],
-  "legendary": false,
+  "subtypes": [
+    "human"
+  ],
+  "legendary": true,
   "rarity": "legendary",
   "cost": {
     "generic": 2,

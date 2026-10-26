@@ -17,6 +17,7 @@ export function describeAbility(
       if (typeof value !== "number" && typeof value !== "string" && typeof value !== "boolean") {
         throw new Error(`Missing text parameter ${key} for ability ${binding.id}`);
       }
+      if (key === "stat") return String(value).charAt(0).toUpperCase() + String(value).slice(1);
       return key === "energy"
         ? String(value).replace(
             /(^|-)([a-z])/g,
@@ -25,11 +26,21 @@ export function describeAbility(
         : String(value);
     });
   }
+  // `{?flag|text if set|text if not}` picks a wording by a parameter; `a&b` needs both. A parameter is set when it is true, a non-zero number or a non-empty word. The branches may hold placeholders.
+  const isSet = (key: string) =>
+    params[key] === true ||
+    (typeof params[key] === "number" && params[key] !== 0) ||
+    (typeof params[key] === "string" && params[key] !== "");
+  const choose = (template: string) =>
+    template.replace(
+      /\{\?([\w&]+)\|((?:[^|{}]|\{\w+\})*)\|((?:[^|{}]|\{\w+\})*)\}/g,
+      (_m, flags: string, yes: string, no: string) => (flags.split("&").every(isSet) ? yes : no),
+    );
   let description = fill(
-    (context === "field" && extension.fieldDescription) || extension.description,
+    choose((context === "field" && extension.fieldDescription) || extension.description),
   );
   // Draw uses one shared template across card counts; keep its singular readable in both supported languages.
   if (binding.id === "draw" && binding.params.amount === 1)
     description = description.replace(/\b1 cards\b/g, "1 card").replace(/\b1 Karten\b/g, "1 Karte");
-  return { name: extension.name ? fill(extension.name) : undefined, description };
+  return { name: extension.name ? fill(choose(extension.name)) : undefined, description };
 }

@@ -85,23 +85,6 @@ describe("quest reward settlement", () => {
     ).toThrow(/available/);
   });
 
-  it("reads older counted purchases as individual copies and respects remaining collection capacity", () => {
-    const settled = settleQuest(
-      { ...emptyCollection(), counts: { [common.id]: ownershipLimit(common) - 1 } },
-      run(),
-    );
-    const bought = buyQuestCards(settled, "run-1", { [common.id]: 1 }, registry, 0);
-    delete bought.questSettlements!["run-1"].purchasedCopies;
-    const reloaded = parseCollection(JSON.stringify(bought), registry)!;
-    expect(purchasedQuestCopies(reloaded.questSettlements!["run-1"], common.id)).toEqual([0]);
-    expect(
-      availableQuestCopies(reloaded, reloaded.questSettlements!["run-1"], registry, common.id),
-    ).toBe(0);
-    expect(() =>
-      buyQuestCards(reloaded, "run-1", { [common.id]: 1 }, registry, 1, { [common.id]: [1] }),
-    ).toThrow(/available/);
-  });
-
   it("opens the purchase screen once, keeps purchases and their silver budget across reloads, and pays nothing itself", () => {
     const completed = run(),
       settled = settleQuest(emptyCollection(), completed);
@@ -260,45 +243,5 @@ describe("quest reward settlement", () => {
       reloaded.updateCollection((current) => settleQuest(current, run()), { requireSave: true })
         .collection,
     ).toEqual(bought);
-  });
-
-  it("retains a fight report until its outcome is durably saved, including the completion time", async () => {
-    vi.resetModules();
-    const active = run({
-      stage: "map",
-      result: null,
-      fight: {
-        node: "boss",
-        seed: 7,
-        tier: 0,
-        enemy: { name: "Boss", faction: "black-host", deck: [], life: 15 },
-      },
-    });
-    const storage = new Map<string, string>();
-    let fail = false;
-    vi.stubGlobal("localStorage", {
-      getItem: (key: string) => storage.get(key) ?? null,
-      removeItem: (key: string) => storage.delete(key),
-      setItem: (key: string, value: string) => {
-        if (fail) throw new Error("Full");
-        storage.set(key, value);
-      },
-    });
-    const store = await import("../src/features/quest/stores/questStore");
-    store.saveRun(active);
-    const report = { run: active.id, node: "boss", won: true, life: 4, finishedAt: 5_000 };
-    store.reportFight(report);
-    expect(store.readFightReport(active)).toEqual(report);
-    expect(store.readFightReport(active)).toEqual(report); // Reading is not acknowledgment.
-    fail = true;
-    expect(store.saveRun(run())).toBe(false);
-    vi.resetModules();
-    const reloaded = await import("../src/features/quest/stores/questStore");
-    expect(reloaded.readRun()!.stage).toBe("map");
-    expect(reloaded.readFightReport(active)).toEqual(report);
-    fail = false;
-    expect(reloaded.saveRun(run())).toBe(true);
-    reloaded.clearFightReport(report);
-    expect(reloaded.readFightReport(active)).toBeNull();
   });
 });

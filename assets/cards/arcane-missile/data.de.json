@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Arkanes Geschoss",
+  "lore": "Magie braucht kein Zielen. Nur eine sehr klare Meinung."
+}

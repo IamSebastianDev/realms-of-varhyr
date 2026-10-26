@@ -100,7 +100,7 @@ export const draftFactions = [
   "black-host",
   "ember-fields",
 ] as const;
-export const undraftableFaction = "winter-league";
+export const undraftableFaction = "northern-league";
 export const draftCards = [
   ...draftFactions.flatMap(roster),
   hybrid("bright-marches", "crownlands"),

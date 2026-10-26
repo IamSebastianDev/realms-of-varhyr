@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Schnellzauberer",
+  "lore": "Er beendet den Zauber, bevor der Satz zu Ende ist. Der Satz hat aufgehört, mitzuhalten."
+}

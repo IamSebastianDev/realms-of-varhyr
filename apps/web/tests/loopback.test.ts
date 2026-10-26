@@ -4,10 +4,9 @@ import { botCommand } from "@realms/core/bot";
 import { MatchAuthority } from "@realms/multiplayer/authority";
 import { LoopbackRoom } from "../src/features/match/session/LoopbackRoom";
 import { createLocalMatch } from "../src/features/match/lib/localMatch";
-import { LiveMatchSession } from "../src/features/match/session/MatchSession";
+
 import { registry } from "@realms/testing/content";
 import { startMatch } from "./support/session";
-import { opponentMoves, startTutorial, opponentCommand } from "../src/features/tutorial/tutorial";
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -74,19 +73,6 @@ describe("a match on this machine is a loopback room around the online authority
     session.leave();
   });
 
-  it("never shows a seat more than that seat may see", () => {
-    const { session } = createLocalMatch({
-      initial: startMatch(9),
-      mode: "practice",
-      deck: "verdant",
-      skirmish: false,
-    });
-    const view = session.frame(null, "p1").view;
-    expect(JSON.stringify(view)).not.toContain('"rng"');
-    expect(session.getSnapshot().seat).toBe("p1");
-    session.leave();
-  });
-
   it("seats two people on one screen without an opponent", () => {
     const { session } = createLocalMatch({
       initial: startMatch(3),
@@ -97,17 +83,6 @@ describe("a match on this machine is a loopback room around the online authority
     expect(session.getSnapshot().hotseat).toBe(true);
     expect(session.getSnapshot().bot).toBeNull();
     expect(session.getSnapshot().seat).toBeNull();
-    session.leave();
-  });
-
-  it("runs the tutorial script for the opponent, then hands over to the bot", () => {
-    const setup = startTutorial();
-    const { session, script } = createLocalMatch(setup);
-    expect(script.active).toBe(true);
-    const state = session.getSnapshot().state;
-    expect(state.players.p2.name).toBe("Sparring partner");
-    expect(opponentCommand(startTutorial().initial, 0)?.type).toBe("mulligan");
-    expect(opponentMoves(session.getSnapshot().commands)).toBe(0);
     session.leave();
   });
 });

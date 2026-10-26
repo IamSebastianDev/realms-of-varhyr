@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Vermittler des Bundes",
+  "lore": "Er hat einundvierzig Streitigkeiten zwischen den freien Städten und den Clans geschlichtet. Beide Seiten behaupten bis heute, gewonnen zu haben."
+}

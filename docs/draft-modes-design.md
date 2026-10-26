@@ -54,7 +54,7 @@ Passing is the same as before: a pack travels you, bot, bot, you, bot, bot, so i
 
 Hybrids connect neighbouring factions in a single chain:
 
-**Ember Fields – Mountain Clans – Bright Marches – Crownlands – League of Winter – Horde – Conclave – Black Host**
+**Ember Fields – Mountain Clans – Bright Marches – Crownlands – Northern League – Horde – Conclave – Black Host**
 
 - 7 links, in two arcs (a good arc and an evil arc) with the Horde and Conclave bridging. Ember Fields and Black Host sit at the ends on purpose and have one partner each.
 - Existing hybrids all lie on the chain: Exiled Company and Riverlands Envoy (Marches–Crownlands), Deeptunnel Smugglers and Toll Collector (Ember–Clans), Black Shaman (Black Host–Conclave).
@@ -64,16 +64,16 @@ Hybrids connect neighbouring factions in a single chain:
 
 ### Pool facts (repo snapshot, 2026-10-22)
 
-| Faction          | Mono cards | Free producers for the guaranteed slot (mono, non-legendary) |
-| ---------------- | ---------- | ------------------------------------------------------------ |
-| Bright Marches   | 19         | 3 (a 4th, Grendel, is legendary)                             |
-| Crownlands       | 19         | 3 (Merchant of Tris Vale is legendary)                       |
-| Black Host       | 19         | 3 (Envoy of the Black Host is legendary)                     |
-| Ember Fields     | 19         | 3                                                            |
-| Mountain Clans   | 19         | 3                                                            |
-| League of Winter | 1          | none                                                         |
-| Horde            | 1          | none                                                         |
-| Conclave         | 1          | none (Black Shaman is a hybrid)                              |
+| Faction         | Mono cards | Free producers for the guaranteed slot (mono, non-legendary) |
+| --------------- | ---------- | ------------------------------------------------------------ |
+| Bright Marches  | 19         | 3 (a 4th, Grendel, is legendary)                             |
+| Crownlands      | 19         | 3 (Merchant of Tris Vale is legendary)                       |
+| Black Host      | 19         | 3 (Envoy of the Black Host is legendary)                     |
+| Ember Fields    | 19         | 3                                                            |
+| Mountain Clans  | 19         | 3                                                            |
+| Northern League | 1          | none                                                         |
+| Horde           | 1          | none                                                         |
+| Conclave        | 1          | none (Black Shaman is a hybrid)                              |
 
 - **Five factions are draftable now. League, Horde and Conclave must be finished first**: a roster (target 4 legendary, 6 rare, 10 common) and mono non-legendary free producers. Producer variety is thin (3 per faction) and is accepted for now; it will grow over time.
 

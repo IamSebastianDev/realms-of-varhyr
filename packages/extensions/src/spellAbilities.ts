@@ -9,9 +9,11 @@ import {
   destroy,
   draw as drawCards,
   enemyCreatures,
+  friendlyCreatures,
   gainEnergy,
   heal,
   param,
+  readyCards,
   returnToHand,
   run,
   whenPlayed,
@@ -23,6 +25,11 @@ const channelSchema = v.strictObject({
   amount: positive,
   energy: v.pipe(v.string(), v.minLength(1)),
 });
+/** At least one of `attack` and `defense`; each is the temporary bonus every friendly creature gets. */
+const bolsterSchema = v.union([
+  v.strictObject({ attack: positive, defense: v.optional(positive) }),
+  v.strictObject({ attack: v.optional(positive), defense: positive }),
+]);
 const raiseSchema = v.strictObject({ subtype: v.pipe(v.string(), v.minLength(1)) });
 /** `type` lists what may be destroyed: ["creature"], ["holding"] or ["creature", "holding"]. Left out, it means creatures. */
 const destroySchema = v.strictObject({
@@ -31,12 +38,12 @@ const destroySchema = v.strictObject({
   ),
 });
 /** `target` lists whose creatures may be returned: ["friendly"], ["enemy"] or both. Left out, it means both. */
-const recallSchema = v.strictObject({
+const bounceSchema = v.strictObject({
   target: v.optional(
     v.pipe(v.array(v.picklist(["friendly", "enemy"])), v.minLength(1), v.maxLength(2)),
   ),
 });
-const recallSides = (params: Record<string, unknown>) =>
+const bounceSides = (params: Record<string, unknown>) =>
   (params.target as ("friendly" | "enemy")[] | undefined) ?? ["friendly", "enemy"];
 /** What Channel gives: `amount` of the chosen energy type. */
 const channelOutput = (params: Record<string, unknown>) => ({
@@ -50,12 +57,11 @@ export const spellAbilities: AbilityExtension[] = [
   extension("damage", amountSchema, {
     translations: {
       de: {
-        name: "Schaden {amount}",
-        description: "Füge einer gegnerischen Feldkarte oder einem Spieler {amount} Schaden zu.",
+        description:
+          "Füge einer gegnerischen Kreatur, einer gegnerischen Besitzung oder dem gegnerischen Spieler {amount} Schaden zu.",
       },
     },
-    name: "Damage {amount}",
-    description: "Deal {amount} damage to an enemy field card or player.",
+    description: "Deal {amount} damage to target enemy creature, holding or player.",
     target: "enemy-any",
     cast: run(damage(chosen, param<number>("amount"))),
   }),
@@ -82,11 +88,9 @@ export const spellAbilities: AbilityExtension[] = [
   extension("rage", amountSchema, {
     translations: {
       de: {
-        name: "Wut {amount}",
-        description: "Eine eigene Kreatur erhält bis zum Ende des Zuges +{amount} Angriff.",
+        description: "Eine eigene Kreatur erhält bis zum Zugende +{amount} Angriff.",
       },
     },
-    name: "Rage {amount}",
     description: "Target friendly creature gets +{amount} Attack until end of turn.",
     target: "friendly-creature",
     cast: run(boost(chosen, { attack: param<number>("amount") })),
@@ -95,12 +99,29 @@ export const spellAbilities: AbilityExtension[] = [
   extension("steadfast", amountSchema, {
     translations: {
       de: {
-        description: "Eine eigene Kreatur erhält bis zum Ende des Zuges +{amount} Verteidigung.",
+        description: "Eine eigene Kreatur erhält bis zum Zugende +{amount} Verteidigung.",
       },
     },
     description: "Target friendly creature gets +{amount} Defense until end of turn.",
     target: "friendly-creature",
     cast: run(boost(chosen, { defense: param<number>("amount") })),
+  }),
+
+  extension("bolster", bolsterSchema, {
+    translations: {
+      de: {
+        description:
+          "Jede eigene Kreatur erhält bis zum Zugende {?attack|+{attack} Angriff|}{?attack&defense| und |}{?defense|+{defense} Verteidigung|}.",
+      },
+    },
+    description:
+      "Each friendly creature gets {?attack|+{attack} Attack|}{?attack&defense| and |}{?defense|+{defense} Defense|} until end of turn.",
+    cast: run(
+      boost(friendlyCreatures, {
+        attack: param<number | undefined>("attack"),
+        defense: param<number | undefined>("defense"),
+      }),
+    ),
   }),
 
   extension("barrage", amountSchema, {
@@ -116,30 +137,28 @@ export const spellAbilities: AbilityExtension[] = [
   extension("heal", amountSchema, {
     translations: {
       de: {
-        description: "Stelle bei dir selbst {amount} Leben wieder her.",
+        description: "Stelle {amount} Leben wieder her.",
       },
     },
-    description: "Restore {amount} life to yourself.",
+    description: "Restore {amount} life.",
     cast: run(heal(you, param<number>("amount"))),
   }),
 
   extension("draw", amountSchema, {
     translations: {
       de: {
-        name: "Ziehen {amount}",
-        description: "Ziehe {amount} Karten aus deiner Bibliothek.",
-        fieldDescription: "Beim Ausspielen: Ziehe {amount} Karten aus deiner Bibliothek.",
+        description: "Ziehe {amount} Karten.",
+        fieldDescription: "Beim Ausspielen: Ziehe {amount} Karten.",
       },
     },
-    name: "Draw {amount}",
-    description: "Draw {amount} cards from your library.",
+    description: "Draw {amount} cards.",
     // On a creature or holding the same effect happens when it is played, like Muster and Charge.
-    fieldDescription: "When played, draw {amount} cards from your library.",
+    fieldDescription: "When played, draw {amount} cards.",
     hooks: whenPlayed(drawCards(param<number>("amount"))),
     cast: run(drawCards(param<number>("amount"))),
   }),
 
-  extension("recall", recallSchema, {
+  extension("bounce", bounceSchema, {
     translations: {
       de: {
         description: "Nimm eine {target} Kreatur auf die Hand ihres Besitzers zurück.",
@@ -153,21 +172,51 @@ export const spellAbilities: AbilityExtension[] = [
     announce: true,
     defaults: { target: ["friendly", "enemy"] },
     target: "any-creature",
-    targetSides: recallSides,
+    targetSides: bounceSides,
     hooks: whenPlayed(returnToHand(chosen)),
     cast: run(returnToHand(chosen)),
+  }),
+
+  extension("refresh", v.strictObject({}), {
+    translations: {
+      de: {
+        description: "Mache eine verbündete Kreatur wieder bereit.",
+        fieldDescription: "Beim Ausspielen: Mache eine verbündete Kreatur wieder bereit.",
+      },
+    },
+    description: "Ready target friendly creature.",
+    // On a creature the same effect happens when it is played. Entering by other means (Rally, Raise) has no chosen target.
+    fieldDescription: "When played, ready target friendly creature.",
+    announce: true,
+    target: "any-creature",
+    targetSides: () => ["friendly"],
+    hooks: whenPlayed(readyCards(chosen)),
+    cast: run(readyCards(chosen)),
+  }),
+
+  extension("refresh-all", v.strictObject({}), {
+    translations: {
+      de: {
+        description: "Mache jede verbündete Kreatur wieder bereit.",
+        fieldDescription: "Beim Ausspielen: Mache jede verbündete Kreatur wieder bereit.",
+      },
+    },
+    description: "Ready each friendly creature.",
+    fieldDescription: "When played, ready each friendly creature.",
+    hooks: whenPlayed(readyCards(friendlyCreatures)),
+    cast: run(readyCards(friendlyCreatures)),
   }),
 
   extension("channel", channelSchema, {
     translations: {
       de: {
-        description: "Erhalte {amount} Energie ({energy}) für diese Zauberphase.",
-        fieldDescription: "Erschöpfen: Erhalte {amount} Energie ({energy}) für diese Zauberphase.",
+        description: "Erhalte {amount} {energy}-Energie in dieser Zauberphase.",
+        fieldDescription: "Erschöpfen: Erhalte {amount} {energy}-Energie in dieser Zauberphase.",
       },
     },
-    description: "Gain {amount} {energy} energy for this casting phase.",
+    description: "Gain {amount} {energy} energy this casting phase.",
     // On a creature or holding it is an activated ability: exhaust it to get the energy.
-    fieldDescription: "Exhaust: gain {amount} {energy} energy for this casting phase.",
+    fieldDescription: "Exhaust: gain {amount} {energy} energy this casting phase.",
     cast: run(gainEnergy(channelOutput)),
     activate: run(gainEnergy(channelOutput)),
   }),
@@ -180,7 +229,7 @@ export const spellAbilities: AbilityExtension[] = [
       },
     },
     description:
-      "Return a {subtype} creature from your discard pile to a free position. It enters ready.",
+      "Return one {subtype} creature from your discard pile to a free position. It enters ready.",
     target: "friendly-discard-creature",
     placement: true,
     cast: run(deployChosen({ ready: true })),

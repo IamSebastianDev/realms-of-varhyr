@@ -243,6 +243,11 @@ button.quiet:hover:not(:disabled) {
   font-size: 13px;
   color: var(--soft);
 }
+.param-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .field small,
 .studio-form small {
   color: var(--faint);
@@ -387,6 +392,122 @@ button.quiet:hover:not(:disabled) {
   width: auto;
   align-self: flex-start;
   border-style: dashed;
+}
+.studio-form fieldset > .add-ability {
+  width: auto;
+  align-self: flex-start;
+  border-style: dashed;
+}
+
+/* Ability rows show what the ability does, so a card reads without opening the picker. */
+.binding-head {
+  flex: 1 0 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.binding-head strong {
+  font: 600 17px var(--serif);
+}
+.binding-head p {
+  margin: 4px 0 0;
+  color: var(--soft);
+  font-size: 14px;
+  line-height: 1.45;
+  max-width: 62ch;
+}
+
+/* Ability picker */
+.picker-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: start center;
+  padding: 8vh 16px 16px;
+  background: color-mix(in srgb, var(--ink) 70%, transparent);
+  backdrop-filter: blur(3px);
+}
+.picker {
+  width: min(680px, 100%);
+  max-height: 78vh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: var(--panel);
+  border: 1px solid var(--rule-strong);
+  border-radius: 8px;
+  box-shadow: 0 12px 40px #000a;
+}
+.picker header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.picker h2 {
+  margin: 0;
+  font: 600 20px var(--serif);
+}
+.picker input[type="search"] {
+  width: 100%;
+}
+.picker-list {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-right: 4px;
+}
+.picker-list h3 {
+  margin: 0 0 6px;
+  font: 600 13px var(--serif);
+  letter-spacing: 0.04em;
+  color: var(--gold);
+}
+.picker-list section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ability-row {
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  gap: 4px 16px;
+  align-items: baseline;
+  text-align: left;
+  padding: 8px 10px;
+  background: var(--raise);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  color: var(--text);
+}
+.ability-row:hover,
+.ability-row:focus-visible {
+  border-color: var(--rule-strong);
+  outline: none;
+  background: color-mix(in srgb, var(--gold) 10%, var(--raise));
+}
+.ability-row[aria-current] {
+  border-color: var(--gold);
+}
+.ability-row strong {
+  font-weight: 600;
+}
+.ability-row span {
+  color: var(--soft);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.picker-empty {
+  color: var(--faint);
+  margin: 0;
+}
+@media (max-width: 640px) {
+  .ability-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Preview side */

@@ -3,6 +3,7 @@ import { t as msg } from "@realms/ui/i18n";
 import { nextPlayStage } from "../../lib/cardInteraction";
 import { planChannels } from "../../lib/autoChannel";
 import { registry } from "@realms/content";
+import { castBindings } from "@realms/contracts";
 import { useEffect, useRef } from "react";
 
 import type { useMatchBasics } from "./useMatchBasics";
@@ -39,8 +40,8 @@ export function useMatchPlay(
     view,
     you,
   } = c;
-  const placesCard = (cardId: string) =>
-    !!registry.cards[view.cards[cardId].definitionId].cast?.some(
+  const placesCard = (cardId: string, mode?: number) =>
+    castBindings(registry.cards[view.cards[cardId].definitionId], mode).some(
       (b) => registry.abilities[b.id].placement,
     );
   function beginPlay(nextDraft: Draft) {
@@ -66,7 +67,7 @@ export function useMatchPlay(
       registry.cards[view.cards[nextDraft.cardId].definitionId],
       legal,
       nextDraft,
-      placesCard(nextDraft.cardId),
+      placesCard(nextDraft.cardId, nextDraft.mode),
     );
     if (nextStage !== "none") {
       setStage(nextStage);
@@ -142,5 +143,15 @@ export function useMatchPlay(
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view.revision]);
-  return { placesCard, beginPlay, quickPlay };
+  // A spell cast for free starts the usual casting flow by itself, once.
+  const freeStarted = useRef<number | null>(null);
+  useEffect(() => {
+    const free = view.freeCast;
+    if (!free || !live || freeStarted.current === view.revision) return;
+    if (!view.legal.playable.some((a) => a.cardId === free.cardId)) return;
+    freeStarted.current = view.revision;
+    quickBegin(free.cardId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view.revision, view.freeCast?.cardId, live]);
+  return { placesCard, beginPlay, quickBegin, quickPlay };
 }

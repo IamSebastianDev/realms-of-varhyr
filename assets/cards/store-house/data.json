@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "store-house",
+  "revision": 1,
+  "name": "Store House",
+  "lore": "Every barrel is counted twice. The League trusts its tides, not its neighbours.",
+  "deckLimitKey": "store-house",
+  "type": "holding",
+  "factions": [
+    "northern-league"
+  ],
+  "subtypes": [
+    "fortification"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "northern-league": 2
+    }
+  },
+  "stats": {
+    "attack": 0,
+    "defense": 4
+  },
+  "abilities": [
+    {
+      "id": "accord",
+      "params": {}
+    },
+    {
+      "id": "channel",
+      "params": {
+        "amount": 1,
+        "energy": "northern-league"
+      }
+    }
+  ],
+  "set": "foundations"
+}

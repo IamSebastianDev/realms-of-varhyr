@@ -2,6 +2,7 @@ import { type PlayerId } from "@realms/contracts";
 import { arenaForMatch } from "../../lib/arenas";
 import { factionInfo, registry } from "@realms/content";
 import { other } from "@realms/core";
+import { modeLegal } from "../../lib/cardInteraction";
 import { useDraftForecast } from "../useDraftForecast";
 import { useEffect, useMemo } from "react";
 import { useMatchPresentation } from "../useMatchPresentation";
@@ -68,6 +69,8 @@ export function useMatchFrame(
   });
   const frame = useMemo(
     () => match.frame(historyIndex, viewer),
+    // sessionSnapshot is not read here: a new snapshot is what tells us the session moved on.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [match, sessionSnapshot, historyIndex, viewer],
   );
   const displayedState = clash ? clash.steps[clash.i].state : frame.state;
@@ -88,7 +91,7 @@ export function useMatchFrame(
       cards: displayedState.cards,
       combat: displayedState.combat,
     };
-  }, [frame, displayedState, viewer, clash, match]);
+  }, [frame, displayedState, clash]);
   const ambient = useMemo(() => {
     const tally: Record<string, number> = {};
     for (const side of ["p1", "p2"] as PlayerId[])
@@ -130,7 +133,8 @@ export function useMatchFrame(
   useEffect(() => {
     if (match.kind === "live" && hotseat) match.setSeat(viewer);
   }, [match, hotseat, viewer]);
-  const selectedLegal = view.legal.playable.find((a) => a.cardId === draft?.cardId);
+  const selectedPlayable = view.legal.playable.find((a) => a.cardId === draft?.cardId);
+  const selectedLegal = selectedPlayable && modeLegal(selectedPlayable, draft?.mode);
   const undoable = live && view.phase === "play" ? match.undoable(viewer) : [];
   const visibleAttacks =
     view.combat?.stage === "declare" ? attackers : (view.combat?.attackers ?? []);

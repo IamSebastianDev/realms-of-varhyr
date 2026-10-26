@@ -29,10 +29,10 @@ export const factionArenas: Record<string, Arena> = {
     faction: "mountain-clans",
     art: "/art/arenas/mountain-clans.png",
   },
-  "winter-league": {
-    id: "winter-league",
-    faction: "winter-league",
-    art: "/art/arenas/winter-league.png",
+  "northern-league": {
+    id: "northern-league",
+    faction: "northern-league",
+    art: "/art/arenas/northern-league.png",
   },
 };
 
