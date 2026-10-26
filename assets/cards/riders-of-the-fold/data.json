@@ -1,0 +1,50 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "riders-of-the-fold",
+  "revision": 1,
+  "name": "Riders of the Fold",
+  "lore": "The clans lend the horses. The Marches lend the grievances. Both are returned in worse condition.",
+  "deckLimitKey": "riders-of-the-fold",
+  "type": "creature",
+  "factions": [
+    "mountain-clans",
+    "bright-marches"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "mountain-clans": 1,
+      "bright-marches": 1
+    }
+  },
+  "stats": {
+    "attack": 4,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "mountain-clans": 2
+      },
+      {
+        "bright-marches": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "outflank",
+      "params": {
+        "amount": 1
+      }
+    },
+    {
+      "id": "return",
+      "params": {}
+    }
+  ],
+  "set": "foundations"
+}

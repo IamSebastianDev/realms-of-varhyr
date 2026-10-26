@@ -1,0 +1,44 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "orc-ranger",
+  "revision": 1,
+  "name": "Orc Ranger",
+  "lore": "He walks the Conclave's paths as if invited. Nobody has told him otherwise, and nobody has volunteered to.",
+  "deckLimitKey": "orc-ranger",
+  "type": "creature",
+  "factions": [
+    "conclave",
+    "horde"
+  ],
+  "subtypes": [
+    "orc"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0,
+    "factions": {
+      "conclave": 1,
+      "horde": 1
+    }
+  },
+  "stats": {
+    "attack": 3,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "conclave": 1
+      },
+      {
+        "horde": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "quickened",
+      "params": {}
+    }
+  ],
+  "set": "foundations"
+}

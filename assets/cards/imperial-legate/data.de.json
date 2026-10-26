@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Kaiserlicher Legat",
+  "lore": "Er wurde ausgesandt, die freien Städte an ihre Pflichten zu erinnern, und kehrt mit einer Liste der Pflichten des Reiches zurück."
+}

@@ -1,0 +1,43 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "entranced-goblins",
+  "revision": 1,
+  "name": "Entranced Goblins",
+  "lore": "The druids call it a charm. The goblins call it a very long walk, and nobody has asked them to stop.",
+  "deckLimitKey": "entranced-goblins",
+  "type": "creature",
+  "factions": [
+    "conclave",
+    "horde"
+  ],
+  "subtypes": [
+    "goblin"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 0
+  },
+  "stats": {
+    "attack": 0,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "conclave": 1
+      },
+      {
+        "horde": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "hive",
+      "params": {
+        "subtype": "goblin",
+        "first": true
+      }
+    }
+  ],
+  "set": "foundations"
+}

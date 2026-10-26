@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Reiter der Hürde",
+  "lore": "Die Clans leihen die Pferde. Die Marken leihen die Beschwerden. Beides kommt in schlechterem Zustand zurück."
+}

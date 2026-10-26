@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "alpaca-guide",
+  "revision": 1,
+  "name": "Alpaca Guide",
+  "lore": "The alpaca knows the pass. The guide knows the alpaca. Neither will say which of them leads.",
+  "deckLimitKey": "alpaca-guide",
+  "type": "creature",
+  "factions": [
+    "mountain-clans",
+    "bright-marches"
+  ],
+  "subtypes": [
+    "human",
+    "alpaca"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 0
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 1,
+    "energyOutputs": [
+      {
+        "mountain-clans": 1
+      },
+      {
+        "bright-marches": 1
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "quickened",
+      "params": {}
+    }
+  ],
+  "set": "foundations"
+}

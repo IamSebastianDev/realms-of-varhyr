@@ -1,0 +1,51 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "lost-depeche",
+  "revision": 1,
+  "name": "Lost Depeche",
+  "lore": "Somewhere between Morning Vale and the free cities, a message went missing. Both sides are certain the other has read it.",
+  "deckLimitKey": "lost-depeche",
+  "type": "spell",
+  "factions": [
+    "northern-league",
+    "crownlands"
+  ],
+  "subtypes": [
+    "divination"
+  ],
+  "legendary": false,
+  "rarity": "rare",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "northern-league": 1,
+      "crownlands": 1
+    }
+  },
+  "abilities": [
+    {
+      "id": "return",
+      "params": {}
+    }
+  ],
+  "timing": [
+    "play",
+    "response"
+  ],
+  "cast": [
+    {
+      "id": "draw",
+      "params": {
+        "amount": 1
+      }
+    },
+    {
+      "id": "searchForCreatureOrHolding",
+      "params": {
+        "maxCost": 1,
+        "first": true
+      }
+    }
+  ],
+  "set": "foundations"
+}

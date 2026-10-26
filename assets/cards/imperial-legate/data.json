@@ -1,0 +1,35 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "imperial-legate",
+  "revision": 1,
+  "name": "Imperial Legate",
+  "lore": "Sent to remind the free cities of their duties, he returns with a list of the empire's.",
+  "deckLimitKey": "imperial-legate",
+  "type": "creature",
+  "factions": [
+    "crownlands",
+    "northern-league"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": false,
+  "rarity": "common",
+  "cost": {
+    "generic": 0
+  },
+  "stats": {
+    "attack": 0,
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "crownlands": 1
+      },
+      {
+        "northern-league": 1
+      }
+    ]
+  },
+  "abilities": [],
+  "set": "foundations"
+}

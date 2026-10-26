@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Verlorene Depesche",
+  "lore": "Irgendwo zwischen dem Morgental und den freien Städten ist eine Botschaft verloren gegangen. Beide Seiten sind sicher, dass die andere sie gelesen hat."
+}
