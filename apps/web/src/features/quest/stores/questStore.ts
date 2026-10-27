@@ -1,12 +1,12 @@
 import { useSyncExternalStore } from "react";
 import { factionInfo, registry } from "@realms/content";
-import { boosterPacks } from "@realms/content/boosters";
+import { questAlignments } from "@realms/content/boosters";
 import { loadRun, parseMap, type QuestContent, type QuestMap, type RunState } from "@realms/quest";
 
 /** The game's real cards and the three booster alignments, in the shape the quest engine wants. */
 export const questContent: QuestContent = {
   cards: registry.cards,
-  packs: boosterPacks.map((pack) => ({ id: pack.id, name: pack.name, factions: pack.factions })),
+  packs: questAlignments.map((pack) => ({ id: pack.id, name: pack.name, factions: pack.factions })),
   factionNames: Object.fromEntries(
     Object.entries(factionInfo).map(([id, info]) => [id, info.name]),
   ),

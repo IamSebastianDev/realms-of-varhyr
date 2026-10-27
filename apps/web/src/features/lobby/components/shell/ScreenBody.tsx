@@ -76,7 +76,6 @@ export function ScreenBody() {
           saved={collectionSaved}
           message={msg(collectionMessage)}
           reduced={props.reduced}
-          open={openBooster}
           buy={buyBooster}
         />
       ) : screen === "stats" ? (

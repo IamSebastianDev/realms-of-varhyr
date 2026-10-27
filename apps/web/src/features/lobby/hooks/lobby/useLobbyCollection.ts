@@ -58,10 +58,14 @@ export function useLobbyCollection(c: ReturnType<typeof useLobbyNavigation>) {
       );
     }
   }
-  function buyBooster(pack: BoosterPack) {
+  function buyBooster(pack: BoosterPack, count = 1) {
     try {
-      updateCollection((current) => buyCollectionBooster(current, pack));
-      setCollectionMessage(msg("{v0} added to your boosters.", { v0: pack.name }));
+      updateCollection((current) => buyCollectionBooster(current, pack, count));
+      setCollectionMessage(
+        count === 1
+          ? msg("{v0} added to your boosters.", { v0: pack.name })
+          : msg("{v0} boosters added to your collection.", { v0: count }),
+      );
     } catch (cause) {
       setCollectionMessage(
         cause instanceof Error ? cause.message : msg("Could not buy this booster."),

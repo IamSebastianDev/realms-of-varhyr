@@ -1,29 +1,36 @@
-import {
-  lazy,
-  Suspense,
-  useRef,
-  useState,
-  type CSSProperties,
-  type KeyboardEvent,
-  type PointerEvent,
-} from "react";
-import { ChevronLeft, ChevronRight, Crown, Gift } from "lucide-react";
+import { lazy, Suspense, useState, type CSSProperties } from "react";
+import { Crown, Gift } from "lucide-react";
 import { t as msg, useLanguage } from "@realms/ui/i18n";
 import { boosterPacks, type BoosterPack } from "@realms/content/boosters";
-import { collectionRules, packCount, type Collection } from "../../collection/lib/collection";
+import {
+  boosterPrice,
+  collectionRules,
+  packCount,
+  type Collection,
+} from "../../collection/lib/collection";
 import { CrownAmount } from "../../../components/Crowns";
-import { packColor, packLines, packSymbol } from "../../boosters/components/BoosterOpening";
+import { packLines, packSymbol } from "../../boosters/components/BoosterOpening";
 import type { CarouselPack } from "../../boosters/components/BoosterPack3D";
+import { ShelfFrame } from "./ShelfFrame";
 import { CardBacksShop } from "./CardBacksShop";
 import { carouselPack, hasWebGL, SceneBoundary } from "../../boosters/components/packScene";
 import "../styles/store.css";
 
 const BoosterCarousel3D = lazy(() => import("../../boosters/components/BoosterPack3D"));
-const mod = (value: number, size: number) => ((value % size) + size) % size;
 
-function FlatPack({ pack }: { pack: BoosterPack }) {
+function FlatPack({ pack, stack = 1 }: { pack: BoosterPack; stack?: number }) {
   return (
-    <div className="booster-pack store-pack">
+    <div
+      className="booster-pack store-pack"
+      style={
+        stack > 1
+          ? {
+              boxShadow:
+                "14px 10px 0 -2px rgb(var(--shade-rgb) / 0.5), 28px 20px 0 -4px rgb(var(--shade-rgb) / 0.3)",
+            }
+          : undefined
+      }
+    >
       <span>REALMS OF VARHYR</span>
       {packSymbol(pack) ? <b className="pack-symbol">{packSymbol(pack)}</b> : <Crown size={55} />}
       <strong>{packLines(msg(pack.name))}</strong>
@@ -37,41 +44,37 @@ type Props = {
   saved: boolean;
   message: string;
   reduced: boolean;
-  open: (pack: BoosterPack) => void;
-  buy: (pack: BoosterPack) => void;
+  buy: (pack: BoosterPack, count: number) => void;
 };
 
-/** One window-sized inset: the wallet on top, an endless carousel of boosters, and the focused booster to open or buy. */
-export function Store({ collection, saved, message, reduced, open, buy }: Props) {
+/** One window-sized inset: the wallet on top, an endless carousel of boosters, and the focused booster to buy. */
+export function Store({ collection, saved, message, reduced, buy }: Props) {
   useLanguage();
-  const count = boosterPacks.length,
-    canBuy = collection.crowns >= collectionRules.packCost;
+  // The store offers the one booster, and ten of them piled up at the bundle price.
+  const base = boosterPacks[0]!;
+  const offers = [
+    { count: 1, title: base.name, blurb: base.blurb },
+    {
+      count: collectionRules.packBundle.count,
+      title: msg("{v0}× {v1}", { v0: collectionRules.packBundle.count, v1: msg(base.name) }),
+      blurb: msg("Ten boosters for {v0} crowns: one of them free.", {
+        v0: collectionRules.packBundle.cost,
+      }),
+    },
+  ];
   const [tab, setTab] = useState<"boosters" | "backs">("boosters");
   const [position, setPosition] = useState(0),
     [showing3d] = useState(hasWebGL);
-  const step = (delta: number) => setPosition((value) => value + delta);
-  const pack = boosterPacks[mod(position, count)];
-  const packs: CarouselPack[] = boosterPacks.map(carouselPack);
+  const offer = offers[position]!,
+    pack = base,
+    price = boosterPrice(offer.count);
+  const packs: CarouselPack[] = offers.map((entry) => ({
+    ...carouselPack(base),
+    id: `${base.id}-${entry.count}`,
+    stack: entry.count > 1 ? entry.count : undefined,
+  }));
   const owned = packCount(collection, pack.id),
-    color = packs[mod(position, count)].color;
-  const drag = useRef<number | null>(null);
-  const onKey = (event: KeyboardEvent) => {
-    if (event.key === "ArrowLeft") {
-      event.preventDefault();
-      step(-1);
-    } else if (event.key === "ArrowRight") {
-      event.preventDefault();
-      step(1);
-    }
-  };
-  const onDown = (event: PointerEvent) => {
-    drag.current = event.clientX;
-  };
-  const onUp = (event: PointerEvent) => {
-    if (drag.current !== null && Math.abs(event.clientX - drag.current) > 60)
-      step(event.clientX < drag.current ? 1 : -1);
-    drag.current = null;
-  };
+    color = packs[position].color;
   return (
     <main className="store-page store-hall" aria-label={msg("Store")}>
       <section className="store-stage" style={{ "--pack-color": color } as CSSProperties}>
@@ -101,65 +104,37 @@ export function Store({ collection, saved, message, reduced, open, buy }: Props)
           <CardBacksShop crowns={collection.crowns} />
         ) : (
           <>
-            <div
-              className="store-carousel"
-              role="group"
-              aria-roledescription="carousel"
-              aria-label={msg("Boosters")}
-              tabIndex={0}
-              onKeyDown={onKey}
-              onPointerDown={onDown}
-              onPointerUp={onUp}
-              onDoubleClick={() => {
-                if (canBuy) buy(pack);
+            <ShelfFrame
+              label={msg("Boosters")}
+              count={offers.length}
+              index={position}
+              setIndex={setPosition}
+              onActivate={() => {
+                if (collection.crowns >= price) buy(pack, offer.count);
               }}
             >
               <div className="store-pack-view" aria-hidden="true">
                 {showing3d ? (
-                  <SceneBoundary fallback={<FlatPack pack={pack} />}>
-                    <Suspense fallback={<FlatPack pack={pack} />}>
+                  <SceneBoundary fallback={<FlatPack pack={pack} stack={offer.count} />}>
+                    <Suspense fallback={<FlatPack pack={pack} stack={offer.count} />}>
                       <BoosterCarousel3D
                         packs={packs}
                         tagline={msg("FIVE CARDS")}
                         position={position}
-                        pick={(offset) => setPosition(offset)}
+                        pick={setPosition}
                         reduced={reduced}
+                        linear
                       />
                     </Suspense>
                   </SceneBoundary>
                 ) : (
-                  <FlatPack pack={pack} />
+                  <FlatPack pack={pack} stack={offer.count} />
                 )}
               </div>
-              {count > 1 && (
-                <>
-                  <button
-                    className="store-arrow left"
-                    aria-label={msg("Previous booster")}
-                    onClick={() => step(-1)}
-                  >
-                    <ChevronLeft size={26} />
-                  </button>
-                  <button
-                    className="store-arrow right"
-                    aria-label={msg("Next booster")}
-                    onClick={() => step(1)}
-                  >
-                    <ChevronRight size={26} />
-                  </button>
-                </>
-              )}
-            </div>
+            </ShelfFrame>
             <div className="store-bay-info" aria-live="polite">
-              <h2>{msg(pack.name)}</h2>
-              <p>{msg(pack.blurb)}</p>
-              {count > 1 && (
-                <div className="store-dots" aria-hidden="true">
-                  {boosterPacks.map((item, index) => (
-                    <i key={item.id} className={index === mod(position, count) ? "on" : ""} />
-                  ))}
-                </div>
-              )}
+              <h2>{msg(offer.title)}</h2>
+              <p>{msg(offer.blurb)}</p>
               <div className="store-owned">
                 <Gift size={15} />
                 {owned} {msg("owned")}
@@ -169,25 +144,19 @@ export function Store({ collection, saved, message, reduced, open, buy }: Props)
               </div>
               <div className="store-buy">
                 <button
-                  className="gold-button"
-                  aria-label={msg("Open {v0} booster", { v0: pack.name })}
-                  disabled={!owned}
-                  onClick={() => open(pack)}
-                >
-                  <Gift size={17} />
-                  {msg("Open booster")}
-                </button>
-                <button
                   className="outline-button store-crown-buy"
-                  aria-label={msg("Buy {v0} booster for {v1} crowns", {
-                    v0: pack.name,
-                    v1: collectionRules.packCost,
+                  aria-label={msg("Buy {v0} for {v1} crowns", {
+                    v0:
+                      offer.count === 1
+                        ? msg("1 booster")
+                        : msg("{v0} boosters", { v0: offer.count }),
+                    v1: price,
                   })}
-                  disabled={collection.crowns < collectionRules.packCost}
-                  onClick={() => buy(pack)}
+                  disabled={collection.crowns < price}
+                  onClick={() => buy(pack, offer.count)}
                 >
                   {msg("Buy")}
-                  <CrownAmount amount={collectionRules.packCost} />
+                  <CrownAmount amount={price} />
                 </button>
               </div>
             </div>

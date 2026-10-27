@@ -298,6 +298,7 @@ export default function BoosterBurst3D({
 }) {
   return (
     <Canvas
+      resize={{ offsetSize: true }}
       flat
       dpr={[1, 2]}
       camera={{ position: [0, 0, 10], fov: 30 }}

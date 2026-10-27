@@ -10,6 +10,10 @@ import model from "../../../../../../assets/boosters/pack-c.glb?url";
 
 /** One authored model for every pack; the artwork and small code-driven variations tell them apart. */
 const packLook: Record<string, { art?: string; variant: PackVariant }> = {
+  "booster-of-the-realms": {
+    art: hearthArt,
+    variant: { width: 1, height: 1, thin: 1, seal: "ribs", finish: "matte" },
+  },
   "hearth-and-crown": {
     art: hearthArt,
     variant: { width: 1, height: 1, thin: 1, seal: "ribs", finish: "matte" },

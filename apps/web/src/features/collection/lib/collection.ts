@@ -22,8 +22,10 @@ export const collectionRules = {
   /** A new player starts with this many boosters of the pack that fits their starter deck. */
   startingBoosters: 5,
   /** Spread used when the starter's faction is unknown. */
-  startingPacks: { [packIds.good]: 2, [packIds.neutral]: 1, [packIds.evil]: 2 },
+  startingPacks: { [packIds.realms]: 5 },
   packCost: 100,
+  /** Buying this many boosters at once is cheaper than buying them one by one. */
+  packBundle: { count: 10, cost: 900 },
   victoryCrowns: 25,
   victoryBoosters: 1,
   duplicateCrowns: { common: 10, rare: 25, legendary: 100 },
@@ -293,13 +295,29 @@ export function openCollectionBooster(
   return { collection: next, cards, crowns: cards.reduce((sum, card) => sum + card.crowns, 0) };
 }
 
-export function buyCollectionBooster(collection: Collection, pack: BoosterPack): Collection {
-  if (collection.crowns < collectionRules.packCost)
-    throw new Error(`A booster costs ${collectionRules.packCost} crowns.`);
+/** What `count` boosters cost: the bundle size has its own price, any other number is paid one by one. */
+export const boosterPrice = (count: number) =>
+  count === collectionRules.packBundle.count
+    ? collectionRules.packBundle.cost
+    : count * collectionRules.packCost;
+export function buyCollectionBooster(
+  collection: Collection,
+  pack: BoosterPack,
+  count = 1,
+): Collection {
+  if (!Number.isSafeInteger(count) || count < 1)
+    throw new Error("Choose how many boosters to buy.");
+  const price = boosterPrice(count);
+  if (collection.crowns < price)
+    throw new Error(
+      count === 1
+        ? `A booster costs ${collectionRules.packCost} crowns.`
+        : `${count} boosters cost ${price} crowns.`,
+    );
   return {
     ...collection,
-    crowns: collection.crowns - collectionRules.packCost,
-    packs: { ...collection.packs, [pack.id]: addNumber(packCount(collection, pack.id), 1) },
+    crowns: collection.crowns - price,
+    packs: { ...collection.packs, [pack.id]: addNumber(packCount(collection, pack.id), count) },
   };
 }
 export const cardPrice = (card: CardDefinition) => collectionRules.cardCrowns[card.rarity];

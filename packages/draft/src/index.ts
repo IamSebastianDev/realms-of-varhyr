@@ -1,7 +1,7 @@
 import { deckRules, type CardDefinition, type Registry } from "@realms/contracts";
 import { validateDeck } from "@realms/core";
 import { energyProductionOptions } from "@realms/core/production";
-import { drawBooster } from "@realms/content/boosters";
+import { drawCard } from "@realms/content/boosters";
 import { factions as namedFactions } from "@realms/content/factions";
 import { neutralId } from "@realms/content/factionDefinition";
 import { makeRng, type Rng } from "@realms/quest/rng";
@@ -104,7 +104,7 @@ export function makeDraftPack(
     pool = factionPool(all, faction),
     free = guaranteedProducers(all, faction, registry);
   if (!free.length) throw new Error(`The ${faction} boosters have no producer to guarantee.`);
-  const normal = Array.from({ length: size - 1 }, () => drawBooster(pool, rng.next)[0]!);
+  const normal = Array.from({ length: size - 1 }, () => drawCard(pool, rng.next));
   return rng.shuffle([rng.pick(free).id, ...normal]);
 }
 

@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { registry } from "@realms/content";
+import { packIds } from "@realms/content/boosters";
 import type { RunState } from "@realms/quest";
 import { questRules } from "@realms/quest";
 import {
@@ -145,15 +146,15 @@ describe("quest reward settlement", () => {
     ];
     const active = run({ stage: "map", result: null, earned: earned.slice(0, 1) });
     const first = applyPayouts(emptyCollection(), active);
-    expect(first.packs["hearth-and-crown"]).toBe(1);
+    expect(first.packs[packIds.realms]).toBe(1);
     expect(applyPayouts(first, active)).toBe(first);
     const later = run({ stage: "map", result: null, earned });
     expect(unpaidPayouts(first, later).map((payout) => payout.id)).toEqual(["quest:b"]);
     const second = applyPayouts(parseCollection(JSON.stringify(first), registry)!, later);
-    expect(second.packs["hearth-and-crown"]).toBe(3);
+    expect(second.packs[packIds.realms]).toBe(3);
     expect(second.crowns).toBe(30);
     expect(applyPayouts(second, later)).toBe(second);
-    expect(applyPayouts(second, { ...later, id: "run-2" }).packs["hearth-and-crown"]).toBe(6); // Receipts belong to their run.
+    expect(applyPayouts(second, { ...later, id: "run-2" }).packs[packIds.realms]).toBe(6); // Receipts belong to their run.
   });
 
   it("rejects unaffordable, unavailable, malformed and over-cap selections without charging", () => {

@@ -1,4 +1,5 @@
 import type { Registry } from "@realms/contracts";
+import { boosterFor } from "@realms/content/boosters";
 import { keepPriceOf, questRules, type Payout, type RunState } from "@realms/quest";
 import {
   ownedCopyCount,
@@ -23,8 +24,10 @@ export function applyPayouts(collection: Collection, run: RunState): Collection 
     receipts = { ...collection.questPayouts };
   let crowns = collection.crowns;
   for (const payout of owed) {
-    for (const [pack, count] of Object.entries(payout.packs))
-      packs[pack] = (packs[pack] ?? 0) + count;
+    for (const [pack, count] of Object.entries(payout.packs)) {
+      const id = boosterFor(pack).id; // Quest rewards name an alignment; every alignment pays in the one booster.
+      packs[id] = (packs[id] ?? 0) + count;
+    }
     crowns += payout.crowns;
     receipts[payoutKey(run, payout)] = true;
   }

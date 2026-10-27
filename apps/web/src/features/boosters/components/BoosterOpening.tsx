@@ -9,9 +9,11 @@ import type { CardDefinition } from "@realms/contracts";
 import type { BoosterCardReward } from "../lib/boosterRewards";
 import { ArtCard } from "@realms/ui/CardPresentation";
 import { CrownAmount } from "../../../components/Crowns";
+import type { LightBurst } from "./BoosterLight3D";
 import { carouselPack, hasWebGL, SceneBoundary } from "./packScene";
 
 const BoosterBurst3D = lazy(() => import("./BoosterBurst3D"));
+const BoosterLight3D = lazy(() => import("./BoosterLight3D"));
 
 export type OpenBooster = {
   id: string;
@@ -57,14 +59,26 @@ export function BoosterOpening({
 }) {
   useLanguage();
   const [opened, setOpened] = useState(reduced);
-  const [revealed, setRevealed] = useState(reduced ? pack.cards.length : 0);
+  // Commons turn over by themselves and are tucked away; the rares and legendaries wait face down for a click.
+  const rarityOf = (index: number) => registry.cards[pack.cards[index].id].rarity;
+  const specials = pack.cards
+      .map((_, index) => index)
+      .filter((index) => rarityOf(index) !== "common"),
+    plain = pack.cards.map((_, index) => index).filter((index) => !specials.includes(index));
+  const [shown, setShown] = useState<number[]>(reduced ? pack.cards.map((_, index) => index) : []),
+    [tucked, setTucked] = useState(reduced),
+    [charging, setCharging] = useState<number[]>([]),
+    [bursts, setBursts] = useState<number[]>([]),
+    [lights, setLights] = useState<LightBurst[]>([]);
   const [skip, setSkip] = useState(false),
     [broken, setBroken] = useState(false),
     [armed] = useState(true);
   const scene3d = hasWebGL && !reduced && !broken;
   const dialogRef = useRef<HTMLElement>(null);
+  const lightRef = useRef<HTMLDivElement>(null);
+  const lightId = useRef(0);
   const closeRef = useRef<HTMLButtonElement>(null);
-  const complete = revealed === pack.cards.length;
+  const complete = shown.length === pack.cards.length;
   const crowns = pack.cards.reduce((sum, card) => sum + (card.crowns ?? 0), 0);
   const kept = pack.cards.filter((card) => !card.crowns).length;
 
@@ -84,11 +98,6 @@ export function BoosterOpening({
     return () => window.clearTimeout(timer);
   }, [armed, reduced, scene3d, playEffect]);
   useEffect(() => {
-    const shown = pack.cards[revealed - 1];
-    if (!shown || revealed > pack.cards.length) return;
-    playEffect(registry.cards[shown.id].rarity === "common" ? "card.flip" : "pack.rare");
-  }, [revealed, pack, playEffect]);
-  useEffect(() => {
     if (complete && !suspended && document.activeElement === document.body)
       closeRef.current?.focus();
   }, [complete, suspended]);
@@ -96,7 +105,8 @@ export function BoosterOpening({
   useEffect(() => {
     if (skip || reduced) {
       setOpened(true);
-      setRevealed(pack.cards.length);
+      setShown(pack.cards.map((_, index) => index));
+      setTucked(true);
       return;
     }
     if (scene3d) return;
@@ -106,11 +116,54 @@ export function BoosterOpening({
   }, [pack.cards, reduced, skip, scene3d, armed]);
   useEffect(() => {
     if (!opened || skip || reduced) return;
-    const timers = pack.cards.map((_, index) =>
-      window.setTimeout(() => setRevealed(index + 1), 400 + index * 320),
+    // The commons turn one by one, then shrink away to the bottom and leave the rest face down.
+    const timers = plain.map((index, order) =>
+      window.setTimeout(
+        () => {
+          setShown((list) => [...list, index]);
+          playEffect("card.flip");
+        },
+        400 + order * 320,
+      ),
     );
+    timers.push(window.setTimeout(() => setTucked(true), 400 + plain.length * 320 + 900));
     return () => timers.forEach(window.clearTimeout);
-  }, [opened, pack.cards, reduced, skip]);
+  }, [opened, pack.cards, reduced, skip]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // A tap on a face-down card: it shakes, turns over and bursts.
+  function flip(index: number) {
+    if (shown.includes(index) || charging.includes(index) || skip) return;
+    setCharging((list) => [...list, index]);
+    window.setTimeout(
+      () => {
+        setCharging((list) => list.filter((entry) => entry !== index));
+        setShown((list) => (list.includes(index) ? list : [...list, index]));
+        setBursts((list) => [...list, index]);
+        addLight(index);
+        playEffect("pack.rare");
+      },
+      reduced ? 0 : 700,
+    );
+  }
+
+  // Light comes up behind the card that turned: its centre, in the light canvas' own pixels.
+  function addLight(index: number) {
+    const area = lightRef.current,
+      face = dialogRef.current?.querySelector(`[data-slot="${index}"] .booster-flip`);
+    if (!area || !face) return;
+    const box = area.getBoundingClientRect(),
+      at = face.getBoundingClientRect(),
+      scale = box.width / area.offsetWidth || 1;
+    setLights((list) => [
+      ...list,
+      {
+        id: ++lightId.current,
+        x: (at.left + at.width / 2 - box.left) / scale - area.offsetWidth / 2,
+        y: area.offsetHeight / 2 - (at.top + at.height / 2 - box.top) / scale,
+        legendary: rarityOf(index) === "legendary",
+      },
+    ]);
+  }
 
   function trapFocus(event: KeyboardEvent) {
     if (event.key !== msg("Tab") || suspended) return;
@@ -126,6 +179,63 @@ export function BoosterOpening({
       event.preventDefault();
       first?.focus();
     }
+  }
+
+  function slot(index: number, special = false) {
+    const reward = pack.cards[index],
+      card = registry.cards[reward.id],
+      visible = shown.includes(index),
+      waiting = special && !visible;
+    return (
+      <div
+        className={`booster-slot ${visible ? "revealed" : ""} ${reward.crowns ? "is-reclaimed" : ""} rarity-${card.rarity} ${waiting ? "waiting" : ""} ${charging.includes(index) ? "charging" : ""}`}
+        key={index}
+        data-slot={index}
+      >
+        <div className="booster-flip">
+          <div className="booster-card-back" aria-hidden="true">
+            <Crown size={32} />
+            <span>V</span>
+          </div>
+          <div className="booster-card-front" aria-hidden={!visible} inert={!visible}>
+            <ArtCard
+              card={card}
+              reduced={reduced}
+              onClick={() => inspect(card)}
+              className="booster-card"
+            />
+          </div>
+          {waiting && (
+            <button
+              className="booster-flip-hit"
+              aria-label={msg("Reveal card")}
+              onClick={() => flip(index)}
+            />
+          )}
+        </div>
+        {bursts.includes(index) && !reduced && !scene3d && (
+          <span className="booster-rise" aria-hidden="true" />
+        )}
+        <div
+          className={`booster-card-caption ${visible ? "" : "unrevealed"}`}
+          aria-hidden={!visible}
+        >
+          <span>{card.rarity}</span>
+          {reward.crowns ? (
+            <div className="booster-crown-reward">
+              <CrownAmount amount={reward.crowns} />
+              <small>{msg("Extra copy sold")}</small>
+            </div>
+          ) : (
+            <small>
+              {reward.isNew
+                ? msg("New to your collection")
+                : msg("+1 copy · {v0} owned", { v0: reward.copies })}
+            </small>
+          )}
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -161,7 +271,9 @@ export function BoosterOpening({
                   v2: crowns ? ` · ${crowns} crowns from extra copies` : "",
                 })
               : opened
-                ? msg("Revealing cards · {v0} / 5", { v0: revealed })
+                ? tucked
+                  ? msg("Tap a card to turn it over")
+                  : msg("Revealing cards · {v0} / 5", { v0: shown.length })
                 : armed
                   ? msg("Breaking the seal…")
                   : msg("Ready to open")}
@@ -207,50 +319,21 @@ export function BoosterOpening({
             </div>
           )
         ) : (
-          <div className="booster-grid">
-            {pack.cards.map((reward, index) => {
-              const card = registry.cards[reward.id],
-                visible = index < revealed;
-              return (
-                <div
-                  className={`booster-slot ${visible ? "revealed" : ""} ${reward.crowns ? "is-reclaimed" : ""} rarity-${card.rarity}`}
-                  key={index}
-                >
-                  <div className="booster-flip">
-                    <div className="booster-card-back" aria-hidden="true">
-                      <Crown size={32} />
-                      <span>V</span>
-                    </div>
-                    <div className="booster-card-front" aria-hidden={!visible} inert={!visible}>
-                      <ArtCard
-                        card={card}
-                        reduced={reduced}
-                        onClick={() => inspect(card)}
-                        className="booster-card"
-                      />
-                    </div>
-                  </div>
-                  <div
-                    className={`booster-card-caption ${visible ? "" : "unrevealed"}`}
-                    aria-hidden={!visible}
-                  >
-                    <span>{card.rarity}</span>
-                    {reward.crowns ? (
-                      <div className="booster-crown-reward">
-                        <CrownAmount amount={reward.crowns} />
-                        <small>{msg("Extra copy sold")}</small>
-                      </div>
-                    ) : (
-                      <small>
-                        {reward.isNew
-                          ? msg("New to your collection")
-                          : msg("+1 copy · {v0} owned", { v0: reward.copies })}
-                      </small>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+          <div className={`booster-cards ${tucked ? "tucked" : ""}`}>
+            {scene3d && (
+              <div ref={lightRef} className="booster-light" aria-hidden="true">
+                <SceneBoundary onError={() => setBroken(true)} fallback={null}>
+                  <Suspense fallback={null}>
+                    <BoosterLight3D
+                      bursts={lights}
+                      done={(id) => setLights((list) => list.filter((entry) => entry.id !== id))}
+                    />
+                  </Suspense>
+                </SceneBoundary>
+              </div>
+            )}
+            <div className="booster-plain">{plain.map((index) => slot(index))}</div>
+            <div className="booster-special">{specials.map((index) => slot(index, true))}</div>
           </div>
         )}
         {!pack.saved && (
