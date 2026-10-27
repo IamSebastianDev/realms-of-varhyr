@@ -2,5 +2,31 @@
   "id": "northern-league",
   "name": "The Northern League",
   "short": "Northern League",
-  "color": "#6c9bd1"
+  "color": "#6c9bd1",
+  "starter": {
+    "id": "ledgers-and-lightning",
+    "name": "Ledgers and Lightning",
+    "cards": {
+      "academy-apprentice": 3,
+      "arcane-missile": 2,
+      "borrowed-wisdom": 1,
+      "dockhand-construct": 3,
+      "mercenary-outriders": 1,
+      "morie-grandmistress-of-winter": 1,
+      "oerson-keeper-of-scrolls": 1,
+      "peek": 2,
+      "quickcast-mage": 1,
+      "refuse-entry": 1,
+      "return-home": 2,
+      "revenge": 1,
+      "rimholdt-channeler": 1,
+      "rimholdt-forester": 3,
+      "search-the-archives": 1,
+      "sellwords": 2,
+      "stavnay-fjord": 1,
+      "store-house": 1,
+      "stormborn-captain": 1,
+      "weather-the-storm": 1
+    }
+  }
 }

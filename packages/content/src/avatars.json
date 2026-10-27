@@ -11,6 +11,7 @@
   },
   {
     "id": "morie",
+    "faction": "northern-league",
     "name": "Morie",
     "title": "Grandmistress of the Northern League",
     "lore": "Wise in diplomacy and magic, Morie protects the freedom of the League’s rich cities. For now, that means keeping the empire weak and the Marches at a distance.",
@@ -49,6 +50,7 @@
   },
   {
     "id": "ilyria",
+    "faction": "conclave",
     "name": "Ilyria",
     "title": "Queen of the Elves · Voice of the Conclave",
     "lore": "Proud and dangerous, Ilyria places the woods and her people above all else. She shelters druids and tree walkers; intruders are friends or already dead. The empire’s industry threatens her realm as surely as the burning hordes.",

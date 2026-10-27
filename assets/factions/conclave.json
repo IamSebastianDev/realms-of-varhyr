@@ -2,5 +2,31 @@
   "id": "conclave",
   "name": "The Conclave",
   "short": "Conclave",
-  "color": "#86b772"
+  "color": "#86b772",
+  "starter": {
+    "id": "voice-of-the-willows",
+    "name": "Voice of the Willows",
+    "cards": {
+      "ancient-growth": 1,
+      "borrowed-wisdom": 1,
+      "call-of-the-wolf": 1,
+      "deep-root-sentinel": 1,
+      "druid-of-the-willows": 1,
+      "elven-artisan": 2,
+      "elven-bear-rider": 2,
+      "elven-beekeeper": 3,
+      "elven-bowyer": 3,
+      "elven-scouts": 2,
+      "elvish-honourguard": 1,
+      "form-of-the-bear": 1,
+      "ilyria-queen-of-the-elves": 1,
+      "mercenary-outriders": 1,
+      "old-druid": 2,
+      "quick-cut-brigade": 1,
+      "return-home": 2,
+      "revenge": 1,
+      "sellwords": 2,
+      "willow-high-druid": 1
+    }
+  }
 }

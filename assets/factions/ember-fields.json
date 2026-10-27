@@ -9,21 +9,24 @@
     "name": "Smoke on the Horizon",
     "cards": {
       "ashway-armourer": 3,
-      "charcoal-burner": 3,
-      "furnace-stoker": 3,
-      "ashway-raiders": 1,
-      "glimmfold-raider": 3,
-      "sabotage": 1,
-      "assassination": 2,
-      "black-regiment-cavalry": 1,
-      "hekata-lady-of-the-fields": 1,
-      "feared-infantry": 3,
       "ashway-guard-captain": 1,
-      "vanguard-pikemen": 2,
-      "torch-the-rooftops": 2,
+      "ashway-raiders": 2,
+      "assassination": 1,
+      "borrowed-wisdom": 1,
+      "charcoal-burner": 3,
+      "feared-infantry": 1,
+      "furnace-stoker": 3,
+      "glimmfold-raider": 2,
+      "hekata-lady-of-the-fields": 1,
+      "mercenary-outriders": 1,
+      "return-home": 2,
+      "revenge": 1,
+      "sabotage": 1,
+      "sellwords": 2,
       "song-of-war": 1,
-      "mercenary-outriders": 2,
-      "the-glimmfold": 1
+      "the-glimmfold": 1,
+      "torch-the-rooftops": 1,
+      "vanguard-pikemen": 2
     }
   }
 }

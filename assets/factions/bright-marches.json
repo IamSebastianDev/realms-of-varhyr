@@ -9,22 +9,24 @@
     "name": "Hearth and Stone",
     "cards": {
       "bosci-lord-of-seacliffe": 1,
-      "hearth-guard": 1,
       "grendel-herald-of-the-marches": 1,
-      "marcher-axeman": 3,
-      "oakholme-archery-captain": 1,
-      "oakholme-bowmen": 3,
+      "hearth-guard": 1,
+      "longship": 1,
+      "marcher-axeman": 2,
+      "mercenary-outriders": 1,
+      "moment-of-glory": 1,
+      "oakholme-bowmen": 2,
       "puncture": 2,
+      "return-home": 2,
+      "revenge": 1,
       "riverlands-shipwrights": 3,
+      "royal-poet": 1,
       "seacliffe-fisherman": 3,
-      "strike-the-hammer": 2,
+      "sellwords": 2,
+      "strike-the-hammer": 1,
       "volley": 1,
       "westhill-smith": 3,
-      "royal-poet": 1,
-      "wooden-fort": 1,
-      "banner-of-the-riverlands": 1,
-      "moment-of-glory": 1,
-      "mercenary-outriders": 2
+      "wooden-fort": 1
     }
   }
 }

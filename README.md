@@ -31,7 +31,7 @@ The full rules and the engine's decisions are in [docs/prototype.md](docs/protot
 
 ## What is in the box
 
-- One set so far, **RoV: Foundations**, across the Crownlands, Bright Marches, Black Host, Horde, Mountain Clans, Ember Fields, Conclave, Northern League and Neutral. The Crownlands and Bright Marches have complete 30-card starters (Banners of the Crown and Hearth and Stone); the Black Host has a small card set, and each remaining faction has only its leader so far.
+- One set so far, **RoV: Foundations**, across the Crownlands, Bright Marches, Black Host, Horde, Mountain Clans, Ember Fields, Conclave, Northern League and Neutral. Each of the eight factions has a complete 30-card starter deck, and all eight are offered when a new player starts or the game is reset.
 - **English and German.** All card names, lore and ability text are translated, and so is the interface.
 - **Play modes:** practice against the bot, hotseat on one device, online room, scripted tutorial, and read-only replay viewing.
 - **Collection:** new players receive the default starter and five Realm's Bounty boosters. Wins pay 25 Crowns and a booster. Extra copies turn into Crowns, and Crowns buy boosters or individual cards in the Store. Tutorials and imported replays pay nothing.

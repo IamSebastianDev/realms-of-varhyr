@@ -15,6 +15,7 @@
     "train:eval": "tsx src/train-eval.ts train",
     "audit:bot": "tsx src/audit-bot.ts",
     "audit:balance": "tsx src/audit-first-player.ts",
+    "audit:cards": "tsx src/audit-cards.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

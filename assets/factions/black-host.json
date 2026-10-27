@@ -9,22 +9,24 @@
     "name": "Plague from the West",
     "cards": {
       "acolyte-of-draur": 3,
-      "rot-priest": 3,
-      "undead-servant": 3,
+      "borrowed-wisdom": 1,
       "crawling-corpse": 2,
-      "undead-warrior": 2,
       "death": 1,
-      "gravecaller": 3,
-      "skeletal-company": 2,
-      "raise-undead": 1,
-      "servant-of-the-lich": 1,
-      "sluggish-brute": 2,
-      "undead-captain": 1,
-      "ossuary-warden": 1,
-      "the-dark-priest-of-run": 1,
-      "altar-of-binding": 1,
+      "envoy-of-the-black-host": 1,
+      "grave-exchange": 1,
       "grave-troll": 1,
-      "revenge": 2
+      "gravecaller": 2,
+      "mercenary-outriders": 1,
+      "raise-undead": 1,
+      "return-home": 2,
+      "revenge": 1,
+      "rot-priest": 3,
+      "sellwords": 2,
+      "skeletal-company": 1,
+      "the-dark-priest-of-run": 1,
+      "undead-captain": 1,
+      "undead-servant": 3,
+      "undead-warrior": 2
     }
   }
 }

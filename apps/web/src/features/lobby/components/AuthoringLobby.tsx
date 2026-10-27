@@ -44,7 +44,8 @@ export function AuthoringLobby({
       return [];
     }
   });
-  const [selected, setSelected] = useState(defaultDeckId);
+  // A new player has chosen their starter at onboarding, so open on their saved deck rather than the default starter they may not own.
+  const [selected, setSelected] = useState(() => decks[0]?.id ?? defaultDeckId);
   const [opponentId, setOpponentId] = useState("auto");
   const [mode, setMode] = useState<MatchSetup["mode"]>("practice");
   const [error, setError] = useState("");
