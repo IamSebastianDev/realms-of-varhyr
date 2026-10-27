@@ -256,7 +256,8 @@ describe("WebRTC match authority and protocol", () => {
       expect(moves).toBeLessThan(1200);
       expect(room.snapshot("p1").view.outcome).toBe(room.snapshot("p2").view.outcome);
     }
-  });
+    // Three whole matches, projected for both seats after every move: about 3 s on a laptop, but ten times that on a loaded CI runner.
+  }, 120_000);
   it("keeps activated-ability energy choices (Primal) across the wire", () => {
     // A creature with Primal, defined here so the test does not depend on any authored card.
     const primal: Registry = {
