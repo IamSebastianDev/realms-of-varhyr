@@ -95,8 +95,12 @@ export function OpponentBanner() {
           </div>
         </div>
         <div className="piles">
-          <HandCount count={opponent.handCount} />
-          <LibraryCount count={opponent.deckCount} back={cardBackById(opponent.cardBack).id} />
+          <HandCount count={opponent.handCount} player={opponent.id} />
+          <LibraryCount
+            count={opponent.deckCount}
+            back={cardBackById(opponent.cardBack).id}
+            player={opponent.id}
+          />
           <DiscardCount
             count={opponent.discard.length}
             top={discardTop(opponent.discard)}

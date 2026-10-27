@@ -42,3 +42,65 @@
     transition: none;
   }
 }
+
+/* Drawing a card: a face-down card flies in from the library, then the real card turns over in its place. */
+.draw-flows {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--z-bar);
+}
+.draw-flows .draw-flight {
+  position: fixed;
+  opacity: 0;
+  border-radius: 6px;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 8px 22px rgb(0 0 0 / 0.55);
+}
+.hand-scroll .hand-card.draw-in,
+.draw-card-art.draw-in,
+.deal-art.draw-in {
+  animation: card-turn-in 0.3s cubic-bezier(0.2, 0.8, 0.3, 1) var(--draw-delay, 0ms) backwards;
+}
+/* A card carried in from the draw dialog is already face up: it only appears where the flying copy lands. */
+.hand-scroll .hand-card.draw-in.fade {
+  animation: card-appear 0.12s linear var(--draw-delay, 0ms) backwards;
+}
+.draw-flows .draw-flight.keep {
+  opacity: 1;
+  background: none;
+  box-shadow: none;
+}
+.draw-flows .draw-flight.keep .art-card {
+  width: 100%;
+  height: 100%;
+}
+@keyframes card-appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes card-turn-in {
+  from {
+    opacity: 0;
+    transform: perspective(900px) rotateY(-90deg) scale(1.04);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .draw-flows {
+    display: none;
+  }
+  .hand-scroll .hand-card.draw-in,
+  .draw-card-art.draw-in,
+  .deal-art.draw-in {
+    animation: none;
+  }
+}

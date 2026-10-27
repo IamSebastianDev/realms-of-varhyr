@@ -140,7 +140,6 @@ export function BoosterOpening({
         setShown((list) => (list.includes(index) ? list : [...list, index]));
         setBursts((list) => [...list, index]);
         addLight(index);
-        playEffect("pack.rare");
       },
       reduced ? 0 : 700,
     );

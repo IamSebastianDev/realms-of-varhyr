@@ -6,6 +6,7 @@ import type { CardDefinition } from "@realms/contracts";
 import { ArtCard } from "@realms/ui/CardPresentation";
 import { stageRoot, toStageLength, toStageRect, toStageX, toStageY } from "@realms/ui/stage";
 import { PeekBackdrop } from "./Peek";
+import { announceKeep, useArrivingCards } from "../lib/drawFx";
 
 export type DrawDestination = "discard" | "bottom";
 type Props = {
@@ -34,9 +35,19 @@ export function DrawChoice({
   const zoneAt = (x: number, y: number) =>
     (document.elementFromPoint(x, y)?.closest("[data-draw-zone]") as HTMLElement | null)?.dataset
       .drawZone as DrawDestination | undefined;
+  const arriving = useArrivingCards();
   function reject(id: string, destination: DrawDestination) {
     const keep = cards.find((c) => c.id !== id);
-    if (keep) choose(keep.id, destination);
+    if (!keep) return;
+    // The card that stays is carried from where it is shown to the hand.
+    const shown = document.getElementById(`draw-card-${keep.id}`);
+    if (shown && !reduced)
+      announceKeep({
+        cardId: keep.id,
+        card: keep.card,
+        from: toStageRect(shown.getBoundingClientRect()),
+      });
+    choose(keep.id, destination);
   }
   function start(id: string, event: React.PointerEvent<HTMLElement>) {
     if (event.button !== 0 && event.pointerType === "mouse") return;
@@ -112,7 +123,12 @@ export function DrawChoice({
           <div className="draw-cards">
             {cards.map(({ id, card }) => (
               <div key={id} className={`draw-card ${ghost?.id === id ? "lifted" : ""}`}>
-                <div className="draw-card-art" onPointerDown={(e) => start(id, e)}>
+                <div
+                  id={`draw-card-${id}`}
+                  className={`draw-card-art ${arriving[id] ? "draw-in" : ""}`}
+                  style={{ ["--draw-delay" as string]: `${(arriving[id]?.delay ?? 0) + 480}ms` }}
+                  onPointerDown={(e) => start(id, e)}
+                >
                   <ArtCard card={card} reduced={reduced} />
                 </div>
                 <div className="draw-card-fallback">

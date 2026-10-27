@@ -16,6 +16,7 @@ import {
   buildClash,
   type ClashStep,
 } from "../lib/combatReplay";
+import { announceDraw, clearDraws, drawsOf } from "../lib/drawFx";
 import { useCardMotion, type Poses } from "../lib/cardMotion";
 
 type Options = {
@@ -84,6 +85,8 @@ export function useMatchPresentation({
       }
       spellStep.current = events.some((e) => e.type === "spell.cast");
       if (reduced || covered) return;
+      if (!hotseat)
+        for (const draw of drawsOf(before, after, events, key, viewer)) announceDraw(draw);
       const bursts = factionBursts(before, after, events, registry, key);
       if (bursts.length) setFactionEffects((list) => [...list, ...bursts].slice(-20));
       const board = maybeRectOf(boardRef.current),
@@ -210,9 +213,18 @@ export function useMatchPresentation({
     );
     return () => clearTimeout(timer);
   }, [clash]);
+  // On the first run there is nothing to drop, and a dialog may already have dealt its cards in this very commit.
+  const ready = useRef(false);
   useEffect(() => {
     setClash(null);
-  }, [viewer, initial, reduced, covered, screen]);
+    if (ready.current) clearDraws();
+  }, [viewer, initial, reduced, screen]);
+  // A cover going up drops what was playing; one coming down must not, since the dialog behind it has just dealt its cards.
+  useEffect(() => {
+    if (!covered) return;
+    setClash(null);
+    clearDraws();
+  }, [covered]);
   // Stepping through a replay plays each step's fight; jumping around clears whatever was playing.
   useEffect(() => {
     if (stepping.current) {
@@ -223,7 +235,14 @@ export function useMatchPresentation({
     setSpellCasts([]);
     setEnergyFlights([]);
     setFactionEffects([]);
+    if (ready.current) clearDraws();
   }, [historyIndex]);
+  useEffect(() => {
+    ready.current = true;
+    return () => {
+      ready.current = false;
+    };
+  }, []);
   useEffect(() => {
     if (!clash) return;
     const skip = (event: KeyboardEvent) => {

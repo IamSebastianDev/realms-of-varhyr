@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef } from "react";
 import { BookOpen, Hand } from "lucide-react";
 import { t as msg, useLanguage } from "@realms/ui/i18n";
-import type { CardDefinition } from "@realms/contracts";
+import type { CardDefinition, PlayerId } from "@realms/contracts";
 import { CardBackFace } from "../../card-backs/components/CardBackFace";
 
 /** Small presentational pieces of the match screen: player names, pile counters and the deck icon. */
@@ -26,11 +26,20 @@ export function FitName({ name }: { name: string }) {
   }, [name]);
   return <h2 ref={ref}>{name}</h2>;
 }
-export function LibraryCount({ count, back }: { count: number; back?: string }) {
+export function LibraryCount({
+  count,
+  back,
+  player,
+}: {
+  count: number;
+  back?: string;
+  player?: PlayerId;
+}) {
   useLanguage();
   return (
     <div
       className={`library-count ${count <= 6 ? "library-low" : ""} ${back ? "has-back" : ""}`}
+      data-library={player}
       title={msg("{v0} cards in library. Drawing the last card loses the game.", { v0: count })}
       aria-label={msg("{v0} cards in library", { v0: count })}
     >
@@ -40,11 +49,12 @@ export function LibraryCount({ count, back }: { count: number; back?: string }) 
     </div>
   );
 }
-export function HandCount({ count }: { count: number }) {
+export function HandCount({ count, player }: { count: number; player?: PlayerId }) {
   useLanguage();
   return (
     <div
       className="library-count hand-count"
+      data-hand={player}
       title={msg("{v0} {v1} in hand", { v0: count, v1: count === 1 ? "card" : "cards" })}
       aria-label={msg("{v0} {v1} in hand", { v0: count, v1: count === 1 ? "card" : "cards" })}
     >

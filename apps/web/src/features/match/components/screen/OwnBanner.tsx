@@ -68,8 +68,8 @@ export function OwnBanner() {
           </div>
         </div>
         <div className="piles">
-          <HandCount count={you.handCount} />
-          <LibraryCount count={you.deckCount} back={ownBack} />
+          <HandCount count={you.handCount} player={you.id} />
+          <LibraryCount count={you.deckCount} back={ownBack} player={you.id} />
           <DiscardCount
             count={you.discard.length}
             top={discardTop(you.discard)}

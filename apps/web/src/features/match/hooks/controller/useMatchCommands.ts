@@ -1,7 +1,7 @@
 import { type Command } from "@realms/contracts";
 import { t as msg } from "@realms/ui/i18n";
 import { playerCommands, stepAfter, tutorialSteps } from "../../../tutorial/tutorial";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 
 import type { useMatchBasics } from "./useMatchBasics";
 import type { useMatchUiState } from "./useMatchUiState";
@@ -98,7 +98,7 @@ export function useMatchCommands(
   const previousSession = useRef(sessionSnapshot),
     historyRef = useRef<number | null>(null);
   historyRef.current = historyIndex;
-  useEffect(() => {
+  useLayoutEffect(() => {
     const previous = previousSession.current;
     previousSession.current = sessionSnapshot;
     if (

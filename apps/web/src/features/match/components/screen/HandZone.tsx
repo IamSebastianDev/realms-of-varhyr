@@ -4,6 +4,7 @@ import { t as msg } from "@realms/ui/i18n";
 import { registry } from "@realms/content";
 
 import { useMatch } from "../../MatchContext";
+import { KEEP_FLIGHT, useArrivingCards } from "../../lib/drawFx";
 
 export function HandZone() {
   const {
@@ -27,6 +28,7 @@ export function HandZone() {
     targets,
     view,
   } = useMatch();
+  const arriving = useArrivingCards();
   return (
     <>
       <section className="hand-zone">
@@ -66,10 +68,13 @@ export function HandZone() {
               card={registry.cards[view.cards[id].definitionId]}
               selected={selected === id}
               disabled={!targets.includes(id) && !view.legal.playable.some((a) => a.cardId === id)}
-              className={`hand-card ${targets.includes(id) ? "rally-target" : ""} ${drag?.cardId === id ? "drag-source" : ""} ${dragEnabled && view.legal.playable.some((a) => a.cardId === id) ? "draggable" : ""}`}
+              className={`hand-card ${arriving[id] ? `draw-in ${arriving[id].mode}` : ""} ${targets.includes(id) ? "rally-target" : ""} ${drag?.cardId === id ? "drag-source" : ""} ${dragEnabled && view.legal.playable.some((a) => a.cardId === id) ? "draggable" : ""}`}
               interaction={{
                 id: `hand-${id}`,
-                style: { ["--fan" as string]: i - (view.hand.length - 1) / 2 },
+                style: {
+                  ["--fan" as string]: i - (view.hand.length - 1) / 2,
+                  ["--draw-delay" as string]: `${(arriving[id]?.delay ?? 0) + (arriving[id]?.mode === "fade" ? KEEP_FLIGHT * 0.8 : 480)}ms`,
+                },
                 onContextMenu: (e) => {
                   e.preventDefault();
                   pinPreview(id, rectOf(e.currentTarget));

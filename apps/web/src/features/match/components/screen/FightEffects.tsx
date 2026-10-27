@@ -1,4 +1,5 @@
 import { ClashLayer } from "../ClashLayer";
+import { DrawFlow } from "../DrawFlow";
 import { EnergyFlow } from "../EnergyFlow";
 import { FactionAbilityEffects } from "../FactionAbilityEffects";
 import { SpellCast } from "../SpellCast";
@@ -36,6 +37,7 @@ export function FightEffects() {
         />
       )}
       <EnergyFlow flights={energyFlights} />
+      <DrawFlow viewer={viewer} />
       <SpellCast casts={spellCasts} />
       <ClashLayer
         batches={clashBatches}

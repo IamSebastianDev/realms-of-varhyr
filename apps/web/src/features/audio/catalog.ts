@@ -40,7 +40,6 @@ export type EffectName =
   | "draft.pick"
   | "pack.open"
   | "pack.burst"
-  | "pack.rare"
   | "reward.coins";
 export type Effect = {
   voices: Voice[];
@@ -229,15 +228,6 @@ export const effects: Record<EffectName, Effect> = {
       hiss(0.25, 0.5, { type: "highpass", freq: 2500 }, { attack: 0.002 }),
     ],
   },
-  "pack.rare": {
-    cooldown: 0.5,
-    volume: 0.8,
-    voices: [
-      tone(523, 523, 1.2, 0.35, { attack: 0.02 }),
-      tone(784, 784, 1.2, 0.3, { at: 0.08, attack: 0.02 }),
-      tone(1046, 1046, 1.4, 0.25, { at: 0.16, attack: 0.02 }),
-    ],
-  },
   "reward.coins": {
     cooldown: 0.1,
     volume: 0.55,
@@ -276,7 +266,6 @@ export const enabledEffects: ReadonlySet<EffectName> = new Set<EffectName>([
   "draft.pick",
   "pack.open",
   "pack.burst",
-  "pack.rare",
   "combat.attack",
   "combat.hit",
   "creature.die",

@@ -8,6 +8,7 @@ import {
 } from "@realms/content/boosters";
 import type { RewardCollection } from "../../boosters/lib/boosterRewards";
 import { currentCardId } from "../../../lib/cardIds";
+import { parseCardStyles, type CardStyleCollection } from "../../card-styles/lib/cardStyleState";
 
 /** Copies belong to a logical card ID, independent of set labels or future artwork choices. Missing IDs mean zero owned. */
 export type OwnedCopies = Readonly<Record<string, number>>;
@@ -55,6 +56,8 @@ export type Collection = {
   packs: Record<string, number>;
   boostersOpened: number;
   rewardedMatches: string[];
+  /** Cosmetic unlocks and selections, independent of card copies and game rules. */
+  cardStyles?: CardStyleCollection;
   questSettlements?: Record<string, QuestSettlement>;
   /** Boss and quest payouts already granted, keyed by run and payout, so each is applied exactly once. */
   questPayouts?: Record<string, true>;
@@ -221,6 +224,8 @@ export function parseCollection(raw: string | null, content: Registry): Collecti
       boostersOpened: data.boostersOpened,
       rewardedMatches: [...new Set<string>(data.rewardedMatches)],
     };
+    const cardStyles = parseCardStyles(data.cardStyles);
+    if (cardStyles) collection.cardStyles = cardStyles;
     if (data.questSettlements !== undefined) {
       if (
         !data.questSettlements ||

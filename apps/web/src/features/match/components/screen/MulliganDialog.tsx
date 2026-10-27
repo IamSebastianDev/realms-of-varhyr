@@ -1,4 +1,6 @@
+import { useLayoutEffect, useRef } from "react";
 import { rectOf } from "@realms/ui/stage";
+import { announceDraw, useArrivingCards } from "../../lib/drawFx";
 import { ArrowRight } from "lucide-react";
 import { ArtCard } from "@realms/ui/CardPresentation";
 import { PeekBackdrop } from "../Peek";
@@ -21,8 +23,26 @@ export function MulliganDialog() {
     setMulliganPick,
     thinking,
     view,
+    viewer,
     watching,
   } = useMatch();
+  const arriving = useArrivingCards(),
+    open = !watching && view.pending?.kind === "mulligan" && !covered && !thinking,
+    pendingId = view.pending?.kind === "mulligan" ? view.pending.id : null,
+    dealt = useRef<string | null>(null);
+  // The opening hand is dealt from the library when the dialog first shows, once per mulligan step.
+  useLayoutEffect(() => {
+    if (!open || !pendingId || reduced || dealt.current === pendingId) return;
+    dealt.current = pendingId;
+    const options = (view.pending!.options as string[]).filter((id) => view.cards[id]);
+    announceDraw({
+      id: `deal-${pendingId}`,
+      player: viewer,
+      cardIds: options,
+      count: options.length,
+      lead: 250,
+    });
+  }, [open, pendingId]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <>
       {!watching && view.pending?.kind === "mulligan" && !covered && !thinking && (
@@ -40,30 +60,38 @@ export function MulliganDialog() {
                     key={id}
                     className={`mulligan-card ${picked ? "picked" : ""} ${full ? "locked" : ""}`}
                   >
-                    <ArtCard
-                      detail={false}
-                      reduced={reduced}
-                      card={registry.cards[view.cards[id].definitionId]}
-                      interaction={{
-                        id: `mull-${id}`,
-                        onPointerEnter: (e) => {
-                          if (e.pointerType !== "touch")
-                            requestPreview(id, rectOf(e.currentTarget));
-                        },
-                        onPointerLeave: clearHoverPreview,
-                        onFocus: (e) => requestPreview(id, rectOf(e.currentTarget)),
-                        onBlur: clearHoverPreview,
-                        onContextMenu: (e) => {
-                          e.preventDefault();
-                          pinPreview(id, rectOf(e.currentTarget));
-                        },
+                    <div
+                      id={`draw-card-${id}`}
+                      className={`deal-art ${arriving[id] ? "draw-in" : ""}`}
+                      style={{
+                        ["--draw-delay" as string]: `${(arriving[id]?.delay ?? 0) + 480}ms`,
                       }}
-                      onClick={() =>
-                        setMulliganPick((list) =>
-                          picked ? list.filter((x) => x !== id) : full ? list : [...list, id],
-                        )
-                      }
-                    />
+                    >
+                      <ArtCard
+                        detail={false}
+                        reduced={reduced}
+                        card={registry.cards[view.cards[id].definitionId]}
+                        interaction={{
+                          id: `mull-${id}`,
+                          onPointerEnter: (e) => {
+                            if (e.pointerType !== "touch")
+                              requestPreview(id, rectOf(e.currentTarget));
+                          },
+                          onPointerLeave: clearHoverPreview,
+                          onFocus: (e) => requestPreview(id, rectOf(e.currentTarget)),
+                          onBlur: clearHoverPreview,
+                          onContextMenu: (e) => {
+                            e.preventDefault();
+                            pinPreview(id, rectOf(e.currentTarget));
+                          },
+                        }}
+                        onClick={() =>
+                          setMulliganPick((list) =>
+                            picked ? list.filter((x) => x !== id) : full ? list : [...list, id],
+                          )
+                        }
+                      />
+                    </div>
                     <span className="mulligan-mark">{picked ? msg("Replace") : msg("Keep")}</span>
                   </div>
                 );
