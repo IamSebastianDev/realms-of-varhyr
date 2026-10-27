@@ -78,7 +78,7 @@
   color: #c8b987;
 }
 .splash-content h1 {
-  font: 500 clamp(65px, 12vw, 116px)/1.1 var(--serif);
+  font: 500 clamp(65px, 12cqw, 116px)/1.1 var(--serif);
   letter-spacing: 0.12em;
   padding-left: 0.12em;
   text-shadow: 0 3px 40px #d8bb4425;
@@ -190,7 +190,7 @@
 .match-preferences .settings-volume {
   width: 100%;
 }
-@media (max-width: 700px) {
+@container stage (max-width: 700px) {
   .settings-audio-controls {
     align-items: flex-start;
     width: 100%;
@@ -199,7 +199,7 @@
     width: 100%;
   }
 }
-@media (max-height: 550px) {
+@container stage (max-height: 550px) {
   .splash-sigil {
     top: 30px;
     width: 60px;

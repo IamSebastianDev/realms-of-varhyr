@@ -535,8 +535,6 @@ select option {
   flex: 1;
   max-height: 460px;
   overflow: auto;
-  scrollbar-width: thin;
-  scrollbar-color: #908d8633 transparent;
 }
 .inspector-emblem {
   font: 50px var(--serif);
@@ -639,10 +637,10 @@ select option {
   border: 1px solid #e2c88869;
   background: linear-gradient(110deg, #cdb781, #b59b64);
   color: var(--bronze-ink);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   border-radius: 3px;
-  padding: 14px 18px;
+  padding: 17px 24px;
   box-shadow: 0 3px 18px #cab6720a;
 }
 .gold-button:hover:not(:disabled) {
@@ -690,12 +688,12 @@ select option {
 }
 .text-button {
   color: #b7a476;
-  font-size: 10px;
+  font-size: 13px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 12px 0;
+  gap: 8px;
+  padding: 15px 0;
 }
 .inspector > .text-button {
   width: 100%;
@@ -740,8 +738,6 @@ select option {
   align-items: center;
   gap: 10px;
   overflow: auto;
-  scrollbar-width: thin;
-  scrollbar-color: #b6a57232 transparent;
   padding: 8px 5px;
   flex: 1;
   min-width: 0;
@@ -941,16 +937,20 @@ select option {
 }
 .choice-options {
   display: flex;
-  gap: 30px;
+  gap: 34px;
   justify-content: center;
   margin-top: 27px;
 }
+/* Cards you choose between are drawn large: the stage scales, so they only need to fit the stage. */
+.choice-options {
+  --pick-w: min(232px, calc((100cqw - 260px) / 4));
+}
 .choice-options > div {
-  width: 174px;
+  width: var(--pick-w);
 }
 .choice-options .art-card {
-  width: 174px;
-  height: 245px;
+  width: var(--pick-w);
+  height: calc(var(--pick-w) * 1.408);
 }
 .choice-options .art-card:hover {
   border-color: #ddbd77;
@@ -1029,10 +1029,10 @@ select option {
 }
 .outline-button {
   border: 1px solid #b4a67969;
-  padding: 12px 17px;
+  padding: 15px 22px;
   border-radius: 3px;
   color: #c9b689;
-  font-size: 10px;
+  font-size: 13px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1057,8 +1057,6 @@ select option {
   padding: 31px 32px;
   color: #c0bfbc;
   box-shadow: -20px 0 80px #0005;
-  scrollbar-width: thin;
-  scrollbar-color: #9e9a9155 transparent;
 }
 .panel-header {
   display: flex;
@@ -1396,7 +1394,7 @@ select option {
   transition: none !important;
 }
 
-@media (min-width: 1500px) {
+@container stage (min-width: 1500px) {
   .arena-shell {
     grid-template-columns: 200px minmax(0, 1fr) 245px;
     gap: 35px;
@@ -1430,7 +1428,7 @@ select option {
     padding-left: 5px;
   }
 }
-@media (max-height: 850px) and (min-width: 1100px) {
+@container stage (max-height: 850px) and (min-width: 1100px) {
   .app {
     min-height: 730px;
     grid-template-rows: 66px minmax(410px, 1fr) 172px;
@@ -1518,7 +1516,7 @@ select option {
     font-size: 40px;
   }
 }
-@media (max-width: 1150px) {
+@container stage (max-width: 1150px) {
   .arena-shell {
     grid-template-columns: 132px minmax(0, 1fr) 170px;
     gap: 17px;
@@ -1597,7 +1595,7 @@ select option {
     font-size: 9px;
   }
 }
-@media (max-width: 950px) {
+@container stage (max-width: 950px) {
   .app {
     grid-template-rows: 68px minmax(390px, 1fr) 180px;
     min-height: 760px;
@@ -1662,7 +1660,7 @@ select option {
     min-height: 240px;
   }
 }
-@media (max-width: 700px) {
+@container stage (max-width: 700px) {
   .app {
     height: auto;
     min-height: var(--app-h);
@@ -1936,12 +1934,12 @@ select option {
     margin-bottom: 9px;
   }
 }
-@media (min-width: 701px) {
+@container stage (min-width: 701px) {
   .mobile-inspector {
     display: none;
   }
 }
-@media (max-width: 390px) {
+@container stage (max-width: 390px) {
   .match-label {
     display: none;
   }
@@ -2041,7 +2039,7 @@ select option {
   font: italic 18px var(--serif);
   color: #94928e;
 }
-@media (min-width: 701px) {
+@container stage (min-width: 701px) {
   .inspector:has(.inspect-card) {
     padding: 14px 13px;
   }
@@ -2188,7 +2186,7 @@ select option {
   max-height: 300px;
   overflow: auto;
 }
-@media (min-width: 951px) and (min-height: 851px) {
+@container stage (min-width: 951px) and (min-height: 851px) {
   .app {
     grid-template-rows: 78px minmax(420px, 1fr) 210px;
   }
@@ -2197,7 +2195,7 @@ select option {
     height: 172px;
   }
 }
-@media (max-width: 700px) {
+@container stage (max-width: 700px) {
   .app {
     grid-template-rows: 64px 430px 192px;
   }
@@ -2221,7 +2219,7 @@ select option {
     font-size: 7px;
   }
 }
-@media (max-width: 480px) {
+@container stage (max-width: 480px) {
   .board-exhausted {
     font-size: 0;
     background: transparent;
@@ -2380,7 +2378,7 @@ select option {
 .flat-slot.enemy-slot.attacking-slot {
   transform: translateY(16px);
 }
-@media (max-width: 700px) {
+@container stage (max-width: 700px) {
   .board-channel-hint,
   .combat-role {
     font-size: 7px;
@@ -2396,7 +2394,7 @@ select option {
     width: 224px;
   }
 }
-@media (max-width: 480px) {
+@container stage (max-width: 480px) {
   .board-channel-hint,
   .combat-role {
     font-size: 6px;
@@ -2559,12 +2557,12 @@ select option {
     opacity: 0;
   }
 }
-@media (min-width: 1500px) {
+@container stage (min-width: 1500px) {
   .arena-shell {
     grid-template-columns: 200px minmax(0, 1fr);
   }
 }
-@media (max-width: 1150px) {
+@container stage (max-width: 1150px) {
   .arena-shell {
     grid-template-columns: 132px minmax(0, 1fr);
   }
@@ -2572,7 +2570,7 @@ select option {
     margin-left: 14px;
   }
 }
-@media (max-width: 950px) {
+@container stage (max-width: 950px) {
   .arena-shell {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -2580,7 +2578,7 @@ select option {
     display: none;
   }
 }
-@media (max-width: 700px) {
+@container stage (max-width: 700px) {
   .topbar nav {
     gap: 13px;
   }
@@ -2648,7 +2646,7 @@ select option {
   stroke: rgb(var(--shade-rgb) / 0.87);
   stroke-width: 6;
 }
-@media (min-width: 951px) {
+@container stage (min-width: 951px) {
   .app {
     grid-template-rows: 64px minmax(460px, 1fr) 194px;
   }
@@ -2656,18 +2654,18 @@ select option {
     padding-top: 16px;
   }
 }
-@media (min-width: 951px) and (max-height: 850px) {
+@container stage (min-width: 951px) and (max-height: 850px) {
   .app {
     min-height: 740px;
     grid-template-rows: 64px minmax(414px, 1fr) 188px;
   }
 }
-@media (max-width: 700px) {
+@container stage (max-width: 700px) {
   .app {
     grid-template-rows: 64px 480px 192px;
   }
 }
-@media (max-width: 480px) {
+@container stage (max-width: 480px) {
   .combat-role,
   .board-channel-hint,
   .board-exhausted {
@@ -2718,12 +2716,12 @@ select option {
 .replay-bar {
   bottom: 86px;
 }
-@media (min-width: 951px) and (max-height: 850px) {
+@container stage (min-width: 951px) and (max-height: 850px) {
   .app {
     min-height: 666px;
   }
 }
-@media (max-width: 950px) {
+@container stage (max-width: 950px) {
   .app {
     min-height: 638px;
   }
@@ -2734,7 +2732,7 @@ select option {
     right: 24px;
   }
 }
-@media (max-width: 700px) {
+@container stage (max-width: 700px) {
   .app {
     height: var(--app-h);
     min-height: 736px;
@@ -2916,7 +2914,7 @@ select option {
   color: #9c9b97;
   margin: 8px 0 12px;
 }
-@media (max-width: 950px) {
+@container stage (max-width: 950px) {
   .arena-shell {
     padding: 12px 24px 4px;
   }
@@ -2930,7 +2928,7 @@ select option {
     width: 94px;
   }
 }
-@media (max-width: 700px) {
+@container stage (max-width: 700px) {
   .app {
     min-height: 716px;
     grid-template-rows: 58px minmax(466px, 1fr) 192px;
@@ -3035,7 +3033,7 @@ select option {
     padding: 3px 0;
   }
 }
-@media (max-width: 480px) {
+@container stage (max-width: 480px) {
   .brand strong {
     font-size: 20px;
   }
@@ -3100,6 +3098,8 @@ select option {
   --gold-bright: #f1d59a;
   --muted: #b5b2ad;
   --line: #c8c4bb29;
+  --scroll-thumb: #c9b27a59;
+  --scroll-thumb-hover: #debf7fb3;
 }
 .world-bg {
   opacity: 1;
@@ -3218,7 +3218,7 @@ select option {
   color: #f0edde;
   border-color: #bab5ac55;
 }
-@media (max-width: 700px) {
+@container stage (max-width: 700px) {
   .player-banner {
     gap: 7px;
   }
@@ -3243,7 +3243,7 @@ select option {
     max-width: 150px;
   }
 }
-@media (max-width: 480px) {
+@container stage (max-width: 480px) {
   .player-name {
     min-width: 0;
   }
@@ -3918,9 +3918,9 @@ select option {
   padding: 0;
   text-align: left;
 }
-@media (min-width: 1000px) {
+@container stage (min-width: 1000px) {
   .main-menu {
-    padding-top: 8vh;
+    padding-top: 8cqh;
   }
   .builder-page {
     height: calc(var(--app-h) - 78px);
@@ -3933,7 +3933,7 @@ select option {
     max-height: calc(var(--app-h) - 476px);
   }
 }
-@media (max-width: 950px) {
+@container stage (max-width: 950px) {
   .lobby-header {
     gap: 14px;
     padding: 14px 22px;
@@ -3981,7 +3981,7 @@ select option {
     font-size: 8px;
   }
 }
-@media (max-width: 700px) {
+@container stage (max-width: 700px) {
   .lobby-header {
     flex-wrap: wrap;
     gap: 10px;
@@ -4133,7 +4133,7 @@ select option {
     font-size: 9px;
   }
 }
-@media (max-width: 480px) {
+@container stage (max-width: 480px) {
   .lobby-header {
     padding: 12px 14px;
   }
@@ -4289,24 +4289,9 @@ select option {
 .builder-card-list,
 .deck-card-list {
   scrollbar-gutter: stable;
-  scrollbar-width: thin;
-  scrollbar-color: #9f9c94 #201e1b;
   padding-right: 8px;
 }
-.builder-card-list::-webkit-scrollbar,
-.deck-card-list::-webkit-scrollbar {
-  width: 7px;
-}
-.builder-card-list::-webkit-scrollbar-thumb,
-.deck-card-list::-webkit-scrollbar-thumb {
-  background: #9f9c94;
-  border-radius: 8px;
-}
-.builder-card-list::-webkit-scrollbar-track,
-.deck-card-list::-webkit-scrollbar-track {
-  background: #201e1b;
-}
-@media (min-width: 481px) {
+@container stage (min-width: 481px) {
   .builder-page {
     height: calc(var(--app-h) - 78px);
     display: flex;
@@ -4347,7 +4332,7 @@ select option {
     padding-top: 12px;
   }
 }
-@media (min-width: 481px) and (max-width: 700px) {
+@container stage (min-width: 481px) and (max-width: 700px) {
   .main-menu {
     padding-top: 22px;
   }
@@ -4394,7 +4379,7 @@ select option {
     height: calc(var(--app-h) - 116px);
   }
 }
-@media (min-width: 481px) and (max-width: 700px) {
+@container stage (min-width: 481px) and (max-width: 700px) {
   .builder-page .collection-heading {
     margin-bottom: 14px;
   }
@@ -4792,7 +4777,7 @@ select option {
     transform: rotate(var(--spark-angle)) translateX(210px);
   }
 }
-@media (max-width: 700px) {
+@container stage (max-width: 700px) {
   .booster-dialog {
     padding: 30px 16px 20px;
   }
@@ -4812,7 +4797,7 @@ select option {
     height: 180px;
   }
 }
-@media (max-width: 480px) {
+@container stage (max-width: 480px) {
   .booster-backdrop {
     padding: 12px;
   }
@@ -4860,7 +4845,7 @@ select option {
   animation: none !important;
   transition: none !important;
 }
-@media (max-width: 700px) {
+@container stage (max-width: 700px) {
   .booster-heading {
     margin-bottom: 14px;
   }
@@ -4898,6 +4883,35 @@ select option {
   top: 38%;
 }
 
+/* One scrollbar everywhere: thin, a muted gold thumb on no track, brighter on hover.
+   Where the standard properties are missing, the WebKit pseudo-elements draw the same bar. */
+html {
+  color-scheme: dark;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb) transparent;
+}
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--scroll-thumb);
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scroll-thumb-hover);
+    background-clip: content-box;
+  }
+}
 /* A game, not a document: nothing selects, except where you type. */
 * {
   -webkit-user-select: none;

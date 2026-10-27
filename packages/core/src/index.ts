@@ -905,6 +905,20 @@ class Transaction {
           p.deck.splice(p.deck.indexOf(id), 1);
           this.state.cards[id].zone = "hand";
           p.hand.push(id);
+          // The card may be one the open choice still offers: swap in another copy, or drop the option.
+          const open = this.state.pending;
+          if (open?.kind === "library-pick" && open.options.includes(id)) {
+            const copy = found.find(
+              (other) =>
+                other !== id &&
+                p.deck.includes(other) &&
+                this.state.cards[other].definitionId === this.state.cards[id].definitionId,
+            );
+            open.options = copy
+              ? open.options.map((option) => (option === id ? copy : option))
+              : open.options.filter((option) => option !== id);
+            if (!open.options.length) this.state.pending = null;
+          }
           this.emit(
             "card.searched",
             `${p.name} finds ${this.registry.cards[this.state.cards[id].definitionId].name} in the library.`,
@@ -1981,6 +1995,12 @@ export function assertInvariants(state: GameState) {
       requireRule(!located.has(id) && state.cards[id].zone === "choice", "Invalid draw choice.");
       located.add(id);
     }
+  if (state.pending?.kind === "library-pick")
+    for (const id of state.pending.options)
+      requireRule(
+        state.players[state.pending.player].deck.includes(id),
+        "A search choice offers a card that is not in the library.",
+      );
   requireRule(located.size === Object.keys(state.cards).length, "A card is missing from its zone.");
 }
 export function projectForPlayer(

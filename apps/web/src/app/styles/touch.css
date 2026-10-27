@@ -7,7 +7,7 @@
 }
 /* Touch sizing for tablets and phones: 44px+ targets, and 16px form text so iOS does not zoom the page on focus.
    Loaded last so it wins over the per-screen rules; mouse-and-keyboard layouts are untouched. */
-@media (pointer: coarse), (max-width: 700px) {
+@media (pointer: coarse) {
   .lobby-header nav button {
     min-height: var(--tap);
     padding-inline: 14px;
@@ -103,7 +103,7 @@
 }
 
 /* Four destinations must stay on one row on a phone. */
-@media (max-width: 480px) {
+@container stage (max-width: 480px) {
   .lobby-header nav {
     gap: 2px;
     flex-wrap: nowrap;
@@ -144,7 +144,7 @@ html[data-touch-dragging] {
 }
 
 /* Deck builder and drafts: header actions get their own row; controls are 36pt, since the deck list needs the room. */
-@media (pointer: coarse), (max-width: 700px) {
+@media (pointer: coarse) {
   .dk-head {
     flex-wrap: wrap;
     gap: 6px;
@@ -184,14 +184,16 @@ html[data-touch-dragging] {
 }
 
 /* A phone on its side has little height: the cost curve gives way to the deck list. The overview dialog still shows it. */
-@media (pointer: coarse) and (max-height: 700px) {
-  .builder-deck .dk-curve,
-  .builder-deck .deck-cost-curve,
-  .builder-deck .deck-metrics {
-    display: none;
-  }
-  .deck-purchase {
-    padding-block: 4px;
+@media (pointer: coarse) {
+  @container stage (max-height: 700px) {
+    .builder-deck .dk-curve,
+    .builder-deck .deck-cost-curve,
+    .builder-deck .deck-metrics {
+      display: none;
+    }
+    .deck-purchase {
+      padding-block: 4px;
+    }
   }
 }
 

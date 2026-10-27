@@ -1,6 +1,7 @@
 import { t as msg, useLanguage, localizedCard } from "./i18n";
 import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { stageHeight, stageRoot, stageWidth, toStageRect } from "./stage";
 import { factionInfo, setInfo } from "@realms/content";
 import type { CardDefinition } from "@realms/contracts";
 import { ArtCard, cardClassification, CardFacts, CardLore, Cost } from "./CardPresentation";
@@ -92,21 +93,25 @@ export function CardHoverDetail({
   reduced?: boolean;
 }) {
   useLanguage();
-  const width = Math.min(600, window.innerWidth - 24);
+  // The rect is in window pixels; the panel is placed in stage pixels.
+  const anchor = toStageRect(rect),
+    stageW = stageWidth(),
+    stageH = stageHeight();
+  const width = Math.min(600, stageW - 24);
   const x = Math.max(
     12,
     Math.min(
-      window.innerWidth - width - 12,
-      rect.right + 14 + width < window.innerWidth ? rect.right + 14 : rect.left - width - 14,
+      stageW - width - 12,
+      anchor.right + 14 + width < stageW ? anchor.right + 14 : anchor.left - width - 14,
     ),
   );
-  const y = Math.max(12, Math.min(window.innerHeight - 340, rect.top - 40));
+  const y = Math.max(12, Math.min(stageH - 340, anchor.top - 40));
   return createPortal(
     <>
       <div
         className="preview-anchor"
         aria-hidden
-        style={{ left: rect.left, top: rect.top, width: rect.width, height: rect.height }}
+        style={{ left: anchor.left, top: anchor.top, width: anchor.width, height: anchor.height }}
       />
       <aside
         className="hover-preview"
@@ -117,6 +122,6 @@ export function CardHoverDetail({
         <CardDetail card={card} animated reduced={reduced} />
       </aside>
     </>,
-    document.body,
+    stageRoot(),
   );
 }

@@ -1,3 +1,4 @@
+import { maybeRectOf } from "@realms/ui/stage";
 import { soundOrder, spellEffect } from "../../audio/catalog";
 import { factionBursts, type FactionEffect } from "../lib/factionEffects";
 import { useAudio } from "../../../app/providers/AudioProvider";
@@ -85,7 +86,7 @@ export function useMatchPresentation({
       if (reduced || covered) return;
       const bursts = factionBursts(before, after, events, registry, key);
       if (bursts.length) setFactionEffects((list) => [...list, ...bursts].slice(-20));
-      const board = boardRef.current?.getBoundingClientRect(),
+      const board = maybeRectOf(boardRef.current),
         at = (slot: SlotLayout) =>
           board && {
             x: board.left + slot.x + slot.width / 2,
@@ -96,9 +97,7 @@ export function useMatchPresentation({
           const card = before.cards[e.cardId!] ?? after.cards[e.cardId!];
           if (!card) continue;
           const slot = slotLayout.find((s) => s.player === card.controller && s.slot === card.slot),
-            pool = (
-              card.controller === viewer ? poolRef : enemyPoolRef
-            ).current?.getBoundingClientRect();
+            pool = maybeRectOf((card.controller === viewer ? poolRef : enemyPoolRef).current);
           const colors = Object.entries(after.players[card.controller].energy).flatMap(
             ([color, amount]) =>
               Array.from(
@@ -135,9 +134,7 @@ export function useMatchPresentation({
               card = registry.cards[instance.definitionId];
             let to: SpellFx["to"] = null;
             if (e.target === "p1" || e.target === "p2") {
-              const pool = (
-                e.target === viewer ? poolRef : enemyPoolRef
-              ).current?.getBoundingClientRect();
+              const pool = maybeRectOf((e.target === viewer ? poolRef : enemyPoolRef).current);
               if (pool) to = { x: pool.left + pool.width / 2, y: pool.top + pool.height / 2 };
             } else if (e.target) {
               const target = before.cards[e.target],

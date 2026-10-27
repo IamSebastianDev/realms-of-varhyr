@@ -1,3 +1,4 @@
+import { maybeRectOf, rectOf } from "@realms/ui/stage";
 import { useLayoutEffect, useState, type CSSProperties } from "react";
 import { Coins, Crown, Flame, Leaf, Shield, Waves, Sparkles, Swords, Wind } from "lucide-react";
 import type { PlayerId } from "@realms/contracts";
@@ -66,7 +67,7 @@ export function FactionAbilityEffects({
     };
   }, [board]);
   if (!board) return null;
-  const origin = board.getBoundingClientRect();
+  const origin = rectOf(board);
   const box = (spot: FactionEffectSpot): Box | undefined => {
     if ("slot" in spot) {
       const found = slots.find((s) => s.player === spot.player && s.slot === spot.slot);
@@ -81,7 +82,7 @@ export function FactionAbilityEffects({
         : spot.player === viewer
           ? document.querySelector(".hand-scroll")
           : document.querySelector(`.player-banner.${side} .hand-count`);
-    const rect = node?.getBoundingClientRect();
+    const rect = maybeRectOf(node);
     return rect ? { x: rect.left, y: rect.top, w: rect.width, h: rect.height } : undefined;
   };
   const center = (rect: Box) => ({ x: rect.x + rect.w / 2, y: rect.y + rect.h / 2 });

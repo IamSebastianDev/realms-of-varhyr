@@ -112,7 +112,7 @@
 }
 .ms-head h2 {
   margin: 6px 0 4px;
-  font: 500 clamp(40px, 7vw, 58px)/1 var(--serif);
+  font: 500 clamp(40px, 7cqw, 58px)/1 var(--serif);
   letter-spacing: 0.14em;
   text-indent: 0.14em;
   text-transform: uppercase;
@@ -456,7 +456,7 @@
   width: 100%;
 }
 
-@media (max-width: 640px) {
+@container stage (max-width: 640px) {
   .ms {
     padding: 26px 16px 20px;
   }
@@ -524,7 +524,7 @@
   bottom: auto;
   top: 8px;
 }
-@media (max-width: 700px) {
+@container stage (max-width: 700px) {
   .replay-bar.watching {
     top: 4px;
     gap: 8px;
@@ -624,7 +624,7 @@ button.peek-toggle.on svg {
   border-radius: 0;
   box-shadow: none;
   background: none;
-  padding: 28px 4vw 24px;
+  padding: 28px 4cqw 24px;
 }
 .ms::before {
   display: none;

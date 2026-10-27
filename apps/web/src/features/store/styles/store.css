@@ -207,7 +207,7 @@
   min-height: 48px;
   padding: 0 26px;
 }
-@media (max-width: 860px) {
+@container stage (max-width: 860px) {
   .store-hall {
     padding: 12px 14px 24px;
   }
@@ -251,7 +251,7 @@
 }
 .booster-burst-stage {
   position: relative;
-  height: clamp(320px, 52dvh, 540px);
+  height: clamp(320px, 52cqh, 540px);
 }
 .booster-burst-canvas {
   position: fixed;
@@ -280,7 +280,7 @@
 
 /* The dealt cards use the whole window width, like the other screens. */
 .booster-backdrop {
-  padding: 22px 3vw;
+  padding: 22px 3cqw;
 }
 .booster-backdrop .booster-dialog {
   width: 100%;
@@ -288,11 +288,11 @@
 }
 .booster-backdrop .booster-grid {
   flex-wrap: nowrap;
-  gap: clamp(14px, 2vw, 34px);
+  gap: clamp(14px, 2cqw, 34px);
   justify-content: center;
 }
 .booster-backdrop .booster-slot {
-  width: min(calc((100% - 4 * clamp(14px, 2vw, 34px)) / 5), 300px);
+  width: min(calc((100% - 4 * clamp(14px, 2cqw, 34px)) / 5), 300px);
   min-width: 0;
   flex: 0 1 auto;
 }
@@ -300,7 +300,7 @@
   height: auto;
   aspect-ratio: 154/217;
 }
-@media (max-width: 860px) {
+@container stage (max-width: 860px) {
   .booster-backdrop .booster-grid {
     flex-wrap: wrap;
   }
@@ -331,7 +331,7 @@
 /* The stage, the dealt cards and the crown line keep one height so the buttons below never move. */
 .booster-backdrop .booster-burst-stage,
 .booster-backdrop .booster-grid {
-  height: clamp(320px, 52dvh, 540px);
+  height: clamp(320px, 52cqh, 540px);
   box-sizing: border-box;
 }
 .booster-backdrop .booster-grid {
@@ -350,18 +350,18 @@
 .booster-backdrop .booster-crown-total.idle {
   visibility: hidden;
 }
-@media (max-width: 860px) {
+@container stage (max-width: 860px) {
   .booster-backdrop .booster-grid {
     height: auto;
-    min-height: clamp(320px, 52dvh, 540px);
+    min-height: clamp(320px, 52cqh, 540px);
   }
 }
-@media (min-width: 861px) {
+@container stage (min-width: 861px) {
   .booster-backdrop .booster-slot {
     width: min(
-      calc((100% - 4 * clamp(14px, 2vw, 34px)) / 5),
+      calc((100% - 4 * clamp(14px, 2cqw, 34px)) / 5),
       300px,
-      calc((clamp(320px, 52dvh, 540px) - 82px) * 0.71)
+      calc((clamp(320px, 52cqh, 540px) - 82px) * 0.71)
     );
   }
 }
@@ -408,7 +408,7 @@
 }
 .backs-stage .card-back-face {
   height: 100%;
-  max-height: min(46dvh, 460px);
+  max-height: min(46cqh, 460px);
   width: auto;
   border-radius: 10px;
   box-shadow:
@@ -481,9 +481,9 @@
 .backs-strip button:focus-visible {
   outline: 2px solid var(--gilt);
 }
-@media (max-width: 860px) {
+@container stage (max-width: 860px) {
   .backs-stage .card-back-face {
-    max-height: min(36dvh, 320px);
+    max-height: min(36cqh, 320px);
   }
 }
 
@@ -536,7 +536,7 @@
 }
 
 /* Short screens (a phone on its side): the reveal fits the screen, so it never needs to scroll. */
-@media (max-height: 700px) {
+@container stage (max-height: 700px) {
   .booster-backdrop .booster-burst-stage,
   .booster-backdrop .booster-grid {
     height: clamp(200px, calc(var(--app-h) - 322px), 540px);
@@ -553,7 +553,7 @@
   }
   .booster-backdrop .booster-slot {
     width: min(
-      calc((100% - 4 * clamp(14px, 2vw, 34px)) / 5),
+      calc((100% - 4 * clamp(14px, 2cqw, 34px)) / 5),
       300px,
       calc((clamp(200px, calc(var(--app-h) - 322px), 540px) - 82px) * 0.71)
     );

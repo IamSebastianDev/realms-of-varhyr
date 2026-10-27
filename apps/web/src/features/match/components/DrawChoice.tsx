@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { CardDefinition } from "@realms/contracts";
 import { ArtCard } from "@realms/ui/CardPresentation";
+import { stageRoot, toStageLength, toStageRect, toStageX, toStageY } from "@realms/ui/stage";
 import { PeekBackdrop } from "./Peek";
 
 export type DrawDestination = "discard" | "bottom";
@@ -39,15 +40,17 @@ export function DrawChoice({
   }
   function start(id: string, event: React.PointerEvent<HTMLElement>) {
     if (event.button !== 0 && event.pointerType === "mouse") return;
-    const rect = event.currentTarget.getBoundingClientRect();
+    // The pointer stays in window pixels (hit testing); the lifted copy is sized and placed in stage pixels.
+    const rect = event.currentTarget.getBoundingClientRect(),
+      box = toStageRect(rect);
     const g = {
       id,
       x: event.clientX,
       y: event.clientY,
-      w: rect.width,
-      h: rect.height,
-      dx: event.clientX - rect.left,
-      dy: event.clientY - rect.top,
+      w: box.width,
+      h: box.height,
+      dx: toStageLength(event.clientX - rect.left),
+      dy: toStageLength(event.clientY - rect.top),
     };
     live.current = g;
     setGhost(g);
@@ -137,15 +140,15 @@ export function DrawChoice({
             <div
               className="draw-ghost"
               style={{
-                left: ghost.x - ghost.dx,
-                top: ghost.y - ghost.dy,
+                left: toStageX(ghost.x) - ghost.dx,
+                top: toStageY(ghost.y) - ghost.dy,
                 width: ghost.w,
                 height: ghost.h,
               }}
             >
               <ArtCard detail={false} card={dragged.card} reduced />
             </div>,
-            document.body,
+            stageRoot(),
           )}
       </div>
     </PeekBackdrop>

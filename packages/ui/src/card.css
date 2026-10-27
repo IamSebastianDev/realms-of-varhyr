@@ -35,7 +35,7 @@
 .card-statline svg{width:10px;height:10px}
 .card-statline span:nth-child(2){color:#b3b1ac}
 .card-corners{position:absolute;inset:3px;pointer-events:none;border:1px solid #cab78829;border-radius:1px}
-@media(max-width:700px){
+@container stage (max-width:700px) {
 .energy-bundle{gap:7px;font-size:16px}
 .energy-bundle b{font-size:16px}}
 .hover-preview{position:fixed;z-index:var(--z-fx);pointer-events:none;padding:17px;background:linear-gradient(135deg,#1c1b18fc,#12100dfc);border:1px solid #d2b7798a;border-radius:5px;box-shadow:0 16px 60px #000a;overflow:hidden}
@@ -48,9 +48,9 @@
 .fact-energy>span:not(:first-child){display:flex;align-items:center;gap:6px}
 .fact-energy small{font-size:9px;color:#afada8}
 .fact-energy .energy-bundle,.fact-energy .energy-bundle b{font-size:18px}
-@media(max-width:700px){
+@container stage (max-width:700px) {
 .hover-preview{display:none}}
-@media(max-width:700px) and (hover:hover) and (pointer:fine){.hover-preview{display:block}}
+@media (hover:hover) and (pointer:fine) {@container stage (max-width:700px) {.hover-preview{display:block}}}
 .energy-empty{color:#aeaca5}
 .energy-bundle{flex-wrap:wrap;gap:7px;font-family:'Source Serif 4',Georgia,serif}
 .energy-bundle>.energy-token{gap:3px;white-space:nowrap;line-height:1.15}
@@ -100,7 +100,7 @@
 .art-card .card-affiliation{display:block;font:600 clamp(5.5px,4.5cqw,9px)/1.4 'Source Serif 4',Georgia,serif;letter-spacing:.65px;color:#dedac5;text-transform:uppercase}
 .art-card .card-shade{background:linear-gradient(transparent 62%,#1f1d1a70 76%,#21201cf5 96%)}
 .art-card.legendary-card .card-shade{background:linear-gradient(transparent 62%,#3c2a0c70 76%,#252410f5 96%)}
-@media(max-width:480px){.art-card .card-header{padding:7px 6px 16px;gap:4px}}
+@container stage (max-width:480px) {.art-card .card-header{padding:7px 6px 16px;gap:4px}}
 .art-card .card-header h3{grid-column:1/-1;white-space:nowrap;overflow-wrap:normal;min-width:0}
 .art-card .card-header .card-cost{grid-column:2;grid-row:2}
 .art-card .card-identity{grid-column:1;grid-row:2}
@@ -140,7 +140,7 @@
 .art-card.legendary-card .card-title{background:#302a17cf;border-color:#edce8d88}
 .art-card.legendary-card .card-header{background:none}
 .legendary-mark{font-size:10px;letter-spacing:1.1px;text-transform:uppercase}
-@media(max-width:480px){
+@container stage (max-width:480px) {
 .art-card .card-information{left:6px;right:6px;bottom:6px;gap:4px}
 .art-card.legendary-card .card-corners{background-size:10px 2px,2px 10px,10px 2px,2px 10px,10px 2px,2px 10px,10px 2px,2px 10px}}
 .art-card .card-shade{z-index:0;pointer-events:none}
@@ -184,14 +184,14 @@
 .card-detail-body .detail-timing,.card-detail-state {font-size:10px;line-height:1.6;color:#d1b988;margin:12px 0 0}
 .card-detail-body .gold-button {margin-top:14px;font-size:11px}
 .card-detail-body .subtle-hint {margin:8px 0 0}
-@media(max-width:480px){
+@container stage (max-width:480px) {
   .card-detail {grid-template-columns:1fr;gap:16px;justify-items:center}
   .card-detail .card-detail-art {width:155px;height:218px}
   .card-detail-body {width:100%}
   .card-detail-body h2 {font-size:28px}
 }
-.hover-preview {width:min(600px,calc(100vw - 24px));padding:26px 28px;border-radius:6px;box-shadow:0 20px 80px #000a}
-@media(max-height:700px) and (min-width:701px){
+.hover-preview {width:min(600px,calc(100cqw - 24px));padding:26px 28px;border-radius:6px;box-shadow:0 20px 80px #000a}
+@container stage (max-height:700px) and (min-width:701px) {
   .hover-preview {padding:16px 20px}
   .card-detail {grid-template-columns:150px minmax(0,1fr);gap:20px}
   .card-detail .card-detail-art {width:150px;height:211px}
@@ -206,7 +206,7 @@
     position-anchor:--preview-anchor;
     position-area:top span-all;
     margin:12px;
-    max-width:calc(100vw - 24px);
+    max-width:calc(100cqw - 24px);
     position-try-order:most-height;
     position-try-fallbacks:
       bottom span-all,

@@ -1,9 +1,13 @@
 import { useSyncExternalStore } from "react";
 export type Language = "en" | "de";
 export type Motion = "system" | "full" | "reduced";
+/** The shape of the game stage: the window's own shape, or a fixed aspect ratio with black bars around it. */
+export type Screen = "auto" | "16:9" | "16:10" | "4:3" | "21:9";
+export const screens: readonly Screen[] = ["auto", "16:9", "16:10", "4:3", "21:9"];
 export type Preferences = {
   language: Language;
   motion: Motion;
+  screen: Screen;
   sound: boolean;
   music: boolean;
   musicVolume: number;
@@ -17,6 +21,7 @@ export const preferencesKey = "varhyr-preferences-v1";
 export const defaultPreferences: Preferences = {
   language: "en",
   motion: "system",
+  screen: "auto",
   sound: true,
   music: true,
   musicVolume: 0.35,
@@ -32,6 +37,7 @@ export function parsePreferences(value: unknown): Preferences {
   return {
     language: input.language === "de" ? "de" : "en",
     motion: input.motion === "full" || input.motion === "reduced" ? input.motion : "system",
+    screen: screens.includes(input.screen as Screen) ? (input.screen as Screen) : "auto",
     sound: typeof input.sound === "boolean" ? input.sound : defaultPreferences.sound,
     music: typeof input.music === "boolean" ? input.music : defaultPreferences.music,
     ambience: typeof input.ambience === "boolean" ? input.ambience : defaultPreferences.ambience,

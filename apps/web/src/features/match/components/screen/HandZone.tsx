@@ -1,3 +1,4 @@
+import { rectOf } from "@realms/ui/stage";
 import { ArtCard } from "@realms/ui/CardPresentation";
 import { t as msg } from "@realms/ui/i18n";
 import { registry } from "@realms/content";
@@ -71,16 +72,16 @@ export function HandZone() {
                 style: { ["--fan" as string]: i - (view.hand.length - 1) / 2 },
                 onContextMenu: (e) => {
                   e.preventDefault();
-                  pinPreview(id, e.currentTarget.getBoundingClientRect());
+                  pinPreview(id, rectOf(e.currentTarget));
                 },
                 onPointerDown: (e) => startDrag(id, e),
                 onDoubleClick: () => quickPlay(id),
                 onPointerEnter: (e) => {
                   if (e.pointerType !== "touch" && !drag)
-                    requestPreview(id, e.currentTarget.getBoundingClientRect());
+                    requestPreview(id, rectOf(e.currentTarget));
                 },
                 onPointerLeave: clearHoverPreview,
-                onFocus: (e) => requestPreview(id, e.currentTarget.getBoundingClientRect()),
+                onFocus: (e) => requestPreview(id, rectOf(e.currentTarget)),
                 onBlur: clearHoverPreview,
               }}
               onClick={() => {
@@ -90,7 +91,7 @@ export function HandZone() {
                   return;
                 }
                 if (stage !== "none") return;
-                pinPreview(id, document.getElementById(`hand-${id}`)!.getBoundingClientRect());
+                pinPreview(id, rectOf(document.getElementById(`hand-${id}`)!));
                 setDraft(null);
                 setStage("none");
               }}

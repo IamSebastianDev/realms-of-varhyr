@@ -106,7 +106,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   gap: 10px;
-  max-height: min(62dvh, 520px);
+  max-height: min(62cqh, 520px);
   overflow: auto;
   padding: 3px;
 }
@@ -233,7 +233,7 @@
 }
 
 /* Short windows (a phone held sideways, scaled up to 560 css px tall): keep the whole dialog in view without scrolling. */
-@media (max-height: 640px) {
+@container stage (max-height: 640px) {
   .game-setup-pane .setup-heading {
     padding: 12px 24px 8px;
   }

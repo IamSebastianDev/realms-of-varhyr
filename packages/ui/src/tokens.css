@@ -1,6 +1,6 @@
 /* Design tokens: the one place raw colours, layers, safe areas and chrome sizes are defined.
    Stylesheets reference these; scripts/check-css.mjs stops new raw values creeping back in.
-   Breakpoints cannot be variables in @media. Use only these: 480 / 700 / 860 / 950 px (width), 620px (short height). */
+   Breakpoints cannot be variables in container queries. Layout queries (@container stage) measure the game stage, never the window. Use only these: 480 / 700 / 860 / 950 px (width), 620px (short height). */
 :root {
   /* Surfaces */
   --bg: #0b0a09;
@@ -58,8 +58,8 @@
   /* Chrome sizes shared by every screen */
   --header-h: 70px;
   --topbar-h: 64px;
-  --app-h: calc(100dvh - var(--safe-t) - var(--safe-b));
-  --gutter: clamp(14px, 2.4vw, 30px);
+  --app-h: calc(100cqh - var(--safe-t) - var(--safe-b));
+  --gutter: clamp(14px, 2.4cqw, 30px);
 }
 /* Debug: add data-safe-debug to <html> to simulate a notched phone in landscape (values are layout px; phones are scaled by uiScale.ts). */
 html[data-safe-debug] {

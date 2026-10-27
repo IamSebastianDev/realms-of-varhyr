@@ -1,3 +1,4 @@
+import { rectOf, toStageX, toStageY } from "@realms/ui/stage";
 import {
   useCallback,
   useEffect,
@@ -264,10 +265,10 @@ export function MapView({
     if (!frame) return;
     const onWheel = (event: WheelEvent) => {
       event.preventDefault();
-      const box = frame.getBoundingClientRect();
+      const box = rectOf(frame);
       zoomBy(Math.exp(-event.deltaY * (event.ctrlKey ? 0.01 : 0.0016)), {
-        x: event.clientX - box.left,
-        y: event.clientY - box.top,
+        x: toStageX(event.clientX) - box.left,
+        y: toStageY(event.clientY) - box.top,
       });
     };
     frame.addEventListener("wheel", onWheel, { passive: false });
@@ -277,12 +278,15 @@ export function MapView({
   const onDown = (event: ReactPointerEvent) => {
     if (event.button > 1) return;
     frame!.setPointerCapture(event.pointerId);
-    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    pointers.current.set(event.pointerId, {
+      x: toStageX(event.clientX),
+      y: toStageY(event.clientY),
+    });
     const node =
       (event.target as Element).closest("[data-node]")?.getAttribute("data-node") ?? null;
     drag.current = {
-      x: event.clientX,
-      y: event.clientY,
+      x: toStageX(event.clientX),
+      y: toStageY(event.clientY),
       vx: view.x,
       vy: view.y,
       moved: pointers.current.size > 1,
@@ -293,23 +297,27 @@ export function MapView({
   const onMove = (event: ReactPointerEvent) => {
     const g = drag.current;
     if (!g || !pointers.current.has(event.pointerId)) return;
-    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    pointers.current.set(event.pointerId, {
+      x: toStageX(event.clientX),
+      y: toStageY(event.clientY),
+    });
     if (pointers.current.size >= 2) {
       const [a, b] = [...pointers.current.values()],
         gap = Math.hypot(a!.x - b!.x, a!.y - b!.y),
-        box = frame!.getBoundingClientRect();
+        box = rectOf(frame!);
       if (g.pinch)
         zoomBy(gap / g.pinch, { x: (a!.x + b!.x) / 2 - box.left, y: (a!.y + b!.y) / 2 - box.top });
       g.pinch = gap;
       g.moved = true;
       return;
     }
-    if (Math.abs(event.clientX - g.x) + Math.abs(event.clientY - g.y) > 6) g.moved = true;
+    if (Math.abs(toStageX(event.clientX) - g.x) + Math.abs(toStageY(event.clientY) - g.y) > 6)
+      g.moved = true;
     if (g.moved)
       setView((current) => ({
         ...current,
-        x: g.vx + event.clientX - g.x,
-        y: g.vy + event.clientY - g.y,
+        x: g.vx + toStageX(event.clientX) - g.x,
+        y: g.vy + toStageY(event.clientY) - g.y,
       }));
   };
   const onUp = (event: ReactPointerEvent) => {
@@ -320,8 +328,8 @@ export function MapView({
         g.pinch = 0;
         g.vx = view.x;
         g.vy = view.y;
-        g.x = event.clientX;
-        g.y = event.clientY;
+        g.x = toStageX(event.clientX);
+        g.y = toStageY(event.clientY);
       }
       return;
     }

@@ -1,3 +1,4 @@
+import { maybeRectOf, rectOf, stageHeight, stageWidth, type StageRect } from "@realms/ui/stage";
 import { t as msg, useLanguage } from "@realms/ui/i18n";
 import { ArrowRight, GraduationCap, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -29,7 +30,7 @@ function useRings(selectors: string[]): Box[] {
       const next = selectors.flatMap((selector) => {
         const element = document.querySelector(selector);
         if (!element) return [];
-        const rect = element.getBoundingClientRect();
+        const rect = rectOf(element);
         return rect.width && rect.height
           ? [
               {
@@ -55,7 +56,7 @@ function useRings(selectors: string[]): Box[] {
 }
 
 const rect = (selector: string) => {
-  const box = document.querySelector(selector)?.getBoundingClientRect();
+  const box = maybeRectOf(document.querySelector(selector));
   return box && box.width > 0 && box.height > 0 ? box : null;
 };
 /**
@@ -112,26 +113,26 @@ function useAnchor(enabled: boolean): Box | null {
             : [".topbar", ".player-banner.opponent", ".board-scene", ".player-banner.own"].map(
                 rect,
               )),
-        ].filter((r): r is DOMRect => !!r);
+        ].filter((r): r is StageRect => !!r);
       const cards = [...document.querySelectorAll(".hand-scroll .hand-card")]
-        .map((element) => element.getBoundingClientRect())
+        .map((element) => rectOf(element))
         .filter((r) => r.width > 0);
-      const handTop = cards.length ? Math.min(...cards.map((r) => r.top)) : window.innerHeight,
-        handBottom = cards.length ? Math.max(...cards.map((r) => r.bottom)) : window.innerHeight;
+      const handTop = cards.length ? Math.min(...cards.map((r) => r.top)) : stageHeight(),
+        handBottom = cards.length ? Math.max(...cards.map((r) => r.bottom)) : stageHeight();
       const bands = [
         ...stack.map((r) => [r.top, r.bottom]),
         ...(dialog ? [] : [[handTop, handBottom]]),
       ].sort((x, y) => x[0] - y[0]);
       let best: { top: number; bottom: number } | null = null,
         edge = 0;
-      for (const [top, bottom] of [...bands, [window.innerHeight, window.innerHeight]]) {
+      for (const [top, bottom] of [...bands, [stageHeight(), stageHeight()]]) {
         if (top - edge > (best ? best.bottom - best.top : 0)) best = { top: edge, bottom: top };
         edge = Math.max(edge, bottom);
       }
-      const width = Math.min(420, window.innerWidth - 24);
+      const width = Math.min(420, stageWidth() - 24);
       setBox(
         best && best.bottom - best.top >= 150
-          ? next(best.top + 8, best.bottom - 8, (window.innerWidth - width) / 2, width)
+          ? next(best.top + 8, best.bottom - 8, (stageWidth() - width) / 2, width)
           : null,
       );
     };

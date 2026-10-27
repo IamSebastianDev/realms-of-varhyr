@@ -1,3 +1,4 @@
+import { stageHeight, stageWidth } from "@realms/ui/stage";
 import { useLayoutEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
 import { X } from "lucide-react";
 import { factionInfo } from "@realms/content";
@@ -63,8 +64,7 @@ export function EnergyChoiceArc({
   useLayoutEffect(() => {
     const update = () => {
       const anchor = getAnchor();
-      if (anchor)
-        setLayout(energyArcLayout(anchor, actions.length, window.innerWidth, window.innerHeight));
+      if (anchor) setLayout(energyArcLayout(anchor, actions.length, stageWidth(), stageHeight()));
     };
     update();
     window.addEventListener("resize", update);

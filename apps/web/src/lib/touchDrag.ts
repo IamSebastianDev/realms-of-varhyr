@@ -6,6 +6,8 @@
  * The existing handlers still see the usual dragstart / dragenter / dragover / drop / dragend sequence, so the deck
  * builder, drafts and quests work unchanged.
  */
+import { rectOf, stageRoot, toStageX, toStageY, type StageRect } from "@realms/ui/stage";
+
 const HOLD_MS = 220,
   SLOP = 8,
   MOUSE_SLOP = 4;
@@ -25,7 +27,8 @@ type Drag = {
   tilt: number;
   scale: number;
   raf: number;
-  origin: DOMRect;
+  /** Where the card started, in stage pixels. */
+  origin: StageRect;
 };
 const clamp = (value: number, limit: number) => Math.max(-limit, Math.min(limit, value));
 const still = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
@@ -65,8 +68,9 @@ export function installTouchDrag() {
   const frame = () => {
     const d = drag;
     if (!d) return;
-    const goalX = d.x - d.grab.x,
-      goalY = d.y - d.grab.y;
+    // The pointer is in window pixels; the ghost lives in the stage and is placed in stage pixels.
+    const goalX = toStageX(d.x) - d.grab.x,
+      goalY = toStageY(d.y) - d.grab.y;
     if (still()) {
       d.cx = goalX;
       d.cy = goalY;
@@ -100,7 +104,7 @@ export function installTouchDrag() {
     }
     if (under) fire("dragover", under, drag.transfer, x, y);
   };
-  const land = (d: Drag, accepted: boolean, to: DOMRect | null) => {
+  const land = (d: Drag, accepted: boolean, to: StageRect | null) => {
     cancelAnimationFrame(d.raf);
     const done = () => {
       d.holder.remove();
@@ -148,7 +152,7 @@ export function installTouchDrag() {
     } else if (current.target)
       fire("dragleave", current.target, current.transfer, current.x, current.y);
     fire("dragend", current.source, current.transfer, current.x, current.y);
-    land(current, accepted, current.target?.getBoundingClientRect() ?? null);
+    land(current, accepted, current.target ? rectOf(current.target) : null);
     swallowClick = performance.now() + 450;
   };
   const start = () => {
@@ -157,21 +161,21 @@ export function installTouchDrag() {
     pending = null;
     const transfer = new DataTransfer();
     if (fire("dragstart", source, transfer, x, y) === false && !transfer.types.length) return; // The handler refused the drag.
-    const rect = source.getBoundingClientRect(),
+    const rect = rectOf(source),
       ghost = source.cloneNode(true) as HTMLElement;
     ghost.removeAttribute("id");
     ghost.setAttribute("aria-hidden", "true");
     ghost.className += " touch-drag-ghost";
     ghost.style.width = `${rect.width}px`;
     ghost.style.height = `${rect.height}px`;
-    const grab = { x: x - rect.left, y: y - rect.top };
+    const grab = { x: toStageX(x) - rect.left, y: toStageY(y) - rect.top };
     ghost.style.transformOrigin = `${grab.x}px ${grab.y}px`;
     // Card styles are scoped to where the card lives (".deck-workshop .art-card"), so the copy is wrapped in boxless
     // copies of its ancestors to keep them applying.
     let holder: HTMLElement = ghost;
     for (
       let parent = source.parentElement;
-      parent && parent !== document.body;
+      parent && parent !== document.body && parent !== stageRoot();
       parent = parent.parentElement
     ) {
       const wrap = document.createElement("div");
@@ -183,7 +187,7 @@ export function installTouchDrag() {
       wrap.appendChild(holder);
       holder = wrap;
     }
-    document.body.appendChild(holder);
+    stageRoot().appendChild(holder);
     source.setAttribute("data-lifted", "");
     document.documentElement.setAttribute("data-touch-dragging", "");
     drag = {

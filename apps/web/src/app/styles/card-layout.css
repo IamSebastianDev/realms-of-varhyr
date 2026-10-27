@@ -16,7 +16,7 @@
   background: #1d1b19ed;
 }
 .collection-page {
-  padding: 24px clamp(18px, 4vw, 48px) 36px;
+  padding: 24px clamp(18px, 4cqw, 48px) 36px;
   max-width: 1360px;
 }
 .collection-heading {
@@ -200,7 +200,7 @@
 .collection-close:hover {
   background: #cdbb8822;
 }
-@media (min-width: 540px) and (max-width: 700px) {
+@container stage (min-width: 540px) and (max-width: 700px) {
   .lobby-header {
     flex-wrap: nowrap;
     gap: 16px;
@@ -223,7 +223,7 @@
     font-size: 24px;
   }
 }
-@media (max-width: 700px) {
+@container stage (max-width: 700px) {
   .collection-page {
     padding: 22px 18px 30px;
   }
@@ -257,7 +257,7 @@
     gap: 9px 12px;
   }
 }
-@media (max-width: 480px) {
+@container stage (max-width: 480px) {
   .collection-page {
     padding: 20px 14px 28px;
   }
@@ -290,7 +290,7 @@
 .collection-filters .collection-search input {
   padding-left: 36px;
 }
-@media (min-width: 540px) {
+@container stage (min-width: 540px) {
   .collection-page:not(.builder-page) .collection-filters {
     grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 0.9fr);
   }
@@ -378,7 +378,7 @@
   text-transform: uppercase;
   text-shadow: 0 1px 3px #0009;
 }
-@media (max-width: 480px) {
+@container stage (max-width: 480px) {
   .board-position-name {
     padding: 1px 5px;
     font-size: 7px;
@@ -387,18 +387,19 @@
 }
 /* Opening-hand mulligan */
 .mulligan-dialog {
-  max-width: 1060px;
+  max-width: min(1440px, calc(100cqw - 48px));
 }
 .mulligan-options {
+  --pick-w: min(236px, calc((100cqw - 260px) / 5));
   flex-wrap: wrap;
-  gap: 16px !important;
+  gap: 22px !important;
 }
 .mulligan-options > div {
-  width: 150px !important;
+  width: var(--pick-w) !important;
 }
 .mulligan-options .art-card {
-  width: 150px !important;
-  height: 211px !important;
+  width: var(--pick-w) !important;
+  height: calc(var(--pick-w) * 1.408) !important;
 }
 .mulligan-card {
   cursor: pointer;
@@ -424,7 +425,7 @@
   opacity: 0.45;
 }
 .mulligan-mark {
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 1.4px;
   text-transform: uppercase;
   color: #9c9a95;
@@ -481,8 +482,6 @@
   overflow: auto;
   flex: 1;
   min-height: 0;
-  scrollbar-width: thin;
-  scrollbar-color: #908d8644 transparent;
 }
 .battle-log-list li {
   font-size: 10.5px;
@@ -534,7 +533,7 @@
   opacity: 0.62;
   font-size: 10px;
 }
-@media (max-width: 1179px) {
+@container stage (max-width: 1179px) {
   .arena-shell.with-log {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -811,7 +810,7 @@
   align-self: end;
   margin-bottom: 17px;
 }
-@media (min-width: 1800px) and (min-height: 980px) {
+@container stage (min-width: 1800px) and (min-height: 980px) {
   .app {
     grid-template-rows: 64px minmax(460px, 1fr) 236px;
   }
@@ -823,7 +822,7 @@
     width: 230px;
   }
 }
-@media (max-width: 950px) and (orientation: portrait) {
+@container stage (max-width: 950px) and (orientation: portrait) {
   .battlefield {
     justify-content: center;
   }
@@ -833,7 +832,7 @@
     aspect-ratio: 10.6 / 5.4;
   }
 }
-@media (max-width: 700px) {
+@container stage (max-width: 700px) {
   .app {
     grid-template-rows: 64px auto minmax(171px, 1fr);
     min-height: var(--app-h);
@@ -905,7 +904,7 @@
   }
 }
 /* Portrait: the log fills the height the board cannot use, instead of floating over it. */
-@media (max-width: 950px) and (orientation: portrait) {
+@container stage (max-width: 950px) and (orientation: portrait) {
   .arena-shell.with-log {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto auto;
@@ -915,7 +914,7 @@
   .arena-shell.with-log .battle-log {
     position: static;
     width: auto;
-    height: min(220px, 24dvh);
+    height: min(220px, 24cqh);
     margin: 0;
     box-shadow: none;
     z-index: auto;
@@ -926,7 +925,7 @@
 .collection-page:not(.builder-page) .collection-filters {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-@media (min-width: 1000px) {
+@container stage (min-width: 1000px) {
   .collection-page:not(.builder-page) .collection-filters {
     grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr));
   }

@@ -1,3 +1,4 @@
+import { toStageX } from "@realms/ui/stage";
 import { type CSSProperties } from "react";
 import { CombatArrows } from "../CombatArrows";
 import { t as msg } from "@realms/ui/i18n";
@@ -34,7 +35,7 @@ export function BoardScene() {
       style={{ "--ambient": ambient } as CSSProperties}
       onPointerMove={(e) => {
         if (!drag) {
-          const lane = laneAtX(e.clientX);
+          const lane = laneAtX(toStageX(e.clientX));
           setHoverLane((current) => (current === lane ? current : lane));
         }
       }}

@@ -1,6 +1,9 @@
 {
   "Language": "Sprache",
   "Animations": "Animationen",
+  "Screen shape": "Bildformat",
+  "The game is drawn at one size and scaled to fit your window. Everything outside it stays black.": "Das Spiel wird in einer festen Größe gezeichnet und an dein Fenster angepasst. Alles außerhalb bleibt schwarz.",
+  "Match my window": "An Fenster anpassen",
   "Choose the interface and tutorial language. Card names and lore stay as authored.": "Wähle die Sprache für Oberfläche, Tutorial und Karten.",
   "Reduced motion uses still artwork and skips combat effects.": "Reduzierte Bewegung zeigt Standbilder und überspringt Kampfeffekte.",
   "Follow system": "Systemeinstellung",

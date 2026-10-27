@@ -1,6 +1,8 @@
+import { toStageX, toStageY } from "@realms/ui/stage";
 import { useEffect, useRef, useState } from "react";
 
 export type CardDrag = { cardId: string; x: number; y: number };
+/** Drag positions are stage px, like the board layout they are hit-tested against. */
 /** The parts of a pointer-down event the drag needs; React DOM events and R3F native events both satisfy it. */
 export type DragStartEvent = {
   button: number;
@@ -47,8 +49,8 @@ export function useCardDrag(
     function move(event: PointerEvent) {
       const current = pointer.current;
       if (!current || event.pointerId !== current.pointerId) return;
-      current.x = event.clientX;
-      current.y = event.clientY;
+      current.x = toStageX(event.clientX);
+      current.y = toStageY(event.clientY);
       if (
         !current.active &&
         current.pointerType === "touch" &&
@@ -69,8 +71,8 @@ export function useCardDrag(
     }
     function up(event: PointerEvent) {
       if (event.pointerId !== pointer.current?.pointerId) return;
-      pointer.current.x = event.clientX;
-      pointer.current.y = event.clientY;
+      pointer.current.x = toStageX(event.clientX);
+      pointer.current.y = toStageY(event.clientY);
       finish(true);
     }
     function key(event: KeyboardEvent) {
@@ -99,10 +101,10 @@ export function useCardDrag(
     const element = event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
     pointer.current = {
       cardId,
-      x: event.clientX,
-      y: event.clientY,
-      startX: event.clientX,
-      startY: event.clientY,
+      x: toStageX(event.clientX),
+      y: toStageY(event.clientY),
+      startX: toStageX(event.clientX),
+      startY: toStageY(event.clientY),
       pointerId: event.pointerId,
       active: false,
       pointerType: event.pointerType,

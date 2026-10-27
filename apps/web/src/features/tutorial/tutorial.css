@@ -4,7 +4,7 @@
   z-index: var(--z-coach);
   left: max(16px, var(--safe-l));
   top: calc(74px + var(--safe-t));
-  width: min(340px, calc(100vw - 32px));
+  width: min(340px, calc(100cqw - 32px));
   pointer-events: none;
 }
 .coach-body {
@@ -27,7 +27,7 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: min(420px, calc(100vw - 32px));
+  width: min(420px, calc(100cqw - 32px));
 }
 .coach.finish .coach-body {
   padding: 24px 26px 24px;
@@ -194,11 +194,11 @@
   animation: none;
 }
 
-@media (max-width: 900px) {
+@container stage (max-width: 900px) {
   .coach:not(.finish):not(.anchored) {
     top: 8px;
     left: 12px;
-    width: min(420px, calc(100vw - 24px));
+    width: min(420px, calc(100cqw - 24px));
   }
 }
 .tutorial-offer {

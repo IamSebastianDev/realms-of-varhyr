@@ -244,7 +244,7 @@
 }
 .quest-art {
   flex: none;
-  height: min(32vh, 210px);
+  height: min(32cqh, 210px);
   display: grid;
   place-items: center;
   background: linear-gradient(160deg, #1a1916, #0e0d0c);
@@ -263,7 +263,7 @@
 .quest-dialog:has(.quest-art) .quest-art {
   height: auto;
   aspect-ratio: 1600/672;
-  max-height: 48vh;
+  max-height: 48cqh;
 }
 .quest-dialog:has(.quest-art) .quest-dialog-body {
   padding: 20px 26px 24px;
@@ -323,7 +323,7 @@
 .quest-sacrifice {
   display: grid;
   gap: 6px;
-  max-height: 34vh;
+  max-height: 34cqh;
   overflow: auto;
 }
 .quest-x {
@@ -404,13 +404,13 @@
   flex: none;
 }
 .quest-offer-card {
-  width: clamp(150px, min(20vw, 34vh), 340px);
+  width: clamp(150px, min(20cqw, 34cqh), 340px);
 }
 .quest-offer-card .art-card {
   width: 100%;
 }
 .quest-offer-cards.deck .quest-offer-card {
-  width: clamp(100px, min(10vw, 18vh), 150px);
+  width: clamp(100px, min(10cqw, 18cqh), 150px);
 }
 .quest-offer-card small {
   color: var(--muted);
@@ -492,7 +492,7 @@
 /* Draft page */
 .quest-draft {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(280px, 26vw, 380px);
+  grid-template-columns: minmax(0, 1fr) clamp(280px, 26cqw, 380px);
   gap: 14px;
   padding: 14px 18px 16px;
   max-width: 1680px;
@@ -521,7 +521,7 @@
   color: var(--muted);
 }
 .quest-draft-picks .quest-offer-card {
-  width: clamp(120px, min(14vw, 27vh), 230px);
+  width: clamp(120px, min(14cqw, 27cqh), 230px);
 }
 .quest-draft-deck {
   min-height: 0;
@@ -754,7 +754,7 @@
   inset: 0;
   border-radius: 10px;
 }
-@media (max-width: 950px), (max-aspect-ratio: 1/1) {
+@container stage (max-width: 950px) or (max-aspect-ratio: 1/1) {
   .app.quest-app {
     display: flex;
     flex-direction: column;
@@ -802,7 +802,7 @@
   }
 }
 .quest-draft {
-  grid-template-columns: minmax(0, 1fr) clamp(260px, 22vw, 320px);
+  grid-template-columns: minmax(0, 1fr) clamp(260px, 22cqw, 320px);
 }
 .quest-draft-picks .quest-offer-cards {
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -847,8 +847,8 @@
 .quest-log {
   left: 16px;
   top: 16px;
-  width: min(300px, 42vw);
-  max-height: 46vh;
+  width: min(300px, 42cqw);
+  max-height: 46cqh;
   overflow: auto;
 }
 .quest-log > small {
@@ -1475,7 +1475,7 @@
     inset 0 3px 16px rgb(var(--shade-rgb) / 0.6),
     inset 0 0 0 3px rgb(var(--bronze-rgb) / 0.05);
 }
-@media (max-width: 1000px) {
+@container stage (max-width: 1000px) {
   .quest-rewards {
     grid-template-columns: minmax(0, 1fr) 265px;
     gap: 12px;
@@ -1499,7 +1499,7 @@
     display: none;
   }
 }
-@media (max-width: 700px) {
+@container stage (max-width: 700px) {
   .quest-rewards {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr) auto;
@@ -1769,7 +1769,7 @@
     animation: none;
   }
 }
-@media (max-height: 700px) {
+@container stage (max-height: 700px) {
   .quest-victory {
     gap: 14px;
     padding: 16px;
@@ -1797,7 +1797,7 @@
     margin-top: 8px;
   }
 }
-@media (max-width: 600px) {
+@container stage (max-width: 600px) {
   .quest-victory {
     padding: 16px 8px;
     gap: 16px;
@@ -1885,7 +1885,7 @@
   display: block;
   width: min(100%, 760px);
   aspect-ratio: 1942/809;
-  max-height: 24vh;
+  max-height: 24cqh;
   object-fit: cover;
   border-radius: 10px;
   flex: none;

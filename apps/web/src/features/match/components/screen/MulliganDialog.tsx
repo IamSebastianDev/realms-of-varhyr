@@ -1,3 +1,4 @@
+import { rectOf } from "@realms/ui/stage";
 import { ArrowRight } from "lucide-react";
 import { ArtCard } from "@realms/ui/CardPresentation";
 import { PeekBackdrop } from "../Peek";
@@ -47,14 +48,14 @@ export function MulliganDialog() {
                         id: `mull-${id}`,
                         onPointerEnter: (e) => {
                           if (e.pointerType !== "touch")
-                            requestPreview(id, e.currentTarget.getBoundingClientRect());
+                            requestPreview(id, rectOf(e.currentTarget));
                         },
                         onPointerLeave: clearHoverPreview,
-                        onFocus: (e) => requestPreview(id, e.currentTarget.getBoundingClientRect()),
+                        onFocus: (e) => requestPreview(id, rectOf(e.currentTarget)),
                         onBlur: clearHoverPreview,
                         onContextMenu: (e) => {
                           e.preventDefault();
-                          pinPreview(id, e.currentTarget.getBoundingClientRect());
+                          pinPreview(id, rectOf(e.currentTarget));
                         },
                       }}
                       onClick={() =>

@@ -1,0 +1,47 @@
+/* The stage: one fixed-size desktop layout, scaled to fit the window and centred on black (see lib/stage.ts).
+   Container units (cqw, cqh) and container queries inside it refer to the stage, never to the window. */
+html,
+body {
+  margin: 0;
+  background: #000;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+#stage-frame {
+  position: fixed;
+  inset: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+    env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  overflow: hidden;
+}
+#stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  overflow: hidden;
+  container: stage / size;
+  background: var(--bg);
+  /* Until the first fit, show nothing rather than an unscaled flash. */
+  width: 1600px;
+  height: 900px;
+}
+/* Inside the stage the safe areas are already outside, and the height is the stage's. */
+:root {
+  --app-h: 100cqh;
+  --safe-t: 0px;
+  --safe-r: 0px;
+  --safe-b: 0px;
+  --safe-l: 0px;
+}
+#stage #root {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+/* A phone held upright: only the notice, drawn on the real window. */
+html[data-phone="true"][data-portrait="true"] #stage-frame {
+  display: none;
+}

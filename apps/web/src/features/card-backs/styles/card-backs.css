@@ -30,7 +30,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
   gap: 10px;
-  max-height: min(62dvh, 520px);
+  max-height: min(62cqh, 520px);
   overflow: auto;
   padding: 2px;
 }
@@ -106,7 +106,7 @@
 }
 .builder-dialog:has(.back-grid),
 .builder-dialog:has(.setup-deck-grid) {
-  width: min(92vw, 860px);
+  width: min(92cqw, 860px);
   max-width: none;
   background: none;
   border: 0;
@@ -121,7 +121,7 @@
 }
 .builder-dialog:has(.back-grid) .back-grid,
 .builder-dialog:has(.setup-deck-grid) .setup-deck-grid {
-  max-height: min(68dvh, 600px);
+  max-height: min(68cqh, 600px);
   padding: 10px;
 }
 .back-grid button {
@@ -135,7 +135,7 @@
 /* More room in the two pickers. */
 .builder-dialog:has(.back-grid),
 .builder-dialog:has(.setup-deck-grid) {
-  width: min(94vw, 1040px);
+  width: min(94cqw, 1040px);
   padding: 48px 40px 40px;
 }
 .builder-dialog:has(.back-grid) h2,
@@ -168,7 +168,7 @@
 }
 .builder-dialog:has(.back-grid) .back-grid,
 .builder-dialog:has(.setup-deck-grid) .setup-deck-grid {
-  max-height: min(66dvh, 640px);
+  max-height: min(66cqh, 640px);
   padding: 12px;
 }
 
@@ -261,7 +261,7 @@
   background: rgb(var(--shade-rgb) / 0.4);
 }
 .sleeve-detail .card-back-face {
-  width: clamp(110px, 14vw, 150px);
+  width: clamp(110px, 14cqw, 150px);
   border-radius: 6px;
   box-shadow: 0 10px 24px #000a;
 }
@@ -285,7 +285,7 @@
   line-height: 1.4;
   color: var(--ink-2);
 }
-@media (max-width: 860px) {
+@container stage (max-width: 860px) {
   .sleeve-layout {
     grid-template-columns: 1fr;
   }

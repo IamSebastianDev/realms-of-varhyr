@@ -1,3 +1,4 @@
+import { stageLabel } from "../../../lib/stage";
 import { ResetControls } from "./ResetControls";
 import { useState } from "react";
 import { useAudio } from "../../../app/providers/AudioProvider";
@@ -17,6 +18,8 @@ import {
   usePreferences,
   type Language,
   type Motion,
+  type Screen,
+  screens,
 } from "@realms/ui/preferences";
 import { t as msg, useLanguage } from "@realms/ui/i18n";
 
@@ -54,6 +57,30 @@ export function PreferenceControls({ part }: { part?: "general" | "audio" }) {
             >
               <option value="en">English</option>
               <option value="de">Deutsch</option>
+            </select>
+          </section>
+          <section className="settings-group" aria-label={msg("Screen shape")}>
+            <div>
+              <h2>{msg("Screen shape")}</h2>
+              <p>
+                {msg(
+                  "The game is drawn at one size and scaled to fit your window. Everything outside it stays black.",
+                )}
+              </p>
+            </div>
+            <select
+              aria-label={msg("Screen shape")}
+              value={preferences.screen}
+              onChange={(event) => updatePreferences({ screen: event.target.value as Screen })}
+            >
+              <option value="auto">{msg("Match my window")}</option>
+              {screens
+                .filter((shape) => shape !== "auto")
+                .map((shape) => (
+                  <option key={shape} value={shape}>
+                    {shape} ({stageLabel(shape)})
+                  </option>
+                ))}
             </select>
           </section>
           <section className="settings-group" aria-label={msg("Animations")}>

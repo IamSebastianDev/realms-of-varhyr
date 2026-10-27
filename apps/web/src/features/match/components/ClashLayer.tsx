@@ -1,3 +1,4 @@
+import { maybeRectOf, rectOf } from "@realms/ui/stage";
 import { t as msg, useLanguage } from "@realms/ui/i18n";
 import { useEffect, type CSSProperties } from "react";
 import type { PlayerId } from "@realms/contracts";
@@ -73,7 +74,7 @@ export function ClashLayer({
   const bigHit = pops.find(
     (p) => "life" in p.at && p.at.life === viewer && p.tone !== "heal" && amountOf(p) >= 3,
   );
-  const origin = board.getBoundingClientRect();
+  const origin = rectOf(board);
   const slotBox = (player: PlayerId, slot: number): Box | null => {
     const found = slots.find((s) => s.player === player && s.slot === slot);
     return found
@@ -81,9 +82,11 @@ export function ClashLayer({
       : null;
   };
   const lifeBox = (player: PlayerId): Box | null => {
-    const r = document
-      .querySelector(`.player-banner.${player === viewer ? "own" : "opponent"} .life-counter`)
-      ?.getBoundingClientRect();
+    const r = maybeRectOf(
+      document.querySelector(
+        `.player-banner.${player === viewer ? "own" : "opponent"} .life-counter`,
+      ),
+    );
     return r ? { x: r.left, y: r.top, w: r.width, h: r.height } : null;
   };
   const spotBox = (spot: Spot) =>

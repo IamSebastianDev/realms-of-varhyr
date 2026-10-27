@@ -1,3 +1,4 @@
+import { stageHeight } from "@realms/ui/stage";
 import { Energy, cardAbilityDescriptions } from "@realms/ui/CardPresentation";
 import { type EnergyAction, EnergyChoiceArc } from "../EnergyChoiceArc";
 import { Eye, RotateCcw, Sparkles, Swords, X, Zap } from "lucide-react";
@@ -51,7 +52,7 @@ export function CreatureActions() {
           className="creature-actions"
           role="dialog"
           aria-label={msg("{v0} actions", { v0: registry.cards[actionInstance.definitionId].name })}
-          style={{ ...actionPosition, maxHeight: window.innerHeight - actionPosition.top - 12 }}
+          style={{ ...actionPosition, maxHeight: stageHeight() - actionPosition.top - 12 }}
         >
           <div className="creature-actions-heading">
             <span>{msg(registry.cards[actionInstance.definitionId].name)}</span>

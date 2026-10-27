@@ -1,5 +1,5 @@
 /* Top navigation: tabs that run the full height of the header, the active one lit from below. */
-@media (min-width: 861px) {
+@container stage (min-width: 861px) {
   .lobby .lobby-header {
     height: 70px;
     min-height: 70px;
@@ -141,7 +141,7 @@
 }
 
 /* Narrow desktop windows and phones scaled to ~1100px: tighter tabs so the wallet and settings stay on screen. */
-@media (min-width: 861px) and (max-width: 1240px) {
+@container stage (min-width: 861px) and (max-width: 1240px) {
   .lobby .lobby-header nav button {
     padding: 0 16px;
     gap: 8px;

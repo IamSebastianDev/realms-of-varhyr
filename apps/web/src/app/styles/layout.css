@@ -7,7 +7,7 @@
   flex-direction: column;
   overflow: hidden;
 }
-@media (max-width: 860px) {
+@container stage (max-width: 860px) {
   .lobby:is(.menu-screen, :has(.profile-hall, .store-hall)) {
     height: auto;
     min-height: var(--app-h);

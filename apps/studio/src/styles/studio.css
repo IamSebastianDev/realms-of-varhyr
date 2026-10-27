@@ -16,6 +16,14 @@ html {
   --bad: #f0b5a6;
   --good: #e8dcb8;
 }
+/* The same thin bronze scrollbar as the game. */
+html {
+  color-scheme: dark;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule-strong) transparent;
+}
 body {
   background: var(--ink);
   color: var(--text);

@@ -20,7 +20,7 @@
   flex-direction: column;
   align-items: center;
   gap: 18px;
-  width: min(320px, 70vw);
+  width: min(320px, 70cqw);
 }
 .loading-mark {
   width: 112px;
@@ -56,7 +56,7 @@
 }
 .loading-center h1 {
   margin: 4px 0 0;
-  font: 500 clamp(26px, 3.4vw, 38px)/1.1 var(--serif);
+  font: 500 clamp(26px, 3.4cqw, 38px)/1.1 var(--serif);
   color: var(--gilt-white);
   letter-spacing: 0.04em;
   text-align: center;

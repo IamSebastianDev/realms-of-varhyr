@@ -177,7 +177,7 @@
     opacity: 0;
   }
 }
-@media (max-width: 850px) {
+@container stage (max-width: 850px) {
   .lobby-header {
     gap: 12px;
   }
@@ -204,7 +204,7 @@
     height: 80px;
   }
 }
-@media (max-width: 700px) {
+@container stage (max-width: 700px) {
   .lobby-header {
     flex-wrap: wrap;
   }

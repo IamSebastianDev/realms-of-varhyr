@@ -19,7 +19,7 @@ body {
 }
 /* Everything is laid out inside the safe area; full-bleed artwork sits in position:fixed layers. */
 #root {
-  min-height: 100dvh;
+  min-height: 100cqh;
   padding: var(--safe-t) var(--safe-r) var(--safe-b) var(--safe-l);
 }
 button,

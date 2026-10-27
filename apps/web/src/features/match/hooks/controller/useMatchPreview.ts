@@ -1,3 +1,4 @@
+import { maybeRectOf } from "@realms/ui/stage";
 import { useState } from "react";
 
 import type { useMatchBasics } from "./useMatchBasics";
@@ -33,7 +34,7 @@ export function useMatchPreview(
   function inspectBoard(id: string) {
     const card = view.cards[id],
       slot = slotLayout.find((s) => s.player === card?.controller && s.slot === card?.slot),
-      rect = boardRef.current?.getBoundingClientRect();
+      rect = maybeRectOf(boardRef.current);
     if (slot && rect)
       pinPreview(id, {
         left: rect.left + slot.x,
@@ -62,7 +63,7 @@ export function useMatchPreview(
   function clearHoverPreview() {
     setPreviewRequest((current) => (current?.pinned ? current : null));
   }
-  function requestPreview(id: string, rect: DOMRect) {
+  function requestPreview(id: string, rect: Pick<DOMRect, "left" | "top" | "right" | "bottom">) {
     if (stage !== "none" || previewRequest?.pinned) return;
     setPreviewRequest({
       cardId: id,
@@ -75,7 +76,7 @@ export function useMatchPreview(
   // Lane names stay hidden until the pointer is over that lane (the column of both rows).
   const [hoverLane, setHoverLane] = useState<number | null>(null);
   const laneAtX = (x: number) => {
-    const board = boardRef.current?.getBoundingClientRect();
+    const board = maybeRectOf(boardRef.current);
     if (!board) return null;
     return (
       slotLayout.find((s) => x >= board.left + s.x && x <= board.left + s.x + s.width)?.slot ?? null
@@ -89,7 +90,7 @@ export function useMatchPreview(
       slot = card
         ? slotLayout.find((s) => s.player === card.controller && s.slot === card.slot)
         : null,
-      rect = boardRef.current?.getBoundingClientRect();
+      rect = maybeRectOf(boardRef.current);
     if (id && slot && rect)
       setPreviewRequest({
         cardId: id,

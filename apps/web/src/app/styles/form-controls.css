@@ -61,7 +61,7 @@ select:not([multiple]):not([size]) optgroup {
     border-radius: 7px;
     padding: 5px;
     margin-block-start: 6px;
-    max-block-size: min(320px, 60dvh);
+    max-block-size: min(320px, 60cqh);
     overflow-y: auto;
     box-shadow: 0 12px 30px rgb(var(--shade-rgb) / 0.33);
   }

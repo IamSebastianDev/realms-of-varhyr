@@ -10,11 +10,11 @@
 /* Chrome: collection inspector modal */
 .collection-card-detail {
   display: block;
-  width: min(900px, calc(100vw - 36px));
+  width: min(900px, calc(100cqw - 36px));
   padding: 32px;
 }
 .collection-card-detail .card-detail {
-  grid-template-columns: clamp(230px, 30vw, 320px) minmax(0, 1fr);
+  grid-template-columns: clamp(230px, 30cqw, 320px) minmax(0, 1fr);
   gap: 32px;
   align-items: start;
 }
@@ -25,7 +25,7 @@
   aspect-ratio: 512/720;
   align-self: start;
 }
-@media (max-width: 700px) {
+@container stage (max-width: 700px) {
   .collection-card-detail {
     padding: 24px;
   }
@@ -33,7 +33,7 @@
     gap: 24px;
   }
 }
-@media (max-width: 620px) {
+@container stage (max-width: 620px) {
   .collection-card-detail .card-detail {
     grid-template-columns: 1fr;
     justify-items: center;

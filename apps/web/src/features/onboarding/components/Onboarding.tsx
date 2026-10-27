@@ -1,3 +1,4 @@
+import { stageWidth } from "@realms/ui/stage";
 import { t as msg, useLanguage } from "@realms/ui/i18n";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Crown } from "lucide-react";
@@ -14,6 +15,23 @@ import { usePreferences } from "@realms/ui/preferences";
 type Step = "starter" | "name" | "reveal";
 const colorOf = (offer: StarterOffer) =>
   ({ "--ob-color": factionInfo[offer.faction]?.color ?? "#d7b66b" }) as CSSProperties;
+/** Fixed values, so the embers are the same on every render and never need randomness during rendering. */
+const unit = (n: number) => {
+  const x = Math.sin(n * 127.1 + 311.7) * 43758.5453;
+  return x - Math.floor(x);
+};
+const embers = Array.from(
+  { length: 34 },
+  (_, i) =>
+    ({
+      "--x": `${Math.round(unit(i) * 100)}%`,
+      "--s": `${(3 + unit(i + 50) * 4).toFixed(1)}px`,
+      "--dur": `${(10 + unit(i + 90) * 10).toFixed(1)}s`,
+      "--delay": `-${(unit(i + 130) * 20).toFixed(1)}s`,
+      "--drift": `${Math.round((unit(i + 170) - 0.5) * 160)}px`,
+      "--o": (0.6 + unit(i + 210) * 0.4).toFixed(2),
+    }) as CSSProperties,
+);
 const heroOf = (offer: StarterOffer) => avatarDefinitions.find((a) => a.id === offer.avatar)!;
 const showcase = (offer: StarterOffer) => [...offer.cards].reverse().slice(0, 3);
 
@@ -71,7 +89,17 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
 
   return (
     <div className={`onboarding ${reduced ? "reduced-motion" : ""}`} style={colorOf(offer)}>
-      <div className="ob-backdrop" aria-hidden="true" />
+      <div className="ob-backdrop" aria-hidden="true">
+        <span className="ob-embers">
+          {embers.map((style, i) => (
+            <i key={i} style={style} />
+          ))}
+        </span>
+        {/* The leader of the highlighted realm looms behind the cards and changes with them. */}
+        {step === "starter" && (
+          <img key={hero.art} className="ob-backdrop-hero" src={hero.art} alt="" />
+        )}
+      </div>
       {step === "starter" && (
         <main className="ob-stage ob-starters" aria-labelledby="ob-title">
           <header>
@@ -250,7 +278,7 @@ function Reveal({
     const node = wrap.current;
     if (!node) return;
     const measure = () => {
-      const slot = window.innerWidth <= 700 ? 104 : 168;
+      const slot = stageWidth() <= 700 ? 104 : 168;
       setSize(Math.max(2, Math.floor((node.clientWidth + 16) / (slot + 16))));
     };
     measure();

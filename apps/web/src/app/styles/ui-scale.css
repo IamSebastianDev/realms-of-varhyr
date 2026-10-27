@@ -1,8 +1,5 @@
-/* Phones in portrait are not supported: only the notice is shown. See uiScale.ts for the landscape scale. */
+/* Phones in portrait are not supported: only the notice is shown, on the real window (the stage is hidden, see stage.css). */
 .rotate-notice {
-  display: none;
-}
-html[data-phone="true"][data-portrait="true"] #root > *:not(.rotate-notice) {
   display: none;
 }
 html[data-phone="true"][data-portrait="true"] .rotate-notice {

@@ -14,7 +14,7 @@
   overflow: hidden;
   padding: 10px 18px 12px;
   margin-inline: auto;
-  --deck-card-width: clamp(128px, 10.8vw, 160px);
+  --deck-card-width: clamp(128px, 10.8cqw, 160px);
   --deck-overlap: 46px;
 }
 .deck-file-input {
@@ -237,8 +237,6 @@
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  scrollbar-width: thin;
-  scrollbar-color: #a7a39b #21201c;
   scrollbar-gutter: stable;
 }
 .builder-deck-stacks {
@@ -488,7 +486,7 @@
   font-size: 10px;
   color: #bebbb4;
 }
-@media (max-width: 950px) {
+@container stage (max-width: 950px) {
   .deck-workshop .builder-deck-name {
     max-width: none;
   }
@@ -497,7 +495,7 @@
     flex-basis: 100%;
   }
 }
-@media (max-width: 600px) {
+@container stage (max-width: 600px) {
   .deck-workshop.builder-page {
     padding: 8px;
     gap: 8px;
@@ -599,7 +597,7 @@
 
 /* Workshop: collection grid on the left, deck side panel on the right. */
 .deck-workshop.builder-page {
-  grid-template-columns: minmax(0, 1fr) clamp(300px, 25vw, 380px);
+  grid-template-columns: minmax(0, 1fr) clamp(300px, 25cqw, 380px);
   grid-template-rows: minmax(0, 1fr);
   gap: 12px;
   padding: 12px 18px;
@@ -607,7 +605,7 @@
 .builder-collection-gallery {
   container-type: normal;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(clamp(116px, 9.4vw, 150px), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(clamp(116px, 9.4cqw, 150px), 1fr));
   grid-auto-rows: max-content;
   gap: 12px 18px;
   align-items: start;
@@ -615,8 +613,6 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: 10px 16px 10px 2px;
-  scrollbar-width: thin;
-  scrollbar-color: #a7a39b #21201c;
   scrollbar-gutter: stable;
 }
 .builder-collection-gallery > .builder-card-tile {
@@ -881,7 +877,7 @@
 .dk-curve button:disabled {
   cursor: default;
 }
-@media (max-width: 860px) {
+@container stage (max-width: 860px) {
   .deck-workshop.builder-page {
     grid-template-columns: 1fr;
     grid-template-rows: minmax(0, 1fr) minmax(0, 1.1fr);
@@ -1215,7 +1211,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
   gap: 8px;
-  max-height: min(52dvh, 420px);
+  max-height: min(52cqh, 420px);
   overflow: auto;
   padding: 4px;
 }

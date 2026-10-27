@@ -15,8 +15,8 @@
   min-height: 0;
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
-  gap: clamp(24px, 5vh, 48px);
-  padding: clamp(24px, 4.5vh, 48px) clamp(28px, 3.6vw, 60px);
+  gap: clamp(24px, 5cqh, 48px);
+  padding: clamp(24px, 4.5cqh, 48px) clamp(28px, 3.6cqw, 60px);
   background: rgb(var(--shade-rgb) / 0.28);
   border: 1px solid;
   border-color: rgb(var(--shade-rgb) / 0.6) rgb(var(--edge-rgb) / 0.11) rgb(var(--edge-rgb) / 0.13)
@@ -30,7 +30,7 @@
   min-height: 0;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(18px, 2.6vw, 40px);
+  gap: clamp(18px, 2.6cqw, 40px);
 }
 .home-mode {
   position: relative;
@@ -40,7 +40,7 @@
   justify-content: flex-end;
   align-items: flex-start;
   gap: 6px;
-  padding: clamp(18px, 3vh, 30px) clamp(18px, 2vw, 28px);
+  padding: clamp(18px, 3cqh, 30px) clamp(18px, 2cqw, 28px);
   text-align: left;
   color: var(--gilt-pale);
   border-radius: 6px;
@@ -80,7 +80,7 @@
   filter: drop-shadow(0 2px 8px var(--black));
 }
 .home-mode b {
-  font: 600 clamp(26px, 4.2vh, 40px)/1.05 var(--serif);
+  font: 600 clamp(26px, 4.2cqh, 40px)/1.05 var(--serif);
   text-shadow: 0 2px 18px var(--black);
 }
 .home-mode small {
@@ -91,8 +91,8 @@
 }
 .home-mode .go {
   position: absolute;
-  right: clamp(16px, 1.8vw, 26px);
-  bottom: clamp(18px, 3vh, 30px);
+  right: clamp(16px, 1.8cqw, 26px);
+  bottom: clamp(18px, 3cqh, 30px);
   color: var(--gilt);
   transition: transform 0.2s;
 }
@@ -102,7 +102,7 @@
 .home-progress {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-  gap: clamp(20px, 4vw, 64px);
+  gap: clamp(20px, 4cqw, 64px);
   padding: 0 4px;
 }
 .home-achievement h2 {
@@ -183,7 +183,7 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: clamp(10px, 2.2vh, 18px);
+  gap: clamp(10px, 2.2cqh, 18px);
 }
 .home-goals li {
   display: grid;
@@ -216,7 +216,7 @@
   font-size: 12px;
   text-shadow: 0 1px 8px var(--black);
 }
-@media (max-width: 860px) {
+@container stage (max-width: 860px) {
   .home-stage {
     overflow: visible;
   }
@@ -234,7 +234,7 @@
     grid-template-columns: 1fr;
   }
 }
-@media (max-height: 640px) and (min-width: 861px) {
+@container stage (max-height: 640px) and (min-width: 861px) {
   .home-goals h2,
   .home-achievement h2 {
     margin-bottom: 8px;

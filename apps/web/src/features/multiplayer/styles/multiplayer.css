@@ -4,14 +4,14 @@
   max-width: 960px;
   width: 100%;
   margin: 0 auto;
-  padding: clamp(24px, 5vh, 52px) 24px 35px;
+  padding: clamp(24px, 5cqh, 52px) 24px 35px;
 }
 .multiplayer-intro {
   text-align: center;
   margin-bottom: 30px;
 }
 .multiplayer-intro h1 {
-  font: 500 clamp(38px, 5vw, 62px)/1.15 var(--serif);
+  font: 500 clamp(38px, 5cqw, 62px)/1.15 var(--serif);
   color: #f6e5b9;
   margin: 8px 0 12px;
 }
@@ -106,7 +106,7 @@
   margin-inline: auto;
 }
 .online-room-code {
-  font: 500 clamp(32px, 6vw, 52px)/1.5 monospace;
+  font: 500 clamp(32px, 6cqw, 52px)/1.5 monospace;
   letter-spacing: 5px;
   color: #f3dcaa;
   user-select: text;
@@ -197,7 +197,7 @@
   color: #efdbab;
   white-space: nowrap;
 }
-@media (max-width: 950px) {
+@container stage (max-width: 950px) {
   .online-connection-strip {
     top: auto;
     bottom: 15px;
@@ -205,7 +205,7 @@
     max-width: calc(100% - 30px);
   }
 }
-@media (max-width: 600px) {
+@container stage (max-width: 600px) {
   .multiplayer-page {
     padding: 26px 16px;
   }

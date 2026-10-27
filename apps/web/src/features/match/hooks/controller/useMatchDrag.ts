@@ -1,3 +1,4 @@
+import { maybeRectOf } from "@realms/ui/stage";
 import { type CardDrag, useCardDrag } from "../useCardDrag";
 import {
   type DropZone,
@@ -64,11 +65,11 @@ export function useMatchDrag(
       point,
       viewer,
       {
-        board: boardRef.current?.getBoundingClientRect() ?? null,
+        board: maybeRectOf(boardRef.current) ?? null,
         slots: slotLayout,
         players: {
-          [viewer]: ownPlayerRef.current?.getBoundingClientRect(),
-          [other(viewer)]: enemyPlayerRef.current?.getBoundingClientRect(),
+          [viewer]: maybeRectOf(ownPlayerRef.current),
+          [other(viewer)]: maybeRectOf(enemyPlayerRef.current),
         },
       },
       registry.cards[view.cards[point.cardId]?.definitionId]?.type === "spell",

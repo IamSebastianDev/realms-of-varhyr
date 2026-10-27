@@ -1,3 +1,4 @@
+import { maybeRectOf, stageHeight, stageWidth } from "@realms/ui/stage";
 import { creatureActions } from "../../lib/creatureActions";
 import { effectiveStats } from "@realms/core";
 import { t as msg } from "@realms/ui/i18n";
@@ -97,24 +98,22 @@ export function useMatchOverlays(
     previewCard && previewDef && previewDef.type !== "spell"
       ? effectiveStats(view, previewCard.id, registry)
       : undefined;
-  const previewHeight = Math.min(650, window.innerHeight - 24),
+  const previewHeight = Math.min(650, stageHeight() - 24),
     previewWidth =
-      window.innerWidth >= 701
-        ? Math.min(600, window.innerWidth - 24)
-        : Math.min(270, window.innerWidth - 24);
+      stageWidth() >= 701 ? Math.min(600, stageWidth() - 24) : Math.min(270, stageWidth() - 24);
   const previewX = preview
     ? Math.max(
         12,
         Math.min(
-          window.innerWidth - previewWidth - 12,
-          preview.right + 14 + previewWidth < window.innerWidth
+          stageWidth() - previewWidth - 12,
+          preview.right + 14 + previewWidth < stageWidth()
             ? preview.right + 14
             : preview.left - previewWidth - 14,
         ),
       )
     : 12;
   const previewY = preview
-    ? Math.max(12, Math.min(window.innerHeight - previewHeight - 12, preview.top))
+    ? Math.max(12, Math.min(stageHeight() - previewHeight - 12, preview.top))
     : 12;
   const actionInstance = actionCard ? view.cards[actionCard] : null;
   const actionSlot = actionInstance
@@ -122,7 +121,7 @@ export function useMatchOverlays(
         (s) => s.player === actionInstance.controller && s.slot === actionInstance.slot,
       )
     : null;
-  const boardBounds = boardRef.current?.getBoundingClientRect();
+  const boardBounds = maybeRectOf(boardRef.current);
   const availableActions = actionCard
     ? creatureActions(view, actionCard, undoable, attackers, draftLanes)
     : [];
@@ -136,7 +135,7 @@ export function useMatchOverlays(
         Object.values(action.output)[0] > 0,
     );
   const energyAnchor = () => {
-    const bounds = boardRef.current?.getBoundingClientRect();
+    const bounds = maybeRectOf(boardRef.current);
     return actionSlot && bounds
       ? {
           left: bounds.left + actionSlot.x,
@@ -152,16 +151,13 @@ export function useMatchOverlays(
           left: Math.max(
             10,
             Math.min(
-              window.innerWidth - 234,
+              stageWidth() - 234,
               boardBounds.left + actionSlot.x + actionSlot.width / 2 - 112,
             ),
           ),
           top: Math.max(
             10,
-            Math.min(
-              window.innerHeight - 230,
-              boardBounds.top + actionSlot.y + actionSlot.height + 10,
-            ),
+            Math.min(stageHeight() - 230, boardBounds.top + actionSlot.y + actionSlot.height + 10),
           ),
         }
       : { left: 10, top: 100 };

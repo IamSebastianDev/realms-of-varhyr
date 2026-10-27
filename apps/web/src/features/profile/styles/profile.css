@@ -102,7 +102,7 @@
   z-index: 1;
   width: min(860px, 100%);
   margin: 0 auto;
-  padding: clamp(18px, 4vh, 40px) 24px 48px;
+  padding: clamp(18px, 4cqh, 40px) 24px 48px;
 }
 .profile-card {
   display: grid;
@@ -222,7 +222,7 @@
 .avatar-lore .avatar-title + p {
   font-style: italic;
 }
-@media (max-width: 700px) {
+@container stage (max-width: 700px) {
   .avatar-picker {
     grid-template-columns: 1fr;
   }
@@ -317,7 +317,7 @@
 .menu-destination.menu-profile .avatar-art {
   flex: none;
 }
-@media (max-width: 700px) {
+@container stage (max-width: 700px) {
   .profile-card {
     grid-template-columns: 1fr;
     justify-items: center;
@@ -365,7 +365,7 @@
 .match-preferences .settings-group .toggle {
   margin-top: 3px;
 }
-@media (max-width: 550px) {
+@container stage (max-width: 550px) {
   .settings-page .settings-group {
     flex-wrap: wrap;
   }
@@ -381,7 +381,7 @@
   overflow: auto;
   overscroll-behavior: contain;
 }
-@media (max-width: 900px) {
+@container stage (max-width: 900px) {
   .lobby-header {
     flex-wrap: wrap;
     gap: 12px;
@@ -400,7 +400,7 @@
     font-size: 10px;
   }
 }
-@media (max-width: 900px) {
+@container stage (max-width: 900px) {
   .lobby .lobby-header,
   .menu-screen .lobby-header {
     height: auto;
@@ -432,13 +432,13 @@
 }
 
 .profile-avatars button .avatar-art {
-  width: clamp(60px, 8vw, 84px);
+  width: clamp(60px, 8cqw, 84px);
   height: auto;
   aspect-ratio: 1;
 }
 
 /* Keep all three hero rows visible on the compact desktop canvas. */
-@media (min-width: 701px) and (max-height: 800px) {
+@container stage (min-width: 701px) and (max-height: 800px) {
   .profile-page {
     padding-block: 18px 24px;
   }
@@ -458,7 +458,7 @@
     margin-top: 18px;
   }
   .profile-avatars button .avatar-art {
-    width: clamp(60px, 8vw, 76px);
+    width: clamp(60px, 8cqw, 76px);
   }
 }
 .settings-version {
@@ -587,7 +587,7 @@
   box-shadow: inset 0 2px 12px #0008;
   border-color: color-mix(in srgb, var(--avatar) 38%, var(--bg));
 }
-@media (max-width: 860px) {
+@container stage (max-width: 860px) {
   .profile-stage {
     overflow: visible;
   }

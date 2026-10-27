@@ -10,18 +10,18 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: clamp(10px, 2.4vh, 24px);
-  padding: clamp(8px, 2vh, 30px) 36px;
+  gap: clamp(10px, 2.4cqh, 24px);
+  padding: clamp(8px, 2cqh, 30px) 36px;
 }
 .menu-screen .menu-intro {
   margin: 0;
 }
 .menu-screen .menu-intro h1 {
-  font-size: clamp(36px, 6.6vh, 62px);
-  margin: clamp(4px, 1vh, 12px) 0 clamp(6px, 1.4vh, 14px);
+  font-size: clamp(36px, 6.6cqh, 62px);
+  margin: clamp(4px, 1cqh, 12px) 0 clamp(6px, 1.4cqh, 14px);
 }
 .menu-screen .menu-intro p {
-  font-size: clamp(11px, 1.5vh, 13px);
+  font-size: clamp(11px, 1.5cqh, 13px);
   line-height: 1.65;
 }
 .menu-screen .menu-layout {
@@ -29,29 +29,29 @@
   min-height: 0;
 }
 .menu-screen .menu-play {
-  padding: clamp(14px, 2.6vh, 24px);
+  padding: clamp(14px, 2.6cqh, 24px);
 }
 .menu-screen .menu-section-heading {
-  margin-bottom: clamp(8px, 1.6vh, 16px);
+  margin-bottom: clamp(8px, 1.6cqh, 16px);
 }
 .menu-screen .menu-section-heading h2 {
-  font-size: clamp(22px, 3.4vh, 28px);
+  font-size: clamp(22px, 3.4cqh, 28px);
 }
 .menu-screen .menu-fields {
-  gap: clamp(8px, 1.4vh, 13px);
+  gap: clamp(8px, 1.4cqh, 13px);
 }
 .menu-screen .lobby input,
 .menu-screen .lobby select {
   min-height: 38px;
 }
 .menu-screen .play-deck-note {
-  margin: clamp(8px, 1.4vh, 13px) 0 clamp(10px, 1.8vh, 18px);
+  margin: clamp(8px, 1.4cqh, 13px) 0 clamp(10px, 1.8cqh, 18px);
 }
 .menu-screen .menu-start {
-  padding: clamp(11px, 1.8vh, 15px) 18px;
+  padding: clamp(11px, 1.8cqh, 15px) 18px;
 }
 .menu-screen .menu-small-actions {
-  margin-top: clamp(8px, 1.4vh, 15px);
+  margin-top: clamp(8px, 1.4cqh, 15px);
 }
 .menu-screen .menu-links {
   gap: 16px;
@@ -59,21 +59,21 @@
 }
 .menu-screen .menu-destination {
   min-height: 0;
-  padding: clamp(14px, 2.4vh, 24px);
+  padding: clamp(14px, 2.4cqh, 24px);
 }
 .menu-screen .menu-destination h2 {
-  font-size: clamp(23px, 3.8vh, 30px);
-  margin-bottom: clamp(4px, 1vh, 10px);
+  font-size: clamp(23px, 3.8cqh, 30px);
+  margin-bottom: clamp(4px, 1cqh, 10px);
 }
 .menu-screen .menu-destination p {
   line-height: 1.6;
 }
 .menu-screen .menu-destination div > span {
-  margin-top: clamp(6px, 1.4vh, 16px);
+  margin-top: clamp(6px, 1.4cqh, 16px);
 }
 .menu-screen .booster-toolbar {
   margin: 0;
-  padding: clamp(8px, 1.6vh, 15px) 18px;
+  padding: clamp(8px, 1.6cqh, 15px) 18px;
 }
 .menu-screen .menu-footnote {
   margin: 0;
@@ -83,18 +83,18 @@
   padding: 8px 0 12px;
   margin-bottom: 12px;
 }
-@media (max-height: 760px) {
+@container stage (max-height: 760px) {
   .menu-screen .menu-footnote {
     display: none;
   }
 }
-@media (max-height: 640px) {
+@container stage (max-height: 640px) {
   .menu-screen .menu-intro p,
   .menu-screen .menu-intro .eyebrow {
     display: none;
   }
 }
-@media (max-width: 700px) {
+@container stage (max-width: 700px) {
   .menu-screen .main-menu {
     padding: 10px 16px;
     gap: 10px;
@@ -103,7 +103,7 @@
     display: none;
   }
   .menu-screen .menu-intro h1 {
-    font-size: clamp(30px, 5.4vh, 42px);
+    font-size: clamp(30px, 5.4cqh, 42px);
   }
   .menu-screen .menu-layout {
     grid-template-columns: 1fr;
@@ -155,7 +155,7 @@
     padding: 10px 12px;
   }
 }
-@media (max-width: 700px) and (max-height: 700px) {
+@container stage (max-width: 700px) and (max-height: 700px) {
   .menu-screen .menu-intro p {
     display: none;
   }
@@ -594,7 +594,7 @@
 .hand-card.unaffordable {
   filter: saturate(0.7) brightness(0.8);
 }
-@media (max-width: 700px) {
+@container stage (max-width: 700px) {
   .app .player-banner {
     min-height: 48px;
     column-gap: 10px;
@@ -690,7 +690,7 @@
 .hand-scroll .hand-card:last-child {
   margin-right: auto;
 }
-@media (min-width: 701px) {
+@container stage (min-width: 701px) {
   .hand-zone {
     z-index: 8;
   }
@@ -716,11 +716,11 @@ body,
 }
 /* Draw choice: drag the unwanted card to a pile */
 .draw-dialog {
-  width: min(980px, calc(100vw - 24px));
+  width: min(1320px, calc(100cqw - 24px));
 }
 .draw-board {
   display: grid;
-  grid-template-columns: minmax(120px, 170px) minmax(0, 1fr) minmax(120px, 170px);
+  grid-template-columns: minmax(140px, 210px) minmax(0, 1fr) minmax(140px, 210px);
   gap: 18px;
   align-items: stretch;
   margin-top: 18px;
@@ -736,14 +736,14 @@ body,
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  max-width: 210px;
+  max-width: 270px;
   text-align: left;
 }
 .draw-card-art {
   touch-action: none;
   cursor: grab;
-  width: 176px;
-  height: 248px;
+  width: min(236px, calc((100cqw - 600px) / 2));
+  height: calc(min(236px, calc((100cqw - 600px) / 2)) * 1.408);
   transition: opacity 0.15s;
 }
 .draw-card-art .art-card {
@@ -848,7 +848,7 @@ body,
   width: 100%;
   height: 100%;
 }
-@media (max-width: 760px) {
+@container stage (max-width: 760px) {
   .draw-board {
     grid-template-columns: 1fr 1fr;
     grid-template-areas: "cards cards" "d b";
@@ -882,18 +882,11 @@ body,
     display: none;
   }
 }
-@media (min-width: 701px) {
-  html:has(.app),
-  html:has(.app) body {
-    overflow: hidden;
-    height: 100%;
-  }
-}
 .battle-log-list {
   overscroll-behavior: contain;
 }
 .app .draw-dialog {
-  width: min(1040px, calc(100vw - 24px));
+  width: min(1040px, calc(100cqw - 24px));
   max-width: none;
 }
 .draw-board {
@@ -910,7 +903,7 @@ body,
 .draw-card-text {
   width: 100%;
 }
-@media (max-width: 760px) {
+@container stage (max-width: 760px) {
   .draw-card {
     flex: 0 0 auto;
   }
@@ -966,9 +959,9 @@ body,
   display: none;
 }
 /* ═════ Desktop landscape: fixed command sidebar (left quarter) + playmat (2/3) over hand (1/3) ═════ */
-@media (min-width: 951px) and (min-aspect-ratio: 1/1) {
+@container stage (min-width: 951px) and (min-aspect-ratio: 1/1) {
   .app {
-    --side: clamp(250px, 22vw, 320px);
+    --side: clamp(250px, 22cqw, 320px);
     display: block;
     position: relative;
     height: var(--app-h);
@@ -1187,7 +1180,7 @@ body,
     margin: 0;
   }
   .hand-zone .hand-scroll {
-    --ch: clamp(172px, calc(33.333dvh - 52px), 248px);
+    --ch: clamp(172px, calc(33.333cqh - 52px), 248px);
     flex: 0 1 auto;
     max-width: 100%;
     height: auto;
@@ -1210,7 +1203,7 @@ body,
     transform: translateY(-10px);
   }
 }
-@media (min-width: 951px) and (min-aspect-ratio: 1/1) and (max-height: 760px) {
+@container stage (min-width: 951px) and (min-aspect-ratio: 1/1) and (max-height: 760px) {
   .app .player-banner.opponent {
     top: 146px;
   }
@@ -1235,7 +1228,7 @@ body,
   grid-template-columns: 1fr;
   grid-template-rows: 1fr;
 }
-@media (min-width: 951px) and (min-aspect-ratio: 1/1) {
+@container stage (min-width: 951px) and (min-aspect-ratio: 1/1) {
   .player-banner .portrait .avatar {
     width: 54px;
     height: 54px;
@@ -1248,7 +1241,7 @@ body,
   }
 }
 /* ═════ Sidebar v2: nav on top, turn between the players, round combat button on the mat ═════ */
-@media (min-width: 951px) and (min-aspect-ratio: 1/1) {
+@container stage (min-width: 951px) and (min-aspect-ratio: 1/1) {
   .app {
     --own-h: 218px;
     --opp-top: 74px;
@@ -1443,7 +1436,7 @@ body,
     display: none;
   }
 }
-@media (min-width: 951px) and (min-aspect-ratio: 1/1) and (max-height: 760px) {
+@container stage (min-width: 951px) and (min-aspect-ratio: 1/1) and (max-height: 760px) {
   .app {
     --own-h: 200px;
     --opp-top: 66px;
@@ -1459,7 +1452,7 @@ body,
     display: none;
   }
 }
-@media (min-width: 951px) and (min-aspect-ratio: 1/1) {
+@container stage (min-width: 951px) and (min-aspect-ratio: 1/1) {
   .app .energy-meter {
     flex-direction: row;
     flex-wrap: nowrap;
@@ -1471,7 +1464,7 @@ body,
   }
 }
 /* ═════ Round action button beside the hand; wider arena ═════ */
-@media (min-width: 951px) and (min-aspect-ratio: 1/1) {
+@container stage (min-width: 951px) and (min-aspect-ratio: 1/1) {
   .app .arena-shell .board-scene {
     right: 20px;
   }
@@ -1645,7 +1638,7 @@ body,
 .phase-orbit {
   display: none;
 }
-@media (min-width: 951px) and (min-aspect-ratio: 1/1) {
+@container stage (min-width: 951px) and (min-aspect-ratio: 1/1) {
   .phase-orbit {
     display: block;
     position: absolute;
@@ -1739,7 +1732,7 @@ body,
 .floating-action .primary-action.is-enemy:disabled::before {
   opacity: 0.22;
 }
-@media (min-width: 951px) and (min-aspect-ratio: 1/1) {
+@container stage (min-width: 951px) and (min-aspect-ratio: 1/1) {
   .is-enemy .phase-bauble.is-done {
     background: radial-gradient(circle at 35% 30%, #4a2420, #1d0d0b);
     color: #e0705f;
@@ -1805,7 +1798,7 @@ body,
 .draw-zone {
   min-height: 248px;
 }
-@media (max-width: 760px) {
+@container stage (max-width: 760px) {
   .draw-cards {
     gap: 12px;
   }
@@ -1855,7 +1848,7 @@ body,
 .floating-action .primary-action.is-transitioning {
   opacity: 0.85;
 }
-@media (min-width: 951px) and (min-aspect-ratio: 1/1) {
+@container stage (min-width: 951px) and (min-aspect-ratio: 1/1) {
   .floating-action .phase-transition-track {
     bottom: 13px;
   }
@@ -2000,7 +1993,7 @@ body,
   height: 11px;
   flex: none;
 }
-@media (max-width: 700px) {
+@container stage (max-width: 700px) {
   .board-status.exhausted-status {
     padding: 3px 4px;
   }
@@ -2013,8 +2006,8 @@ body,
   display: grid;
   gap: 14px;
   justify-items: center;
-  max-width: min(92vw, 880px);
-  max-height: 88vh;
+  max-width: min(92cqw, 1200px);
+  max-height: 88cqh;
   padding: 20px;
   border: 1px solid #c9a24a66;
   border-radius: 12px;
@@ -2041,7 +2034,7 @@ body,
   white-space: normal;
 }
 .pile-picker-card {
-  width: 132px;
+  width: 176px;
   cursor: pointer;
 }
 
@@ -2053,8 +2046,8 @@ body,
   right: max(14px, var(--safe-r));
   top: calc(62px + var(--safe-t)) !important;
   bottom: auto !important;
-  width: min(340px, calc(100vw - 28px)) !important;
-  height: min(48dvh, 420px);
+  width: min(340px, calc(100cqw - 28px)) !important;
+  height: min(48cqh, 420px);
   display: flex !important;
   margin: 0;
   border-radius: 10px;
@@ -2068,7 +2061,7 @@ body,
   color: var(--white);
   background: #171614cc;
 }
-@media (min-width: 951px) and (min-aspect-ratio: 1/1) {
+@container stage (min-width: 951px) and (min-aspect-ratio: 1/1) {
   .topbar .brand {
     display: none;
   }
@@ -2111,7 +2104,7 @@ body,
 }
 
 /* Player panels are inset into the sidebar, with brass corner chrome. */
-@media (min-width: 951px) and (min-aspect-ratio: 1/1) {
+@container stage (min-width: 951px) and (min-aspect-ratio: 1/1) {
   .app .player-banner {
     border: 1px solid;
     border-color: rgb(var(--shade-rgb) / 0.6) rgb(var(--edge-rgb) / 0.15) rgb(var(--edge-rgb) / 0.2)
@@ -2149,7 +2142,7 @@ body,
 }
 
 /* One inset per player: the energy row and pile row sit flat inside it, and the elements are larger. */
-@media (min-width: 951px) and (min-aspect-ratio: 1/1) {
+@container stage (min-width: 951px) and (min-aspect-ratio: 1/1) {
   .app .player-banner .energy-meter {
     border: 0;
     background: none;
@@ -2208,7 +2201,7 @@ body,
 .player-id {
   display: contents;
 }
-@media (min-width: 951px) and (min-aspect-ratio: 1/1) {
+@container stage (min-width: 951px) and (min-aspect-ratio: 1/1) {
   .app .player-banner,
   .app .player-banner.opponent {
     display: flex;
@@ -2388,14 +2381,14 @@ body,
     border-radius: 5px;
   }
 }
-@media (min-width: 951px) and (min-aspect-ratio: 1/1) and (max-height: 780px) {
+@container stage (min-width: 951px) and (min-aspect-ratio: 1/1) and (max-height: 780px) {
   .app {
     --id-h: 80px;
     --pile-h: 164px;
     --opp-top: 64px;
   }
 }
-@media (min-width: 951px) and (min-aspect-ratio: 1/1) and (min-height: 920px) {
+@container stage (min-width: 951px) and (min-aspect-ratio: 1/1) and (min-height: 920px) {
   .app {
     --pile-h: 240px;
   }
@@ -2461,7 +2454,7 @@ body,
 
 /* Sidebar, final: player at the top and bottom edge, the turn between them, the library scaling with the window.
    Hand and discard are small card-shaped fields; the energy sits in a tray. */
-@media (min-width: 951px) and (min-aspect-ratio: 1/1) {
+@container stage (min-width: 951px) and (min-aspect-ratio: 1/1) {
   .app {
     --pile-h: min(calc((var(--app-h) - 104px) / 2 - var(--id-h) - 12px), 262px);
     --lib-h: calc(var(--pile-h) - 24px);
@@ -2572,7 +2565,7 @@ body,
 }
 
 /* Hierarchy: tight inside a player, generous between a player and the turn. No light edges on the insets. */
-@media (min-width: 951px) and (min-aspect-ratio: 1/1) {
+@container stage (min-width: 951px) and (min-aspect-ratio: 1/1) {
   .app {
     --pile-h: min(calc((var(--app-h) - 132px) / 2 - var(--id-h) - 8px), 262px);
     --lib-h: calc(var(--pile-h) - 24px);
@@ -2593,7 +2586,7 @@ body,
     box-shadow: inset 0 3px 16px rgb(var(--shade-rgb) / 0.6);
   }
 }
-@media (min-width: 951px) and (min-aspect-ratio: 1/1) {
+@container stage (min-width: 951px) and (min-aspect-ratio: 1/1) {
   .app .player-banner:is(.own, .opponent) .piles,
   .app .player-banner:is(.own, .opponent) .player-id {
     border: 1px solid rgb(var(--shade-rgb) / 0.6);
@@ -2601,7 +2594,7 @@ body,
 }
 
 /* The turn is engraved into the sidebar rather than sitting in a card. */
-@media (min-width: 951px) and (min-aspect-ratio: 1/1) {
+@container stage (min-width: 951px) and (min-aspect-ratio: 1/1) {
   .topbar .match-status {
     border: 0;
     background: none;
@@ -2633,7 +2626,7 @@ body,
 }
 
 /* The turn readout is gone from the sidebar (kept for screen readers); the players use the room. */
-@media (min-width: 951px) and (min-aspect-ratio: 1/1) {
+@container stage (min-width: 951px) and (min-aspect-ratio: 1/1) {
   .topbar .match-status {
     position: absolute !important;
     width: 1px !important;
@@ -2650,7 +2643,7 @@ body,
 }
 
 /* The library count shows on hover (always when the deck is nearly empty, since running out loses). */
-@media (min-width: 951px) and (min-aspect-ratio: 1/1) {
+@container stage (min-width: 951px) and (min-aspect-ratio: 1/1) {
   .app .player-banner:is(.own, .opponent) .library-count:not(.hand-count):not(.library-low) strong {
     opacity: 0;
     transform: scale(0.8);

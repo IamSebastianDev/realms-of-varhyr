@@ -29,11 +29,14 @@ import "./features/match/styles/hand-fan.css";
 import "./lib/select-picker";
 import "./app/styles/ui-scale.css";
 import { watchUiScale } from "./lib/uiScale";
+import { installStage } from "./lib/stage";
 import { RotateNotice } from "./components/RotateNotice";
 import { LoadingScreen } from "./components/LoadingScreen";
 import { installTouchDrag } from "./lib/touchDrag";
 import "./app/styles/loading.css";
+import "./app/styles/stage.css";
 watchUiScale();
+installStage();
 installTouchDrag();
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
