@@ -6,21 +6,24 @@ import { deckCardAvailability } from "../../../decks/lib/decks";
 import { t as msg } from "@realms/ui/i18n";
 import { registry } from "@realms/content";
 import { updateCollection } from "../../../collection/stores/collectionStore";
+import { useState } from "react";
+import { useCardAppearance } from "@realms/renderer/CardStyles";
+import type { CardAppearance } from "@realms/renderer/CardStyles";
+import type { CardDefinition } from "@realms/contracts";
+import { CardStyleControls } from "../../../card-styles/components/CardStyleControls";
 
 import { useLobbyContext } from "../../LobbyContext.tsx";
 
 export function CardInspector() {
-  const {
-    add,
-    collection,
-    detailRef,
-    draft,
-    inspected,
-    props,
-    screen,
-    setInspected,
-    trapDetailFocus,
-  } = useLobbyContext();
+  const { inspected } = useLobbyContext();
+  return inspected ? <InspectorContents key={inspected.id} card={inspected} /> : null;
+}
+
+function InspectorContents({ card: inspected }: { card: CardDefinition }) {
+  const currentAppearance = useCardAppearance(inspected);
+  const [preview, setPreview] = useState<CardAppearance>(currentAppearance);
+  const { add, collection, detailRef, draft, props, screen, setInspected, trapDetailFocus } =
+    useLobbyContext();
   return (
     <>
       {inspected && (
@@ -42,7 +45,13 @@ export function CardInspector() {
             >
               <X size={20} />
             </button>
-            <CardDetail card={inspected} animated reduced={props.reduced}>
+            <CardDetail card={inspected} animated reduced={props.reduced} appearance={preview}>
+              <CardStyleControls
+                card={inspected}
+                collection={collection}
+                preview={preview}
+                onPreview={setPreview}
+              />
               <CardPurchase
                 card={inspected}
                 collection={collection}

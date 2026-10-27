@@ -9,6 +9,7 @@
     "./*.css": "./src/*.css",
     "./Board": "./src/Board.tsx",
     "./CardArtwork": "./src/CardArtwork.tsx",
+    "./CardStyles": "./src/CardStyles.tsx",
     "./FactionIcon": "./src/FactionIcon.tsx",
     "./HolographicFoil": "./src/HolographicFoil.tsx"
   },

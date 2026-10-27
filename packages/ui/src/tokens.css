@@ -24,6 +24,11 @@
   --ink-2: #9d9b97;
   --ink-3: #beb8ab;
   --danger-text: #f0b5a6;
+  /* Holographic foil: shared finish swatches and static fallback. */
+  --foil-silver-rgb: 196 213 224;
+  --foil-gold-rgb: 252 222 184;
+  --foil-cyan-rgb: 131 223 237;
+  --foil-violet-rgb: 223 160 231;
 
   /* Stacking: fixed layers, lowest to highest. Local stacking inside a component (-3..15) stays a bare number. */
   --z-toast: 20;

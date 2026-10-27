@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { stageHeight, stageRoot, stageWidth, toStageRect } from "./stage";
 import { factionInfo, setInfo } from "@realms/content";
 import type { CardDefinition } from "@realms/contracts";
+import type { CardAppearance } from "@realms/renderer/CardStyles";
 import { ArtCard, cardClassification, CardFacts, CardLore, Cost } from "./CardPresentation";
 
 /**
@@ -18,6 +19,7 @@ export function CardDetail({
   reduced = false,
   state,
   children,
+  appearance,
 }: {
   card: CardDefinition;
   /** Current attack and remaining defense for a card in play. */
@@ -28,6 +30,7 @@ export function CardDetail({
   state?: ReactNode;
   /** Actions shown below the card text. */
   children?: ReactNode;
+  appearance?: CardAppearance;
 }) {
   useLanguage();
   card = localizedCard(card);
@@ -42,6 +45,7 @@ export function CardDetail({
         className="card-detail-art"
         stats={stats}
         detail={false}
+        appearance={appearance}
       />
       <div className="card-detail-body">
         <span className="eyebrow">
@@ -87,10 +91,12 @@ export function CardHoverDetail({
   card,
   rect,
   reduced = false,
+  appearance,
 }: {
   card: CardDefinition;
   rect: DOMRect;
   reduced?: boolean;
+  appearance?: CardAppearance;
 }) {
   useLanguage();
   // The rect is in window pixels; the panel is placed in stage pixels.
@@ -119,7 +125,7 @@ export function CardHoverDetail({
         aria-label={msg("{v0} preview", { v0: card.name })}
         style={{ ["--px" as string]: `${x}px`, ["--py" as string]: `${y}px`, width }}
       >
-        <CardDetail card={card} animated reduced={reduced} />
+        <CardDetail card={card} animated reduced={reduced} appearance={appearance} />
       </aside>
     </>,
     stageRoot(),

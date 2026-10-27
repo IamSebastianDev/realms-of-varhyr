@@ -337,7 +337,7 @@ Each entry records its original filename in `assets/avatars/` and its optimized 
 
 ## Foundations leaders
 
-Leaders are normal legendary creatures with the `leader` subtype, not a separate card type or an avatar ability. They use the existing legendary frame/foil and one-copy limit. Alderic uses his restored original knight illustration and animated WebM. The other eight leaders use full-scene painterly card illustrations; the selected avatar portraits served as identity references. Selecting an avatar does not grant or automatically include its card in a deck.
+Leaders are normal legendary creatures with the `leader` subtype, not a separate card type or an avatar ability. They use the legendary frame and one-copy limit. Legendary cards include standard holographic Foil by default; other cards can unlock it, and the additional finishes remain independently unlockable. Alderic uses his restored original knight illustration and animated WebM. The other eight leaders use full-scene painterly card illustrations; the selected avatar portraits served as identity references. Selecting an avatar does not grant or automatically include its card in a deck.
 
 | Faction | Leader / card ID | Role |
 | --- | --- | --- |

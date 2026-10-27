@@ -10,7 +10,9 @@ import {
   type ReactNode,
 } from "react";
 import { CardArtwork } from "./CardArtwork";
+import { useCardAppearance } from "./CardStyles";
 import { HolographicFoil } from "./HolographicFoil";
+import { finishIndex, type CardFinish } from "./cardFinishes";
 import { holographicFragmentShader, holographicVertexShader } from "./holographicShader";
 import { usePresentation } from "./presentation";
 import * as THREE from "three";
@@ -256,11 +258,13 @@ function useHoldToInspect(inspect: () => void) {
     suppressClick: () => held.current,
   };
 }
-function LegendaryFoil({
+function BattlefieldFoil({
+  finish,
   pointer,
   exhausted,
   reduced,
 }: {
+  finish: CardFinish;
   pointer: THREE.Vector2;
   exhausted: boolean;
   reduced: boolean;
@@ -274,6 +278,7 @@ function LegendaryFoil({
           uTime: { value: 0 },
           uPointer: { value: new THREE.Vector2(0.5, 0.5) },
           uStrength: { value: 0.85 },
+          uFinish: { value: 0 },
         },
         transparent: true,
         depthWrite: false,
@@ -283,6 +288,7 @@ function LegendaryFoil({
   );
   useEffect(() => () => material.dispose(), [material]);
   useFrame(({ clock }, delta) => {
+    material.uniforms.uFinish.value = finishIndex(finish);
     material.uniforms.uTime.value = reduced ? 0 : clock.elapsedTime;
     const light = material.uniforms.uPointer.value as THREE.Vector2;
     if (reduced) light.set(0.5, 0.5);
@@ -375,6 +381,7 @@ function Card({
 }) {
   const hold = useHoldToInspect(() => onInspect(card.id));
   const legendary = registry.cards[card.definitionId].legendary;
+  const appearance = useCardAppearance(registry.cards[card.definitionId]);
   const foilPointer = useMemo(() => new THREE.Vector2(0.5, 0.5), []);
   const texture = useCardTexture(card, registry, reduced),
     root = useRef<THREE.Group>(null),
@@ -557,8 +564,13 @@ function Card({
               toneMapped={false}
             />
           </mesh>
-          {legendary && (
-            <LegendaryFoil pointer={foilPointer} exhausted={card.exhausted} reduced={reduced} />
+          {appearance !== "original" && (
+            <BattlefieldFoil
+              finish={appearance}
+              pointer={foilPointer}
+              exhausted={card.exhausted}
+              reduced={reduced}
+            />
           )}
           <Frame
             width={1.65}
@@ -900,6 +912,9 @@ function FlatSlot({
   const hold = useHoldToInspect(() => {
     if (id) props.onInspect(id);
   });
+  const appearance = useCardAppearance(
+    id ? props.registry.cards[props.view.cards[id].definitionId] : undefined,
+  );
   return (
     <button
       data-player={side}
@@ -940,8 +955,13 @@ function FlatSlot({
       ) : (
         <span>◇</span>
       )}
-      {id && props.registry.cards[props.view.cards[id].definitionId].legendary && (
-        <HolographicFoil playing reduced={props.reduced} dimmed={props.view.cards[id].exhausted} />
+      {id && appearance !== "original" && (
+        <HolographicFoil
+          finish={appearance}
+          playing
+          reduced={props.reduced}
+          dimmed={props.view.cards[id].exhausted}
+        />
       )}
     </button>
   );

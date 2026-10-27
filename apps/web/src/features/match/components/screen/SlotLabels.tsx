@@ -4,10 +4,13 @@ import { effectiveStats } from "@realms/core";
 import { t as msg } from "@realms/ui/i18n";
 import { registry } from "@realms/content";
 import { resolveDrop } from "../../lib/cardInteraction";
+import { defaultCardAppearance } from "@realms/renderer/cardFinishes";
+import { useCardAppearances } from "@realms/renderer/CardStyles";
 
 import { useMatch } from "../../MatchContext";
 
 export function SlotLabels() {
+  const cardStyles = useCardAppearances();
   const {
     drag,
     dragDef,
@@ -67,7 +70,7 @@ export function SlotLabels() {
               {def && card && stats && (
                 <>
                   <div
-                    className={`art-card card-face-overlay ${def.legendary ? "legendary-card" : ""} ${def.type === "holding" ? "holding-card" : ""}`}
+                    className={`art-card card-face-overlay ${def.legendary ? "legendary-card" : ""} ${def.type === "holding" ? "holding-card" : ""} ${(cardStyles[def.deckLimitKey] ?? defaultCardAppearance(def)) !== "original" ? "foil-card" : ""}`}
                   >
                     <CardFace
                       card={def}

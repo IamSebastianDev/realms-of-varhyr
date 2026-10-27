@@ -1,4 +1,6 @@
 import { useEffect, useRef } from "react";
+import { finishIndex, type CardFinish } from "./cardFinishes";
+import "./foil.css";
 import { holographicFragmentShader } from "./holographicShader";
 
 const vertexShader = `
@@ -14,18 +16,23 @@ export function HolographicFoil({
   playing = false,
   reduced = false,
   dimmed = false,
+  finish = "foil",
 }: {
   playing?: boolean;
   reduced?: boolean;
   dimmed?: boolean;
+  finish?: CardFinish;
 }) {
   const hostRef = useRef<HTMLSpanElement>(null);
-  const playback = useRef({ playing, reduced, dimmed });
-  playback.current = { playing, reduced, dimmed };
+  const playback = useRef({ playing, reduced, dimmed, finish });
+  playback.current = { playing, reduced, dimmed, finish };
   const repaint = useRef<(() => void) | null>(null);
-  useEffect(() => repaint.current?.(), [playing, reduced, dimmed]);
+  useEffect(() => repaint.current?.(), [playing, reduced, dimmed, finish]);
 
   useEffect(() => {
+    // A collection may contain hundreds of foils. Idle/reduced-motion cards use the static
+    // finish; only an inspected or hovered card needs its own WebGL context.
+    if (!playing || reduced) return;
     // Each effect owns its canvas, including React's development remount cycle.
     const canvas = document.createElement("canvas");
     hostRef.current!.append(canvas);
@@ -78,6 +85,7 @@ export function HolographicFoil({
     gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
     const timeUniform = gl.getUniformLocation(program, "uTime");
     const pointerUniform = gl.getUniformLocation(program, "uPointer");
+    const finishUniform = gl.getUniformLocation(program, "uFinish");
     const strengthUniform = gl.getUniformLocation(program, "uStrength");
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -104,6 +112,7 @@ export function HolographicFoil({
       const light = still || preference.matches ? [0.5, 0.5] : pointer;
       gl.uniform2f(pointerUniform, light[0], light[1]);
       gl.uniform1f(strengthUniform, dim ? 0.3 : 0.85);
+      gl.uniform1f(finishUniform, finishIndex(playback.current.finish));
       gl.drawArrays(gl.TRIANGLES, 0, 6);
       if (moving) frame = requestAnimationFrame(draw);
     };
@@ -170,6 +179,8 @@ export function HolographicFoil({
       delete canvas.dataset.ready;
       canvas.remove();
     };
-  }, []);
-  return <span ref={hostRef} className="holographic-foil" aria-hidden="true" />;
+  }, [playing, reduced]);
+  return (
+    <span ref={hostRef} className="holographic-foil" data-finish={finish} aria-hidden="true" />
+  );
 }

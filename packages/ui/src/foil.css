@@ -1,0 +1,5 @@
+/* Rarity supplies the gilded frame; the optional foil finish supplies the moving light. */
+.art-card.legendary-card:not(.foil-card) .card-corners::after {
+  animation: none;
+  background: none;
+}

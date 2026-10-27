@@ -10,6 +10,7 @@ import type { MatchSession } from "../features/match/session/MatchSession";
 import { Onboarding } from "../features/onboarding/components/Onboarding";
 import { hasAccount } from "../features/onboarding/lib/onboardingState";
 import { sceneTransition } from "../lib/sceneTransition";
+import { CardStylesProvider } from "./providers/CardStylesProvider";
 
 /** Chooses what fills the window: first-run onboarding, the lobby, or the match in progress. */
 export function App() {
@@ -29,14 +30,19 @@ export function App() {
   };
   const attach = (session: MatchSession, setup?: MatchSetup) => replace({ match: session, setup });
   if (!onboarded) return <Onboarding onDone={() => setOnboarded(true)} />;
-  if (!live) return <AuthoringLobby onStart={begin} onSessionStart={attach} />;
   return (
-    <MatchScreen
-      key={live.match.getSnapshot().matchId}
-      {...live}
-      leave={() => replace(null)}
-      onBegin={begin}
-      onAttach={attach}
-    />
+    <CardStylesProvider>
+      {!live ? (
+        <AuthoringLobby onStart={begin} onSessionStart={attach} />
+      ) : (
+        <MatchScreen
+          key={live.match.getSnapshot().matchId}
+          {...live}
+          leave={() => replace(null)}
+          onBegin={begin}
+          onAttach={attach}
+        />
+      )}
+    </CardStylesProvider>
   );
 }

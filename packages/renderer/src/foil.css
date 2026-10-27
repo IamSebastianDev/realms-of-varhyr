@@ -1,0 +1,63 @@
+/* A quiet, still coating for idle cards, reduced motion and WebGL fallback. */
+.holographic-foil {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+  background: linear-gradient(
+    125deg,
+    rgb(var(--foil-gold-rgb) / 0.11) 10%,
+    rgb(var(--foil-cyan-rgb) / 0.13) 38%,
+    rgb(var(--foil-violet-rgb) / 0.11) 60%,
+    rgb(var(--foil-gold-rgb) / 0.11) 80%
+  );
+  mask-image: linear-gradient(var(--black) 65%, transparent 88%);
+}
+.holographic-foil[data-finish="pearlescent"] {
+  background:
+    radial-gradient(ellipse at 15% 30%, rgb(var(--foil-violet-rgb) / 0.15), transparent 60%),
+    radial-gradient(ellipse at 80% 60%, rgb(var(--foil-cyan-rgb) / 0.18), transparent 65%),
+    linear-gradient(140deg, transparent 25%, rgb(var(--foil-gold-rgb) / 0.2) 45%, transparent 65%);
+}
+.holographic-foil[data-finish="etched-foil"] {
+  background:
+    repeating-linear-gradient(
+      145deg,
+      transparent 0 2px,
+      rgb(var(--foil-silver-rgb) / 0.13) 2px 3px,
+      transparent 3px 5px
+    ),
+    linear-gradient(115deg, transparent 25%, rgb(var(--foil-gold-rgb) / 0.17) 48%, transparent 70%);
+}
+.holographic-foil[data-finish="prismatic"] {
+  background:
+    conic-gradient(
+      from 45deg at 30% 30%,
+      rgb(var(--foil-cyan-rgb) / 0.2),
+      transparent 25%,
+      rgb(var(--foil-violet-rgb) / 0.24) 25% 50%,
+      transparent 50% 75%,
+      rgb(var(--foil-gold-rgb) / 0.22) 75%
+    ),
+    conic-gradient(
+      from 225deg at 70% 60%,
+      transparent,
+      rgb(var(--foil-cyan-rgb) / 0.15),
+      transparent 50%
+    );
+  background-size:
+    45% 35%,
+    65% 55%;
+}
+.holographic-foil:has(canvas[data-ready]) {
+  background: none;
+  mask-image: none;
+}
+.holographic-foil canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}

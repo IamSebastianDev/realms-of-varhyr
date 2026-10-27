@@ -35,6 +35,7 @@ The full rules and the engine's decisions are in [docs/prototype.md](docs/protot
 - **English and German.** All card names, lore and ability text are translated, and so is the interface.
 - **Play modes:** practice against the bot, hotseat on one device, online room, scripted tutorial, and read-only replay viewing.
 - **Collection:** new players receive the default starter and five Realm's Bounty boosters. Wins pay 25 Crowns and a booster. Extra copies turn into Crowns, and Crowns buy boosters or individual cards in the Store. Tutorials and imported replays pay nothing.
+- **Card styles:** preview and unlock Foil, Pearlescent, Etched Foil or Prismatic finishes for any owned card in its collection inspector. Legendary cards include standard Foil by default; all legendary cards retain their gilded frames. See [card styles](docs/card-styles.md).
 - **Touch and fullscreen:** the menu and Play drawer have touch-sized controls. A fullscreen button is in the menu and in Settings. On iPad, keyboard use leaves fullscreen (a Safari limit); adding the game to the Home Screen gives a fullscreen app without browser chrome.
 - **Card studio:** a local editor for card data (`npm run dev:studio`), see below.
 

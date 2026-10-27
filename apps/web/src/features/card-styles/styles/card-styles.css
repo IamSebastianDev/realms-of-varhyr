@@ -1,0 +1,135 @@
+.card-style-controls {
+  margin-block: 18px;
+  padding-block: 14px;
+  border-block: 1px solid rgb(var(--edge-rgb) / 0.14);
+}
+.card-style-controls header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.card-style-controls header > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font: 600 13px var(--serif);
+  color: var(--bronze-text);
+}
+.card-style-controls header small {
+  color: var(--muted);
+  font-size: 10px;
+}
+.card-style-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-block: 10px;
+}
+.card-style-options button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 8px;
+  background: var(--corners-button), var(--surface-raised);
+  border: 1px solid;
+  border-color: var(--plate-edge);
+  color: var(--ink-3);
+  font: 500 12px var(--serif);
+}
+.card-style-options button[aria-pressed="true"] {
+  border-color: var(--bronze);
+  background-color: rgb(var(--bronze-rgb) / 0.12);
+  color: var(--bronze-text);
+}
+.card-style-options button:focus-visible {
+  outline: 2px solid var(--bronze);
+  outline-offset: 3px;
+}
+.card-style-options button > svg {
+  margin-left: auto;
+  color: var(--muted);
+}
+.style-sample {
+  flex: 0 0 15px;
+  width: 15px;
+  height: 22px;
+  border: 1px solid var(--bronze);
+  background: linear-gradient(145deg, var(--bronze), var(--surface-raised) 45%, var(--surface));
+}
+.style-sample.foil {
+  border-color: var(--gilt-pale);
+  background: linear-gradient(
+    125deg,
+    rgb(var(--foil-gold-rgb)),
+    rgb(var(--foil-cyan-rgb)) 38%,
+    rgb(var(--foil-violet-rgb)) 65%,
+    var(--gilt)
+  );
+}
+.card-style-controls > p {
+  color: var(--muted);
+  font: 12px/1.5 var(--sans, system-ui);
+  margin-block: 9px;
+  min-height: 36px;
+}
+.card-style-action {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  gap: 12px;
+}
+.card-style-action button {
+  flex: 0 0 230px;
+  max-width: 100%;
+  height: 42px;
+  min-height: 42px;
+  margin: 0;
+  padding: 9px 12px;
+  font: 500 11px var(--serif);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-style-action > small {
+  color: var(--muted);
+  font: 10px/1.4 var(--sans, system-ui);
+  max-width: 155px;
+}
+.card-style-controls .card-style-error {
+  color: var(--danger-text);
+}
+
+.style-sample.pearlescent {
+  border-color: var(--gilt-pale);
+  background: linear-gradient(
+    135deg,
+    rgb(var(--foil-violet-rgb)),
+    var(--gilt-white) 40%,
+    rgb(var(--foil-cyan-rgb)) 75%,
+    var(--gilt-pale)
+  );
+}
+.style-sample.etched-foil {
+  border-color: var(--gilt-pale);
+  background:
+    repeating-linear-gradient(145deg, transparent 0 2px, rgb(var(--shade-rgb) / 0.35) 2px 3px),
+    linear-gradient(
+      110deg,
+      rgb(var(--foil-silver-rgb)),
+      var(--gilt-pale),
+      rgb(var(--foil-silver-rgb))
+    );
+}
+.style-sample.prismatic {
+  border-color: var(--gilt-pale);
+  background: conic-gradient(
+    from 30deg at 40% 40%,
+    rgb(var(--foil-cyan-rgb)) 0 25%,
+    var(--gilt-pale) 25% 50%,
+    rgb(var(--foil-violet-rgb)) 50% 75%,
+    var(--gilt) 75%
+  );
+}

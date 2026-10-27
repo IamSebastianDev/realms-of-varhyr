@@ -10,6 +10,8 @@ import { Shield, Swords } from "lucide-react";
 import type { CardDefinition, EnergyType, Pool } from "@realms/contracts";
 import { factionInfo, registry } from "@realms/content";
 import { usePreferences } from "./preferences";
+import { useCardAppearance, type CardAppearance } from "@realms/renderer/CardStyles";
+import "./foil.css";
 export function cardAbilityDescriptions(card: CardDefinition) {
   // Printed abilities come first and keep their index (creature actions rely on it); spell effects follow.
   // `label` is for buttons: a one-off ability has no name, so its text stands in.
@@ -271,8 +273,11 @@ export function ArtCard({
   animated = false,
   reduced = false,
   detail = true,
+  appearance: overrideAppearance,
 }: {
   card: CardDefinition;
+  /** Inspector previews can show an unowned treatment without equipping or unlocking it. */
+  appearance?: CardAppearance;
   /** Show the hover detail panel. On by default for every card; off where the caller supplies its own (hand, board) or the card is already shown in detail. */ detail?: boolean;
   animated?: boolean;
   reduced?: boolean;
@@ -299,6 +304,9 @@ export function ArtCard({
 }) {
   useLanguage();
   card = localizedCard(card);
+  const selectedAppearance = useCardAppearance(card);
+  const appearance = overrideAppearance ?? selectedAppearance;
+  const appearanceClass = appearance !== "original" ? "foil-card" : "";
   const [hovered, setHovered] = useState(false),
     [focused, setFocused] = useState(false),
     [hoverRect, setHoverRect] = useState<DOMRect | null>(null),
@@ -333,7 +341,9 @@ export function ArtCard({
     el.style.removeProperty("--px");
     el.style.removeProperty("--py");
   };
-  const preview = hoverRect && <CardHoverDetail card={card} rect={hoverRect} reduced={reduced} />;
+  const preview = hoverRect && (
+    <CardHoverDetail card={card} rect={hoverRect} reduced={reduced} appearance={appearance} />
+  );
   const body = (
     <>
       <div className="card-art">
@@ -344,8 +354,12 @@ export function ArtCard({
           playing={animated || hovered || focused}
           reduced={reduced}
         />
-        {card.legendary && (
-          <HolographicFoil playing={animated || hovered || focused} reduced={reduced} />
+        {appearance !== "original" && (
+          <HolographicFoil
+            finish={appearance}
+            playing={animated || hovered || focused}
+            reduced={reduced}
+          />
         )}
       </div>
       <CardFace card={card} stats={stats} />
@@ -382,7 +396,7 @@ export function ArtCard({
         hideDetail();
         interaction?.onBlur?.(e);
       }}
-      className={`art-card ${card.legendary ? "legendary-card" : ""} ${card.type === "holding" ? "holding-card" : ""} ${className} ${selected ? "selected" : ""} ${disabled ? "unaffordable" : ""}`}
+      className={`art-card ${card.legendary ? "legendary-card" : ""} ${card.type === "holding" ? "holding-card" : ""} ${appearanceClass} ${className} ${selected ? "selected" : ""} ${disabled ? "unaffordable" : ""}`}
       onClick={() => {
         hideDetail();
         onClick();
@@ -405,7 +419,7 @@ export function ArtCard({
     </button>
   ) : (
     <div
-      className={`art-card ${card.legendary ? "legendary-card" : ""} ${card.type === "holding" ? "holding-card" : ""} ${className}`}
+      className={`art-card ${card.legendary ? "legendary-card" : ""} ${card.type === "holding" ? "holding-card" : ""} ${appearanceClass} ${className}`}
       onPointerMove={tilt}
       onPointerEnter={(e) => {
         if (e.pointerType !== "touch") showDetail(e.currentTarget);
