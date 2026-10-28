@@ -1890,3 +1890,12 @@
   border-radius: 10px;
   flex: none;
 }
+
+/* The quest draft offers five cards at a time: a centered 3 + 2, not the 4 + 1 the gallery's flex wrap gives. */
+.quest-workshop .draft-gallery-grid {
+  width: calc(var(--card) * 3 + 44px);
+  max-width: 100%;
+  margin: 0 auto;
+  justify-content: center;
+  align-content: center;
+}

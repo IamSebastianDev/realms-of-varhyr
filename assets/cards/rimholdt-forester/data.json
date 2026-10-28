@@ -3,7 +3,6 @@
   "id": "rimholdt-forester",
   "revision": 1,
   "name": "Rimholdt Forester",
-  "lore": "The League's ships are built from Rimholdt oak. The oaks have not been consulted.",
   "deckLimitKey": "rimholdt-forester",
   "type": "creature",
   "factions": [
@@ -27,5 +26,6 @@
     ]
   },
   "abilities": [],
+  "lore": "The League's ships are built from Rimholdt oak. The oaks have not been consulted.",
   "set": "foundations"
 }

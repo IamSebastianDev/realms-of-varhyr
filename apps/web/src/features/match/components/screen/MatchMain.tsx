@@ -4,6 +4,7 @@ import { OpponentBanner } from "./OpponentBanner";
 import { OwnBanner } from "./OwnBanner";
 import { PhaseAction } from "./PhaseAction";
 import { BoardScene } from "./BoardScene";
+import { ChoicePrompt } from "./ChoicePrompt";
 import { useMatch } from "../../MatchContext";
 
 export function MatchMain() {
@@ -13,6 +14,7 @@ export function MatchMain() {
       <section className="battlefield">
         <OpponentBanner />
         <BoardScene />
+        <ChoicePrompt />
         <OwnBanner />
         <PhaseAction />
       </section>

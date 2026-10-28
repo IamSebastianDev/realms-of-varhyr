@@ -1,5 +1,5 @@
-import { lazy, Suspense, useState, type CSSProperties } from "react";
-import { Crown, Gift } from "lucide-react";
+import { useState, type CSSProperties } from "react";
+import { Gift } from "lucide-react";
 import { t as msg, useLanguage } from "@realms/ui/i18n";
 import { boosterPacks, type BoosterPack } from "@realms/content/boosters";
 import {
@@ -9,35 +9,14 @@ import {
   type Collection,
 } from "../../collection/lib/collection";
 import { CrownAmount } from "../../../components/Crowns";
-import { packLines, packSymbol } from "../../boosters/components/BoosterOpening";
-import type { CarouselPack } from "../../boosters/components/BoosterPack3D";
 import { ShelfFrame } from "./ShelfFrame";
 import { CardBacksShop } from "./CardBacksShop";
-import { carouselPack, hasWebGL, SceneBoundary } from "../../boosters/components/packScene";
+import packArt from "../../../../../../assets/boosters/store-pack.webp";
+import stackArt from "../../../../../../assets/boosters/store-stack.webp";
 import "../styles/store.css";
 
-const BoosterCarousel3D = lazy(() => import("../../boosters/components/BoosterPack3D"));
-
-function FlatPack({ pack, stack = 1 }: { pack: BoosterPack; stack?: number }) {
-  return (
-    <div
-      className="booster-pack store-pack"
-      style={
-        stack > 1
-          ? {
-              boxShadow:
-                "14px 10px 0 -2px rgb(var(--shade-rgb) / 0.5), 28px 20px 0 -4px rgb(var(--shade-rgb) / 0.3)",
-            }
-          : undefined
-      }
-    >
-      <span>REALMS OF VARHYR</span>
-      {packSymbol(pack) ? <b className="pack-symbol">{packSymbol(pack)}</b> : <Crown size={55} />}
-      <strong>{packLines(msg(pack.name))}</strong>
-      <small>{msg("FIVE CARDS")}</small>
-    </div>
-  );
-}
+/** The two offers as pictures, rendered once from the booster model: one pack, and ten piled up. */
+const offerArt = [packArt, stackArt];
 
 type Props = {
   collection: Collection;
@@ -63,18 +42,12 @@ export function Store({ collection, saved, message, reduced, buy }: Props) {
     },
   ];
   const [tab, setTab] = useState<"boosters" | "backs">("boosters");
-  const [position, setPosition] = useState(0),
-    [showing3d] = useState(hasWebGL);
+  const [position, setPosition] = useState(0);
   const offer = offers[position]!,
     pack = base,
     price = boosterPrice(offer.count);
-  const packs: CarouselPack[] = offers.map((entry) => ({
-    ...carouselPack(base),
-    id: `${base.id}-${entry.count}`,
-    stack: entry.count > 1 ? entry.count : undefined,
-  }));
   const owned = packCount(collection, pack.id),
-    color = packs[position].color;
+    color = pack.color;
   return (
     <main className="store-page store-hall" aria-label={msg("Store")}>
       <section className="store-stage" style={{ "--pack-color": color } as CSSProperties}>
@@ -114,22 +87,23 @@ export function Store({ collection, saved, message, reduced, buy }: Props) {
               }}
             >
               <div className="store-pack-view" aria-hidden="true">
-                {showing3d ? (
-                  <SceneBoundary fallback={<FlatPack pack={pack} stack={offer.count} />}>
-                    <Suspense fallback={<FlatPack pack={pack} stack={offer.count} />}>
-                      <BoosterCarousel3D
-                        packs={packs}
-                        tagline={msg("FIVE CARDS")}
-                        position={position}
-                        pick={setPosition}
-                        reduced={reduced}
-                        linear
-                      />
-                    </Suspense>
-                  </SceneBoundary>
-                ) : (
-                  <FlatPack pack={pack} stack={offer.count} />
-                )}
+                {offers.map((entry, index) => (
+                  <img
+                    key={entry.count}
+                    className={`store-pack-art ${index === position ? "" : "side"} ${reduced ? "still" : ""}`}
+                    onClick={() => setPosition(index)}
+                    src={offerArt[index]}
+                    alt=""
+                    decoding="async"
+                    draggable={false}
+                    style={
+                      {
+                        "--slot": index - position,
+                        "--near": Math.min(1, Math.abs(index - position)),
+                      } as CSSProperties
+                    }
+                  />
+                ))}
               </div>
             </ShelfFrame>
             <div className="store-bay-info" aria-live="polite">

@@ -8,7 +8,8 @@ import type { Screen } from "../lib/lobbyTypes";
 import { setWantsQuestScreen, wantsQuestScreen } from "../../quest/stores/questStore";
 import { setWantsDraftScreen, wantsDraftScreen } from "../../draft/stores/draftStore";
 import { decksKey, parseDecks, starterOptions, type CustomDeck } from "../../decks/lib/decks";
-import { randomSeed, startMatch, type MatchSetup } from "../../match/lib/session";
+import { randomSeed, type MatchSetup } from "../../match/lib/session";
+import { startLocalMatch } from "../../match/lib/localMatchSetup";
 import { getProfile } from "../../profile/stores/profile";
 import { startTutorial } from "../../tutorial/tutorial";
 import { missingDeckCopies } from "../../collection/lib/collection";
@@ -85,17 +86,19 @@ export function AuthoringLobby({
       const chosen = options.find((option) => option.id === selected);
       if (chosen && missingDeckCopies(chosen.cards, collection.counts).length)
         throw new Error(msg("You do not own enough copies to play this deck."));
-      const opponentDeck = options.find((option) => option.id === opponentId);
-      const initial = startMatch(
-        randomSeed(),
+      // Practice always uses the starter rotation; only hotseat can keep a fixed opponent.
+      const opponentDeck =
+        mode === "practice" ? undefined : options.find((option) => option.id === opponentId);
+      const initial = startLocalMatch({
+        seed: randomSeed(),
+        mode,
         deck,
         skirmish,
         customDeck,
-        undefined,
         opponentDeck,
-        getProfile().name,
-        mode === "hotseat" ? undefined : getProfile().avatar,
-      );
+        playerName: getProfile().name,
+        playerAvatar: mode === "hotseat" ? undefined : getProfile().avatar,
+      });
       onStart({
         initial,
         mode,

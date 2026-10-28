@@ -21,6 +21,7 @@ import {
   legalActions,
   other,
   previewDamage,
+  reachableLanes,
 } from "./index";
 
 type EnergyPlan = { pool: Pool; commands: Command[]; penalty: number };
@@ -114,6 +115,20 @@ function colorsOnBoard(
   );
 }
 const DEAD_CARD = 0;
+/** Energy a creature or holding can make in one go (its best option). */
+const outputOf = (state: GameState, id: string, registry: Registry) => {
+  const options = energyProductionOptions(registry.cards[state.cards[id].definitionId], registry);
+  return Math.max(0, ...options.map((pool) => Object.values(pool).reduce((a, b) => a + b, 0)));
+};
+const totalOutput = (state: GameState, player: PlayerId, registry: Registry) =>
+  state.players[player].board.reduce((n, id) => n + (id ? outputOf(state, id, registry) : 0), 0);
+/** Energy is worth the most when there is little of it: the first producers carry the whole game, later ones add less. */
+const economy = (energy: number) => W.econ * (1 - W.econDecay ** energy);
+/** What the owner loses in economy if this card leaves the board (negative of what a producer in hand gains). */
+const economyLoss = (state: GameState, id: string, registry: Registry) => {
+  const total = totalOutput(state, state.cards[id].controller, registry);
+  return economy(total) - economy(total - outputOf(state, id, registry));
+};
 function positionValue(state: GameState, actor: PlayerId, registry: Registry): number {
   if (state.outcome) return state.outcome === actor ? 10000 : state.outcome === "draw" ? 0 : -10000;
   // A creature printed with no Defense dies on arrival, so it is worth a card in hand only while support on the board keeps it alive.
@@ -129,6 +144,7 @@ function positionValue(state: GameState, actor: PlayerId, registry: Registry): n
     );
   const value = (p: PlayerId) =>
     state.players[p].life * W.life +
+    economy(totalOutput(state, p, registry)) +
     handValue(p) +
     colorsOnBoard(state, p, registry).size * W.colors +
     state.players[p].board.reduce((n, id) => n + (id ? creatureValue(state, id, registry) : 0), 0);
@@ -232,12 +248,16 @@ function playOptions(state: GameState, id: string, registry: Registry): Command[
   }
   return commands;
 }
-function planPlay(state: GameState, registry: Registry): Command {
+/** One affordable way to spend part of the turn: its first command, the position after it, and what it is worth beyond doing nothing. */
+type Move = { command: Command; after: GameState; gain: number; score: number };
+function collectMoves(state: GameState, registry: Registry): { moves: Move[]; baseline: number } {
   const actor = decisionPlayer(state),
     p = state.players[actor],
     plans = energyPlans(state, registry),
-    baseline = positionValue(state, actor, registry);
-  let best: { score: number; command: Command } = { score: W.minPlay, command: { type: "end" } };
+    baseline =
+      positionValue(state, actor, registry) -
+      (W.exposure ? W.exposure * exposure(state, actor, registry) : 0);
+  const moves: Move[] = [];
   // Reuse engine-validated states for plans shared by different cards.
   const funded = new Map<EnergyPlan, GameState | null>();
   const fund = (plan: EnergyPlan) => {
@@ -263,8 +283,42 @@ function planPlay(state: GameState, registry: Registry): Command {
       def?.cast?.some((a) => a.id === "draw" && a.params.amount === 1)
         ? W.cycle
         : 0;
-    const score = positionValue(after, actor, registry) - baseline - plan.penalty + cycle;
-    if (score > best.score) best = { score, command: plan.commands[0] ?? command };
+    let settled = after;
+    if (W.resolve)
+      for (
+        let k = 0;
+        k < 3 && settled.pending && settled.pending.player === actor && !settled.outcome;
+        k++
+      ) {
+        const next = tryCommand(settled, botCommand(settled, registry), registry);
+        if (!next) break;
+        settled = next;
+      }
+    let adjust = 0;
+    if (def?.type === "spell" && def.cast && command.type === "play") {
+      if (W.tempBuff < 1) {
+        let buff = 0;
+        for (const b of def.cast) {
+          const amount = Number(b.params.amount ?? 0);
+          if (b.id === "rage") buff += amount * W.attack;
+          else if (b.id === "steadfast") buff += amount * W.defense;
+          else if (b.id === "bolster")
+            buff +=
+              state.players[actor].board.filter(Boolean).length *
+              (Number(b.params.attack ?? 0) * W.attack + Number(b.params.defense ?? 0) * W.defense);
+        }
+        adjust -= (1 - W.tempBuff) * buff;
+      }
+    }
+    const risk =
+      W.exposure && !settled.outcome ? W.exposure * exposure(settled, actor, registry) : 0;
+    const gain = positionValue(settled, actor, registry) - risk - plan.penalty + cycle + adjust;
+    moves.push({
+      command: plan.commands[0] ?? command,
+      after: settled,
+      gain,
+      score: gain - baseline,
+    });
   };
   for (const action of legalActions(state, registry).activations) {
     for (const target of action.requiresTarget ? action.targets : [undefined])
@@ -377,8 +431,12 @@ function planPlay(state: GameState, registry: Registry): Command {
       p.board.filter(Boolean).length === 4 &&
       !def.abilities.some((a) => a.id === "consume")
     ) {
+      // Next cycle starts with an empty pool: energy channelled this turn must not count twice.
       const nextCycle = {
         ...state,
+        players: W.freshCycle
+          ? { ...state.players, [actor]: { ...state.players[actor], energy: {} } }
+          : state.players,
         cards: Object.fromEntries(
           Object.entries(state.cards).map(([cid, c]) => [
             cid,
@@ -388,6 +446,7 @@ function planPlay(state: GameState, registry: Registry): Command {
       };
       const future = energyPlans(nextCycle, registry);
       if (
+        !(W.holdExposure && exposure(state, actor, registry) > 0) &&
         p.hand.some((cid) => {
           const alternative = registry.cards[state.cards[cid].definitionId];
           return (
@@ -406,22 +465,58 @@ function planPlay(state: GameState, registry: Registry): Command {
       if (after) consider(after, command, plan);
     }
   }
+  return { moves, baseline };
+}
+function planPlay(state: GameState, registry: Registry): Command {
+  const { moves, baseline } = collectMoves(state, registry);
+  let best: { score: number; command: Command } = { score: W.minPlay, command: { type: "end" } };
+  const depth = inResponseStep(state) ? 1 : Math.round(W.depth);
+  if (depth <= 1) {
+    for (const move of moves) if (move.score > best.score) best = move;
+    return best.command;
+  }
+  // Look ahead through the rest of this turn: a cheap play now can leave energy for a second one, which one-ply scoring never sees.
+  const actor = decisionPlayer(state);
+  const finish = (move: Move, left: number): number => {
+    if (
+      left <= 1 ||
+      move.after.outcome ||
+      move.after.pending ||
+      decisionPlayer(move.after) !== actor
+    )
+      return move.gain;
+    const next = collectMoves(move.after, registry).moves.sort((a, b) => b.score - a.score);
+    let top = move.gain + W.minPlay;
+    // Chaining a further play pays for the plan's own cost again, so compare against stopping here.
+    for (const follow of next.slice(0, W.breadth)) {
+      const through =
+        finish(follow, left - 1) - positionValue(move.after, actor, registry) + move.gain;
+      if (through > top) top = through;
+    }
+    return top - W.minPlay;
+  };
+  const ranked = [...moves].sort((a, b) => b.score - a.score).slice(0, W.breadth);
+  for (const move of ranked) {
+    const score = finish(move, depth) - baseline;
+    if (score > best.score) best = { score, command: move.command };
+  }
   return best.command;
 }
-/** Choose attackers and lanes. Defenders block automatically, so each option is scored by its known outcome. */
-function chooseAttacks(state: GameState, registry: Registry): Command {
-  const actor = decisionPlayer(state),
-    enemy = other(actor),
-    legal = legalActions(state, registry);
-  const attackers = legal.attackers.filter((id) => effectiveStats(state, id, registry).attack > 0);
-  const lethal = state.players[enemy].life;
+/** The best way for `attackers` (any side) to choose lanes. Defenders block automatically, so each option is scored by its known outcome. */
+function bestAttack(
+  state: GameState,
+  attackers: string[],
+  lanesOf: (id: string) => number[],
+  lethal: number,
+  registry: Registry,
+): { chosen: { id: string; lane: number }[]; score: number; life: number } {
   type Option = { lane: number; life: number; score: number };
   const options = new Map<string, Option[]>();
   for (const attacker of attackers) {
     const own = state.cards[attacker].slot!,
       list: Option[] = [];
     // Own lane first so equal outcomes keep the straight-ahead attack.
-    for (const lane of [...legal.lanes[attacker]].sort(
+    for (const lane of [...lanesOf(attacker)].sort(
       (a, b) => Math.abs(a - own) - Math.abs(b - own),
     )) {
       const blocker = blockerFor(state, attacker, lane, registry);
@@ -446,13 +541,20 @@ function chooseAttacks(state: GameState, registry: Registry): Command {
         lane,
         life: 0,
         score:
-          (blockerDies ? creatureValue(state, blocker, registry) * W.killBlocker : 0) -
-          (attackerDies ? creatureValue(state, attacker, registry) * W.loseAttacker : 0),
+          (blockerDies
+            ? creatureValue(state, blocker, registry) * W.killBlocker +
+              economyLoss(state, blocker, registry) * W.denial
+            : 0) -
+          (attackerDies
+            ? creatureValue(state, attacker, registry) * W.loseAttacker +
+              economyLoss(state, attacker, registry) * W.denial
+            : 0),
       });
     }
     options.set(attacker, list);
   }
   let bestScore = 0,
+    bestLife = 0,
     best: { id: string; lane: number }[] = [];
   const visit = (
     index: number,
@@ -465,6 +567,7 @@ function chooseAttacks(state: GameState, registry: Registry): Command {
       const total = score + (life >= lethal ? 1000 : 0);
       if (total > bestScore) {
         bestScore = total;
+        bestLife = life;
         best = [...chosen];
       }
       return;
@@ -478,10 +581,39 @@ function chooseAttacks(state: GameState, registry: Registry): Command {
         ]);
   };
   visit(0, 0, 0, 0, []);
+  return { chosen: best, score: bestScore, life: bestLife };
+}
+/** What the opponent's best attack next turn would gain them against `victim`'s board as it stands (their creatures all count as ready). */
+function exposure(state: GameState, victim: PlayerId, registry: Registry): number {
+  const foe = other(victim);
+  const attackers = state.players[foe].board.filter(
+    (id): id is string => !!id && effectiveStats(state, id, registry).attack > 0,
+  );
+  if (!attackers.length) return 0;
+  return bestAttack(
+    state,
+    attackers,
+    (id) => reachableLanes(state.cards[id].slot),
+    state.players[victim].life,
+    registry,
+  ).score;
+}
+/** Choose attackers and lanes. */
+function chooseAttacks(state: GameState, registry: Registry): Command {
+  const actor = decisionPlayer(state),
+    legal = legalActions(state, registry);
+  const attackers = legal.attackers.filter((id) => effectiveStats(state, id, registry).attack > 0);
+  const { chosen } = bestAttack(
+    state,
+    attackers,
+    (id) => legal.lanes[id],
+    state.players[other(actor)].life,
+    registry,
+  );
   return {
     type: "attack",
-    attackers: best.map((a) => a.id),
-    lanes: Object.fromEntries(best.map((a) => [a.id, a.lane])),
+    attackers: chosen.map((a) => a.id),
+    lanes: Object.fromEntries(chosen.map((a) => [a.id, a.lane])),
   };
 }
 /** Return up to `max` of the most expensive cards (total cost 4+), but always keep a cheap play so the opening is not empty. */
@@ -526,8 +658,11 @@ export function botCommand(state: GameState, registry: Registry): Command {
     if (choice.kind === "library-pick") {
       // Take the most valuable creature; holdings and ties keep the cheapest-first option order.
       const value = (id: string) =>
-        registry.cards[state.cards[id].definitionId].type === "creature"
-          ? creatureValue(state, id, registry)
+        registry.cards[state.cards[id].definitionId].type !== "spell"
+          ? creatureValue(state, id, registry) +
+            W.denial *
+              (economy(totalOutput(state, actor, registry) + outputOf(state, id, registry)) -
+                economy(totalOutput(state, actor, registry)))
           : 0;
       const best = choice.options.reduce((a, b) => (value(b) > value(a) ? b : a));
       return { type: "choose", choiceId: choice.id, option: best };
@@ -553,7 +688,10 @@ export function botCommand(state: GameState, registry: Registry): Command {
       });
       const best = kills.length
         ? kills.reduce((a, c) =>
-            creatureValue(state, c, registry) > creatureValue(state, a, registry) ? c : a,
+            creatureValue(state, c, registry) + economyLoss(state, c, registry) * W.denial >
+            creatureValue(state, a, registry) + economyLoss(state, a, registry) * W.denial
+              ? c
+              : a,
           )
         : choice.options[choice.options.length - 1];
       return { type: "choose", choiceId: choice.id, option: best };
@@ -618,3 +756,32 @@ export function botCommand(state: GameState, registry: Registry): Command {
   if (state.combat?.stage === "review") return { type: "confirm-combat" };
   return { type: "end" };
 }
+
+/** For search tools: the best few first commands of a play step (plus ending the turn), ranked by the one-ply plan. */
+export function playCandidates(state: GameState, registry: Registry, k = 4): Command[] {
+  const { moves } = collectMoves(state, registry);
+  const seen = new Set<string>(),
+    out: Command[] = [];
+  for (const move of [...moves].sort((a, b) => b.score - a.score)) {
+    const key = JSON.stringify(move.command);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(move.command);
+    if (out.length >= k) break;
+  }
+  return [...out, { type: "end" }];
+}
+/** For search tools: the planned attack, no attack, and the plan with each single attacker held back. */
+export function attackCandidates(state: GameState, registry: Registry): Command[] {
+  const plan = chooseAttacks(state, registry);
+  if (plan.type !== "attack") return [plan];
+  const variants: Command[] = [plan, { type: "attack", attackers: [], lanes: {} }];
+  for (const held of plan.attackers)
+    variants.push({
+      type: "attack",
+      attackers: plan.attackers.filter((id) => id !== held),
+      lanes: Object.fromEntries(Object.entries(plan.lanes ?? {}).filter(([id]) => id !== held)),
+    });
+  return variants;
+}
+export const evaluatePosition = positionValue;

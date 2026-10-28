@@ -1,5 +1,6 @@
 import { type CustomDeck, decksKey, starterOptions } from "../../../decks/lib/decks";
-import { type DeckName, randomSeed, startMatch } from "../../lib/session";
+import { type DeckName, randomSeed } from "../../lib/session";
+import { startLocalMatch } from "../../lib/localMatchSetup";
 import { type GameState } from "@realms/contracts";
 import { type Mode } from "../../lib/matchTypes";
 import { type Screen } from "../../../lobby/lib/lobbyTypes";
@@ -124,17 +125,19 @@ export function useMatchLifecycle(
     }
     let next: GameState, chosenOpponent;
     try {
-      chosenOpponent = deckOptions.find((d) => d.id === nextOpponent);
-      next = startMatch(
-        nextSeed,
-        starter,
-        isSkirmish,
-        custom,
-        undefined,
-        chosenOpponent,
-        getProfile().name,
-        nextMode === "hotseat" ? undefined : getProfile().avatar,
-      );
+      // Older setup saves may pin an opponent that the practice UI no longer exposes.
+      chosenOpponent =
+        nextMode === "practice" ? undefined : deckOptions.find((d) => d.id === nextOpponent);
+      next = startLocalMatch({
+        seed: nextSeed,
+        mode: nextMode,
+        deck: starter,
+        skirmish: isSkirmish,
+        customDeck: custom,
+        opponentDeck: chosenOpponent,
+        playerName: getProfile().name,
+        playerAvatar: nextMode === "hotseat" ? undefined : getProfile().avatar,
+      });
     } catch (e) {
       setError(e instanceof Error ? e.message : msg("This deck cannot start a match."));
       return;

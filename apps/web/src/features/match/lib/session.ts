@@ -11,15 +11,18 @@ export const randomSeed = () => crypto.getRandomValues(new Uint32Array(1))[0] ||
 export type MatchContent = { registry: Registry; starters: StarterDeck[] };
 export const matchContent: MatchContent = { registry, starters: starterDefinitions };
 
-/** Prefer another valid starter; a custom deck can also be tested in a mirror. */
+/** Cycle valid starters after the last automatic opponent; prefer a different deck on the first match. */
 export function opponentDeck(
   deckId: string,
   custom: CustomDeck | undefined,
   content = matchContent,
+  previousId?: string,
 ): StarterDeck | CustomDeck | undefined {
   const playable = content.starters.filter(
     (deck) => !validateDeck(deck.cards, content.registry).length,
   );
+  const previous = playable.findIndex((deck) => deck.id === previousId);
+  if (previous >= 0) return playable[(previous + 1) % playable.length];
   return playable.find((deck) => deck.id !== deckId) ?? playable[0] ?? custom;
 }
 

@@ -47,6 +47,7 @@ export function useMatchDrag(
     setActionCard,
     setAttackers,
     setDraft,
+    damagePick,
     setError,
     setHovered,
     setLanes,
@@ -137,7 +138,7 @@ export function useMatchDrag(
   const playerDropClass = (player: PlayerId) =>
     `${targets.includes(player) ? "targetable" : ""} ${spellDrop ? "spell-drop-ready" : ""} ${spellDrop && dropPlay && dropZone?.slot === undefined && dropZone?.area === "player" && dropZone.player === player ? "spell-drop-over" : ""}`;
   function choosePlayerTarget(player: PlayerId, event: React.MouseEvent) {
-    if (!live || stage !== "target" || !targets.includes(player)) return;
+    if (!live || (stage !== "target" && !damagePick) || !targets.includes(player)) return;
     event.preventDefault();
     event.stopPropagation();
     sendTarget(player);

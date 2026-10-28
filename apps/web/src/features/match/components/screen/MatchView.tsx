@@ -9,7 +9,6 @@ import { PrivacyCover } from "./PrivacyCover";
 import { MulliganDialog } from "./MulliganDialog";
 import { RaisePicker } from "./RaisePicker";
 import { ModePicker } from "./ModePicker";
-import { DamageTargetDialog } from "./DamageTargetDialog";
 import { DrawChoiceDialog } from "./DrawChoiceDialog";
 import { HandDiscardDialog } from "./HandDiscardDialog";
 import { LibraryPickDialog } from "./LibraryPickDialog";
@@ -47,7 +46,6 @@ export function MatchView() {
       <DrawChoiceDialog />
       <HandDiscardDialog />
       <LibraryPickDialog />
-      <DamageTargetDialog />
       <RepriseDialog />
       <ResponseEnergyDialog />
       <SummaryLayer />

@@ -33,6 +33,7 @@ export function useMatchBoard(
     beginPlay,
     covered,
     draft,
+    damagePick,
     draftLanes,
     historyIndex,
     inspectBoard,
@@ -65,7 +66,7 @@ export function useMatchBoard(
       });
       return;
     }
-    if (stage === "target" && draft && targets.includes(id)) {
+    if ((damagePick || (stage === "target" && draft)) && targets.includes(id)) {
       sendTarget(id);
       return;
     }

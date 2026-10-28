@@ -287,6 +287,13 @@ export function LocationDialog({
                 {error}
               </p>
             )}
+            {actions.includes("smith") && run.deck.length <= questRules.minDeck && (
+              <p className="quest-notice">
+                {msg("Your deck is down to {v0} cards. Add a card before destroying another.", {
+                  v0: questRules.minDeck,
+                })}
+              </p>
+            )}
             <div className="quest-actions">
               {actions.map((type) => (
                 <button

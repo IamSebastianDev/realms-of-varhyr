@@ -58,7 +58,7 @@ export const presetById = (id: string) => draftPresets.find((preset) => preset.i
 export const costOf = (card: CardDefinition) =>
   card.cost.generic + Object.values(card.cost.factions).reduce((sum, n) => sum + n, 0);
 export const isProducer = (card: CardDefinition, registry: Registry) =>
-  card.type === "creature" &&
+  card.type !== "spell" &&
   energyProductionOptions(card, registry).some((output) =>
     Object.values(output).some((n) => n > 0),
   );

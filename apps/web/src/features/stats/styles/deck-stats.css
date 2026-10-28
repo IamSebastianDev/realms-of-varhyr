@@ -1,0 +1,133 @@
+/* Deck match record: reuses the collection statistics page and adds win-rate rows, the latest results and card changes. */
+.deck-stats-page .collection-subhead h1 {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.deck-stats-sub {
+  color: var(--ink-2);
+  font-size: 13px;
+}
+.deck-stats-page .collection-subhead .outline-button {
+  margin-left: 0;
+}
+.deck-stats-sub + .outline-button {
+  margin-left: auto;
+}
+.deck-stats-hero {
+  margin-top: 18px;
+  padding: 22px 28px;
+  border: 1px solid rgb(var(--gilt-rgb) / 0.24);
+  border-radius: 10px;
+  background:
+    radial-gradient(ellipse 50% 130% at 0 50%, rgb(var(--gilt-rgb) / 0.12), transparent 70%),
+    linear-gradient(135deg, rgb(var(--shade-rgb) / 0.55), rgb(var(--shade-rgb) / 0.7));
+}
+.deck-stats-hero .stats-facts {
+  margin-top: 0;
+}
+.deck-stats-form {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 16px;
+  font-size: 11px;
+  color: var(--ink-2);
+}
+.deck-stats-form > div {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.deck-stats-form b {
+  display: grid;
+  place-items: center;
+  inline-size: 22px;
+  block-size: 22px;
+  border-radius: 4px;
+  font: 600 11px/1 var(--serif);
+  color: var(--black);
+  background: var(--ink-2);
+}
+.deck-stats-form .won {
+  background: var(--gilt);
+}
+.deck-stats-form .lost {
+  background: var(--danger-text);
+}
+.deck-stat-row .stat-value span {
+  margin-left: 8px;
+  color: var(--gilt-bright);
+  font-weight: 600;
+}
+.deck-stat-row .stat-bar i {
+  opacity: var(--sure, 1);
+}
+.deck-stat-row .stat-copies {
+  cursor: help;
+}
+.deck-stats-versions {
+  margin-top: 16px;
+}
+.deck-stats-versions > ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+.deck-stats-versions > ol > li {
+  display: grid;
+  grid-template-columns: minmax(130px, 0.7fr) minmax(220px, 1.2fr) minmax(0, 2fr);
+  gap: 8px 28px;
+  align-items: start;
+  padding: 16px 0;
+  border-top: 1px solid rgb(var(--gilt-rgb) / 0.14);
+}
+.deck-stats-versions > ol > li > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.deck-stat-when {
+  display: grid;
+  gap: 3px;
+}
+.deck-stat-when b {
+  font: 500 16px/1.2 var(--serif);
+  color: var(--gilt-pale);
+}
+.deck-stat-when span,
+.deck-stat-diff small {
+  font-size: 11px;
+  color: var(--ink-2);
+}
+.deck-stat-diff {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.deck-stat-changes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.deck-stat-changes em {
+  font-style: normal;
+  font-size: 12px;
+  padding: 2px 9px;
+  border-radius: 10px;
+  border: 1px solid currentColor;
+}
+.deck-stat-changes .added {
+  color: var(--gilt);
+}
+.deck-stat-changes .removed {
+  color: var(--danger-text);
+}
+@media (max-width: 820px) {
+  .deck-stats-versions > ol > li {
+    grid-template-columns: 1fr;
+  }
+}

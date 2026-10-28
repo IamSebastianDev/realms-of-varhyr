@@ -83,6 +83,8 @@ const recordedSteps = (history: Step[]) =>
 /** A running match: on this machine (a loopback room) or against someone else (a WebRTC room). Both behave the same. */
 export class LiveMatchSession implements MatchSessionReader {
   readonly kind = "live";
+  /** The deck you brought to an online room; the match itself only shows the cards you have seen. */
+  played?: { id: string; name: string; cards: string[] };
   private listeners = new Set<() => void>();
   private history: Step[] = [];
   private snapshot: SessionSnapshot;

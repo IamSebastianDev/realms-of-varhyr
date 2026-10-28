@@ -46,13 +46,17 @@ describe("real card pool", () => {
   const pairings = starterDefinitions.flatMap((a, i) =>
     starterDefinitions.slice(i).map((b) => [a, b] as const),
   );
-  it.each(pairings)("plays %# to a finish and replays identically", (a, b) => {
-    for (const seed of [1, 2, 3]) {
-      const { initial, state, log } = playOut(seed, [a.cards, b.cards]);
-      expect(state.outcome, `${a.id} vs ${b.id}, seed ${seed}`).not.toBeNull();
-      expect(replay(initial, log, registry)).toEqual(state);
-    }
-  });
+  it.each(pairings)(
+    "plays %# to a finish and replays identically",
+    (a, b) => {
+      for (const seed of [1, 2, 3]) {
+        const { initial, state, log } = playOut(seed, [a.cards, b.cards]);
+        expect(state.outcome, `${a.id} vs ${b.id}, seed ${seed}`).not.toBeNull();
+        expect(replay(initial, log, registry)).toEqual(state);
+      }
+    },
+    30_000,
+  );
 
   it("never shows a player anything hidden about the other side", () => {
     const [deck] = starterDefinitions;

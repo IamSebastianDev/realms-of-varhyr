@@ -1,5 +1,6 @@
 import { useMemo, useState, type CSSProperties } from "react";
 import {
+  BarChart3,
   BookOpen,
   Check,
   Copy,
@@ -33,6 +34,8 @@ type Props = {
   create: () => void;
   importDeck: () => void;
   openCollection: () => void;
+  /** Opens the match record page of a deck. */
+  stats: (id: string, name: string) => void;
   rename: (id: string, name: string) => string | null;
   remove: (id: string) => string | null;
 };
@@ -99,6 +102,7 @@ export function DeckShelf({
   create,
   importDeck,
   openCollection,
+  stats,
   rename,
   remove,
 }: Props) {
@@ -348,6 +352,15 @@ export function DeckShelf({
                         {current.starter ? <Copy size={15} /> : <Pencil size={15} />}
                         {current.starter ? msg("Copy & edit") : msg("Edit deck")}
                       </button>
+                      {!current.unsaved && (
+                        <button
+                          className="outline-button"
+                          onClick={() => stats(current.id, current.deck.name)}
+                        >
+                          <BarChart3 size={15} />
+                          {msg("Statistics")}
+                        </button>
+                      )}
                       {!current.unsaved && !current.starter && (
                         <button
                           className="outline-button"

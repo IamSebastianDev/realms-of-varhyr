@@ -12,7 +12,7 @@ export { copyLimit } from "./decks";
 export const cardCost = (card: CardDefinition) =>
   card.cost.generic + Object.values(card.cost.factions).reduce((sum, n) => sum + n, 0);
 export const isProducer = (card: CardDefinition, content: Registry) =>
-  card.type === "creature" &&
+  card.type !== "spell" &&
   energyProductionOptions(card, content).some((output) => Object.values(output).some((n) => n > 0));
 export type CardSort = "faction" | "cost" | "name" | "attack" | "defense";
 /** Named factions in their authored order; cards without a faction (neutral) come last. */

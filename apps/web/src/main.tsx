@@ -20,6 +20,7 @@ import "./features/match/styles/combat-fx.css";
 import "./features/match/styles/match-summary.css";
 import "./features/profile/styles/profile.css";
 import "./features/collection/styles/collection-stats.css";
+import "./features/stats/styles/deck-stats.css";
 import "./app/styles/form-controls.css";
 import "./features/onboarding/styles/onboarding.css";
 import "./app/styles/touch.css";

@@ -1,11 +1,13 @@
 import { useEffect } from "react";
-import { registry } from "@realms/content";
+import { registry, starterDefinitions } from "@realms/content";
 import type { MatchSetup } from "../lib/session";
 import type { CustomDeck } from "../../decks/lib/decks";
 import { claimVictory } from "../../collection/lib/collection";
 import { updateCollection } from "../../collection/stores/collectionStore";
 import { trackMatch } from "../../goals/stores/goalsStore";
 import { matchResult } from "../../goals/lib/goals";
+import { buildRecord } from "../../stats/lib/record";
+import { recordFinishedMatch } from "../../stats/stores/ledgerStore";
 import { reportFight } from "../../quest/stores/questStore";
 import { reportDraftResult } from "../../draft/stores/draftStore";
 import type { SessionSnapshot } from "../session/MatchSession";
@@ -23,6 +25,7 @@ export function useMatchOutcome({
   rewardEligible,
   customDeck,
   deck,
+  played: onlineDeck,
 }: {
   setup?: MatchSetup;
   snapshot: SessionSnapshot;
@@ -32,6 +35,8 @@ export function useMatchOutcome({
   rewardEligible: boolean;
   customDeck?: CustomDeck;
   deck: string;
+  /** The deck brought to an online room. */
+  played?: { id: string; name: string; cards: string[] };
 }) {
   const { initial, commands, state } = snapshot,
     sessionSnapshot = snapshot;
@@ -79,4 +84,29 @@ export function useMatchOutcome({
       }),
     );
   }, [state.outcome]);
+  // The match ledger keeps one record per finished match you played yourself. Hot seat has no single player to credit.
+  useEffect(() => {
+    if (!state.outcome || watching || setup?.tutorial || setup?.mode === "hotseat") return;
+    const played = online
+      ? onlineDeck
+      : (customDeck ?? starterDefinitions.find((s) => s.id === deck));
+    if (!played) return;
+    const built = buildRecord(initial, state, sessionSnapshot.seat ?? "p1", {
+      id: sessionSnapshot.matchId || String(initial.seed),
+      at: new Date().toISOString(),
+      mode: online
+        ? "online"
+        : setup?.quest
+          ? "quest"
+          : setup?.draft
+            ? "draft"
+            : (setup?.mode ?? "practice"),
+      deckId: played.id,
+      deckName: played.name,
+      cards: played.cards,
+      registry,
+      online,
+    });
+    if (built) recordFinishedMatch(built.record, built.cards);
+  }, [state.outcome]); // eslint-disable-line react-hooks/exhaustive-deps
 }

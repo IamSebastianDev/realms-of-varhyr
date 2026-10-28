@@ -54,6 +54,7 @@ export function useMatchBasics({
     rewardEligible,
     customDeck,
     deck,
+    played: match.kind === "live" ? match.played : undefined,
   });
   const ownBack = useCardBack(!watching && !hotseat ? customDeck?.back : undefined);
   const [screen, setScreen] = useState<Screen>("match");

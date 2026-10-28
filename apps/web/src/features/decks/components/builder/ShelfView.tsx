@@ -4,7 +4,7 @@ import { newDeck } from "../../lib/deckBuilderHelpers";
 import { LeaveDialog } from "./LeaveDialog";
 import { useDeckBuilderContext } from "../../DeckBuilderContext.tsx";
 
-export function ShelfView() {
+export function ShelfView({ openStats }: { openStats: (id: string, name: string) => void }) {
   const {
     change,
     decks,
@@ -40,6 +40,7 @@ export function ShelfView() {
         }
         importDeck={importFromShelf}
         openCollection={openCollection}
+        stats={openStats}
         rename={renameDeck}
         remove={deleteSaved}
       />

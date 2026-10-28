@@ -29,7 +29,6 @@ export type CarouselPack = {
   /** Printed on the pack front; the generated foil look is used without it. */ art?: string;
   /** Which authored model this pack uses. */ model: string;
   variant: PackVariant;
-  /** Shown as this many packs piled on one another. */ stack?: number;
 };
 
 const FACE = { w: 768, h: 1280 };
@@ -368,9 +367,6 @@ type SlotProps = {
   model: Model;
   reduced: boolean;
   pick: (offset: number) => void;
-  stack?: number;
-  /** Lays the row out around this offset instead of around the one in front; the front one is then marked by its glow. */
-  center?: number;
 };
 
 const finishes = {
@@ -399,47 +395,7 @@ export const packMaterials = (map: THREE.Texture, color: string, finish: PackVar
   ];
 };
 
-let glowMap: THREE.CanvasTexture | null = null;
-/** A soft round pool of light, white in the middle and clear at the edge, tinted per pack by its material. */
-function glowTexture() {
-  if (glowMap) return glowMap;
-  const canvas = document.createElement("canvas");
-  canvas.width = canvas.height = 128;
-  const ctx = canvas.getContext("2d")!,
-    gradient = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
-  gradient.addColorStop(0, "rgba(255,255,255,1)");
-  gradient.addColorStop(0.45, "rgba(255,255,255,0.35)");
-  gradient.addColorStop(1, "rgba(255,255,255,0)");
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, 128, 128);
-  return (glowMap = new THREE.CanvasTexture(canvas));
-}
-
-function Slot({
-  variant,
-  offset,
-  art,
-  color,
-  current,
-  model,
-  reduced,
-  pick,
-  stack = 1,
-  center,
-}: SlotProps) {
-  const glow = useRef<THREE.Mesh>(null);
-  const glowMaterial = useMemo(
-    () =>
-      new THREE.MeshBasicMaterial({
-        map: glowTexture(),
-        color,
-        transparent: true,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-      }),
-    [color],
-  );
-  useEffect(() => () => glowMaterial.dispose(), [glowMaterial]);
+function Slot({ variant, offset, art, color, current, model, reduced, pick }: SlotProps) {
   const group = useRef<THREE.Group>(null),
     gl = useThree((state) => state.gl);
   const materials = useMemo(
@@ -456,26 +412,17 @@ function Slot({
       t = state.clock.elapsedTime,
       { x: pointerX, y } = state.pointer;
     const x = rel * SPACING;
-    if (glow.current) {
-      glow.current.position.set(x, -1.2, -0.3);
-      glowMaterial.opacity = center === undefined ? 0 : focus * 0.55;
-    }
-    const still = center !== undefined; // The store shows its packs at rest.
-    g.position.set(
-      x,
-      still ? 0 : focus * (reduced ? 0 : Math.sin(t * 1.1) * 0.05),
-      -Math.min(near, 2) * 0.9,
-    );
+    g.position.set(x, focus * (reduced ? 0 : Math.sin(t * 1.1) * 0.05), -Math.min(near, 2) * 0.9);
     g.scale.setScalar(1 - Math.min(near, 1) * 0.2);
-    const sway = still ? 0.28 : (reduced ? 0.28 : Math.sin(t * 0.6) * 0.32) + pointerX * 0.55;
+    const sway = (reduced ? 0.28 : Math.sin(t * 0.6) * 0.32) + pointerX * 0.55;
     const aimY = focus * sway + (1 - focus) * -Math.sign(rel) * 0.45,
-      aimX = focus * (still ? 0.06 : 0.06 - y * 0.22);
+      aimX = focus * (0.06 - y * 0.22);
     g.rotation.y = THREE.MathUtils.damp(g.rotation.y, aimY, 5, delta);
     g.rotation.x = THREE.MathUtils.damp(g.rotation.x, aimX, 5, delta);
     const opacity = near < 1 ? 1 - near * 0.4 : Math.max(0, 0.6 - (near - 1) * 0.3);
     for (const material of materials) {
       material.opacity = opacity;
-      // Solid while fully shown, so the layers of a pile hide one another instead of blending.
+      // Solid while fully shown, so the foil does not blend with what is behind it.
       material.transparent = opacity < 0.995;
       material.depthWrite = !material.transparent;
     }
@@ -484,11 +431,6 @@ function Slot({
   const side = () => Math.round(current.value) !== offset;
   return (
     <>
-      {center !== undefined && (
-        <mesh ref={glow} rotation={[-1.2, 0, 0]} material={glowMaterial}>
-          <planeGeometry args={[3.2, 1.5]} />
-        </mesh>
-      )}
       <group
         ref={group}
         onClick={(event) => {
@@ -504,98 +446,13 @@ function Slot({
           gl.domElement.style.cursor = "";
         }}
       >
-        {stack === 1 ? (
-          <mesh
-            geometry={model.geometry}
-            material={materials}
-            scale={[SIZE * variant.width, SIZE * variant.height, SIZE * THIN * variant.thin]}
-          />
-        ) : (
-          <Pile
-            count={stack}
-            geometry={model.geometry}
-            materials={materials}
-            scale={[SIZE * variant.width, SIZE * variant.height, SIZE * THIN * variant.thin]}
-          />
-        )}
+        <mesh
+          geometry={model.geometry}
+          material={materials}
+          scale={[SIZE * variant.width, SIZE * variant.height, SIZE * THIN * variant.thin]}
+        />
       </group>
     </>
-  );
-}
-
-/** Nine packs lying on one another and the tenth standing in front, leaning back against the pile's edge, all on one floor. */
-function Pile({
-  count,
-  geometry,
-  materials,
-  scale,
-}: {
-  count: number;
-  geometry: THREE.BufferGeometry;
-  materials: THREE.Material[];
-  scale: [number, number, number];
-}) {
-  const shadow = useMemo(
-    () =>
-      new THREE.MeshBasicMaterial({
-        map: glowTexture(),
-        color: "#000000",
-        transparent: true,
-        opacity: 0.75,
-        depthWrite: false,
-      }),
-    [],
-  );
-  useEffect(() => () => shadow.dispose(), [shadow]);
-  // The real size of one pack after scaling: width, length and thickness.
-  const size = useMemo(() => {
-    geometry.computeBoundingBox();
-    const box = geometry.boundingBox!;
-    return {
-      w: (box.max.x - box.min.x) * scale[0],
-      l: (box.max.y - box.min.y) * scale[1],
-      t: (box.max.z - box.min.z) * scale[2],
-    };
-  }, [geometry, scale[0], scale[1], scale[2]]); // eslint-disable-line react-hooks/exhaustive-deps
-  const flat = count - 1,
-    FLOOR = -1.05,
-    LAYER = size.t * 0.55, // Packs are soft: laid on one another they sink into each other.
-    LEAN = 0.3,
-    pileX = -size.w * 0.425,
-    height = size.t * 0.5 + (flat - 1) * LAYER + size.t * 0.5,
-    frontEdge = size.l / 2,
-    footZ = frontEdge + height * Math.tan(LEAN) + 0.02;
-  return (
-    <group scale={0.64} rotation={[0.38, 0.0, 0]} position={[0, 0.1, 0]}>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0.1, FLOOR - 0.01, 0.3]} material={shadow}>
-        <planeGeometry args={[size.w * 2.6, size.l * 1.35]} />
-      </mesh>
-      {Array.from({ length: flat }, (_, index) => {
-        // A little drift per layer so it reads as a handled stack rather than a printed block.
-        const drift = Math.sin(index * 12.9898) * 0.25;
-        return (
-          <mesh
-            key={index}
-            geometry={geometry}
-            material={materials}
-            position={[pileX + drift * 0.04, FLOOR + size.t * 0.5 + index * LAYER, drift * 0.05]}
-            rotation={[-Math.PI / 2, 0, drift * 0.03]}
-            scale={scale}
-          />
-        );
-      })}
-      <mesh
-        geometry={geometry}
-        material={materials}
-        position={[
-          pileX + size.w * 0.85,
-          FLOOR + (size.l / 2) * Math.cos(LEAN) + (size.t / 2) * Math.sin(LEAN),
-          footZ - (size.l / 2) * Math.sin(LEAN) + (size.t / 2) * Math.cos(LEAN),
-        ]}
-        rotation={[-LEAN, 0.04, 0]}
-        scale={scale}
-      />
-    </group>
   );
 }
 
@@ -605,9 +462,7 @@ function Row({
   position,
   pick,
   reduced,
-  linear,
 }: {
-  linear?: boolean;
   packs: CarouselPack[];
   tagline: string;
   position: number;
@@ -646,10 +501,7 @@ function Row({
     );
   });
   const span = packs.length === 1 ? 0 : REACH;
-  // A short row is laid out once, left to right, instead of repeating around the middle.
-  const offsets = linear
-    ? Array.from({ length: packs.length }, (_, index) => index)
-    : Array.from({ length: span * 2 + 1 }, (_, index) => position - span + index);
+  const offsets = Array.from({ length: span * 2 + 1 }, (_, index) => position - span + index);
   return (
     <>
       {offsets.map((offset) => {
@@ -658,8 +510,6 @@ function Row({
           <Slot
             key={offset}
             variant={packs[index].variant}
-            stack={packs[index].stack}
-            center={linear ? (packs.length - 1) / 2 : undefined}
             offset={offset}
             art={art[index]}
             color={packs[index].color}
@@ -681,14 +531,12 @@ export default function BoosterCarousel3D({
   position,
   pick,
   reduced,
-  linear,
 }: {
   packs: CarouselPack[];
   tagline: string;
   position: number;
   pick: (offset: number) => void;
   reduced: boolean;
-  linear?: boolean;
 }) {
   return (
     <Canvas
@@ -700,14 +548,7 @@ export default function BoosterCarousel3D({
       style={{ touchAction: "pan-y" }}
     >
       <PackLighting color={packs[mod(position, packs.length)].color} />
-      <Row
-        packs={packs}
-        tagline={tagline}
-        position={position}
-        pick={pick}
-        reduced={reduced}
-        linear={linear}
-      />
+      <Row packs={packs} tagline={tagline} position={position} pick={pick} reduced={reduced} />
     </Canvas>
   );
 }

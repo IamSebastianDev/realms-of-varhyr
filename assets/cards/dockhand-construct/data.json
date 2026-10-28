@@ -3,7 +3,6 @@
   "id": "dockhand-construct",
   "revision": 1,
   "name": "Dockhand Construct",
-  "lore": "It never asks for a raise, a break, or a name. The harbour guild is deeply uneasy.",
   "deckLimitKey": "dockhand-construct",
   "type": "creature",
   "factions": [
@@ -18,8 +17,8 @@
     "generic": 0
   },
   "stats": {
-    "attack": 1,
-    "defense": 1,
+    "attack": 0,
+    "defense": 2,
     "energyOutputs": [
       {
         "northern-league": 1
@@ -27,5 +26,6 @@
     ]
   },
   "abilities": [],
+  "lore": "It never asks for a raise, a break, or a name. The harbour guild is deeply uneasy.",
   "set": "foundations"
 }

@@ -59,7 +59,8 @@ function Ghost({
         return;
       }
       if (!from || !to) {
-        ghost.remove();
+        // React owns this node: hide it rather than detaching it, or the unmount that follows throws removeChild.
+        ghost.style.display = "none";
         return;
       }
       if (face) ghost.style.backgroundImage = getComputedStyle(face).backgroundImage;
@@ -144,7 +145,7 @@ function KeepGhost({ keep }: { keep: KeepFlight }) {
         spot = target && maybeRectOf(target);
       if (!target || !spot) {
         if (tries++ < 90) frame = requestAnimationFrame(launch);
-        else ghost.remove();
+        else ghost.style.display = "none"; // Hidden, not removed: React still owns the node.
         return;
       }
       const w = (target as HTMLElement).offsetWidth || spot.width,

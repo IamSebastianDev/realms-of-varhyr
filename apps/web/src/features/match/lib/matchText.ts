@@ -54,43 +54,48 @@ export function turnPrompt({
           : view.combat?.stage === "review"
             ? msg("Lanes are set. The opponent is reviewing the attack…")
             : msg("Opponent’s turn…")
-        : stage === "mode"
-          ? msg("Choose one effect.")
-          : stage === "consume"
-            ? returns
-              ? msg("Choose a friendly creature to return to your hand.")
-              : msg("Choose a friendly creature to Consume.")
-            : stage === "position"
-              ? msg("Choose a highlighted position. Deployment is permanent.")
-              : stage === "target"
-                ? selectedActivation?.slots
-                  ? msg("Choose a creature or holding from your hand to rally.")
-                  : msg("Choose a highlighted target.")
-                : responseStep
-                  ? msg("The fallen leave energy behind. Cast a spell or close the window.")
-                  : view.phase === "draw"
-                    ? msg("Draw two. Keep one.")
-                    : view.phase === "play"
-                      ? undoable.length
-                        ? msg("Click a channelled creature to undo. Drag a card to play.")
-                        : msg("Click a ready field card for actions. Drag a card to play.")
-                      : view.combat?.stage === "declare"
-                        ? attackers.length
-                          ? msg(
-                              "Gold arrows hit the player; cyan arrows meet a blocker. Drag an attacker to another lane to change it.",
-                            )
-                          : msg(
-                              "Drag a ready creature onto a highlighted lane, or click it to choose one.",
-                            )
-                        : view.combat?.stage === "review"
-                          ? msg(
-                              "Defenders in the targeted lanes block automatically. Review the arrows, then confirm combat.",
-                            )
-                          : responseStep
+        : view.pending?.kind === "damage-target"
+          ? msg("{v0}: choose a highlighted target to take {v1} damage.", {
+              v0: msg(view.pending.sourceName),
+              v1: view.pending.amount,
+            })
+          : stage === "mode"
+            ? msg("Choose one effect.")
+            : stage === "consume"
+              ? returns
+                ? msg("Choose a friendly creature to return to your hand.")
+                : msg("Choose a friendly creature to Consume.")
+              : stage === "position"
+                ? msg("Choose a highlighted position. Deployment is permanent.")
+                : stage === "target"
+                  ? selectedActivation?.slots
+                    ? msg("Choose a creature or holding from your hand to rally.")
+                    : msg("Choose a highlighted target.")
+                  : responseStep
+                    ? msg("The fallen leave energy behind. Cast a spell or close the window.")
+                    : view.phase === "draw"
+                      ? msg("Draw two. Keep one.")
+                      : view.phase === "play"
+                        ? undoable.length
+                          ? msg("Click a channelled creature to undo. Drag a card to play.")
+                          : msg("Click a ready field card for actions. Drag a card to play.")
+                        : view.combat?.stage === "declare"
+                          ? attackers.length
                             ? msg(
-                                "The fallen leave energy behind. Cast a spell or close the window.",
+                                "Gold arrows hit the player; cyan arrows meet a blocker. Drag an attacker to another lane to change it.",
                               )
-                            : msg("End your turn to ready your field cards.");
+                            : msg(
+                                "Drag a ready creature onto a highlighted lane, or click it to choose one.",
+                              )
+                          : view.combat?.stage === "review"
+                            ? msg(
+                                "Defenders in the targeted lanes block automatically. Review the arrows, then confirm combat.",
+                              )
+                            : responseStep
+                              ? msg(
+                                  "The fallen leave energy behind. Cast a spell or close the window.",
+                                )
+                              : msg("End your turn to ready your field cards.");
 }
 
 /** The label of the big phase button. */

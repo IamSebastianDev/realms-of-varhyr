@@ -3,7 +3,6 @@
   "id": "academy-apprentice",
   "revision": 1,
   "name": "Academy Apprentice",
-  "lore": "Three years of study, and the first thing she was trusted with was the lamp.",
   "deckLimitKey": "academy-apprentice",
   "type": "creature",
   "factions": [
@@ -26,6 +25,12 @@
       }
     ]
   },
-  "abilities": [],
+  "abilities": [
+    {
+      "id": "accord",
+      "params": {}
+    }
+  ],
+  "lore": "Three years of study, and the first thing she was trusted with was the lamp.",
   "set": "foundations"
 }

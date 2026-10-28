@@ -64,9 +64,11 @@ export function MultiplayerLobby({
   useEffect(() => {
     if (room && state.snapshot && !handedOff.current) {
       handedOff.current = true;
-      onStart(new LiveMatchSession(room));
+      const session = new LiveMatchSession(room);
+      if (chosen) session.played = { id: chosen.id, name: chosen.name, cards: chosen.cards };
+      onStart(session);
     }
-  }, [room, state.snapshot, onStart]);
+  }, [room, state.snapshot, onStart, chosen]);
   async function connect(role: "host" | "guest") {
     if (!ready || !chosen) return;
     setCreating(true);

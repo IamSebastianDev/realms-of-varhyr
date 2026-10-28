@@ -22,6 +22,7 @@ export function useMatchActions(
     ReturnType<typeof useMatchPreview>,
 ) {
   const {
+    damagePick,
     draft,
     live,
     match,
@@ -46,6 +47,10 @@ export function useMatchActions(
     viewer,
   } = c;
   function sendTarget(target: string) {
+    if (damagePick) {
+      send({ type: "choose", choiceId: damagePick.id, option: target });
+      return;
+    }
     if (!draft) return;
     if (draft.activation !== undefined) {
       if (selectedActivation?.slots) {

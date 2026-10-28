@@ -321,27 +321,31 @@
   min-height: 36px;
   padding: 8px 12px;
 }
+.builder-dialog .outline-button {
+  min-height: 44px;
+  padding: 10px 18px;
+}
 .builder-dialog-backdrop {
   z-index: var(--z-dialog);
 }
 .builder-dialog {
   position: relative;
-  width: 480px;
+  width: 600px;
   max-width: 100%;
   max-height: calc(var(--app-h) - 24px);
   overflow: auto;
-  padding: 26px;
+  padding: 32px 36px;
   border-radius: 7px;
   border: 1px solid #dfcb9877;
   background: linear-gradient(145deg, #34332f, #22211e);
   box-shadow: 0 24px 80px #0009;
 }
 .builder-dialog h2 {
-  font-size: 29px;
-  margin: 0 25px 20px 0;
+  font-size: 34px;
+  margin: 0 36px 24px 0;
 }
 .builder-dialog p {
-  font-size: 11px;
+  font-size: 14px;
   line-height: 1.7;
   color: #d1cfc9;
   margin: 12px 0;
@@ -350,8 +354,8 @@
   position: absolute;
   top: 14px;
   right: 14px;
-  width: 28px;
-  height: 28px;
+  width: 34px;
+  height: 34px;
   padding: 0;
   display: grid;
   place-items: center;
@@ -371,21 +375,21 @@
 .builder-cost-filter {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 10px;
-  margin: 20px 0 16px;
+  gap: 6px;
+  font-size: 14px;
+  margin: 24px 0 18px;
 }
 .builder-cost-filter > span {
   color: #cfcdc7;
   margin-right: 5px;
 }
 .builder-cost-filter button {
-  min-width: 27px;
-  height: 27px;
+  min-width: 38px;
+  height: 38px;
   border-radius: 4px;
   border: 1px solid #d6ca9955;
   background: #201f1c88;
-  font-size: 10px;
+  font-size: 14px;
   color: #dad8d3;
   padding: 0 6px;
 }
@@ -393,7 +397,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 10px;
+  font-size: 14px;
   letter-spacing: 0;
   font-weight: 400;
 }
@@ -402,14 +406,14 @@
   gap: 10px;
   justify-content: flex-end;
   flex-wrap: wrap;
-  margin-top: 22px;
+  margin-top: 26px;
 }
 .builder-dialog-actions .gold-button {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 11px;
-  padding: 10px 14px;
+  font-size: 14px;
+  padding: 12px 18px;
 }
 .builder-manage-actions {
   display: grid;
@@ -419,14 +423,14 @@
 }
 .builder-dialog textarea {
   width: 100%;
-  height: 210px;
+  height: 260px;
   resize: vertical;
   background: #1a1917;
   color: #e9dfc5;
   border: 1px solid #cabc8855;
   border-radius: 4px;
   padding: 12px;
-  font: 11px/1.6 monospace;
+  font: 14px/1.6 monospace;
   margin: 8px 0;
 }
 .builder-dialog .builder-dialog-error {
@@ -1138,40 +1142,40 @@
 }
 .builder-filter-chips {
   display: grid;
-  gap: 14px;
+  gap: 16px;
 }
 .builder-chips {
   display: grid;
-  grid-template-columns: 62px minmax(0, 1fr);
+  grid-template-columns: 86px minmax(0, 1fr);
   align-items: start;
-  gap: 10px;
-  font-size: 10px;
+  gap: 12px;
+  font-size: 14px;
 }
 .builder-chips > span {
   color: var(--ink-2);
-  padding-top: 7px;
+  padding-top: 11px;
 }
 .builder-chips > div {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
+  gap: 7px;
 }
 .builder-chips button {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  min-width: 27px;
-  height: 27px;
-  padding: 0 9px;
+  gap: 8px;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 14px;
   border-radius: 4px;
   border: 1px solid rgb(var(--edge-rgb) / 0.33);
   background: rgb(var(--shade-rgb) / 0.5);
-  font-size: 10px;
+  font-size: 14px;
   color: var(--ink-2);
 }
 .builder-chips button svg {
-  width: 13px;
-  height: 13px;
+  width: 18px;
+  height: 18px;
   color: var(--tint, currentColor);
 }
 .builder-chips button:hover {
@@ -1244,4 +1248,197 @@
   top: 8px;
   right: 8px;
   color: var(--gilt);
+}
+
+/* Deck details: the one dialog that carries a chart, so it is wider than the 600px base. */
+.builder-dialog.deck-details {
+  width: 720px;
+}
+.deck-details .deck-detail-fields {
+  gap: 22px;
+}
+.deck-details .deck-detail-name,
+.deck-details .deck-detail-back {
+  font-size: 14px;
+}
+.deck-details .deck-detail-back small {
+  font-size: 12.5px;
+}
+.deck-details .deck-detail-name input {
+  min-height: 46px;
+  font-size: 18px;
+}
+.deck-details .deck-detail-back .back-picker-button .card-back-face {
+  width: 56px;
+}
+.deck-details .deck-metrics {
+  padding: 20px 0;
+}
+.deck-details .deck-metrics > span {
+  font-size: 13px;
+  gap: 7px;
+}
+.deck-details .deck-metrics b {
+  font-size: 40px;
+}
+.deck-details .deck-curve-heading {
+  font-size: 13px;
+  margin-top: 24px;
+}
+.deck-details .deck-cost-curve {
+  height: 140px;
+  gap: 14px;
+}
+.deck-details .deck-cost-curve > div,
+.deck-details .deck-cost-curve small {
+  font-size: 13px;
+}
+.deck-details .showcase-button img {
+  width: 51px;
+  height: 69px;
+}
+
+/* Form controls inside builder dialogs: labels and selects readable at the same size as the rest of the dialog. */
+.builder-dialog label:not(.builder-limit-filter) {
+  font-size: 14px;
+}
+.builder-dialog select {
+  font-size: 15px;
+  min-height: 44px;
+}
+
+/* Deck editor: search, filters and the deck pane read at 14px, like the dialogs. Kept out of the compact layout, which has its own small sizes. */
+@container stage (min-width: 601px) {
+  .deck-workshop.builder-page {
+    grid-template-columns: minmax(0, 1fr) clamp(380px, 29cqw, 470px);
+  }
+  .builder-collection-bar h2 {
+    font-size: 26px;
+  }
+  .builder-collection-bar h2 span {
+    font-size: 13px;
+  }
+  .deck-workshop .collection-search input {
+    min-height: 40px;
+    height: 40px;
+    padding: 8px 10px 8px 38px;
+    font-size: 14px;
+  }
+  .deck-workshop .collection-search > svg {
+    left: 12px;
+    width: 18px;
+    height: 18px;
+  }
+  .builder-small-button,
+  .builder-icon-button,
+  .gallery-arrows button {
+    height: 40px;
+    padding: 0 12px;
+    font-size: 14px;
+  }
+  .builder-icon-button,
+  .gallery-arrows button {
+    width: 40px;
+    padding: 0;
+  }
+  .filter-trigger b {
+    font-size: 12px;
+    padding: 2px 6px;
+  }
+  .deck-workshop .builder-deck-name {
+    min-height: 40px;
+    height: 40px;
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+  .builder-deck-count {
+    font-size: 14px;
+  }
+  .builder-deck-count b {
+    font-size: 15px;
+  }
+  .deck-type-tabs button {
+    height: 36px;
+    padding: 6px 10px;
+    font-size: 14px;
+  }
+  .deck-type-tabs button b {
+    font-size: 12px;
+  }
+  .deck-workshop .builder-save {
+    height: 40px;
+    min-height: 40px;
+    padding: 8px 14px;
+    font-size: 14px;
+  }
+  .builder-deck-actions {
+    gap: 8px;
+  }
+  .builder-deck-footer,
+  .builder-deck-footer > button {
+    font-size: 14px;
+  }
+  .dk-progress {
+    font-size: 14px;
+  }
+  .dk-progress b {
+    font-size: 16px;
+  }
+  .deck-purchase {
+    font-size: 14px;
+    padding: 9px 10px;
+  }
+  .deck-purchase > span > b {
+    font-size: 16px;
+  }
+  .deck-purchase .gold-button {
+    font-size: 14px;
+    min-height: 36px;
+    padding: 8px 12px;
+  }
+  .deck-purchase .crown-amount {
+    font-size: 14px;
+  }
+  .deck-purchase .crown-icon {
+    width: 18px;
+    height: 18px;
+  }
+  .dk-group h3 {
+    font-size: 18px;
+  }
+  .dk-group h3 span {
+    font-size: 13px;
+  }
+  .dk-row {
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+    height: 42px;
+  }
+  .dk-cost {
+    width: 26px;
+    height: 26px;
+    font-size: 13px;
+  }
+  .dk-name {
+    font-size: 14px;
+  }
+  .dk-copies b {
+    font-size: 14px;
+    min-width: 18px;
+  }
+  .dk-copies button {
+    width: 28px;
+    height: 28px;
+  }
+  .dk-curve {
+    height: 84px;
+  }
+  .dk-curve button,
+  .dk-curve small {
+    font-size: 12px;
+  }
+  .builder-deck-footer > span:first-child {
+    white-space: normal;
+    text-overflow: clip;
+    line-height: 1.3;
+  }
 }

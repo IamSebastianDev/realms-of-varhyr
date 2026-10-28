@@ -168,6 +168,7 @@ export function DeckDialogs() {
       {dialog === "details" && (
         <BuilderDialog
           title={msg("Deck details")}
+          className="deck-details"
           origin={sharingOrigin.current}
           close={() => setDialog(null)}
         >
@@ -247,7 +248,7 @@ export function DeckDialogs() {
                 })}
               >
                 <span>{count || ""}</span>
-                <i style={{ height: `${Math.max(2, (count / maxCurve) * 70)}px` }} />
+                <i style={{ height: `${Math.max(2, (count / maxCurve) * 70)}%` }} />
                 <small>{cost === 6 ? "6+" : cost}</small>
               </div>
             ))}

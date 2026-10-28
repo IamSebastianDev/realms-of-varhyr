@@ -25,7 +25,7 @@ import type {
 import { battlefieldPositions, castBindings, deckRules, positionName } from "@realms/contracts";
 import { describeAbility } from "@realms/extensions/describeAbility";
 import { energyProductionOptions } from "./production";
-export const RULES_VERSION = "varhir-rules-0.20";
+export const RULES_VERSION = "varhir-rules-0.21";
 const nonnegative = v.pipe(v.number(), v.integer(), v.minValue(0));
 const paymentSchema = v.record(v.pipe(v.string(), v.regex(/^[a-z][a-z0-9_-]*$/)), nonnegative);
 const commandSchema = v.variant("type", [
@@ -394,9 +394,9 @@ function blankPlayer(id: PlayerId, name: string): Player {
 }
 export const MULLIGAN_MAX = 2;
 const OPENING_HAND = 5;
-/** A creature that costs nothing and makes energy: the card a hand needs to get going. */
+/** A creature or holding that costs nothing and makes energy: the card a hand needs to get going. */
 const isFreeProducer = (card: CardDefinition, registry: Registry) =>
-  card.type === "creature" &&
+  card.type !== "spell" &&
   card.cost.generic + Object.values(card.cost.factions).reduce((sum, n) => sum + n, 0) === 0 &&
   energyProductionOptions(card, registry).some((output) =>
     Object.values(output).some((n) => n > 0),

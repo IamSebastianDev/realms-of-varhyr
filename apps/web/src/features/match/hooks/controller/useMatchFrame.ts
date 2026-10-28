@@ -152,8 +152,11 @@ export function useMatchFrame(
   );
   const slotTargets =
     draft?.slot !== undefined ? selectedLegal?.slotTargets?.[draft.slot] : undefined;
-  const targets =
-    stage === "target"
+  // A triggered ability that deals damage asks for its target on the board, like a spell: highlighted enemies, click one.
+  const damagePick = view.pending?.kind === "damage-target" ? view.pending : null;
+  const targets = damagePick
+    ? damagePick.options
+    : stage === "target"
       ? (selectedActivation?.targets ?? slotTargets ?? selectedLegal?.targets ?? [])
       : stage === "consume"
         ? (selectedLegal?.consumes ?? [])
@@ -189,6 +192,7 @@ export function useMatchFrame(
     draftLanes,
     forecast,
     selectedActivation,
+    damagePick,
     targets,
     you,
     opponent,

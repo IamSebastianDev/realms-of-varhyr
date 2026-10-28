@@ -7,9 +7,12 @@ export function BuilderDialog({
   title,
   close,
   origin,
+  className = "",
   children,
 }: {
   title: string;
+  /** Extra class for dialogs that need more room than the default 480px. */
+  className?: string;
   close: () => void;
   origin: HTMLElement | null;
   children: ReactNode;
@@ -29,7 +32,7 @@ export function BuilderDialog({
     <div className="modal-backdrop builder-dialog-backdrop" onClick={close}>
       <section
         ref={panel}
-        className="builder-dialog"
+        className={`builder-dialog ${className}`.trim()}
         role="dialog"
         aria-modal="true"
         aria-label={title}
