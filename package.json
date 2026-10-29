@@ -26,8 +26,6 @@
     "assets": "npm run generate -w @realms/tools",
     "schema:cards": "npm run schema:cards -w @realms/tools",
     "simulate": "npm run simulate -w @realms/tools",
-    "tune:bot": "npm run tune:bot -w @realms/tools",
-    "train:eval": "npm run train:eval -w @realms/tools",
     "audit:bot": "npm run audit:bot -w @realms/tools",
     "audit:balance": "npm run audit:balance -w @realms/tools",
     "prepare": "lefthook install"

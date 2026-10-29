@@ -8,8 +8,6 @@ import {
 } from "@realms/contracts";
 import { energyProductionOptions } from "./production";
 import { weights as W } from "./botWeights";
-import { features } from "./botFeatures";
-import { logit, model } from "./botModel";
 import {
   apply,
   autoPayment,
@@ -24,7 +22,7 @@ import {
   reachableLanes,
 } from "./index";
 
-type EnergyPlan = { pool: Pool; commands: Command[]; penalty: number };
+export type EnergyPlan = { pool: Pool; commands: Command[]; penalty: number };
 const add = (a: Pool, b: Pool): Pool => {
   const pool = { ...a };
   for (const key of Object.keys(b) as (keyof Pool)[]) pool[key] = (pool[key] ?? 0) + (b[key] ?? 0);
@@ -148,11 +146,7 @@ function positionValue(state: GameState, actor: PlayerId, registry: Registry): n
     handValue(p) +
     colorsOnBoard(state, p, registry).size * W.colors +
     state.players[p].board.reduce((n, id) => n + (id ? creatureValue(state, id, registry) : 0), 0);
-  const heuristic = value(actor) - value(other(actor));
-  return model && W.model > 0
-    ? (1 - W.model) * heuristic +
-        W.model * W.modelScale * logit(model, features(state, actor, registry))
-    : heuristic;
+  return value(actor) - value(other(actor));
 }
 function tryCommand(state: GameState, command: Command, registry: Registry): GameState | null {
   const result = apply(
@@ -164,7 +158,7 @@ function tryCommand(state: GameState, command: Command, registry: Registry): Gam
 }
 // At most five producers: enumerate output combinations, never permutations. This
 // uses only public board information and our own hand, not the opponent's hand.
-function energyPlans(state: GameState, registry: Registry): EnergyPlan[] {
+export function energyPlans(state: GameState, registry: Registry): EnergyPlan[] {
   const actor = decisionPlayer(state),
     inResponse = inResponseStep(state);
   let plans: EnergyPlan[] = [
@@ -214,7 +208,7 @@ function energyPlans(state: GameState, registry: Registry): EnergyPlan[] {
   }
   return plans.sort((a, b) => a.penalty - b.penalty || a.commands.length - b.commands.length);
 }
-function playOptions(state: GameState, id: string, registry: Registry): Command[] {
+export function playOptions(state: GameState, id: string, registry: Registry): Command[] {
   const card = legalActions(state, registry).playable.find((c) => c.cardId === id);
   if (!card) return [];
   const commands: Command[] = [];
@@ -756,32 +750,3 @@ export function botCommand(state: GameState, registry: Registry): Command {
   if (state.combat?.stage === "review") return { type: "confirm-combat" };
   return { type: "end" };
 }
-
-/** For search tools: the best few first commands of a play step (plus ending the turn), ranked by the one-ply plan. */
-export function playCandidates(state: GameState, registry: Registry, k = 4): Command[] {
-  const { moves } = collectMoves(state, registry);
-  const seen = new Set<string>(),
-    out: Command[] = [];
-  for (const move of [...moves].sort((a, b) => b.score - a.score)) {
-    const key = JSON.stringify(move.command);
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push(move.command);
-    if (out.length >= k) break;
-  }
-  return [...out, { type: "end" }];
-}
-/** For search tools: the planned attack, no attack, and the plan with each single attacker held back. */
-export function attackCandidates(state: GameState, registry: Registry): Command[] {
-  const plan = chooseAttacks(state, registry);
-  if (plan.type !== "attack") return [plan];
-  const variants: Command[] = [plan, { type: "attack", attackers: [], lanes: {} }];
-  for (const held of plan.attackers)
-    variants.push({
-      type: "attack",
-      attackers: plan.attackers.filter((id) => id !== held),
-      lanes: Object.fromEntries(Object.entries(plan.lanes ?? {}).filter(([id]) => id !== held)),
-    });
-  return variants;
-}
-export const evaluatePosition = positionValue;

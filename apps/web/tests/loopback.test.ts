@@ -86,3 +86,92 @@ describe("a match on this machine is a loopback room around the online authority
     session.leave();
   });
 });
+
+describe("asynchronous opponent decisions", () => {
+  function opponentTurn() {
+    let state = startMatch(17);
+    for (let i = 0; i < 100 && decisionPlayer(state) !== "p2"; i++) {
+      const result = apply(
+        state,
+        {
+          actor: decisionPlayer(state),
+          expectedRevision: state.revision,
+          command: botCommand(state, registry),
+        },
+        registry,
+      );
+      if (result.error) throw new Error(result.error);
+      state = result.state;
+    }
+    return new MatchAuthority(registry, "async", state);
+  }
+  it("waits for a worker result and keeps phase changes gated", async () => {
+    const authority = opponentTurn();
+    let resolve!: (command: { type: "end" }) => void;
+    const room = new LoopbackRoom(authority, {
+      seat: "p2",
+      play: () =>
+        new Promise((done) => {
+          resolve = done;
+        }),
+      delay: () => 10,
+    });
+    const revision = authority.fullState.revision;
+    expect(room.getSnapshot().bot?.thinking).toBe(true);
+    resolve({ type: "end" });
+    await Promise.resolve();
+    expect(room.getSnapshot().bot?.gate).toEqual({ type: "end" });
+    expect(authority.fullState.revision).toBe(revision);
+    room.leave();
+  });
+  it("discards a late answer while held or after leaving and disposes its worker", async () => {
+    const authority = opponentTurn();
+    const answers: ((command: { type: "end" }) => void)[] = [];
+    const dispose = vi.fn();
+    const room = new LoopbackRoom(authority, {
+      seat: "p2",
+      play: () =>
+        new Promise((done) => {
+          answers.push(done);
+        }),
+      delay: () => 10,
+      dispose,
+    });
+    const revision = authority.fullState.revision;
+    room.setHold(true);
+    answers[0]({ type: "end" });
+    await Promise.resolve();
+    expect(room.getSnapshot().bot?.gate).toBeNull();
+    room.setHold(false);
+    room.leave();
+    answers[1]({ type: "end" });
+    await Promise.resolve();
+    expect(authority.fullState.revision).toBe(revision);
+    expect(dispose).toHaveBeenCalledOnce();
+  });
+  it("ignores a result for an obsolete revision", async () => {
+    const authority = opponentTurn();
+    let resolve!: (command: { type: "end" }) => void;
+    const room = new LoopbackRoom(authority, {
+      seat: "p2",
+      play: () =>
+        new Promise((done) => {
+          resolve = done;
+        }),
+      delay: () => 10,
+    });
+    // A replay/resume or authoritative action may advance the match while search runs.
+    const changed = authority.act("p2", {
+      id: "outside",
+      revision: authority.snapshot("p2").view.revision,
+      intent: { kind: "command", command: botCommand(authority.fullState, registry) },
+    });
+    expect(changed.error).toBeUndefined();
+    const revision = authority.fullState.revision;
+    resolve({ type: "end" });
+    await Promise.resolve();
+    expect(room.getSnapshot().bot?.gate).toBeNull();
+    expect(authority.fullState.revision).toBe(revision);
+    room.leave();
+  });
+});

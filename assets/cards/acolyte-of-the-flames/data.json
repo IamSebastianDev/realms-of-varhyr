@@ -3,7 +3,6 @@
   "id": "acolyte-of-the-flames",
   "revision": 1,
   "name": "Acolyte of the Flames",
-  "lore": "The League keeps its lighthouses burning all night. He keeps the lighthouse keepers burning too.",
   "deckLimitKey": "acolyte-of-the-flames",
   "type": "creature",
   "factions": [
@@ -13,7 +12,7 @@
     "human"
   ],
   "legendary": false,
-  "rarity": "rare",
+  "rarity": "common",
   "cost": {
     "generic": 2,
     "factions": {
@@ -22,7 +21,7 @@
   },
   "stats": {
     "attack": 2,
-    "defense": 3,
+    "defense": 4,
     "energyOutputs": [
       {
         "northern-league": 2
@@ -37,5 +36,6 @@
       }
     }
   ],
+  "lore": "The League keeps its lighthouses burning all night. He keeps the lighthouse keepers burning too.",
   "set": "foundations"
 }

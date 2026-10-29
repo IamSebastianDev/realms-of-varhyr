@@ -47,6 +47,8 @@ Both players need the same build. Host a room, share the eight-character code, a
 
 Keep the host tab open: if the host reloads, the match is gone. A guest can reload and rejoin from the same tab. This is a trusted-friends setup and does not protect against a dishonest host. Details and the optional signaling variables (`VITE_PEER_*`, `VITE_RTC_ICE_SERVERS`) are in [docs/multiplayer.md](docs/multiplayer.md).
 
+Practice opponents compare complete turn plans with simulated opponent replies in a browser worker. The original heuristic remains available for comparisons and as a fallback; see [the planner and evaluation guide](docs/bot-search.md).
+
 Local matches use the same machinery as online ones. The bot is simply a remote seat answered by a loopback room around the same authority, so there is one match session class and one place where the rules are enforced.
 
 ## Make cards
@@ -86,6 +88,7 @@ npm run build            # generate assets, type-check and build apps/web/dist
 npm run build:studio     # build apps/studio/dist
 npm run simulate         # complete matches with exact replay
 npm run audit:bot        # starter matchup audit
+npm run compare:bot -w @realms/tools -- tactics # planner vs baseline tactical screen
 npm run audit:balance -- --pairs 1000   # paired mirror matches, first player reversed
 npm run preview          # serve the built site
 ```

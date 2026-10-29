@@ -3298,6 +3298,34 @@ describe("single blockers and simultaneous retaliation", () => {
       ).toBeTruthy();
       assertInvariants(player);
     });
+    it("only offers targets that are still there when the spell that triggered it has resolved", () => {
+      const cards = structuredClone(raw),
+        spell = cards.find((c) => c.id === "cleansing-light")!;
+      spell.cost = { generic: 1, factions: {} };
+      spell.subtypes = ["rite"];
+      spell.cast = [{ id: "damage", params: { amount: 9 } }];
+      cards.find((c) => c.id === "forest-sprite")!.abilities = [
+        { id: "kindle", params: { amount: 1, subtype: "rite" } },
+      ];
+      const r = compileContent(cards, abilities);
+      let s = setup(r);
+      fixture(s, "forest-sprite", "p1", "board", 0);
+      const doomed = fixture(s, "clan-scout", "p2", "board", 3),
+        spared = fixture(s, "clan-scout", "p2", "board", 1),
+        card = fixture(s, "cleansing-light", "p1", "hand");
+      s.players.p1.energy = { neutral: 1 };
+      s = step(s, { type: "play", cardId: card, target: doomed }, "p1", r);
+      expect(s.cards[doomed].zone).toBe("discard");
+      const pending = s.pending!;
+      if (pending.kind !== "damage-target") throw new Error("Expected a damage target choice.");
+      // A creature that died to the spell is no longer a target, and the rest still are.
+      expect(pending.options).not.toContain(doomed);
+      expect(pending.options).toContain(spared);
+      expect(pending.options).toContain("p2");
+      const done = step(s, { type: "choose", choiceId: pending.id, option: spared }, "p1", r);
+      expect(done.pending).toBeNull();
+      assertInvariants(done);
+    });
     it("ignores spells of another subtype, and any spell triggers it without one", () => {
       expect(cast(kindleRegistry({ amount: 1, subtype: "strike" })).s.pending).toBeNull();
       expect(cast(kindleRegistry({ amount: 1 })).s.pending?.kind).toBe("damage-target");

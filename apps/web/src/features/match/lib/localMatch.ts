@@ -1,4 +1,4 @@
-import { botCommand } from "@realms/core/bot";
+import { BrowserBot } from "./browserBot";
 import { registry } from "@realms/content";
 import { MatchAuthority } from "@realms/multiplayer/authority";
 import { opponentCommand, opponentMoves } from "../../tutorial/tutorial";
@@ -18,6 +18,7 @@ export function createLocalMatch(
   saved?: Pick<SavedMatch, "matchId" | "commands">,
 ): { session: LiveMatchSession; script: TutorialScript } {
   const script: TutorialScript = { active: !!setup.tutorial };
+  const bot = setup.mode === "hotseat" ? null : new BrowserBot(registry);
   const authority = saved
     ? MatchAuthority.resume(registry, saved.matchId, setup.initial, saved.commands)
     : new MatchAuthority(registry, crypto.randomUUID(), setup.initial);
@@ -28,8 +29,9 @@ export function createLocalMatch(
           seat: "p2",
           play: (state, log) =>
             (script.active ? opponentCommand(state, opponentMoves(log)) : null) ??
-            botCommand(state, registry),
+            bot!.choose(state),
           delay: (state) => (state.combat?.stage === "review" ? 1800 : reduced ? 130 : 650),
+          dispose: () => bot!.dispose(),
         };
   const session = new LiveMatchSession(new LoopbackRoom(authority, opponent));
   if (!setup.tutorial) trackSavedMatch(session, setup);

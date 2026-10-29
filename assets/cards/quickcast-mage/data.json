@@ -3,7 +3,6 @@
   "id": "quickcast-mage",
   "revision": 1,
   "name": "Quickcast Mage",
-  "lore": "He finishes the spell before the sentence ends. The sentence has stopped trying to keep up.",
   "deckLimitKey": "quickcast-mage",
   "type": "creature",
   "factions": [
@@ -13,7 +12,7 @@
     "human"
   ],
   "legendary": false,
-  "rarity": "rare",
+  "rarity": "common",
   "cost": {
     "generic": 1,
     "factions": {
@@ -42,5 +41,6 @@
       }
     }
   ],
+  "lore": "He finishes the spell before the sentence ends. The sentence has stopped trying to keep up.",
   "set": "foundations"
 }

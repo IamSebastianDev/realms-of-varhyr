@@ -8,6 +8,7 @@
     "name": "Ledgers and Lightning",
     "cards": {
       "academy-apprentice": 3,
+      "acolyte-of-the-flames": 1,
       "arcane-missile": 2,
       "borrowed-wisdom": 1,
       "dockhand-construct": 3,
@@ -16,17 +17,15 @@
       "oerson-keeper-of-scrolls": 1,
       "peek": 2,
       "quickcast-mage": 1,
-      "refuse-entry": 1,
+      "refuse-entry": 2,
       "return-home": 2,
       "revenge": 1,
       "rimholdt-channeler": 1,
       "rimholdt-forester": 3,
-      "search-the-archives": 1,
       "sellwords": 2,
-      "stavnay-fjord": 1,
       "store-house": 1,
-      "stormborn-captain": 1,
-      "weather-the-storm": 1
+      "storm-surge": 1,
+      "stormborn-captain": 1
     }
   }
 }

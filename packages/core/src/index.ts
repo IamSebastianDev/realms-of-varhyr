@@ -28,7 +28,7 @@ import { energyProductionOptions } from "./production";
 export const RULES_VERSION = "varhir-rules-0.21";
 const nonnegative = v.pipe(v.number(), v.integer(), v.minValue(0));
 const paymentSchema = v.record(v.pipe(v.string(), v.regex(/^[a-z][a-z0-9_-]*$/)), nonnegative);
-const commandSchema = v.variant("type", [
+export const commandSchema = v.variant("type", [
   v.object({
     type: v.literal("play"),
     cardId: v.string(),
@@ -647,8 +647,13 @@ class Transaction {
   }
   detach(card: CardInstance) {
     const p = this.state.players[card.owner];
-    if (card.zone === "board") this.state.players[card.controller].board[card.slot!] = null;
-    else if (card.zone === "hand") p.hand = p.hand.filter((id) => id !== card.id);
+    if (card.zone === "board") {
+      this.state.players[card.controller].board[card.slot!] = null;
+      // A choice opened earlier in the same resolution (kindle, before its spell finishes) must not offer a card that left.
+      const open = this.state.pending;
+      if (open?.kind === "damage-target")
+        open.options = open.options.filter((id) => id !== card.id);
+    } else if (card.zone === "hand") p.hand = p.hand.filter((id) => id !== card.id);
     else if (card.zone === "discard") p.discard = p.discard.filter((id) => id !== card.id);
     else if (card.zone === "deck") p.deck = p.deck.filter((id) => id !== card.id);
     card.slot = null;

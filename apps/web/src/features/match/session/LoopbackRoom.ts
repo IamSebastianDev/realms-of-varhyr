@@ -14,9 +14,13 @@ import type { MatchRoom, RoomView } from "./MatchSession";
 export type Opponent = {
   seat: PlayerId;
   /** The command to play now, or null to wait. Receives the authority's full state and command log. */
-  play: (state: GameState, log: readonly CommandEnvelope[]) => Command | null;
+  play: (
+    state: GameState,
+    log: readonly CommandEnvelope[],
+  ) => Command | null | Promise<Command | null>;
   /** Milliseconds to wait before playing. */
   delay: (state: GameState) => number;
+  dispose?: () => void;
 };
 
 /** A match against someone on this machine: the same authority an online host runs, with the other seat played in-process.
@@ -30,6 +34,7 @@ export class LoopbackRoom implements MatchRoom {
   private view: RoomView;
   private closed = false;
   private error: string | undefined;
+  private request = 0;
   constructor(
     private authority: MatchAuthority,
     private opponent?: Opponent,
@@ -125,10 +130,12 @@ export class LoopbackRoom implements MatchRoom {
   leave() {
     this.closed = true;
     this.clearTimer();
+    this.opponent?.dispose?.();
     this.listeners.clear();
   }
 
   private clearTimer() {
+    this.request++;
     if (this.timer) clearTimeout(this.timer);
     this.timer = null;
   }
@@ -150,7 +157,37 @@ export class LoopbackRoom implements MatchRoom {
       }
       return;
     }
-    const command = opponent.play(state, authority.log);
+    const request = this.request;
+    this.resolveCommand(opponent.play(state, authority.log), request, state, (command) =>
+      this.queueOpponent(command, state),
+    );
+  }
+  private resolveCommand(
+    result: Command | null | Promise<Command | null>,
+    request: number,
+    state: GameState,
+    ready: (command: Command) => void,
+  ) {
+    const current = () =>
+      !this.closed &&
+      !this.hold &&
+      this.request === request &&
+      this.authority.fullState === state &&
+      decisionPlayer(this.authority.fullState) === this.opponent?.seat;
+    const resolved = (command: Command | null) => {
+      if (command && current()) ready(command);
+    };
+    if (result && "then" in result) {
+      void result.then(resolved).catch((error: unknown) => {
+        if (!current()) return;
+        this.error =
+          error instanceof Error ? error.message : "The opponent could not choose a move.";
+        this.publish();
+      });
+    } else resolved(result);
+  }
+  private queueOpponent(command: Command, state: GameState) {
+    const opponent = this.opponent!;
     if (!command) return;
     // Phase changes wait for the player to press the button, so they see what the opponent did first.
     if (
@@ -179,10 +216,16 @@ export class LoopbackRoom implements MatchRoom {
     )
       return;
     // The script may have moved on while we waited; ask again, and fall back to what was planned.
-    this.submit(opponent.seat, {
-      kind: "command",
-      command: opponent.play(authority.fullState, authority.log) ?? planned,
-    });
+    const request = this.request,
+      state = authority.fullState;
+    const result = opponent.play(authority.fullState, authority.log);
+    const chosen =
+      result && "then" in result
+        ? result.then((command) => command ?? planned)
+        : (result ?? planned);
+    this.resolveCommand(chosen, request, state, (command) =>
+      this.submit(opponent.seat, { kind: "command", command }),
+    );
   }
 }
 

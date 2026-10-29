@@ -3,7 +3,6 @@
   "id": "rimholdt-channeler",
   "revision": 1,
   "name": "Rimholdt Channeler",
-  "lore": "In Rimholdt the tide does the work. She only has to ask politely.",
   "deckLimitKey": "rimholdt-channeler",
   "type": "creature",
   "factions": [
@@ -22,7 +21,7 @@
   },
   "stats": {
     "attack": 1,
-    "defense": 2,
+    "defense": 3,
     "energyOutputs": [
       {
         "northern-league": 1
@@ -35,5 +34,6 @@
       "params": {}
     }
   ],
+  "lore": "In Rimholdt the tide does the work. She only has to ask politely.",
   "set": "foundations"
 }

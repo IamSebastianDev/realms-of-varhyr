@@ -1,8 +1,6 @@
-/**
- * Every number the bot's judgement rests on. The defaults are the shipped behaviour; scripts/tune-bot.ts searches for
- * better ones by self-play. Weights are read at decision time, so a change is picked up immediately and stays
- * deterministic as long as every client uses the same values.
- */
+/** Weights for the fallback bot and specialized choice/response helpers.
+ * The turn planner has its own evaluator in botSearch.ts. Balance tools can
+ * override these values at decision time without introducing randomness. */
 export type BotWeights = {
   /** Value of one life point. */ life: number;
   /** Value of a playable card in hand. */ hand: number;
@@ -18,8 +16,6 @@ export type BotWeights = {
   spendBase: number;
   /** Bonus for a card that replaces itself. */ cycle: number;
   /** A play must beat this to be worth making instead of passing. */ minPlay: number;
-  /** How much the learned evaluator (botModel.json) counts against the hand-written one, 0 to 1, and its log-odds scale. */ model: number;
-  modelScale: number;
   /** Combat: share of a creature's value counted for killing a blocker and for losing the attacker; value of unblocked damage. */ killBlocker: number;
   loseAttacker: number;
   openDamage: number;
@@ -52,8 +48,6 @@ export const defaultWeights: BotWeights = {
   killBlocker: 0.85,
   loseAttacker: 0.9,
   openDamage: 4,
-  model: 0,
-  modelScale: 12,
   resolve: 1,
   tempBuff: 0.25,
   freshCycle: 1,

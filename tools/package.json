@@ -11,11 +11,10 @@
     "schema:cards": "tsx src/generate-card-schema.ts",
     "check:css": "node src/check-css.mjs",
     "simulate": "tsx src/simulate.ts",
-    "tune:bot": "tsx src/tune-bot.ts tune",
-    "train:eval": "tsx src/train-eval.ts train",
     "audit:bot": "tsx src/audit-bot.ts",
     "audit:balance": "tsx src/audit-first-player.ts",
     "audit:cards": "tsx src/audit-cards.ts",
+    "compare:bot": "node --import tsx src/compare-bots.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
