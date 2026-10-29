@@ -812,3 +812,55 @@
 .goal-claim:hover {
   filter: brightness(1.08);
 }
+
+.recent-matches ul {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.recent-matches li {
+  display: grid;
+  grid-template-columns: 4.5em minmax(0, 1fr) auto;
+  grid-template-areas:
+    "result title watch"
+    "result meta watch";
+  align-items: center;
+  column-gap: 14px;
+  padding: 8px 0;
+  border-top: 1px solid rgb(var(--bronze-rgb) / 0.18);
+}
+.recent-matches .recent-result {
+  grid-area: result;
+  font: 500 18px var(--serif);
+  color: var(--ink-3);
+}
+.recent-matches .recent-result.won {
+  color: var(--gilt-bright);
+}
+.recent-matches .recent-result.lost {
+  color: var(--danger-text);
+}
+.recent-matches .recent-title {
+  grid-area: title;
+  font-size: 14px;
+  color: var(--gilt-pale);
+}
+.recent-matches li small {
+  grid-area: meta;
+  font-size: 11px;
+  color: var(--ink-2);
+}
+.recent-matches li .outline-button {
+  grid-area: watch;
+}
+.settings-group.recent-matches {
+  align-items: flex-start;
+}
+.settings-group.recent-matches > div {
+  width: 100%;
+}
+.settings-group.recent-matches p {
+  max-width: none;
+}

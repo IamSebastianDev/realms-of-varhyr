@@ -13,6 +13,7 @@ import { completeAllAchievements, useGoals } from "../../goals/stores/goalsStore
 import { RULES_VERSION } from "@realms/core";
 import { registry } from "@realms/content";
 import { ReplayMatchSession, type MatchSession } from "../../match/session/MatchSession";
+import { RecentMatches } from "../../match/components/RecentMatches";
 import {
   updatePreferences,
   usePreferences,
@@ -357,6 +358,7 @@ export function SettingsPage({
               />
             </label>
           </section>
+          <RecentMatches watch={watch} />
         </>
       )}
       {tab === "data" && (

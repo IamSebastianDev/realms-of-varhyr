@@ -10,6 +10,8 @@ import { buildRecord } from "../../stats/lib/record";
 import { recordFinishedMatch } from "../../stats/stores/ledgerStore";
 import { reportFight } from "../../quest/stores/questStore";
 import { reportDraftResult } from "../../draft/stores/draftStore";
+import { saveRecentMatch } from "../lib/recentMatches";
+import { RULES_VERSION } from "@realms/core";
 import type { SessionSnapshot } from "../session/MatchSession";
 
 /**
@@ -108,5 +110,23 @@ export function useMatchOutcome({
       online,
     });
     if (built) recordFinishedMatch(built.record, built.cards);
+  }, [state.outcome]); // eslint-disable-line react-hooks/exhaustive-deps
+  // The last few matches stay watchable. Online matches have no complete log on this side, so they are not kept.
+  useEffect(() => {
+    if (!state.outcome || watching || online || !setup || setup.tutorial) return;
+    saveRecentMatch({
+      id: sessionSnapshot.matchId || String(initial.seed),
+      at: new Date().toISOString(),
+      rules: RULES_VERSION,
+      content: registry.version,
+      seat: "p1",
+      deckName: (customDeck ?? starterDefinitions.find((s) => s.id === deck))?.name ?? "",
+      opponentName: setup.initial.players.p2.name,
+      mode: setup.quest ? "quest" : setup.draft ? "draft" : setup.mode,
+      result: state.outcome === "p1" ? "won" : state.outcome === "draw" ? "draw" : "lost",
+      turns: state.turn,
+      initial: setup.initial,
+      commands: [...commands],
+    });
   }, [state.outcome]); // eslint-disable-line react-hooks/exhaustive-deps
 }

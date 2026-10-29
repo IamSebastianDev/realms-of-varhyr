@@ -63,6 +63,10 @@ export class RtcRoom {
       message: "Connecting to the room service…",
       snapshot: null,
     };
+    if (role === "host" && typeof window !== "undefined") {
+      window.addEventListener("beforeunload", this.warnBeforeExit);
+      window.addEventListener("pagehide", this.concedeOnExit);
+    }
     if (role === "guest")
       try {
         // Keep the seat identity in this tab so a guest reload can rejoin the same host match.
@@ -73,6 +77,32 @@ export class RtcRoom {
         /* Reconnect within this page still works without storage. */
       }
   }
+  private get hosting() {
+    return (
+      !this.closed &&
+      this.state.role === "host" &&
+      !!this.authority &&
+      !this.authority.fullState.outcome
+    );
+  }
+  /** Reloading or closing the host's tab ends the match for both players, so the browser is asked to confirm first.
+   * Browsers show their own wording here; the prompt only has to exist. */
+  private warnBeforeExit = (event: BeforeUnloadEvent) => {
+    if (!this.hosting) return;
+    event.preventDefault();
+    event.returnValue = "";
+  };
+  /** The guest cannot play on without the host, so a host who leaves concedes and tells the guest before the page goes. */
+  concedeOnExit = () => {
+    if (!this.hosting) return;
+    const authority = this.authority!;
+    authority.act("p1", {
+      id: crypto.randomUUID(),
+      revision: authority.snapshot("p1").view.revision,
+      intent: { kind: "command", command: { type: "concede" } },
+    });
+    if (this.connection) this.safeSend(this.connection, authority.snapshot("p2"));
+  };
   static async host(name: string, deck: MatchDeck, back?: string) {
     const room = new RtcRoom("host", newRoomCode(), name, structuredClone(deck), back);
     await room.initialize();
@@ -466,6 +496,10 @@ export class RtcRoom {
   }
   leave() {
     this.closed = true;
+    if (typeof window !== "undefined") {
+      window.removeEventListener("beforeunload", this.warnBeforeExit);
+      window.removeEventListener("pagehide", this.concedeOnExit);
+    }
     for (const timer of this.timers) clearTimeout(timer);
     this.timers.clear();
     this.peer?.destroy();
