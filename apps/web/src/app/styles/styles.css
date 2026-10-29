@@ -4671,36 +4671,6 @@ select option {
   height: 100%;
   box-shadow: 0 5px 20px #05050580;
 }
-.booster-card-caption {
-  text-align: center;
-  margin-top: 12px;
-  min-height: 35px;
-  transition: opacity 0.25s;
-  color: #cbc9c4;
-}
-.booster-card-caption.unrevealed {
-  opacity: 0;
-}
-.booster-card-caption > span {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 4px;
-  font-size: 10px;
-  text-transform: capitalize;
-}
-.booster-card-caption small {
-  display: block;
-  font-size: 9px;
-  margin-top: 5px;
-  color: #bfbdb8;
-}
-.rarity-rare .booster-card-caption > span {
-  color: #d1cdc4;
-}
-.rarity-legendary .booster-card-caption > span {
-  color: #ffe2a0;
-}
 .booster-slot.rarity-legendary.revealed .art-card {
   box-shadow:
     0 0 0 2px #f2d18366,
@@ -4824,12 +4794,6 @@ select option {
     gap: 13px 10px;
     padding-inline: 0;
   }
-  .booster-card-caption > span {
-    font-size: 9px;
-  }
-  .booster-card-caption small {
-    font-size: 8px;
-  }
   .booster-toolbar {
     padding: 13px;
     gap: 12px;
@@ -4851,10 +4815,6 @@ select option {
   }
   .booster-grid {
     padding-bottom: 12px;
-  }
-  .booster-card-caption {
-    min-height: 30px;
-    margin-top: 8px;
   }
   .booster-actions {
     margin-top: 14px;

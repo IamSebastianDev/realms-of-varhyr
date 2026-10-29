@@ -29,7 +29,8 @@ export const collectionRules = {
   packBundle: { count: 10, cost: 900 },
   victoryCrowns: 25,
   victoryBoosters: 1,
-  duplicateCrowns: { common: 10, rare: 25, legendary: 100 },
+  /** Copies past the ownership limit are sold for crowns; a spare common is worth nothing. */
+  duplicateCrowns: { common: 0, rare: 25, legendary: 100 },
   /** Buying a specific card costs far more than the roughly 20 crowns per card a booster works out to. */
   cardCrowns: { common: 50, rare: 150, legendary: 400 },
 } as const;

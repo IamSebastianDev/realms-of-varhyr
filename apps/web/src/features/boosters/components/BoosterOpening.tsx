@@ -1,6 +1,6 @@
 import { useAudio } from "../../../app/providers/AudioProvider";
 import { FactionIcon } from "@realms/renderer/FactionIcon";
-import { t as msg, useLanguage } from "@realms/ui/i18n";
+import { t as msg, useLanguage, formatNumber } from "@realms/ui/i18n";
 import { lazy, Suspense, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { ArrowRight, Crown, X } from "lucide-react";
 import { registry } from "@realms/content";
@@ -8,7 +8,7 @@ import type { BoosterPack } from "@realms/content/boosters";
 import type { CardDefinition } from "@realms/contracts";
 import type { BoosterCardReward } from "../lib/boosterRewards";
 import { ArtCard } from "@realms/ui/CardPresentation";
-import { CrownAmount } from "../../../components/Crowns";
+import { CrownIcon } from "../../../components/Crowns";
 import type { LightBurst } from "./BoosterLight3D";
 import { carouselPack, hasWebGL, SceneBoundary } from "./packScene";
 
@@ -197,12 +197,24 @@ export function BoosterOpening({
             <span>V</span>
           </div>
           <div className="booster-card-front" aria-hidden={!visible} inert={!visible}>
-            <ArtCard
-              card={card}
-              reduced={reduced}
-              onClick={() => inspect(card)}
-              className="booster-card"
-            />
+            {reward.crowns ? (
+              // A spare rare or legendary turns into its crowns: they take the card's place.
+              <div
+                className="booster-crown-face"
+                role="img"
+                aria-label={msg("{v0} crowns", { v0: reward.crowns })}
+              >
+                <CrownIcon tilt className="booster-crown-coin" />
+                <b>{formatNumber(reward.crowns)}</b>
+              </div>
+            ) : (
+              <ArtCard
+                card={card}
+                reduced={reduced}
+                onClick={() => inspect(card)}
+                className="booster-card"
+              />
+            )}
           </div>
           {waiting && (
             <button
@@ -215,24 +227,6 @@ export function BoosterOpening({
         {bursts.includes(index) && !reduced && !scene3d && (
           <span className="booster-rise" aria-hidden="true" />
         )}
-        <div
-          className={`booster-card-caption ${visible ? "" : "unrevealed"}`}
-          aria-hidden={!visible}
-        >
-          <span>{card.rarity}</span>
-          {reward.crowns ? (
-            <div className="booster-crown-reward">
-              <CrownAmount amount={reward.crowns} />
-              <small>{msg("Extra copy sold")}</small>
-            </div>
-          ) : (
-            <small>
-              {reward.isNew
-                ? msg("New to your collection")
-                : msg("+1 copy · {v0} owned", { v0: reward.copies })}
-            </small>
-          )}
-        </div>
       </div>
     );
   }
@@ -342,13 +336,6 @@ export function BoosterOpening({
             )}
           </p>
         )}
-        <div
-          className={`booster-crown-total ${complete && crowns > 0 ? "" : "idle"}`}
-          aria-hidden={!(complete && crowns > 0)}
-        >
-          {msg("Earned")}
-          <CrownAmount amount={crowns} />
-        </div>
         <footer className="booster-actions">
           {!complete ? (
             <button
@@ -371,11 +358,6 @@ export function BoosterOpening({
               </button>
             </>
           )}
-          <small>
-            {canOpenAnother
-              ? msg("More of these boosters are waiting in your inventory.")
-              : msg("No more of this booster. Crowns can buy another in the store.")}
-          </small>
         </footer>
       </section>
     </div>

@@ -363,16 +363,6 @@
   padding-top: 0;
   padding-bottom: 0;
 }
-.booster-backdrop .booster-card-caption {
-  min-height: 62px;
-}
-.booster-backdrop .booster-crown-total {
-  min-height: 34px;
-  margin-top: 8px;
-}
-.booster-backdrop .booster-crown-total.idle {
-  visibility: hidden;
-}
 @container stage (max-width: 860px) {
   .booster-backdrop .booster-grid {
     height: auto;
@@ -483,9 +473,6 @@
   .booster-backdrop .booster-actions {
     margin-top: 10px;
   }
-  .booster-backdrop .booster-crown-total {
-    margin-top: 4px;
-  }
   .booster-backdrop .booster-slot {
     width: min(
       calc((100% - 4 * clamp(14px, 2cqw, 34px)) / 5),
@@ -546,15 +533,6 @@
   box-shadow:
     0 0 0 2px rgb(246 217 138 / 0.6),
     0 0 44px rgb(240 185 79 / 0.5);
-}
-.booster-backdrop .booster-slot.rarity-rare.revealed .booster-card-caption > span,
-.booster-backdrop .booster-slot.rarity-legendary.revealed .booster-card-caption > span {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-}
-.booster-backdrop .booster-slot.rarity-rare.revealed .booster-card-caption > span {
-  color: rgb(214 190 250);
 }
 .booster-backdrop .booster-slot.rarity-rare.revealed .booster-flip::after,
 .booster-backdrop .booster-slot.rarity-legendary.revealed .booster-flip::after {

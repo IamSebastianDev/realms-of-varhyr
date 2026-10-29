@@ -168,6 +168,7 @@
   "Human": "Mensch",
   "Concede": "Aufgeben",
   "Keep playing": "Weiterspielen",
+  "Match in progress": "Spiel läuft noch",
   "Give up this match? Your opponent wins.": "Dieses Spiel aufgeben? Dein Gegner gewinnt.",
   "{v0} concedes. {v1} wins.": "{v0} gibt auf. {v1} gewinnt.",
   "Dragon": "Drache",

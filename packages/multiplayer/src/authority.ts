@@ -4,6 +4,7 @@ import {
   createMatch,
   decisionPlayer,
   projectForPlayer,
+  replay,
   RULES_VERSION,
   validateDeck,
 } from "@realms/core";
@@ -58,6 +59,22 @@ export class MatchAuthority {
       if (backs?.[1]) this.initial.players.p2.cardBack = backs[1];
     } else this.initial = structuredClone(start);
     this.state = structuredClone(this.initial);
+  }
+  /** Pick a match up where it stopped: its start and every command accepted since. Throws if they no longer replay
+   * on this build, so a stale save is refused instead of resumed in a wrong position. */
+  static resume(
+    registry: Registry,
+    matchId: string,
+    initial: GameState,
+    commands: readonly CommandEnvelope[],
+  ): MatchAuthority {
+    const authority = new MatchAuthority(registry, matchId, initial);
+    const log = structuredClone([...commands]);
+    authority.state = replay(initial, log, registry);
+    authority.commands = log;
+    // Wire revisions only need to rise from here on; the number itself is private to this process.
+    authority.revision = log.length;
+    return authority;
   }
   /** Host-side access for seats that run inside the authority's own process (a bot, the tutorial script). Never sent to a client. */
   get fullState(): GameState {

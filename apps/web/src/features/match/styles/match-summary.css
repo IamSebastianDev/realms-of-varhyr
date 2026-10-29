@@ -693,3 +693,23 @@ button.peek-toggle.on svg {
   font-size: 14px;
   color: var(--ink-3);
 }
+
+.resume-dialog {
+  max-width: 460px;
+}
+.resume-dialog > .resume-position {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  color: var(--ink-3);
+  margin: 6px 0 0;
+}
+.resume-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 22px;
+}
