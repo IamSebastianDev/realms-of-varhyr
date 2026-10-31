@@ -1,0 +1,43 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "council-of-the-marches",
+  "revision": 1,
+  "name": "Council of the Marches",
+  "deckLimitKey": "council-of-the-marches",
+  "type": "spell",
+  "factions": [
+    "bright-marches"
+  ],
+  "subtypes": [
+    "rite"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "bright-marches": 2
+    }
+  },
+  "abilities": [],
+  "timing": [
+    "play"
+  ],
+  "cast": [
+    {
+      "id": "draw",
+      "params": {
+        "amount": 2
+      }
+    },
+    {
+      "id": "bolster",
+      "params": {
+        "attack": 2,
+        "defense": 2
+      }
+    }
+  ],
+  "set": "faces-of-the-realm",
+  "lore": "They came beneath their own banners. For the first time, they stood beneath one another's."
+}

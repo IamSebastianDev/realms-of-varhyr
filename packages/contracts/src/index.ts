@@ -92,7 +92,15 @@ export type PendingChoice =
   /** The player sees the opponent's hand (`options` are those card IDs) and picks one; the opponent discards it. */
   | { id: string; player: PlayerId; kind: "hand-discard"; options: string[]; sourceName: string }
   /** The player picks one of their own library cards (`options`, one per distinct card, cheapest first) to put into their hand. */
-  | { id: string; player: PlayerId; kind: "library-pick"; options: string[]; sourceName: string }
+  | {
+      id: string;
+      player: PlayerId;
+      kind: "library-pick";
+      options: string[];
+      sourceName: string;
+      /** A multiple search: `options` lists every matching creature. One `choose` with the option "apply" and `picks` takes up to `picks` of them, together costing at most `budget`; the option "stop" takes none. */
+      limit?: { picks: number; budget: number };
+    }
   /** The player picks what a triggered ability damages: `options` are the enemy cards on the field and the enemy player's id. */
   | {
       id: string;
@@ -170,7 +178,14 @@ export type Command =
   /** Answers a pending opening-hand choice; an empty list keeps the hand. */
   | { type: "mulligan"; cardIds: string[] }
   /** `other` says where the unchosen drawn card goes: the discard pile (default) or under the library. */
-  | { type: "choose"; choiceId: string; option: string | number; other?: "discard" | "bottom" }
+  | {
+      type: "choose";
+      choiceId: string;
+      option: string | number;
+      other?: "discard" | "bottom";
+      /** A multiple search (`library-pick` with `limit`): the cards to take, sent with the option "apply". */
+      picks?: string[];
+    }
   | { type: "end" }
   /** Gives the match to the opponent. Allowed at any time, also when it is not your decision. */
   | { type: "concede" };
@@ -194,6 +209,8 @@ export type InternalOrder =
   | { type: "search-subtype"; player: PlayerId; subtype: string; first?: boolean; source?: string }
   /** Lets the player pick a creature or holding with a total energy cost of `maxCost` or less from the library for the hand; `first` takes the topmost one instead. Finding nothing is allowed. */
   | { type: "search-cost"; player: PlayerId; maxCost: number; first?: boolean; source?: string }
+  /** Lets the player take up to `count` creatures from the library for the hand, one choice at a time, with a combined energy cost of `budget` or less. */
+  | { type: "search-creatures"; player: PlayerId; count: number; budget: number; source?: string }
   /** Reveals the opponent's hand to `player`, who then chooses one card for the opponent to discard. */
   | { type: "ransack"; player: PlayerId; source?: string }
   /** Puts cards from the top of a library into its owner's discard pile. Never empties the library on its own. */
@@ -266,6 +283,13 @@ export type AbilityExtension = {
     registry: Registry,
     state?: BattlefieldState,
   ) => { attack?: number; defense?: number };
+  /** Continuous: reduces the cost of `card` for the source's controller while the source is on the battlefield, by `amount` of one energy type ("neutral" is generic cost). Nothing goes below zero. */
+  discount?: (
+    source: CardInstance,
+    card: CardInstance,
+    params: Record<string, unknown>,
+    registry: Registry,
+  ) => { energy: string; amount: number } | undefined;
   /** Pure restriction on an attacker/blocker pair; returning false forbids it.
    * Evaluated on abilities of both participants, with their owning card as source. */
   canBlock?: (

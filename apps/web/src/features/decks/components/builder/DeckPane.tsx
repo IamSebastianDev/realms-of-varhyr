@@ -126,21 +126,38 @@ export function DeckPane() {
           />
         </i>
       </div>
-      {purchase.copies > 0 && (
+      {(purchase.copies > 0 || purchase.adventureOnly > 0) && (
         <div className="deck-purchase" role="status">
-          <span>
-            <b>{purchase.copies}</b> {msg("cards to collect")}
-            <CrownAmount amount={purchase.crowns} />
-          </span>
-          <button
-            className="gold-button"
-            disabled={!canBuyMissing}
-            title={!canBuyMissing ? msg("Not enough crowns.") : undefined}
-            onClick={buyMissing}
-          >
-            <ShoppingBag size={14} />
-            {msg("Buy missing cards")}
-          </button>
+          {purchase.copies > 0 && (
+            <span>
+              <b>{purchase.copies}</b> {msg("cards to collect")}
+              <CrownAmount amount={purchase.crowns} />
+            </span>
+          )}
+          {purchase.adventureOnly > 0 && (
+            <span>
+              {msg("{v0} cards must be earned in adventures", { v0: purchase.adventureOnly })}
+            </span>
+          )}
+          {purchase.copies > 0 && (
+            <button
+              className="gold-button"
+              disabled={!canBuyMissing}
+              title={
+                !canBuyMissing
+                  ? msg(
+                      purchase.adventureOnly
+                        ? "Some cards must be earned in adventures."
+                        : "Not enough crowns.",
+                    )
+                  : undefined
+              }
+              onClick={buyMissing}
+            >
+              <ShoppingBag size={14} />
+              {msg("Buy missing cards")}
+            </button>
+          )}
         </div>
       )}
       <div

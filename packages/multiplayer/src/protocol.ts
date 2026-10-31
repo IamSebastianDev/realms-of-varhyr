@@ -92,6 +92,7 @@ const pending = v.variant("kind", [
     kind: v.literal("library-pick"),
     options: v.array(text),
     sourceName: v.string(),
+    limit: v.optional(v.object({ picks: v.number(), budget: v.number() })),
   }),
   v.object({
     id: text,

@@ -265,3 +265,8 @@
     height: 54px;
   }
 }
+
+.game-setup-pane .setup-modes {
+  grid-template-columns: repeat(3, 1fr);
+  margin-bottom: 22px;
+}

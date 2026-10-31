@@ -36,10 +36,14 @@ export function startMatch(
   playerName?: string,
   playerAvatar?: string,
   draft = false,
+  playerMinimumCards?: number,
 ): GameState {
   const chosen = customDeck ?? content.starters.find((starter) => starter.id === deck);
   if (!chosen) throw new Error(`Unknown starter deck: ${deck}`);
-  const errors = validateDeck(chosen.cards, content.registry, { draft });
+  const errors = validateDeck(chosen.cards, content.registry, {
+    draft,
+    minimumCards: playerMinimumCards,
+  });
   if (errors.length) throw new Error(errors.join(" "));
   const requested =
     opponentChoice && !validateDeck(opponentChoice.cards, content.registry, { draft }).length
@@ -50,6 +54,7 @@ export function startMatch(
   let state = createMatch(content.registry, [chosen.cards, opponent.cards], seed, {
     mulligan: true,
     draft,
+    playerMinimumCards,
   });
   state.players.p1.name = playerName?.trim() || chosen.name;
   state.players.p2.name = opponent.id === chosen.id ? `${opponent.name} · opponent` : opponent.name;
@@ -90,8 +95,8 @@ export type MatchSetup = {
   /** Local identity for a once-only victory reward; independent of shuffle seed. */
   rewardId?: string;
   rewardEligible?: boolean;
-  /** A fight on the quest map; the result is reported back to the run. */
-  quest?: { run: string; node: string };
+  /** A fight on an adventure's route; the result is reported back to the run. */
+  adventure?: { run: string; node: string };
   /** A match of a faction draft run; the result is recorded in the run. */
   draft?: { preset: string; run: string; match: number };
   /** The guided first match: scripted opponent, no rewards. */

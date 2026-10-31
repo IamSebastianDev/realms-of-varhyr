@@ -30,7 +30,7 @@ export function DraftBlade({ open }: { open: (preset: string) => void }) {
   return (
     <div className="draft-blade">
       <h3 className="setup-label">{msg(preset.name)}</h3>
-      <p className="quest-goal">
+      <p className="draft-goal">
         {msg(
           "Draft a faction with two others, then choose a second one. Build a deck from your 48 picks and play each of them twice. Your wins decide the payout, and you keep every card.",
         )}

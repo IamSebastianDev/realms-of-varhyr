@@ -4,7 +4,7 @@ import { energyProductionOptions } from "@realms/core/production";
 import { drawCard } from "@realms/content/boosters";
 import { factions as namedFactions } from "@realms/content/factions";
 import { neutralId } from "@realms/content/factionDefinition";
-import { makeRng, type Rng } from "@realms/quest/rng";
+import { makeRng, type Rng } from "@realms/core/rng";
 
 /**
  * The faction draft. Three drafters (you and two bots) open a pack each, pick one card and pass the rest on.

@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Gytha, Schildmaid",
+  "lore": "Ihr Herr verweigerte seinen Eid. Gytha brachte dennoch ihren Schild."
+}

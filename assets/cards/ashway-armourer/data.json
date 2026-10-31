@@ -25,14 +25,7 @@
       }
     ]
   },
-  "abilities": [
-    {
-      "id": "banner",
-      "params": {
-        "amount": 1
-      }
-    }
-  ],
+  "abilities": [],
   "lore": "Every blade of the warband passed over this anvil. About half were paid for.",
   "set": "foundations"
 }

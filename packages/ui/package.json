@@ -10,8 +10,7 @@
     "./*.css": "./src/*.css",
     "./CardDetail": "./src/CardDetail.tsx",
     "./CardPresentation": "./src/CardPresentation.tsx",
-    "./i18n": "./src/i18n/index.tsx",
-    "./siteIcons": "./src/siteIcons.tsx"
+    "./i18n": "./src/i18n/index.tsx"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
@@ -22,7 +21,6 @@
     "@realms/content": "*",
     "@realms/contracts": "*",
     "@realms/extensions": "*",
-    "@realms/quest": "*",
     "@realms/renderer": "*",
     "lucide-react": "^0.468.0",
     "react": "^19.2.0",

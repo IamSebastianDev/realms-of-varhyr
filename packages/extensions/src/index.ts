@@ -46,6 +46,7 @@ import {
   sameController,
   searchLibrary,
   searchLibraryByCost,
+  searchLibraryForCreatures,
   searchLibraryForSubtype,
   sourceOnFlank,
   targetHasSubtype,
@@ -76,6 +77,11 @@ const searchForCreatureOrHoldingSchema = v.strictObject({
   maxCost: v.pipe(v.number(), v.integer(), v.minValue(0)),
   first: v.optional(v.boolean()),
 });
+/** Up to `count` creatures (at least 2) with a combined energy cost (generic plus faction) of `maxTotalCost` or less; the player picks them one at a time and may stop early. */
+const searchForCreaturesSchema = v.strictObject({
+  count: v.pipe(v.number(), v.integer(), v.minValue(2)),
+  maxTotalCost: v.pipe(v.number(), v.integer(), v.minValue(1)),
+});
 /** Counts the discard-pile cards of these types; every friendly creature gets that much of `stat`. */
 const dirgeSchema = v.strictObject({
   cards: v.pipe(
@@ -94,6 +100,12 @@ const prowessSchema = v.union([
 const kindleSchema = v.strictObject({
   amount: positive,
   subtype: v.optional(v.picklist(spellSubtypes)),
+});
+/** Friendly creatures and holdings (of the `subtype`, when given) cost `amount` less of one energy type: "neutral" for generic, else a faction. */
+const costReductionSchema = v.strictObject({
+  amount: positive,
+  energy: v.pipe(v.string(), v.minLength(1)),
+  subtype: v.optional(v.pipe(v.string(), v.minLength(1))),
 });
 const drillSchema = v.strictObject({
   amount: positive,
@@ -353,6 +365,47 @@ export const evergreenAbilities: AbilityExtension[] = [
     ),
     // As a spell operation, the same search resolves when the spell is cast.
     cast: run(searchLibraryByCost(param<number>("maxCost"), param<boolean>("first", false))),
+  }),
+
+  extension("searchForCreatures", searchForCreaturesSchema, {
+    translations: {
+      de: {
+        description:
+          "Suche in deiner Bibliothek bis zu {count} Kreaturen mit Energiekosten von zusammen {maxTotalCost} oder weniger und nimm sie auf die Hand.",
+        fieldDescription:
+          "Beim Ausspielen: Suche in deiner Bibliothek bis zu {count} Kreaturen mit Energiekosten von zusammen {maxTotalCost} oder weniger und nimm sie auf die Hand.",
+      },
+    },
+    description:
+      "Search your library for up to {count} creatures with a combined energy cost of {maxTotalCost} or less and put them into your hand.",
+    fieldDescription:
+      "When played, search your library for up to {count} creatures with a combined energy cost of {maxTotalCost} or less and put them into your hand.",
+    announce: true,
+    hooks: whenPlayed(
+      searchLibraryForCreatures(param<number>("count"), param<number>("maxTotalCost")),
+    ),
+    // As a spell operation, the same search resolves when the spell is cast.
+    cast: run(searchLibraryForCreatures(param<number>("count"), param<number>("maxTotalCost"))),
+  }),
+
+  extension("costReduction", costReductionSchema, {
+    translations: {
+      de: {
+        description:
+          "{?subtype|Eigene Kreaturen und Besitzungen der Art {subtype}|Eigene Kreaturen und Besitzungen} kosten {amount} {energy}-Energie weniger.",
+      },
+    },
+    description:
+      "{?subtype|Friendly {subtype} creatures and holdings|Friendly creatures and holdings} cost {amount} less {energy} energy to play.",
+    discount: (source, card, params, registry) => {
+      const def = registry.cards[card.definitionId];
+      return source.zone === "board" &&
+        source.controller === card.owner &&
+        def.type !== "spell" &&
+        (!params.subtype || def.subtypes.includes(params.subtype as string))
+        ? { energy: params.energy as string, amount: params.amount as number }
+        : undefined;
+    },
   }),
 
   extension(

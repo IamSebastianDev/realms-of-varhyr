@@ -11,13 +11,13 @@ import { validateDeck } from "@realms/core";
 import { missingDeckCopies } from "../../collection/lib/collection";
 import { showcaseOf } from "../../decks/components/DeckShelf";
 import "../styles/game-setup.css";
-import { QuestPicker } from "../../quest/components/QuestPicker";
+import { AdventurePicker } from "../../adventure/components/AdventurePicker";
 import { DraftBlade } from "../../draft/components/DraftBlade";
 import { MultiplayerLobby } from "../../multiplayer/components/MultiplayerLobby";
 import type { MatchSession } from "../../match/session/MatchSession";
 import { cardArtUrl } from "../../../lib/cardArtUrl";
 
-export type SetupMode = "practice" | "hotseat" | "online" | "quest" | "draft";
+export type SetupMode = "practice" | "hotseat" | "online" | "adventure" | "draft";
 type Props = {
   mode: SetupMode;
   setMode: (mode: SetupMode) => void;
@@ -29,7 +29,7 @@ type Props = {
   opponentId: string;
   setOpponentId: (id: string) => void;
   start: (skirmish: boolean) => void;
-  startQuest: () => void;
+  startAdventure: () => void;
   openDraft: (preset: string) => void;
   startSession: (session: MatchSession) => void;
 };
@@ -90,10 +90,10 @@ export function GameSetup(props: Props) {
   const missing = chosen ? missingDeckCopies(chosen.cards, props.ownedCopies) : [];
   const issues = chosen ? validateDeck(chosen.cards, registry) : [msg("Choose a deck.")];
   const playable = !!chosen && !issues.length && !missing.length;
-  const playing = props.mode !== "quest" && props.mode !== "draft";
+  const playing = props.mode !== "adventure" && props.mode !== "draft";
   const title =
-    props.mode === "quest"
-      ? msg("Quest")
+    props.mode === "adventure"
+      ? msg("Adventure")
       : props.mode === "draft"
         ? msg("Faction draft")
         : msg("Play a match");
@@ -182,8 +182,8 @@ export function GameSetup(props: Props) {
               </button>
             </div>
           )}
-          {props.mode === "quest" ? (
-            <QuestPicker onStarted={props.startQuest} />
+          {props.mode === "adventure" ? (
+            <AdventurePicker onStarted={props.startAdventure} />
           ) : props.mode === "draft" ? (
             <DraftBlade open={props.openDraft} />
           ) : props.mode === "online" ? (

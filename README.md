@@ -74,7 +74,9 @@ Two of the spell effects have parameters worth knowing: `raise` takes a creature
 
 The complete guide, with JSON templates, ability tables, targeting kinds and hooks, is [assets/README.md](assets/README.md). A genuinely new mechanic needs an engine handler and a test.
 
-**Card studio:** `npm run dev:studio` opens a local form editor over the same folders. It is a development tool and is not deployed.
+**Studio:** `npm run dev:studio` opens a local editor over the same folders. Choose the repository folder in Chrome or Edge, then use the Adventures tab to edit route maps, links, story beats, artwork, opponents, random encounter pools and decks. Adventures are validated before saving to `assets/adventures`; updating one starts a new revision, so an existing run cannot continue. Story rewards and choice conditions use the advanced effects format. The studio is a development tool and is not deployed.
+
+Adventure story effects can use `{ "type": "recruit", "card": "card-id" }` for a legendary: it joins the run deck and is recorded for the account reward at the end, whether the run is won or lost. Use `"addToDeck": false` for an encountered character who does not join the company. Legendary cards in the starting deck are also collected. Each run pays each discovered card once; duplicates convert to the normal legendary duplicate reward. Cards in `faces-of-the-realm` are earned from adventures rather than bought or opened from ordinary boosters.
 
 ## Check your changes
 

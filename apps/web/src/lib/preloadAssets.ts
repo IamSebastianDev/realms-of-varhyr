@@ -4,6 +4,8 @@ import { cardBacks, cardBackArt } from "../features/card-backs/lib/cardBacks";
 import { audioUrls } from "../app/providers/AudioProvider";
 import { preloadPacks } from "../features/boosters/components/packScene";
 import { factionArenas, fallbackArena } from "../features/match/lib/arenas";
+import { adventures } from "../features/adventure/stores/adventureStore";
+import { adventureArtworkUrls } from "../features/adventure/lib/adventureMedia";
 
 /** Images that were preloaded stay referenced here, so the browser keeps them decoded and ready. */
 const held = new Map<string, HTMLImageElement>();
@@ -69,6 +71,16 @@ export function preloadAssets(
         "/art/screen-store.jpg",
         "/art/screen-profile.jpg",
       ]).map(image),
+    ],
+    [
+      msg("Loading adventure"),
+      [
+        ...unique(adventures.flatMap(adventureArtworkUrls)).map(image),
+        () =>
+          import("../features/adventure/components/AdventureTable").then(
+            ({ preloadAdventureTable }) => preloadAdventureTable(adventures),
+          ),
+      ],
     ],
     [msg("Loading cards"), unique(cards).map(image)],
     [msg("Loading card backs"), cardBacks.map((back) => image(cardBackArt(back.id)))],

@@ -10,6 +10,7 @@ import {
 import { CrownAmount } from "../../../components/Crowns";
 import { t as msg, useLanguage } from "@realms/ui/i18n";
 import { OwnershipPips } from "../../../components/OwnershipPips";
+import { isAdventureExclusive } from "@realms/content/acquisition";
 
 /** Ownership and a "Buy a copy" action for the card inspector. `buy` spends crowns and grants one copy. */
 export function CardPurchase({
@@ -35,29 +36,35 @@ export function CardPurchase({
         <span>{msg("{v0} of {v1} copies owned", { v0: Math.min(owned, limit), v1: limit })}</span>
       </div>
       <div className="card-purchase-buy">
-        <button
-          className="gold-button"
-          disabled={full || short}
-          aria-label={msg("Buy a copy of {v0} for {v1} crowns", { v0: card.name, v1: price })}
-          title={
-            full
-              ? msg("All {v0} copies owned", { v0: limit })
-              : short
-                ? msg("Not enough crowns. A copy costs {v0}.", { v0: price })
-                : undefined
-          }
-          onClick={() => {
-            buy();
-            setBought(true);
-          }}
-        >
-          {full ? msg("All {v0} copies owned", { v0: limit }) : msg("Buy a copy")}
-          {!full && <CrownAmount amount={price} />}
-        </button>
-        {!full && (
-          <span className="card-purchase-wallet">
-            {msg("You have")} <CrownAmount amount={collection.crowns} />
-          </span>
+        {isAdventureExclusive(card) ? (
+          <span>{msg("Earn this card in an adventure.")}</span>
+        ) : (
+          <>
+            <button
+              className="gold-button"
+              disabled={full || short}
+              aria-label={msg("Buy a copy of {v0} for {v1} crowns", { v0: card.name, v1: price })}
+              title={
+                full
+                  ? msg("All {v0} copies owned", { v0: limit })
+                  : short
+                    ? msg("Not enough crowns. A copy costs {v0}.", { v0: price })
+                    : undefined
+              }
+              onClick={() => {
+                buy();
+                setBought(true);
+              }}
+            >
+              {full ? msg("All {v0} copies owned", { v0: limit }) : msg("Buy a copy")}
+              {!full && <CrownAmount amount={price} />}
+            </button>
+            {!full && (
+              <span className="card-purchase-wallet">
+                {msg("You have")} <CrownAmount amount={collection.crowns} />
+              </span>
+            )}
+          </>
         )}
       </div>
       <p className="card-purchase-status" role="status">

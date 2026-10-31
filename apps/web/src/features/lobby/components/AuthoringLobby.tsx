@@ -5,7 +5,10 @@ import { useEffect, useState } from "react";
 import { defaultDeckId } from "@realms/content";
 import { Lobby } from "./Lobby";
 import type { Screen } from "../lib/lobbyTypes";
-import { setWantsQuestScreen, wantsQuestScreen } from "../../quest/stores/questStore";
+import {
+  setWantsAdventureScreen,
+  wantsAdventureScreen,
+} from "../../adventure/stores/adventureStore";
 import { setWantsDraftScreen, wantsDraftScreen } from "../../draft/stores/draftStore";
 import { decksKey, parseDecks, starterOptions, type CustomDeck } from "../../decks/lib/decks";
 import { randomSeed, type MatchSetup } from "../../match/lib/session";
@@ -28,9 +31,9 @@ export function AuthoringLobby({
   const { collection } = useCollection();
   const { reduced } = usePreferences();
   const [screen, setScreen] = useState<Exclude<Screen, "match">>(() => {
-    if (wantsQuestScreen()) {
-      setWantsQuestScreen(false);
-      return "quest";
+    if (wantsAdventureScreen()) {
+      setWantsAdventureScreen(false);
+      return "adventure";
     }
     if (wantsDraftScreen()) {
       setWantsDraftScreen(false);
@@ -138,7 +141,7 @@ export function AuthoringLobby({
         startSession={onSessionStart}
         learn={() => onStart(startTutorial())}
         beginMatch={onStart}
-        questFight={false}
+        adventureFight={false}
       />
       {error && (
         <div className="toast" role="alert">

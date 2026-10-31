@@ -14,6 +14,7 @@ import {
   blockerFor,
   combatDamage,
   decisionPlayer,
+  effectiveCost,
   effectiveStats,
   inResponseStep,
   legalActions,
@@ -346,7 +347,7 @@ function collectMoves(state: GameState, registry: Registry): { moves: Move[]; ba
       // Do not score spare energy as value: it expires at the phase boundary.
       if (state.phase !== "play" || inResponseStep(state)) continue;
       for (const plan of plans) {
-        if (!autoPayment(plan.pool, def.cost)) continue;
+        if (!autoPayment(plan.pool, effectiveCost(state, id, registry))) continue;
         const ready = fund(plan);
         if (!ready) continue;
         for (const ritual of playOptions(ready, id, registry)) {
@@ -416,7 +417,8 @@ function collectMoves(state: GameState, registry: Registry): { moves: Move[]; ba
       continue;
     if (def.type === "spell" && !def.timing?.includes(inResponseStep(state) ? "response" : "play"))
       continue;
-    const plan = plans.find((plan) => autoPayment(plan.pool, def.cost));
+    const cost = effectiveCost(state, id, registry);
+    const plan = plans.find((plan) => autoPayment(plan.pool, cost));
     if (!plan) continue; // No speculative partial payments for unreachable costs.
     // Keep the last slot available when an existing hand upgrade can be paid
     // next readiness cycle. Filling it with a weaker free body locks the board.
@@ -446,7 +448,7 @@ function collectMoves(state: GameState, registry: Registry): { moves: Move[]; ba
           return (
             alternative.type !== "spell" &&
             creatureValue(state, cid, registry) > creatureValue(state, id, registry) + 2 &&
-            future.some((f) => autoPayment(f.pool, alternative.cost))
+            future.some((f) => autoPayment(f.pool, effectiveCost(state, cid, registry)))
           );
         })
       )
@@ -658,6 +660,29 @@ export function botCommand(state: GameState, registry: Registry): Command {
               (economy(totalOutput(state, actor, registry) + outputOf(state, id, registry)) -
                 economy(totalOutput(state, actor, registry)))
           : 0;
+      if (choice.limit) {
+        // Take the most valuable set that fits the pick count and the energy budget.
+        const price = (id: string) => {
+          const cost = registry.cards[state.cards[id].definitionId].cost;
+          return cost.generic + Object.values(cost.factions).reduce((a, b) => a + b, 0);
+        };
+        const { picks, budget } = choice.limit;
+        let bestSet: string[] = [],
+          bestValue = 0;
+        const walk = (from: number, set: string[], left: number, total: number) => {
+          if (total > bestValue) ((bestValue = total), (bestSet = set));
+          if (set.length >= picks) return;
+          for (let i = from; i < choice.options.length; i++) {
+            const id = choice.options[i];
+            if (price(id) <= left)
+              walk(i + 1, [...set, id], left - price(id), total + value(id) + 1e-6);
+          }
+        };
+        walk(0, [], budget, 0);
+        return bestSet.length
+          ? { type: "choose", choiceId: choice.id, option: "apply", picks: bestSet }
+          : { type: "choose", choiceId: choice.id, option: "stop" };
+      }
       const best = choice.options.reduce((a, b) => (value(b) > value(a) ? b : a));
       return { type: "choose", choiceId: choice.id, option: best };
     }

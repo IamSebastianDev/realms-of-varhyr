@@ -1,0 +1,1068 @@
+{
+  "id": "bright-marches",
+  "revision": 10,
+  "faction": "bright-marches",
+  "set": "foundations",
+  "name": {
+    "en": "Bosci's Struggle",
+    "de": "Boscis Ringen"
+  },
+  "premise": {
+    "en": "A lord of no lineage comes to resent the Emperor’s yoke. Gather allies, face the raiders and earn the loyalty of thanes who owe you nothing.",
+    "de": "Ein Herr ohne Stammbaum spürt das Joch des Kaisers immer schwerer. Sammle Verbündete, stelle dich den Plünderern und gewinne die Treue von Thanen, die dir nichts schulden."
+  },
+  "starterDeck": {
+    "seacliffe-fisherman": 3,
+    "riverlands-shipwrights": 3,
+    "westhill-smith": 3,
+    "marcher-axeman": 2,
+    "hearth-guard": 1,
+    "longship": 1,
+    "sellwords": 1,
+    "puncture": 1,
+    "volley": 1,
+    "wooden-fort": 1,
+    "bosci-lord-of-seacliffe": 1,
+    "seacliffe-castle": 1,
+    "oakholme-bowmen": 1
+  },
+  "start": "start",
+  "nodes": [
+    {
+      "id": "start",
+      "type": "event",
+      "x": 50,
+      "y": 96,
+      "next": [
+        "appeal"
+      ],
+      "event": "appointment"
+    },
+    {
+      "id": "appeal",
+      "type": "event",
+      "x": 56,
+      "y": 90.59,
+      "next": [
+        "clan-road",
+        "scavengers"
+      ],
+      "event": "appeal"
+    },
+    {
+      "id": "clan-road",
+      "type": "battle",
+      "x": 38.7,
+      "y": 85.5,
+      "next": [
+        "camp-road"
+      ],
+      "enemy": "clan-raiders"
+    },
+    {
+      "id": "scavengers",
+      "type": "battle",
+      "x": 62.2,
+      "y": 83.3,
+      "next": [
+        "farm"
+      ],
+      "enemy": "road-scavengers"
+    },
+    {
+      "id": "camp-road",
+      "type": "improve",
+      "x": 35,
+      "y": 77.6,
+      "next": [
+        "ford"
+      ],
+      "label": {
+        "en": "Camp",
+        "de": "Lager"
+      }
+    },
+    {
+      "id": "farm",
+      "type": "event",
+      "x": 67.3,
+      "y": 76.8,
+      "next": [
+        "ford"
+      ],
+      "event": "farm"
+    },
+    {
+      "id": "ford",
+      "type": "event",
+      "x": 48.1,
+      "y": 70.8,
+      "next": [
+        "bank-fight-1",
+        "bank-fight-2"
+      ],
+      "event": "ford"
+    },
+    {
+      "id": "bank-fight-1",
+      "type": "battle",
+      "x": 30.1,
+      "y": 69.3,
+      "next": [
+        "market-ford"
+      ],
+      "pool": "easy"
+    },
+    {
+      "id": "bank-fight-2",
+      "type": "battle",
+      "x": 72.8,
+      "y": 68.3,
+      "next": [
+        "shrine"
+      ],
+      "pool": "easy"
+    },
+    {
+      "id": "market-ford",
+      "type": "shop",
+      "x": 23.7,
+      "y": 60.2,
+      "next": [
+        "oakholmes"
+      ],
+      "label": {
+        "en": "Market",
+        "de": "Markt"
+      }
+    },
+    {
+      "id": "shrine",
+      "type": "event",
+      "x": 77.5,
+      "y": 61.3,
+      "next": [
+        "oakholmes"
+      ],
+      "event": "shrine"
+    },
+    {
+      "id": "oakholmes",
+      "type": "event",
+      "x": 49.9,
+      "y": 55.8,
+      "next": [
+        "hill-fight-1",
+        "hill-fight-2"
+      ],
+      "event": "oakholmes"
+    },
+    {
+      "id": "hill-fight-1",
+      "type": "battle",
+      "x": 37.1,
+      "y": 52.7,
+      "next": [
+        "deserters"
+      ],
+      "pool": "early"
+    },
+    {
+      "id": "hill-fight-2",
+      "type": "battle",
+      "x": 78.4,
+      "y": 53.6,
+      "next": [
+        "camp-hills"
+      ],
+      "enemy": "road-raiders"
+    },
+    {
+      "id": "deserters",
+      "type": "event",
+      "x": 32.1,
+      "y": 44,
+      "next": [
+        "westhill"
+      ],
+      "event": "deserters"
+    },
+    {
+      "id": "camp-hills",
+      "type": "improve",
+      "x": 65.5,
+      "y": 46,
+      "next": [
+        "westhill"
+      ],
+      "label": {
+        "en": "Camp",
+        "de": "Lager"
+      }
+    },
+    {
+      "id": "westhill",
+      "type": "event",
+      "x": 46,
+      "y": 41.88,
+      "next": [
+        "envoy"
+      ],
+      "event": "westhill"
+    },
+    {
+      "id": "envoy",
+      "type": "event",
+      "x": 56,
+      "y": 36.47,
+      "next": [
+        "crown-patrol",
+        "fen-road-1",
+        "fen-road-2"
+      ],
+      "event": "envoy"
+    },
+    {
+      "id": "crown-patrol",
+      "type": "elite",
+      "x": 17.8,
+      "y": 22.3,
+      "next": [
+        "grendel"
+      ],
+      "enemy": "imperial-patrol"
+    },
+    {
+      "id": "fen-road-1",
+      "type": "battle",
+      "x": 47.8,
+      "y": 29.7,
+      "next": [
+        "market-fens"
+      ],
+      "pool": "late"
+    },
+    {
+      "id": "fen-road-2",
+      "type": "battle",
+      "x": 75.2,
+      "y": 31.9,
+      "next": [
+        "moor"
+      ],
+      "pool": "late"
+    },
+    {
+      "id": "market-fens",
+      "type": "shop",
+      "x": 57.9,
+      "y": 25.9,
+      "next": [
+        "grendel"
+      ],
+      "label": {
+        "en": "Market",
+        "de": "Markt"
+      }
+    },
+    {
+      "id": "moor",
+      "type": "event",
+      "x": 74.5,
+      "y": 22.9,
+      "next": [
+        "grendel"
+      ],
+      "event": "moor"
+    },
+    {
+      "id": "grendel",
+      "type": "event",
+      "x": 37.5,
+      "y": 19.6,
+      "next": [
+        "fen-battle"
+      ],
+      "event": "grendel"
+    },
+    {
+      "id": "fen-battle",
+      "type": "final",
+      "x": 46.7,
+      "y": 13,
+      "next": [
+        "council"
+      ],
+      "enemy": "fen-raiders"
+    },
+    {
+      "id": "council",
+      "type": "event",
+      "x": 62,
+      "y": 9.41,
+      "next": [
+        "warden"
+      ],
+      "event": "council"
+    },
+    {
+      "id": "warden",
+      "type": "event",
+      "x": 50,
+      "y": 4,
+      "next": [],
+      "event": "warden"
+    }
+  ],
+  "events": [
+    {
+      "id": "appointment",
+      "title": {
+        "en": "Lord of Seacliffe",
+        "de": "Herr von Seacliffe"
+      },
+      "art": "story-appointment",
+      "beats": [
+        {
+          "en": "In the year 773 of the empire, the imperial records show, a man named Bosci, of no known family or lineage, was granted the seat of Seacliffe. He had served the Emperor faithfully in the auxiliary ranks, and fought the Emperor’s foes in more wars than the clerks troubled to list. The charter is brief. It says nothing of the roofs that leaked, the boats rotting on the shingle, or the garrison that watched its new lord with folded arms.",
+          "de": "Im Jahr 773 des Reiches, so verzeichnen es die kaiserlichen Annalen, wurde ein Mann namens Bosci, von unbekannter Familie und ohne bekannte Ahnen, mit dem Sitz Seacliffe belehnt. Er hatte dem Kaiser in den Hilfstruppen treu gedient und in mehr Kriegen gegen dessen Feinde gefochten, als die Schreiber zu verzeichnen sich die Mühe machten. Die Urkunde ist knapp. Von den undichten Dächern, den Booten, die am Strand verrotteten, und der Garnison, die ihren neuen Herrn mit verschränkten Armen musterte, steht darin nichts."
+        },
+        {
+          "en": "Three years later, Seacliffe was no longer a small seat. Bosci had won his neighbours by turns with feasts and with spears, bargaining with some thanes and breaking others, until the whole coast answered to his hall. And Bosci, who had once been grateful for the Emperor’s charter, began to feel the yoke of the empire settle on his shoulders. He started to look for a way to shrug it off.",
+          "de": "Drei Jahre später war Seacliffe kein kleiner Sitz mehr. Bosci hatte seine Nachbarn mal mit Festmählern, mal mit Speeren für sich gewonnen: Mit manchen Thanen verhandelte er, andere brach er, bis die ganze Küste seiner Halle gehorchte. Und Bosci, der dem Kaiser für die Urkunde einst dankbar gewesen war, spürte nun das Joch des Reiches auf seinen Schultern. Er begann nach einem Weg zu suchen, es abzuschütteln."
+        }
+      ],
+      "effects": []
+    },
+    {
+      "id": "appeal",
+      "title": {
+        "en": "A Call from Oakholmes",
+        "de": "Ein Hilferuf aus Oakholmes"
+      },
+      "art": "story-appeal",
+      "beats": [
+        {
+          "en": "I remember the night the doors of Seacliffe’s hall were thrown open and a young warrior of Oakholmes stumbled in out of the dark. His horse stood ridden to ruin outside. He had a burn on his forearm and smoke in his clothes, and for a moment he could only stand there, rain running from his cloak, while the whole hall stared.",
+          "de": "Ich erinnere mich an die Nacht, in der die Tore der Halle von Seacliffe aufgestoßen wurden und ein junger Krieger aus Oakholmes aus der Dunkelheit hereintaumelte. Draußen stand sein zuschanden gerittenes Pferd. Er hatte eine Brandwunde am Unterarm und Rauch in den Kleidern, und einen Augenblick lang konnte er nur dastehen, den Regen im Mantel, während die ganze Halle ihn anstarrte."
+        },
+        {
+          "en": "He carried a plea from his thane, Odric. Raiders of the Mountain Clans had come down from the passes. Homes and farmsteads were burning in the west, and the thanes of the Marches, who agreed on nothing, were arguing over whose warriors should ride first while the fires spread. “Odric says you know how to fight them,” the boy said. “Odric says you owe the Marches nothing, and he asks anyway.”",
+          "de": "Er brachte die Bitte seines Thanen Odric. Plünderer der Bergclans waren aus den Pässen herabgestiegen. Im Westen brannten Häuser und Gehöfte, und die Thanen der Marken, die sich über nichts einig waren, stritten darüber, wessen Krieger zuerst reiten sollten, während die Feuer um sich griffen. „Odric sagt, Ihr wisst, wie man sie bekämpft“, sagte der Junge. „Odric sagt, Ihr schuldet den Marken nichts, und er bittet trotzdem.“"
+        },
+        {
+          "en": "Bosci did not answer at once. I watched him look at the Emperor’s banner above the high seat, and then at the boy. Then he sent for his captains. By dawn we were on the inland road.",
+          "de": "Bosci antwortete nicht sofort. Ich sah, wie er zum Banner des Kaisers über dem Hochsitz blickte und dann zu dem Jungen. Dann ließ er seine Hauptleute rufen. Bei Tagesanbruch waren wir auf der Straße landeinwärts."
+        }
+      ],
+      "effects": []
+    },
+    {
+      "id": "ford",
+      "title": {
+        "en": "The Warden of the Ford",
+        "de": "Der Wächter der Furt"
+      },
+      "art": "story-ford",
+      "beats": [
+        {
+          "en": "At the river we found the wardens waiting, spread along the bank with their spears grounded. Their captain, Maelin, stood knee-deep in the shallows and made no move to step aside. He had seen armed men invited into the Marches before, and he knew what hospitality cost the villages left behind.",
+          "de": "Am Fluss fanden wir die Wächter wartend, über das Ufer verteilt, die Speere aufgestützt. Ihr Hauptmann Maelin stand knietief im Wasser und machte keine Anstalten, beiseitezutreten. Er hatte schon früher bewaffnete Männer in die Marken laden sehen und wusste, was Gastfreundschaft die zurückbleibenden Dörfer kostet."
+        },
+        {
+          "en": "“My charge is the ford,” he said when Bosci rode down to the water. “Not the seal on your letter.” Bosci did not argue. He swore to defend the villages on both banks, as many as the river fed. Maelin considered it for a long time, the current pulling at his legs.",
+          "de": "„Ich hüte die Furt“, sagte er, als Bosci zum Wasser hinabritt. „Nicht das Siegel auf Eurem Brief.“ Bosci stritt nicht. Er schwor, die Dörfer auf beiden Ufern zu schützen, so viele, wie der Fluss nährte. Maelin überlegte lange, die Strömung zerrte an seinen Beinen."
+        },
+        {
+          "en": "Then he lifted his spear and let us cross, and crossed with us. “Someone must see that you keep your word,” he said. He spoke little on the road after that, but he never rode more than a spear’s length from Bosci.",
+          "de": "Dann hob er den Speer und ließ uns hinüber, und er ging mit uns. „Jemand muss darüber wachen, dass Ihr Euer Wort haltet“, sagte er. Unterwegs sprach er danach wenig, doch er ritt nie weiter als eine Speerlänge von Bosci entfernt."
+        }
+      ],
+      "effects": [
+        {
+          "type": "recruit",
+          "card": "maelin-warden-of-the-ford"
+        }
+      ]
+    },
+    {
+      "id": "oakholmes",
+      "title": {
+        "en": "Odric of Oakholmes",
+        "de": "Odric von Oakholmes"
+      },
+      "art": "story-odric",
+      "beats": [
+        {
+          "en": "Oakholmes was still smoking when we reached it. The palisade stood, blackened, and half the barns behind it were ash. Odric came out through the gate with an axe on his shoulder and an old scar across his brow, and the first thing he did was laugh: a short, ugly laugh, the kind men have after too many sleepless nights.",
+          "de": "Oakholmes rauchte noch, als wir es erreichten. Die Palisade stand, geschwärzt, und die Hälfte der Scheunen dahinter war Asche. Odric trat durch das Tor, die Axt auf der Schulter und eine alte Narbe über der Stirn, und das Erste, was er tat, war lachen: ein kurzes, hässliches Lachen, wie Männer es nach zu vielen schlaflosen Nächten haben."
+        },
+        {
+          "en": "I had heard that he and Bosci once shared a fire in the empire’s auxiliary ranks. I did not understand what that meant until I saw them clasp forearms. “You took your time,” said Odric. “I came the moment I heard,” said Bosci. “Then you are the first lord in the Marches who did.”",
+          "de": "Ich hatte gehört, dass er und Bosci einst in den Hilfstruppen des Reiches am selben Feuer gesessen hatten. Was das bedeutete, begriff ich erst, als sie einander die Unterarme packten. „Du hast dir Zeit gelassen“, sagte Odric. „Ich kam, sobald ich es hörte“, sagte Bosci. „Dann bist du der erste Herr der Marken, der das tat.“"
+        },
+        {
+          "en": "Behind Odric stood the warriors of Oakholmes, who had buried their neighbours and watched the raiders vanish into the hills. He offered their axes to Bosci without ceremony, the way a man hands over a tool he has already sharpened.",
+          "de": "Hinter Odric standen die Krieger von Oakholmes, die ihre Nachbarn begraben und den Plünderern beim Verschwinden in den Hügeln zugesehen hatten. Er stellte Bosci ihre Äxte zur Verfügung, ohne Förmlichkeit, wie ein Mann ein Werkzeug reicht, das er schon geschärft hat."
+        }
+      ],
+      "effects": [
+        {
+          "type": "recruit",
+          "card": "odric-the-berserker"
+        }
+      ]
+    },
+    {
+      "id": "westhill",
+      "title": {
+        "en": "Westhill’s Answer",
+        "de": "Westhills Antwort"
+      },
+      "art": "story-westhill",
+      "beats": [
+        {
+          "en": "Westhill’s hall was crowded with the homeless of the west, families sleeping between the benches and children underfoot. Its thane received us coolly. He was one of those Bosci had bargained with rather than broken, and he had not forgotten the difference.",
+          "de": "Westhills Halle war voller Obdachloser aus dem Westen: Familien schliefen zwischen den Bänken, Kinder liefen umher. Ihr Thane empfing uns kühl. Er gehörte zu denen, mit denen Bosci verhandelt hatte, statt sie zu brechen, und er hatte den Unterschied nicht vergessen."
+        },
+        {
+          "en": "Bosci laid out his terms: “Acknowledge me as Warden of the Marches, and Seacliffe will stand beside Westhill when the raiders return.” The thane smiled without warmth. He would promise no title to a lord the Emperor had set over them.",
+          "de": "Bosci nannte seine Bedingungen: „Erkennt mich als Wächter der Marken an, und Seacliffe wird Westhill beistehen, wenn die Plünderer zurückkehren.“ Der Thane lächelte ohne Wärme. Einem Herrn, den der Kaiser über sie gesetzt hatte, würde er keinen Titel versprechen."
+        },
+        {
+          "en": "But he sent Gytha and her shield-bearers. “Bring my people home,” he told her, and did not look at Bosci. It was not an alliance. It was, I thought, the kind of beginning that grows into one.",
+          "de": "Aber er sandte Gytha und ihre Schildträger. „Bring meine Leute nach Hause“, sagte er zu ihr und sah Bosci dabei nicht an. Es war kein Bündnis. Es war, so schien mir, ein Anfang von der Art, aus der eines wird."
+        }
+      ],
+      "effects": [
+        {
+          "type": "recruit",
+          "card": "gytha-shieldmaiden"
+        }
+      ]
+    },
+    {
+      "id": "envoy",
+      "title": {
+        "en": "The Crown’s Envoy",
+        "de": "Der Gesandte der Krone"
+      },
+      "art": "story-envoy",
+      "beats": [
+        {
+          "en": "The Emperor’s envoy found us at the crossroads below Westhill on a morning of thin sunshine. Draxus rode in with clean boots, a sealed offer and a careful smile, and he spoke first to the thanes of Westhill and the Riverlands, not to Bosci.",
+          "de": "Der Gesandte des Kaisers fand uns an einem Morgen mit dünnem Sonnenschein an der Wegkreuzung unterhalb von Westhill. Draxus ritt ein mit sauberen Stiefeln, einem versiegelten Angebot und einem vorsichtigen Lächeln, und er sprach zuerst mit den Thanen von Westhill und den Flusslanden, nicht mit Bosci."
+        },
+        {
+          "en": "His offer was simple: lighter taxes for every thane who refused to place himself under Seacliffe. For villages struggling to fill their winter stores it was no small thing, and I saw several thanes lean forward before they remembered themselves.",
+          "de": "Sein Angebot war einfach: niedrigere Steuern für jeden Thanen, der sich weigerte, sich Seacliffe zu unterstellen. Für Dörfer, die kaum ihre Wintervorräte füllen konnten, war das nicht wenig, und ich sah mehrere Thanen sich vorbeugen, ehe sie sich besannen."
+        },
+        {
+          "en": "Bosci heard it all in silence. Afterwards he said only, “He does not fear the raiders. He fears us standing together.” I wrote it down that night. I have not stopped thinking about it since.",
+          "de": "Bosci hörte schweigend zu. Danach sagte er nur: „Er fürchtet nicht die Plünderer. Er fürchtet, dass wir zusammenstehen.“ Ich schrieb es noch am selben Abend auf. Seitdem habe ich nicht aufgehört, darüber nachzudenken."
+        }
+      ],
+      "effects": [
+        {
+          "type": "recruit",
+          "card": "draxus-treacherous-envoy",
+          "addToDeck": false
+        }
+      ]
+    },
+    {
+      "id": "grendel",
+      "title": {
+        "en": "The Herald’s Warning",
+        "de": "Die Warnung des Herolds"
+      },
+      "art": "story-grendel",
+      "beats": [
+        {
+          "en": "Grendel found us on the road at dusk, his herald’s tabard torn, mud to the knees. He brought word from the border fens: fires on the far bank, fresh tracks on the causeway, more raiders gathering each night.",
+          "de": "Grendel erreichte uns in der Abenddämmerung auf der Straße, der Heroldsrock zerrissen, Schlamm bis zu den Knien. Er brachte Nachricht aus den Grenzsümpfen: Feuer am fernen Ufer, frische Spuren auf dem Damm, jede Nacht mehr Plünderer."
+        },
+        {
+          "en": "“This is no passing raid,” he said. “They are massing.” No single thane’s household could hold the fens against what was coming. Bosci stood for a long while with his hands behind his back.",
+          "de": "„Das ist kein gewöhnlicher Überfall“, sagte er. „Sie sammeln sich.“ Das Gefolge eines einzelnen Thanen konnte die Sümpfe nicht halten gegen das, was da kam. Bosci stand lange mit den Händen auf dem Rücken da."
+        },
+        {
+          "en": "Then he dictated his message to the thanes, and I wrote it down: bring what warriors you can spare. Westhill and the Riverlands had sworn him nothing. He would have to trust that they would come anyway.",
+          "de": "Dann diktierte er seine Botschaft an die Thanen, und ich schrieb sie nieder: Bringt alle Krieger, die ihr entbehren könnt. Westhill und die Flusslande hatten ihm nichts geschworen. Er musste darauf vertrauen, dass sie dennoch kommen würden."
+        }
+      ],
+      "effects": [
+        {
+          "type": "recruit",
+          "card": "grendel-herald-of-the-marches"
+        }
+      ]
+    },
+    {
+      "id": "council",
+      "title": {
+        "en": "The Council of the Marches",
+        "de": "Der Rat der Marken"
+      },
+      "art": "story-council",
+      "beats": [
+        {
+          "en": "The raiders were driven back, though not cheaply. For two days we carried the dead out of the fens, and hardly anyone spoke. When the work was done, the thanes of Westhill and the Riverlands agreed to meet in the hall at the edge of the marsh. They had fought beside Bosci. They had not agreed to follow him.",
+          "de": "Die Plünderer wurden zurückgeschlagen, doch nicht billig. Zwei Tage lang trugen wir die Toten aus den Sümpfen, und kaum jemand sprach. Als die Arbeit getan war, willigten die Thanen von Westhill und den Flusslanden ein, sich in der Halle am Rand des Moors zu treffen. Sie hatten an Boscis Seite gekämpft. Ihm zu folgen, hatten sie nicht versprochen."
+        },
+        {
+          "en": "I sat at the end of the table with my tablets. Maelin spoke of the ford and the villages on both banks. Gytha named the farms Westhill could not have defended alone. Odric reminded the council how long the auxiliaries had waited for orders in wars far from home, and how little those orders had cared for them.",
+          "de": "Ich saß am Ende des Tisches mit meinen Tafeln. Maelin sprach von der Furt und den Dörfern auf beiden Ufern. Gytha nannte die Höfe, die Westhill allein nicht hätte schützen können. Odric erinnerte den Rat daran, wie lange die Hilfstruppen in fernen Kriegen auf Befehle gewartet hatten und wie wenig diese Befehle sich um sie gekümmert hatten."
+        },
+        {
+          "en": "Then the talking stopped, and one by one the thanes turned to look at Bosci. I remember the silence. I remember that he did not smile.",
+          "de": "Dann hörte das Reden auf, und die Thanen wandten sich einer nach dem anderen Bosci zu. Ich erinnere mich an die Stille. Ich erinnere mich, dass er nicht lächelte."
+        }
+      ],
+      "effects": [
+        {
+          "type": "recruit",
+          "card": "council-of-the-marches"
+        }
+      ]
+    },
+    {
+      "id": "warden",
+      "title": {
+        "en": "Warden of the Marches",
+        "de": "Wächter der Marken"
+      },
+      "art": "story-warden",
+      "beats": [
+        {
+          "en": "“Keep your lands. Keep your banners,” Bosci told them. “But when the next warning comes, let it find us ready to answer together.” No imperial army had reached the fens in time. The Marches had.",
+          "de": "„Behaltet eure Länder. Behaltet eure Banner“, sagte Bosci zu ihnen. „Aber wenn die nächste Warnung kommt, soll sie uns bereit finden, gemeinsam zu antworten.“ Kein kaiserliches Heer hatte die Sümpfe rechtzeitig erreicht. Die Marken schon."
+        },
+        {
+          "en": "It came slowly, thane by thane: not a cheer, but a nod, a hand laid flat on the table. They named Bosci Warden of the Marches, not as a gift from the Emperor, but as a charge they could hold him to. Outside the hall their banners still flew apart and, for the first time, side by side.",
+          "de": "Es kam langsam, Thane um Thane: kein Jubel, sondern ein Nicken, eine flach auf den Tisch gelegte Hand. Sie ernannten Bosci zum Wächter der Marken, nicht als Geschenk des Kaisers, sondern als Aufgabe, für die sie ihn zur Rechenschaft ziehen konnten. Vor der Halle wehten ihre Banner noch immer getrennt und doch zum ersten Mal Seite an Seite."
+        },
+        {
+          "en": "The imperial records for that year say nothing of the fens or the council. They note only that the lord of Seacliffe paid his tribute late. I have set down the rest myself, so that someone will know.",
+          "de": "Die kaiserlichen Annalen jenes Jahres schweigen über die Sümpfe und den Rat. Sie vermerken nur, dass der Herr von Seacliffe seinen Tribut verspätet entrichtete. Den Rest habe ich selbst niedergeschrieben, damit es jemand weiß."
+        }
+      ],
+      "effects": [
+        {
+          "type": "recruit",
+          "card": "bosci-warden-of-the-marches"
+        },
+        {
+          "type": "booster",
+          "id": "unity",
+          "pack": "booster-of-the-realms",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "farm",
+      "title": {
+        "en": "The Farm Below the Ridge",
+        "de": "Der Hof unter dem Kamm"
+      },
+      "art": "burned-village",
+      "beats": [
+        {
+          "en": "Beyond the first ridge we found a farmstead still smouldering. The family had survived in the root cellar, and the mother stood in the doorway with a pitchfork, unsure whether we were rescue or the next trouble.",
+          "de": "Hinter dem ersten Kamm fanden wir einen Hof, der noch schwelte. Die Familie hatte im Wurzelkeller überlebt, und die Mutter stand mit einer Heugabel in der Tür, unsicher, ob wir Rettung waren oder der nächste Ärger."
+        },
+        {
+          "en": "Bosci dismounted and asked what they needed. The farmer looked at our packs, then at the sky, and said only, “Winter.”",
+          "de": "Bosci stieg ab und fragte, was sie brauchten. Der Bauer sah auf unsere Packen, dann zum Himmel und sagte nur: „Winter.“"
+        }
+      ],
+      "choices": [
+        {
+          "id": "help",
+          "label": {
+            "en": "Share your supplies",
+            "de": "Vorräte teilen"
+          },
+          "when": [
+            {
+              "silver": 10
+            }
+          ],
+          "effects": [
+            {
+              "type": "silver",
+              "amount": -10
+            },
+            {
+              "type": "offer",
+              "size": 3
+            }
+          ],
+          "result": {
+            "en": "The farmer’s sons walked with us as far as Oakholmes. They were not soldiers, but they were willing, and willing is worth something.",
+            "de": "Die Söhne des Bauern gingen mit uns bis Oakholmes. Soldaten waren sie nicht, aber sie waren willig, und das ist etwas wert."
+          }
+        },
+        {
+          "id": "take",
+          "label": {
+            "en": "Take what the fire spared",
+            "de": "Nehmen, was das Feuer verschont hat"
+          },
+          "effects": [
+            {
+              "type": "silver",
+              "amount": 12
+            }
+          ],
+          "result": {
+            "en": "There was not much. I could not look at the farmer while it was counted.",
+            "de": "Es war nicht viel. Ich konnte dem Bauern nicht in die Augen sehen, während es gezählt wurde."
+          }
+        },
+        {
+          "id": "ride",
+          "label": {
+            "en": "Ride on",
+            "de": "Weiterreiten"
+          },
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "shrine",
+      "title": {
+        "en": "The Roadside Shrine",
+        "de": "Der Schrein am Weg"
+      },
+      "art": "road-shrine",
+      "beats": [
+        {
+          "en": "A shrine of grey stone stood where the road forked, its offering bowl worn smooth by generations of travellers. Someone had left bread there that morning, and someone else had been too hungry to take it.",
+          "de": "Wo sich der Weg gabelte, stand ein Schrein aus grauem Stein, die Opferschale von Generationen von Reisenden glattgerieben. Jemand hatte an diesem Morgen Brot dort gelassen, und jemand anderes war zu hungrig gewesen, es zu nehmen."
+        },
+        {
+          "en": "Bosci did not pray, as far as I could tell. But he stood a while with his helmet under his arm, and the company waited.",
+          "de": "Bosci betete nicht, soweit ich sehen konnte. Aber er stand eine Weile mit dem Helm unter dem Arm da, und die Schar wartete."
+        }
+      ],
+      "choices": [
+        {
+          "id": "offer",
+          "label": {
+            "en": "Leave an offering",
+            "de": "Ein Opfer darbringen"
+          },
+          "when": [
+            {
+              "silver": 5
+            }
+          ],
+          "effects": [
+            {
+              "type": "silver",
+              "amount": -5
+            },
+            {
+              "type": "offer",
+              "size": 3
+            }
+          ],
+          "result": {
+            "en": "Whatever the shrine gave, it gave quietly: before dusk, two spearmen from a nearby holding asked to join us.",
+            "de": "Was der Schrein auch gab, er gab es leise: Vor der Dämmerung baten uns zwei Speerträger aus einem nahen Gehöft, sich uns anschließen zu dürfen."
+          }
+        },
+        {
+          "id": "ride",
+          "label": {
+            "en": "Ride on",
+            "de": "Weiterreiten"
+          },
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "deserters",
+      "title": {
+        "en": "Men Without Banners",
+        "de": "Männer ohne Banner"
+      },
+      "art": "deserters",
+      "beats": [
+        {
+          "en": "At a crossing we met a score of imperial auxiliaries who had thrown away their crests. They did not draw their weapons. Their sergeant said only that the Emperor’s wars were far away, and the fires of the Marches were near.",
+          "de": "An einer Kreuzung trafen wir ein Dutzend kaiserlicher Hilfstruppler, die ihre Wappen weggeworfen hatten. Sie zogen nicht die Waffen. Ihr Feldwebel sagte nur, die Kriege des Kaisers seien weit weg, und die Feuer der Marken seien nah."
+        },
+        {
+          "en": "Bosci knew the look of those men, because he had once worn it. “Silver buys a spear for a season,” he said. “It does not buy a reason.”",
+          "de": "Bosci kannte den Blick dieser Männer, denn er hatte ihn einst selbst getragen. „Silber kauft einen Speer für eine Saison“, sagte er. „Einen Grund kauft es nicht.“"
+        }
+      ],
+      "choices": [
+        {
+          "id": "hire",
+          "label": {
+            "en": "Hire them",
+            "de": "Sie anwerben"
+          },
+          "when": [
+            {
+              "silver": 15
+            }
+          ],
+          "effects": [
+            {
+              "type": "silver",
+              "amount": -15
+            },
+            {
+              "type": "offer",
+              "size": 4
+            }
+          ],
+          "result": {
+            "en": "They took the coin. To my surprise, they took the oath as well.",
+            "de": "Sie nahmen die Münze. Zu meiner Überraschung nahmen sie auch den Eid."
+          }
+        },
+        {
+          "id": "disarm",
+          "label": {
+            "en": "Take their arms and send them home",
+            "de": "Ihnen die Waffen abnehmen und sie heimschicken"
+          },
+          "effects": [
+            {
+              "type": "silver",
+              "amount": 10
+            }
+          ],
+          "result": {
+            "en": "They went without a word. I wrote nothing down about it.",
+            "de": "Sie gingen ohne ein Wort. Ich habe nichts darüber aufgeschrieben."
+          }
+        },
+        {
+          "id": "pass",
+          "label": {
+            "en": "Let them pass",
+            "de": "Sie ziehen lassen"
+          },
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "moor",
+      "title": {
+        "en": "Storm on the Moor",
+        "de": "Sturm über dem Moor"
+      },
+      "art": "moor-storm",
+      "beats": [
+        {
+          "en": "On the third day the weather broke over the moor. Rain came sideways, the road became a stream, and we could see the fires of the fens only when the lightning showed them.",
+          "de": "Am dritten Tag brach das Wetter über dem Moor los. Der Regen kam quer, der Weg wurde zum Bach, und die Feuer der Sümpfe sahen wir nur, wenn der Blitz sie zeigte."
+        },
+        {
+          "en": "The captains argued whether to shelter or press on. Bosci said nothing, and listened to the rain.",
+          "de": "Die Hauptleute stritten, ob man Schutz suchen oder weiterziehen sollte. Bosci sagte nichts und lauschte dem Regen."
+        }
+      ],
+      "choices": [
+        {
+          "id": "shelter",
+          "label": {
+            "en": "Shelter until it passes",
+            "de": "Unterstellen, bis es vorbeizieht"
+          },
+          "effects": [],
+          "result": {
+            "en": "We lost half a day and kept every man dry enough to fight.",
+            "de": "Wir verloren einen halben Tag und hielten jeden Mann trocken genug zum Kämpfen."
+          }
+        },
+        {
+          "id": "press",
+          "label": {
+            "en": "Press on through the storm",
+            "de": "Durch den Sturm weiterziehen"
+          },
+          "effects": [
+            {
+              "type": "battle",
+              "enemy": "road-raiders"
+            }
+          ],
+          "result": {
+            "en": "The storm covered us, but it covered the raiders on the road as well.",
+            "de": "Der Sturm verbarg uns, aber er verbarg auch die Plünderer auf der Straße."
+          }
+        }
+      ]
+    }
+  ],
+  "enemies": [
+    {
+      "id": "clan-raiders",
+      "name": {
+        "en": "Mountain Clan raiders",
+        "de": "Plünderer der Bergclans"
+      },
+      "faction": "mountain-clans",
+      "deck": {
+        "alpaca-farmer": 3,
+        "clan-irregulars": 3,
+        "gil-krag-prospector": 3,
+        "ill-tempered-alpaca": 3,
+        "quarry-foreman": 3,
+        "mountain-cavalry": 3,
+        "sellwords": 3,
+        "gil-krag-mine": 3,
+        "log-palisade": 2,
+        "rockslide": 2,
+        "revenge": 2
+      },
+      "intro": {
+        "en": "A raiding party bars the road to Oakholmes. The villages beyond need your help.",
+        "de": "Eine Schar Plünderer versperrt den Weg nach Oakholmes. Die Dörfer dahinter brauchen Eure Hilfe."
+      }
+    },
+    {
+      "id": "road-scavengers",
+      "name": {
+        "en": "Road scavengers",
+        "de": "Wegelagerer"
+      },
+      "faction": "horde",
+      "deck": {
+        "goblin-raider": 3,
+        "orcish-smallholder": 3,
+        "crowfoots-cook": 3,
+        "goblin-archers": 3,
+        "cleaverfield-brigade": 3,
+        "goblin-ritualist": 2,
+        "sellwords": 3,
+        "goblin-burrow": 3,
+        "timely-demise": 2,
+        "enrage": 2,
+        "return-home": 2,
+        "revenge": 1
+      },
+      "intro": {
+        "en": "A rabble of scavengers has taken to the road, picking over whatever the war leaves behind.",
+        "de": "Ein Haufen Wegelagerer hat sich auf der Straße eingenistet und nimmt, was der Krieg übrig lässt."
+      }
+    },
+    {
+      "id": "road-raiders",
+      "name": {
+        "en": "Road raiders",
+        "de": "Plünderer der Straße"
+      },
+      "faction": "horde",
+      "deck": {
+        "goblin-raider": 3,
+        "orcish-smallholder": 3,
+        "crowfoots-cook": 3,
+        "goblin-archers": 3,
+        "cleaverfield-brigade": 3,
+        "goblin-ritualist": 2,
+        "goblin-footsoldier": 1,
+        "cleaverfield-summoner": 1,
+        "sellwords": 3,
+        "goblin-burrow": 2,
+        "timely-demise": 2,
+        "enrage": 1,
+        "mercenary-outriders": 1,
+        "return-home": 2,
+        "revenge": 1
+      },
+      "intro": {
+        "en": "A band of raiders holds the road, bolder than scavengers and better armed.",
+        "de": "Eine Bande Plünderer beherrscht die Straße, kühner als Wegelagerer und besser bewaffnet."
+      }
+    },
+    {
+      "id": "clan-reavers",
+      "name": {
+        "en": "Clan reavers",
+        "de": "Räuber der Clans"
+      },
+      "faction": "mountain-clans",
+      "deck": {
+        "alpaca-farmer": 3,
+        "alpaca-mountaineers": 1,
+        "clan-irregulars": 3,
+        "gil-krag-prospector": 3,
+        "ill-tempered-alpaca": 2,
+        "quarry-foreman": 3,
+        "mountain-cavalry": 3,
+        "sellwords": 3,
+        "gil-krag-mine": 2,
+        "log-palisade": 2,
+        "rockslide": 2,
+        "revenge": 1,
+        "return-home": 2
+      },
+      "intro": {
+        "en": "Reavers of the Mountain Clans, hungrier than the scouts on the road.",
+        "de": "Räuber der Bergclans, hungriger als die Späher auf der Straße."
+      }
+    },
+    {
+      "id": "clan-warband",
+      "name": {
+        "en": "Warband of the High Clans",
+        "de": "Kriegsschar der Hochclans"
+      },
+      "faction": "mountain-clans",
+      "deck": {
+        "alpaca-farmer": 2,
+        "alpaca-mountaineers": 1,
+        "borrowed-wisdom": 1,
+        "clan-irregulars": 3,
+        "dwarven-honourguard": 1,
+        "gemstone-mine": 1,
+        "gil-krag-mine": 2,
+        "gil-krag-prospector": 3,
+        "grad-chief-digger": 1,
+        "ill-tempered-alpaca": 1,
+        "log-palisade": 2,
+        "mercenary-outriders": 1,
+        "mountain-cavalry": 2,
+        "quarry-foreman": 2,
+        "return-home": 2,
+        "revenge": 1,
+        "rockslide": 2,
+        "sellwords": 2
+      },
+      "life": 12,
+      "intro": {
+        "en": "A warband of the high clans holds the way, and it does not mean to share it.",
+        "de": "Eine Kriegsschar der Hochclans hält den Weg und denkt nicht daran, ihn zu teilen."
+      }
+    },
+    {
+      "id": "imperial-patrol",
+      "name": {
+        "en": "Imperial patrol",
+        "de": "Kaiserliche Patrouille"
+      },
+      "faction": "crownlands",
+      "life": 12,
+      "deck": {
+        "alderic-warmaster-of-the-empire": 1,
+        "arianna-healing-princess": 1,
+        "ban-vale-cavalry": 1,
+        "banner-of-the-morning-vale": 1,
+        "battlefield-hymn": 1,
+        "borderpost": 1,
+        "cleansing-light": 1,
+        "close-ranks": 1,
+        "crownlands-recruit": 3,
+        "dawn-standard-bearer": 1,
+        "first-dawn-regiment": 2,
+        "goldfield-farmer": 3,
+        "longvale-cutters": 3,
+        "mercenary-outriders": 1,
+        "pontage": 1,
+        "return-home": 2,
+        "revenge": 1,
+        "runeguard": 1,
+        "sellwords": 2,
+        "young-squire": 2
+      },
+      "intro": {
+        "en": "An imperial patrol blocks the way, courteous and in no hurry to let you pass.",
+        "de": "Eine kaiserliche Patrouille versperrt den Weg, höflich und ohne Eile, Euch vorbeizulassen."
+      }
+    },
+    {
+      "id": "fen-raiders",
+      "name": {
+        "en": "Raiders of the Fens",
+        "de": "Plünderer der Sümpfe"
+      },
+      "faction": "mountain-clans",
+      "life": 14,
+      "deck": {
+        "alpaca-farmer": 2,
+        "alpaca-mountaineers": 1,
+        "borrowed-wisdom": 1,
+        "clan-irregulars": 3,
+        "dwarven-honourguard": 1,
+        "gemstone-mine": 1,
+        "gil-krag-mine": 2,
+        "gil-krag-prospector": 3,
+        "grad-chief-digger": 1,
+        "ill-tempered-alpaca": 1,
+        "log-palisade": 2,
+        "mercenary-outriders": 1,
+        "mountain-cavalry": 2,
+        "quarry-foreman": 2,
+        "return-home": 2,
+        "revenge": 1,
+        "rockslide": 2,
+        "sellwords": 2
+      },
+      "intro": {
+        "en": "The raiders have gathered at the border fens. The Marches must hold together.",
+        "de": "Die Plünderer haben sich an den Grenzsümpfen gesammelt. Die Marken müssen zusammenhalten."
+      }
+    },
+    {
+      "id": "road-brutes",
+      "name": {
+        "en": "Road brutes",
+        "de": "Straßenschläger"
+      },
+      "faction": "horde",
+      "deck": {
+        "borrowed-wisdom": 1,
+        "brut-chief-of-the-harpies": 1,
+        "cleaver-clan-chief": 1,
+        "cleaverfield-brigade": 2,
+        "cleaverfield-summoner": 1,
+        "crowfoots-cook": 3,
+        "enrage": 1,
+        "goblin-archers": 1,
+        "goblin-burrow": 3,
+        "goblin-courier": 1,
+        "goblin-raider": 2,
+        "goblin-ritualist": 1,
+        "goblin-siege-weapon": 1,
+        "mercenary-outriders": 1,
+        "orcish-smallholder": 3,
+        "return-home": 2,
+        "revenge": 1,
+        "sellwords": 2,
+        "timely-demise": 2
+      },
+      "intro": {
+        "en": "A band of raiders holds the road, bolder than scavengers and better armed.",
+        "de": "Eine Bande Plünderer beherrscht die Straße, kühner als Wegelagerer und besser bewaffnet."
+      }
+    }
+  ],
+  "pools": {
+    "easy": [
+      "clan-raiders",
+      "road-scavengers"
+    ],
+    "early": [
+      "road-raiders",
+      "clan-reavers"
+    ],
+    "late": [
+      "road-brutes",
+      "clan-warband"
+    ]
+  },
+  "mapArt": "map",
+  "art": "seacliffe"
+}

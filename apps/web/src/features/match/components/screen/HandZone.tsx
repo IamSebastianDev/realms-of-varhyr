@@ -1,3 +1,4 @@
+import { effectiveCost } from "@realms/core";
 import { rectOf } from "@realms/ui/stage";
 import { ArtCard } from "@realms/ui/CardPresentation";
 import { t as msg } from "@realms/ui/i18n";
@@ -11,6 +12,7 @@ export function HandZone() {
     clearHoverPreview,
     drag,
     dragEnabled,
+    handIds,
     live,
     pinPreview,
     quickBegin,
@@ -59,20 +61,23 @@ export function HandZone() {
             </p>
           </div>
         )}
-        <div className="hand-scroll" style={{ ["--n" as string]: view.hand.length }}>
-          {view.hand.map((id, i) => (
+        <div className="hand-scroll" style={{ ["--n" as string]: handIds.length }}>
+          {handIds.map((id, i) => (
             <ArtCard
               detail={false}
               reduced={reduced}
               key={id}
-              card={registry.cards[view.cards[id].definitionId]}
+              card={{
+                ...registry.cards[view.cards[id].definitionId],
+                cost: effectiveCost(view, id, registry),
+              }}
               selected={selected === id}
               disabled={!targets.includes(id) && !view.legal.playable.some((a) => a.cardId === id)}
               className={`hand-card ${arriving[id] ? `draw-in ${arriving[id].mode}` : ""} ${targets.includes(id) ? "rally-target" : ""} ${drag?.cardId === id ? "drag-source" : ""} ${dragEnabled && view.legal.playable.some((a) => a.cardId === id) ? "draggable" : ""}`}
               interaction={{
                 id: `hand-${id}`,
                 style: {
-                  ["--fan" as string]: i - (view.hand.length - 1) / 2,
+                  ["--fan" as string]: i - (handIds.length - 1) / 2,
                   ["--draw-delay" as string]: `${(arriving[id]?.delay ?? 0) + (arriving[id]?.mode === "fade" ? KEEP_FLIGHT * 0.8 : 480)}ms`,
                 },
                 onContextMenu: (e) => {

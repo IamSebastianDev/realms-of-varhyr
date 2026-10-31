@@ -1,0 +1,26 @@
+{
+  "id": "faces-of-the-realm",
+  "name": "RoV: Faces of the Realm",
+  "code": "FOR",
+  "description": "A supplemental set for Foundations, featuring the legendary figures and defining moments encountered in Varhyr's faction adventures.",
+  "color": "#d4bd85",
+  "symbol": "⟐",
+  "factions": [
+    "crownlands",
+    "northern-league",
+    "bright-marches",
+    "mountain-clans",
+    "conclave",
+    "ember-fields",
+    "horde",
+    "black-host",
+    "neutral"
+  ],
+  "introduces": [],
+  "translations": {
+    "de": {
+      "name": "RoV: Gesichter des Reiches",
+      "description": "Ein Zusatzset zu Grundlagen mit legendären Persönlichkeiten und prägenden Ereignissen aus den Fraktionsabenteuern Varhyrs."
+    }
+  }
+}

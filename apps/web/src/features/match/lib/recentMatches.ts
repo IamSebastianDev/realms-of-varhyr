@@ -22,7 +22,7 @@ export type RecentMatch = {
   seat: PlayerId;
   deckName: string;
   opponentName: string;
-  mode: "practice" | "hotseat" | "quest" | "draft";
+  mode: "practice" | "hotseat" | "adventure" | "draft";
   result: "won" | "lost" | "draw";
   turns: number;
   initial: GameState;

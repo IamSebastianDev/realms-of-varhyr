@@ -1,0 +1,42 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "bosci-warden-of-the-marches",
+  "revision": 1,
+  "name": "Bosci, Warden of the Marches",
+  "deckLimitKey": "bosci-warden-of-the-marches",
+  "type": "creature",
+  "factions": [
+    "bright-marches"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 3,
+    "factions": {
+      "bright-marches": 2
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 4,
+    "energyOutputs": [
+      {
+        "bright-marches": 3
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "searchForCreatures",
+      "params": {
+        "count": 2,
+        "maxTotalCost": 4
+      }
+    }
+  ],
+  "lore": "The Emperor gave him a lordship. The Marches gave him a cause.",
+  "set": "faces-of-the-realm"
+}

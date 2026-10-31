@@ -7,6 +7,9 @@ public/cards/
 packages/content/src/cards.json
 packages/content/src/factions.json
 packages/content/src/sets.json
+# Generated adventure definitions, textures and models; sources live in assets/adventures/
+packages/content/src/adventures.json
+public/adventures/
 
 # docs/ holds screenshots and audit output; only the written guides are tracked
 docs/*

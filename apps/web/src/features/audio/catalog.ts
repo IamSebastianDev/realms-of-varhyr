@@ -341,6 +341,6 @@ export const screenBeds: Record<string, BedName> = {
   packs: "embers",
   store: "market",
   profile: "hall",
-  quest: "road",
+  adventure: "road",
   draft: "embers",
 };

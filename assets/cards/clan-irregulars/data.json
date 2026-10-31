@@ -21,7 +21,12 @@
   },
   "stats": {
     "attack": 2,
-    "defense": 2
+    "defense": 2,
+    "energyOutputs": [
+      {
+        "mountain-clans": 2
+      }
+    ]
   },
   "abilities": [
     {

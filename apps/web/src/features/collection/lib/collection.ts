@@ -7,6 +7,7 @@ import {
   type BoosterPack,
 } from "@realms/content/boosters";
 import type { RewardCollection } from "../../boosters/lib/boosterRewards";
+import { isAdventureExclusive } from "@realms/content/acquisition";
 import { currentCardId } from "../../../lib/cardIds";
 import { parseCardStyles, type CardStyleCollection } from "../../card-styles/lib/cardStyleState";
 
@@ -35,21 +36,6 @@ export const collectionRules = {
   cardCrowns: { common: 50, rare: 150, legendary: 400 },
 } as const;
 export const collectionKey = "varhyr-collection-v1";
-/** Stored with ownership and the wallet so quest rewards and purchases commit in one write. */
-export type QuestSettlement = {
-  day: string;
-  pack: string;
-  coins: number;
-  revision: number;
-  cards: Record<string, number>;
-  purchased: Record<string, number>;
-  /** Exact positions within each card's run copies, so individually selected cards stay marked after reload. */
-  purchasedCopies?: Record<string, number[]>;
-  /** Victory presentation was dismissed; reopening goes straight to the card shop. */
-  rewardPresented?: boolean;
-  reward: { crowns: number; packs: number } | "claimed" | null;
-  closed: boolean;
-};
 export type Collection = {
   version: 1;
   counts: Record<string, number>;
@@ -59,9 +45,8 @@ export type Collection = {
   rewardedMatches: string[];
   /** Cosmetic unlocks and selections, independent of card copies and game rules. */
   cardStyles?: CardStyleCollection;
-  questSettlements?: Record<string, QuestSettlement>;
-  /** Boss and quest payouts already granted, keyed by run and payout, so each is applied exactly once. */
-  questPayouts?: Record<string, true>;
+  /** Adventure boosters already granted, keyed by run and payout, so each is applied exactly once. */
+  adventurePayouts?: Record<string, true>;
   /** Faction draft runs already paid out, so a run is settled exactly once. */
   draftPayouts?: Record<string, true>;
 };
@@ -95,6 +80,7 @@ export type DeckPurchasePlan = {
   crowns: number;
   /** False for malformed or over-limit imported decks, which cannot be completed by buying cards. */
   complete: boolean;
+  adventureOnly: number;
 };
 
 /** Price every copy the current deck lacks. This is deliberately a pure preview, so the builder can disable a purchase
@@ -105,8 +91,14 @@ export function missingDeckPurchase(
   content: Registry,
 ): DeckPurchasePlan {
   let complete = true;
+  let adventureOnly = 0;
   const purchases = missingDeckCopies(cards, owned).flatMap((missing) => {
     const card = content.cards[missing.id];
+    if (card && isAdventureExclusive(card)) {
+      adventureOnly += missing.missing;
+      complete = false;
+      return [];
+    }
     if (!card || missing.owned + missing.missing > ownershipLimit(card)) {
       complete = false;
       return [];
@@ -119,6 +111,7 @@ export function missingDeckPurchase(
     copies: purchases.reduce((total, purchase) => total + purchase.copies, 0),
     crowns: purchases.reduce((total, purchase) => total + purchase.crowns, 0),
     complete,
+    adventureOnly,
   };
 }
 
@@ -171,36 +164,6 @@ const validCounts = (value: unknown): value is Record<string, number> =>
   typeof value === "object" &&
   !Array.isArray(value) &&
   Object.entries(value).every(([id, count]) => id.length > 0 && validCount(count));
-function validSettlement(value: unknown): value is QuestSettlement {
-  if (!value || typeof value !== "object") return false;
-  const s = value as QuestSettlement;
-  return (
-    typeof s.day === "string" &&
-    typeof s.pack === "string" &&
-    validCount(s.coins) &&
-    validCount(s.revision) &&
-    validCounts(s.cards) &&
-    validCounts(s.purchased) &&
-    typeof s.closed === "boolean" &&
-    Object.entries(s.purchased).every(([id, n]) => n <= (s.cards[id] ?? 0)) &&
-    (s.rewardPresented === undefined || typeof s.rewardPresented === "boolean") &&
-    (s.purchasedCopies === undefined ||
-      (!!s.purchasedCopies &&
-        typeof s.purchasedCopies === "object" &&
-        !Array.isArray(s.purchasedCopies) &&
-        Object.entries(s.purchasedCopies).every(
-          ([id, copies]) =>
-            Array.isArray(copies) &&
-            copies.length === (s.purchased[id] ?? 0) &&
-            new Set(copies).size === copies.length &&
-            copies.every((index) => validCount(index) && index < (s.cards[id] ?? 0)),
-        ))) &&
-    (s.reward === null ||
-      s.reward === "claimed" ||
-      (!!s.reward && validCount(s.reward.crowns) && validCount(s.reward.packs)))
-  );
-}
-
 export function parseCollection(raw: string | null, content: Registry): Collection | null {
   try {
     const data = JSON.parse(raw ?? "null");
@@ -227,27 +190,17 @@ export function parseCollection(raw: string | null, content: Registry): Collecti
     };
     const cardStyles = parseCardStyles(data.cardStyles);
     if (cardStyles) collection.cardStyles = cardStyles;
-    if (data.questSettlements !== undefined) {
+    if (data.adventurePayouts !== undefined) {
       if (
-        !data.questSettlements ||
-        typeof data.questSettlements !== "object" ||
-        Array.isArray(data.questSettlements) ||
-        !Object.entries(data.questSettlements).every(
-          ([id, value]) => id.length > 0 && validSettlement(value),
+        !data.adventurePayouts ||
+        typeof data.adventurePayouts !== "object" ||
+        Array.isArray(data.adventurePayouts) ||
+        !Object.entries(data.adventurePayouts).every(
+          ([id, value]) => id.length > 0 && value === true,
         )
       )
         return null;
-      collection.questSettlements = data.questSettlements;
-    }
-    if (data.questPayouts !== undefined) {
-      if (
-        !data.questPayouts ||
-        typeof data.questPayouts !== "object" ||
-        Array.isArray(data.questPayouts) ||
-        !Object.entries(data.questPayouts).every(([id, value]) => id.length > 0 && value === true)
-      )
-        return null;
-      collection.questPayouts = data.questPayouts;
+      collection.adventurePayouts = data.adventurePayouts;
     }
     if (data.draftPayouts !== undefined) {
       if (
@@ -329,6 +282,7 @@ export function buyCollectionBooster(
 export const cardPrice = (card: CardDefinition) => collectionRules.cardCrowns[card.rarity];
 /** Buying one copy of a card is one transaction: the wallet and the card change together, never past the ownership limit. */
 export function buyCollectionCard(collection: Collection, card: CardDefinition): Collection {
+  if (isAdventureExclusive(card)) throw new Error("This card is earned through adventures.");
   const owned = ownedCopyCount(collection.counts, card.id),
     price = cardPrice(card);
   if (owned >= ownershipLimit(card)) throw new Error(`You already own every copy of ${card.name}.`);

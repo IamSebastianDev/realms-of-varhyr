@@ -1,4 +1,5 @@
 import type { CardDefinition } from "@realms/contracts";
+import { isAdventureExclusive } from "./acquisition";
 import { factionDefinitions } from "./factions";
 
 /** POC odds, independent of the number of cards in each rarity. The weights decide within a slot, the slots decide what a pack holds. */
@@ -69,7 +70,7 @@ export const packIds = {
   evil: "gathering-dark",
   realms: "booster-of-the-realms",
 } as const;
-/** The three alignments. Boosters no longer follow them, but the quest still does: each is a quest kind with its three factions. */
+/** The three groups of factions the booster draws from. The one booster below covers all of them. */
 const alignmentPacks: BoosterPack[] = [
   {
     id: packIds.good,
@@ -102,7 +103,6 @@ const known = new Set(factionDefinitions.map((faction) => faction.id));
 for (const pack of alignmentPacks)
   for (const id of [pack.icon, ...pack.factions])
     if (!known.has(id)) throw new Error(`Booster '${pack.id}' references unknown faction '${id}'.`);
-export const questAlignments: BoosterPack[] = alignmentPacks;
 /** The one booster: five cards from every faction and the unaligned. */
 export const boosterPacks: BoosterPack[] = [
   {
@@ -115,13 +115,15 @@ export const boosterPacks: BoosterPack[] = [
     factions: [...new Set(alignmentPacks.flatMap((pack) => pack.factions))],
   },
 ];
-/** The booster a pack ID stands for. IDs of retired boosters and of the quest alignments all resolve to the one booster. */
+/** The booster a pack ID stands for. IDs of retired boosters and of the three faction groups all resolve to the one booster. */
 export const boosterFor = (id?: string): BoosterPack =>
   boosterPacks.find((pack) => pack.id === id) ?? boosterPacks[0]!;
 /** Cards of any faction in the pool; factionless cards belong to the pool that lists neutral. */
 export const packCards = (cards: CardDefinition[], pack: BoosterPack) =>
-  cards.filter((card) =>
-    card.factions.length
-      ? card.factions.some((faction) => pack.factions.includes(faction))
-      : pack.factions.includes("neutral"),
+  cards.filter(
+    (card) =>
+      !isAdventureExclusive(card) &&
+      (card.factions.length
+        ? card.factions.some((faction) => pack.factions.includes(faction))
+        : pack.factions.includes("neutral")),
   );

@@ -8,14 +8,14 @@ import { trackMatch } from "../../goals/stores/goalsStore";
 import { matchResult } from "../../goals/lib/goals";
 import { buildRecord } from "../../stats/lib/record";
 import { recordFinishedMatch } from "../../stats/stores/ledgerStore";
-import { reportFight } from "../../quest/stores/questStore";
+import { reportFight } from "../../adventure/stores/adventureStore";
 import { reportDraftResult } from "../../draft/stores/draftStore";
 import { saveRecentMatch } from "../lib/recentMatches";
 import { RULES_VERSION } from "@realms/core";
 import type { SessionSnapshot } from "../session/MatchSession";
 
 /**
- * Everything a finished match pays out or reports, in one place: the collection's victory reward, quest and draft results,
+ * Everything a finished match pays out or reports, in one place: the collection's victory reward, adventure and draft results,
  * and the daily goals. Replays and the tutorial report nothing.
  */
 export function useMatchOutcome({
@@ -58,12 +58,11 @@ export function useMatchOutcome({
   }, [rewardId, collectionOutcome, rewardEligible]);
   // Goals count finished matches you played yourself: not replays, not the tutorial, and in hot seat only the first player.
   useEffect(() => {
-    if (!state.outcome || !setup?.quest || watching) return;
+    if (!state.outcome || !setup?.adventure || watching) return;
     reportFight({
-      run: setup.quest.run,
-      node: setup.quest.node,
+      run: setup.adventure.run,
+      node: setup.adventure.node,
       won: state.outcome === "p1",
-      life: Math.max(0, state.players.p1.life),
     });
   }, [state.outcome]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -98,8 +97,8 @@ export function useMatchOutcome({
       at: new Date().toISOString(),
       mode: online
         ? "online"
-        : setup?.quest
-          ? "quest"
+        : setup?.adventure
+          ? "adventure"
           : setup?.draft
             ? "draft"
             : (setup?.mode ?? "practice"),
@@ -122,7 +121,7 @@ export function useMatchOutcome({
       seat: "p1",
       deckName: (customDeck ?? starterDefinitions.find((s) => s.id === deck))?.name ?? "",
       opponentName: setup.initial.players.p2.name,
-      mode: setup.quest ? "quest" : setup.draft ? "draft" : setup.mode,
+      mode: setup.adventure ? "adventure" : setup.draft ? "draft" : setup.mode,
       result: state.outcome === "p1" ? "won" : state.outcome === "draw" ? "draw" : "lost",
       turns: state.turn,
       initial: setup.initial,

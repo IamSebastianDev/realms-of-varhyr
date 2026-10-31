@@ -1,0 +1,743 @@
+/* The adventure screen: a route map with the scene, offer or summary open over it. Everything sits inside the stage. */
+.adv-app {
+  display: contents;
+}
+.adv-page {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: var(--white);
+  background:
+    radial-gradient(120% 90% at 50% 40%, rgb(var(--edge-rgb) / 0.08), transparent 60%),
+    rgb(var(--shade-rgb) / 0.82);
+}
+.adv-message,
+.adv-summary {
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: center;
+  padding: 24px;
+}
+.adv-message p {
+  color: var(--muted);
+  max-width: 48ch;
+  margin: 0;
+}
+.adv-goal {
+  margin: 6px 0 0;
+  font: 600 20px/1.3 var(--serif);
+  color: var(--white);
+}
+.adv-sub {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.adv-notice {
+  margin: 0;
+  color: var(--ink-3);
+}
+.adv-error {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 7;
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 99px;
+  background: rgb(var(--shade-rgb) / 0.85);
+  color: var(--danger-text);
+}
+.adv-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 99px;
+  background: rgb(var(--shade-rgb) / 0.85);
+  color: var(--muted);
+  font-size: 13px;
+}
+.adv-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.adv-purse {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--gold-bright);
+  font-weight: 700;
+}
+.adv-x {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+/* Top bar */
+.adv-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid rgb(var(--bronze-rgb) / 0.33);
+  background: rgb(var(--shade-rgb) / 0.7);
+}
+.adv-title {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-right: auto;
+  min-width: 0;
+}
+.adv-title h1 {
+  margin: 0;
+  font: 700 22px var(--serif);
+  color: var(--gold-bright);
+}
+.adv-faction {
+  color: var(--tint, var(--muted));
+  font-size: 13px;
+}
+
+/* A tactile route table. The WebGL models and HTML controls share projected positions. */
+.adv-map {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  touch-action: none;
+  background: var(--wood-dark) url("/adventures/shared/textures/wood-color.webp") center / 700px;
+}
+.adv-map::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at 50% 55%,
+    transparent 40%,
+    rgb(var(--scene-black-rgb) / 0.44)
+  );
+}
+.adv-canvas {
+  position: absolute;
+  inset: 0;
+}
+.adv-locations {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.adv-node {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 76px;
+  height: 92px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-brown);
+  pointer-events: auto;
+  cursor: default;
+  transition: none;
+}
+.is-loading .adv-canvas,
+.is-loading .adv-locations {
+  visibility: hidden;
+}
+.adv-node:disabled {
+  opacity: 1;
+}
+.adv-node > svg {
+  position: absolute;
+  top: 76px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.is-3d .adv-node > svg {
+  display: none;
+}
+.adv-node span {
+  position: absolute;
+  top: 96px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 12px;
+  white-space: nowrap;
+  font: 700 18px/1.25 var(--serif);
+  color: var(--bronze-text);
+  border: 1px solid;
+  border-color: var(--button-edge);
+  background: var(--corners-button), var(--button-fill);
+  box-shadow: var(--button-shadow);
+  pointer-events: none;
+  visibility: hidden;
+}
+.adv-node:hover,
+.adv-node:focus-visible {
+  z-index: 2;
+}
+.adv-node:hover span,
+.adv-node:focus-visible span {
+  visibility: visible;
+}
+.adv-node.ahead span {
+  opacity: 0.85;
+}
+.adv-node.visited span {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+.adv-node.open {
+  cursor: pointer;
+}
+.is-flat .adv-node.open {
+  box-shadow:
+    0 0 0 2px var(--gilt),
+    0 0 12px var(--gilt);
+}
+.is-flat .adv-node.open:hover,
+.is-flat .adv-node.open:focus-visible {
+  box-shadow:
+    0 0 0 3px var(--gilt-bright),
+    0 0 18px var(--gilt);
+}
+.adv-node.open span,
+.adv-node.current span {
+  color: var(--ivory);
+  background: var(--corners-button), var(--button-fill);
+  text-shadow: none;
+}
+.adv-node.open:hover span {
+  color: var(--gilt-white);
+}
+.adv-node:focus-visible {
+  outline: 2px solid var(--gilt-bright);
+  outline-offset: 5px;
+}
+.adv-map-tools {
+  position: absolute;
+  bottom: 18px;
+  right: 18px;
+  left: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  pointer-events: none;
+}
+.adv-map-tools button {
+  pointer-events: auto;
+}
+.adv-map-key {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 7px 16px;
+  padding: 12px 16px;
+  color: var(--ivory);
+  border-top: 1px solid rgb(var(--bronze-rgb) / 0.45);
+  background: rgb(var(--shade-rgb) / 0.82);
+  font-size: 11px;
+}
+.adv-map-key span {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+}
+.adv-table-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  color: var(--ivory);
+  background: var(--wood-dark);
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 500ms ease,
+    visibility 0s linear 500ms;
+}
+.adv-table-loading > div {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  color: var(--gilt);
+  font: 700 18px var(--serif);
+}
+.adv-table-loading p {
+  margin: 0;
+}
+.adv-table-loading.is-ready {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.reduce-motion .adv-table-loading {
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .adv-table-loading {
+    transition: none;
+  }
+}
+/* Playable fallback for devices without WebGL or unavailable media. */
+.adv-map.is-flat {
+  overflow: auto;
+  touch-action: pan-y;
+}
+.is-flat .adv-locations {
+  position: relative;
+  width: min(900px, 90%);
+  aspect-ratio: 2 / 3;
+  margin: 50px auto 100px;
+  background-color: var(--parchment);
+  background-size: 100% 100%;
+  box-shadow: 0 12px 32px rgb(var(--scene-black-rgb) / 0.5);
+  pointer-events: auto;
+}
+.is-flat .adv-node {
+  width: 52px;
+  height: 52px;
+  transform: translate(-50%, -50%);
+  background: var(--wood);
+  color: var(--gilt-pale);
+  border: 2px solid var(--parchment-dark);
+}
+.is-flat .adv-node.open,
+.is-flat .adv-node.current {
+  background: var(--wood-light);
+  border-color: var(--gilt-bright);
+  box-shadow: 0 0 0 2px rgb(var(--gilt-rgb) / 0.55);
+}
+.is-flat .adv-node > svg {
+  top: 15px;
+}
+.is-flat .adv-node span {
+  top: 55px;
+}
+.adv-edges {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  inset: 0;
+  overflow: visible;
+}
+.adv-edges line {
+  stroke: var(--ink-brown);
+  stroke-width: 2px;
+  stroke-dasharray: 3 6;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Scenes: one painting, text over a shaded part of it. The painting moves; the text and the controls never do. */
+.adv-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  background: rgb(var(--shade-rgb) / 0.96);
+}
+.adv-scene-art {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      90% 80% at 50% 30%,
+      color-mix(in srgb, var(--tint, rgb(var(--bronze-rgb))) 38%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(180deg, var(--surface-raised), var(--bg));
+  /* Story paintings have a shared 16:9 frame. Keep the entire composition visible
+     even when the game window has a different aspect ratio. */
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: var(--bg);
+}
+.adv-scene-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    0deg,
+    rgb(var(--shade-rgb) / 0.98),
+    rgb(var(--shade-rgb) / 0.87) 20%,
+    rgb(var(--shade-rgb) / 0.32) 48%,
+    transparent 70%
+  );
+}
+.adv-scene-text {
+  position: relative;
+  width: min(1120px, 100%);
+  max-height: 68%;
+  overflow-y: auto;
+  margin: 0 auto;
+  padding: 52px 38px 38px;
+  display: grid;
+  gap: 18px;
+  background: none;
+}
+.adv-scene-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgb(var(--bronze-rgb) / 0.45);
+}
+.adv-scene-text h2 {
+  margin: 0;
+  font: 700 32px var(--serif);
+  color: var(--gold-bright);
+}
+.adv-scene-progress {
+  display: flex;
+  gap: 9px;
+  flex-shrink: 0;
+}
+.adv-scene-progress i {
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--bronze);
+  transform: rotate(45deg);
+  opacity: 0.6;
+}
+.adv-scene-progress i.is-current {
+  background: var(--bronze-bright);
+  opacity: 1;
+}
+.adv-scene-text small {
+  color: var(--tint, var(--muted));
+}
+.adv-scene-text p {
+  margin: 0;
+  max-width: 66ch;
+  font: 400 27px/1.48 var(--serif);
+  color: var(--white);
+  text-shadow: 0 2px 8px rgb(var(--shade-rgb) / 0.9);
+}
+.adv-scene-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.adv-scene-actions .bronze-button {
+  text-align: left;
+  padding: 13px 22px;
+  font-size: 18px;
+  cursor: pointer;
+}
+.adv-scene-actions .bronze-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.adv-scene-actions .bronze-button:focus-visible {
+  outline: 2px solid var(--bronze-bright);
+  outline-offset: 3px;
+}
+
+/* Pick packs, shops and camps */
+.adv-offer {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 18px;
+  background: rgb(var(--shade-rgb) / 0.95);
+  overflow: auto;
+}
+.adv-offer h2 {
+  margin: 6px 0 0;
+  font: 700 26px var(--serif);
+  color: var(--gold-bright);
+  text-align: center;
+}
+.adv-offer header {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  color: var(--muted);
+}
+.adv-offer > p {
+  margin: 0;
+  color: var(--muted);
+  text-align: center;
+}
+.adv-offer footer {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  color: var(--muted);
+}
+.adv-offer-cards {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  align-content: center;
+  justify-content: space-evenly;
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: 1500px;
+  gap: 18px;
+}
+.adv-offer-cards.deck {
+  align-items: flex-start;
+  align-content: flex-start;
+  justify-content: center;
+  flex: none;
+  max-width: 1100px;
+}
+.adv-offer-card {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  width: clamp(140px, min(18cqw, 30cqh), 280px);
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+}
+.adv-shop .adv-offer-card {
+  width: clamp(130px, min(15cqw, 23cqh), 230px);
+}
+.adv-offer-card.pick {
+  cursor: pointer;
+}
+.adv-offer-card.pick:hover {
+  transform: translateY(-3px);
+}
+.adv-offer-card.sold {
+  opacity: 0.5;
+}
+.adv-offer-card .art-card {
+  width: 100%;
+}
+.adv-offer-cards.deck .adv-offer-card {
+  width: clamp(100px, min(10cqw, 18cqh), 150px);
+}
+.adv-offer-card small {
+  color: var(--muted);
+}
+.adv-offer-actions {
+  display: flex;
+  gap: 6px;
+}
+.adv-deck-pick {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 6px;
+  width: min(900px, 100%);
+}
+.adv-deck-pick button {
+  width: 100%;
+  text-align: left;
+}
+
+/* Deck view */
+.adv-deckview header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: min(900px, 100%);
+  position: relative;
+  padding-right: 44px;
+}
+.adv-deckview header h2 {
+  margin: 0;
+}
+.adv-deckview-tabs {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+}
+.adv-deckview-tabs button {
+  padding: 5px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: rgb(var(--shade-rgb) / 0.28);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.adv-deckview-tabs button[aria-pressed="true"] {
+  color: var(--gilt-pale);
+  border-color: rgb(var(--gilt-rgb) / 0.67);
+  background: rgb(var(--edge-rgb) / 0.12);
+}
+.adv-deckview-list {
+  width: min(900px, 100%);
+  flex: 1;
+  min-height: 0;
+}
+.adv-deckview-list .dk-group ul {
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+/* Selection in the play dialog */
+.adv-picker {
+  display: grid;
+  gap: 16px;
+}
+.adv-stripes {
+  display: grid;
+  gap: 10px;
+}
+.adv-stripe {
+  width: 100%;
+  min-height: 96px;
+  border-left: 6px solid var(--tint, var(--gilt));
+}
+
+/* End of the run */
+.adv-summary h1 {
+  margin: 0;
+  font: 700 36px var(--serif);
+  color: var(--gold-bright);
+}
+.adv-summary.lost h1 {
+  color: var(--ink-3);
+}
+.adv-summary dl {
+  display: flex;
+  gap: 28px;
+  margin: 8px 0;
+}
+.adv-summary dt {
+  color: var(--muted);
+  font-size: 13px;
+}
+.adv-summary dd {
+  margin: 2px 0 0;
+  font: 700 26px var(--serif);
+}
+@media (max-width: 700px) {
+  .adv-map-key {
+    display: none;
+  }
+  .adv-scene-text p {
+    font-size: 21px;
+  }
+}
+
+/* Encounters sit on the map; full-screen paintings are reserved for story nodes. */
+.adv-dialog-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgb(var(--shade-rgb) / 0.72);
+}
+.adv-dialog-backdrop > .adv-offer {
+  position: relative;
+  inset: auto;
+  width: min(1400px, 100%);
+  height: min(720px, 100%);
+  border: 1px solid var(--plate-edge);
+  background: var(--corners-plate), var(--plate-bg);
+  box-shadow: var(--plate-shadow);
+}
+.adv-dialog-backdrop .adv-offer-card {
+  width: clamp(120px, min(15cqw, 24cqh), 225px);
+}
+.adv-battle-dialog,
+.adv-recruit-dialog {
+  width: min(670px, 100%);
+  overflow: hidden;
+  border: 1px solid var(--plate-edge);
+  background: var(--corners-plate), var(--plate-bg);
+  box-shadow: var(--plate-shadow);
+}
+.adv-battle-art {
+  width: 100%;
+  aspect-ratio: 16/9;
+  max-height: 290px;
+  background-position: center;
+  background-size: cover;
+  border-bottom: 1px solid rgb(var(--bronze-rgb) / 0.4);
+}
+.adv-battle-copy,
+.adv-recruit-copy {
+  padding: 26px 34px 30px;
+}
+.adv-battle-copy small,
+.adv-recruit-copy small {
+  color: var(--bronze);
+}
+.adv-battle-copy h2,
+.adv-recruit-copy h2 {
+  margin: 8px 0 12px;
+  color: var(--bronze-bright);
+  font: 700 32px var(--serif);
+}
+.adv-battle-copy p,
+.adv-recruit-copy p {
+  margin: 0 0 18px;
+  color: var(--bronze-text);
+  font: 400 20px/1.45 var(--serif);
+}
+.adv-recruit-dialog {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 25px;
+  width: min(800px, 100%);
+}
+.adv-recruit-card {
+  flex: 0 0 220px;
+}
+.adv-recruit-card .art-card {
+  width: 100%;
+}
+.adv-recruit-copy .bronze-button {
+  padding: 12px 25px;
+}
+.adv-summary h2 {
+  margin: 8px 0 0;
+  font: 600 23px var(--serif);
+  color: var(--bronze-bright);
+}
+.adv-summary-cards {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  max-width: 95%;
+  overflow: auto;
+}
+.adv-summary-cards > div {
+  flex: 0 0 110px;
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+}
+.adv-summary-cards .art-card {
+  width: 100%;
+}
+
+.adv-summary-error {
+  color: var(--danger-text);
+}

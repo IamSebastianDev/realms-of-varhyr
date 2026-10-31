@@ -16,8 +16,7 @@
   "dependencies": {
     "@realms/content": "*",
     "@realms/contracts": "*",
-    "@realms/core": "*",
-    "@realms/quest": "*"
+    "@realms/core": "*"
   },
   "devDependencies": {
     "@realms/testing": "*",

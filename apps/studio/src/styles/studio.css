@@ -1788,3 +1788,82 @@ button.danger {
 .area.block .vertex.first {
   fill: var(--danger-text);
 }
+
+/* Set creation */
+.set-create-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgb(var(--scene-black-rgb) / 0.72);
+}
+.set-create {
+  width: min(720px, 100%);
+  max-height: 90%;
+  overflow: auto;
+  padding: 28px;
+}
+.set-create h2 {
+  margin: 0;
+  font: 600 28px var(--serif);
+  color: var(--bronze-bright);
+}
+.set-create > p,
+.set-create small {
+  color: var(--faint);
+}
+.set-create label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 10px 0;
+}
+.set-create :is(input:not([type="checkbox"]), textarea) {
+  width: 100%;
+  padding: 8px;
+  color: var(--text);
+  background: var(--ink);
+  border: 1px solid var(--rule-strong);
+  font: inherit;
+}
+.set-create input[type="color"] {
+  height: 38px;
+  padding: 3px;
+}
+.set-create fieldset {
+  border: 1px solid var(--rule);
+  margin: 14px 0;
+  padding: 12px;
+}
+.set-create legend,
+.set-create summary {
+  color: var(--bronze-bright);
+}
+.set-create summary {
+  cursor: pointer;
+}
+.set-create-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 14px;
+}
+.set-create-factions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0 10px;
+}
+.set-create-factions label,
+.set-create label.set-create-check {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+.set-create footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}

@@ -7,7 +7,8 @@ import { Preview } from "../components/Preview";
 import * as fs from "../lib/fs";
 import { DeckBuilder } from "../components/DeckBuilder";
 import { SetOverview } from "../components/SetOverview";
-import { MapEditor } from "../components/MapEditor";
+import { AdventureEditor } from "../components/AdventureEditor";
+import { SetCreator } from "../components/SetCreator";
 import { FactionDots } from "../components/SetOverview";
 import {
   compareCards,
@@ -48,6 +49,9 @@ export function App() {
   const [sandbox, setSandbox] = useState(false);
   const [needsPermission, setNeedsPermission] = useState<fs.Repo | null>(null);
   const [cards, setCards] = useState<fs.StoredCard[]>([]);
+  const [sets, setSets] =
+    useState<readonly import("@realms/content").SetDefinition[]>(setDefinitions);
+  const [creatingSet, setCreatingSet] = useState(false);
   // Every card being worked on. A dirty entry is an unsaved draft: it stays when you open another card and survives a reload.
   const [entries, setEntries] = useState<Record<string, Entry>>({});
   const [currentKey, setCurrentKey] = useState<string | null>(null);
@@ -59,14 +63,15 @@ export function App() {
   const [status, setStatus] = useState("");
   const [problem, setProblem] = useState("");
   const [filters, setFilters] = useState<Filters>(noFilters);
-  const [view, setView] = useState<"cards" | "sets" | "decks" | "map">("cards");
-  const [mapOpened, setMapOpened] = useState(false);
+  const [view, setView] = useState<"cards" | "sets" | "decks" | "adventures">("cards");
   const [activeSet, setActiveSet] = useState("");
   /** The faction chosen on the set statistics page; it also narrows the card list on the left. */
   const [statFaction, setStatFaction] = useState<string | null>(null);
 
   const load = useCallback(async (target: fs.Repo) => {
-    setCards(await fs.readCards(target));
+    const [nextCards, nextSets] = await Promise.all([fs.readCards(target), fs.readSets(target)]);
+    setCards(nextCards);
+    setSets(nextSets.length ? nextSets : setDefinitions);
     setRepo(target);
   }, []);
   useEffect(() => {
@@ -124,7 +129,7 @@ export function App() {
     ? {
         ...noFilters,
         query: filters.query,
-        set: activeSet || filters.set || setDefinitions[0]?.id || "",
+        set: filters.set || activeSet || sets[0]?.id || "",
         faction: statFaction!,
       }
     : filters;
@@ -169,7 +174,7 @@ export function App() {
   const create = (where: { set?: string; faction?: string } = {}) =>
     go(newKey(), () => ({
       draft: newDraft(
-        where.set || filters.set || activeSet || setDefinitions[0]?.id,
+        where.set || filters.set || activeSet || sets[0]?.id,
         where.faction ?? filters.faction,
       ),
       art: null,
@@ -392,14 +397,11 @@ export function App() {
           </button>
           <button
             role="tab"
-            aria-selected={view === "map"}
-            className={view === "map" ? "on" : ""}
-            onClick={() => {
-              setMapOpened(true);
-              setView("map");
-            }}
+            aria-selected={view === "adventures"}
+            className={view === "adventures" ? "on" : ""}
+            onClick={() => setView("adventures")}
           >
-            Map
+            Adventures
           </button>
         </div>
         {view === "cards" && (
@@ -424,258 +426,273 @@ export function App() {
           Change folder
         </button>
       </header>
-      <div className={`studio-body${view === "map" ? " wide" : ""}`}>
-        <nav className="studio-list" aria-label="Cards">
-          <button className="primary" onClick={() => create()}>
-            New card
-          </button>
-          <div className="filters" role="group" aria-label="Filters">
-            <select
-              aria-label="Faction"
-              value={view === "sets" ? (statFaction ?? "") : filters.faction}
-              onChange={(event) =>
-                view === "sets"
-                  ? event.target.value === "hybrid"
-                    ? openCards({ set: activeSet || filters.set, faction: "hybrid" })
-                    : setStatFaction(event.target.value || null)
-                  : setFilter({ faction: event.target.value })
-              }
-            >
-              <option value="">All factions</option>
-              {[...factionIds, "neutral"].map((id) => (
-                <option key={id} value={id}>
-                  {(factionInfo[id]?.name ?? id).replace(/^The /, "")}
-                </option>
-              ))}
-              {pairs.length > 0 && (
-                <optgroup label="Hybrid">
-                  <option value="hybrid">Any hybrid</option>
-                  {pairs.map((pair) => (
-                    <option key={pair} value={pair}>
-                      {pair
-                        .split("+")
-                        .map((id) => (factionInfo[id]?.name ?? id).replace(/^The /, ""))
-                        .join(" + ")}
-                    </option>
-                  ))}
-                </optgroup>
-              )}
-            </select>
-            <select
-              aria-label="Set"
-              value={view === "sets" ? activeSet : filters.set}
-              onChange={(event) =>
-                event.target.value
-                  ? (setActiveSet(event.target.value),
-                    setStatFaction(null),
-                    setFilter({ set: "" }),
-                    setView("sets"))
-                  : (setFilter({ set: "" }), setView("cards"))
-              }
-            >
-              <option value="">All sets</option>
-              {setDefinitions.map((set) => (
-                <option key={set.id} value={set.id}>
-                  {set.name}
-                </option>
-              ))}
-            </select>
-            <select
-              aria-label="Type"
-              value={filters.type}
-              onChange={(event) => setFilter({ type: event.target.value })}
-            >
-              <option value="">All types</option>
-              <option value="creature">Creatures</option>
-              <option value="spell">Spells</option>
-              <option value="holding">Holdings</option>
-            </select>
-            <select
-              aria-label="Rarity"
-              value={filters.rarity}
-              onChange={(event) => setFilter({ rarity: event.target.value })}
-            >
-              <option value="">All rarities</option>
-              <option value="common">Common</option>
-              <option value="rare">Rare</option>
-              <option value="legendary">Legendary</option>
-            </select>
-            <select
-              aria-label="Show"
-              value={filters.show}
-              onChange={(event) => setFilter({ show: event.target.value as Filters["show"] })}
-            >
-              <option value="">Any state</option>
-              <option value="no-art">Missing art</option>
-              <option value="no-german">Missing German text</option>
-            </select>
-            {filtered && (
-              <button
-                className="quiet"
-                onClick={() => {
-                  setFilters({ ...noFilters, query: filters.query });
-                  setStatFaction(null);
-                }}
-              >
-                Clear
-              </button>
-            )}
-          </div>
-          <p className="count" aria-live="polite">
-            {visible.length === cards.length
-              ? `${cards.length} cards`
-              : `${visible.length} of ${cards.length} cards`}
-          </p>
-          {newDrafts.length > 0 && (
-            <div className="draft-list" role="group" aria-label="Unsaved new cards">
-              <p className="count">Unsaved new cards</p>
-              {newDrafts.map(([key, value]) => (
-                <button
-                  key={key}
-                  className={`draft ${key === currentKey ? "on" : ""}`}
-                  onClick={() => go(key)}
-                >
-                  <span className="name">{value.draft.name || "Untitled card"}</span>
-                  <small>draft</small>
-                </button>
-              ))}
-            </div>
-          )}
-          {visible.map((card) => (
-            <button
-              key={card.folder}
-              className={draft && !draft.isNew && draft.folder === card.folder ? "on" : ""}
-              onClick={() => edit(card)}
-            >
-              <Thumb art={card.art} />
-              <span className="name">{card.data.name}</span>
-              <FactionDots members={named(card.data)} />
-              <small title="Cost, Attack/Defense and energy per turn">
-                {[
-                  glance(card.data),
-                  hasDraft(card.folder) ? "unsaved changes" : card.art ? "" : "no art",
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </small>
+      <div className="ae-container" hidden={view !== "adventures"}>
+        <AdventureEditor repo={repo} cards={cards} sets={sets} />
+      </div>
+      {view !== "adventures" && (
+        <div className="studio-body">
+          <nav className="studio-list" aria-label="Cards">
+            <button className="primary" onClick={() => create()}>
+              New card
             </button>
-          ))}
-          {!visible.length && (
-            <p className="studio-hint">
-              {cards.length ? "No card matches these filters." : "This folder has no cards yet."}
-            </p>
-          )}
-        </nav>
-        {mapOpened && <MapEditor repo={repo} scope={scope} active={view === "map"} />}
-        {view === "map" ? null : view === "decks" ? (
-          <DeckBuilder repo={repo} cards={cards} />
-        ) : view === "sets" ? (
-          <SetOverview
-            cards={cards}
-            set={activeSet || filters.set}
-            faction={statFaction}
-            onSet={setActiveSet}
-            onFaction={setStatFaction}
-            onOpen={openCards}
-            onCreate={create}
-          />
-        ) : draft ? (
-          <>
-            <main className="studio-edit">
-              <CardForm
-                draft={draft}
-                patch={patch}
-                hasArt={!!art}
-                folderLocked={false}
-                onArt={(file) =>
-                  change((value) => ({ ...value, art: file, artChanged: true, dirty: true }))
+            <div className="filters" role="group" aria-label="Filters">
+              <select
+                aria-label="Faction"
+                value={view === "sets" ? (statFaction ?? "") : filters.faction}
+                onChange={(event) =>
+                  view === "sets"
+                    ? event.target.value === "hybrid"
+                      ? openCards({ set: activeSet || filters.set, faction: "hybrid" })
+                      : setStatFaction(event.target.value || null)
+                    : setFilter({ faction: event.target.value })
                 }
-              />
-            </main>
-            <aside className="studio-side">
-              <Preview draft={draft} art={art} />
-              <ul className="studio-issues">
-                {result.errors.map((message) => (
-                  <li key={message} className="error">
-                    {message}
-                  </li>
+              >
+                <option value="">All factions</option>
+                {[...factionIds, "neutral"].map((id) => (
+                  <option key={id} value={id}>
+                    {(factionInfo[id]?.name ?? id).replace(/^The /, "")}
+                  </option>
                 ))}
-                {result.warnings.map((message) => (
-                  <li key={message}>{message}</li>
+                {pairs.length > 0 && (
+                  <optgroup label="Hybrid">
+                    <option value="hybrid">Any hybrid</option>
+                    {pairs.map((pair) => (
+                      <option key={pair} value={pair}>
+                        {pair
+                          .split("+")
+                          .map((id) => (factionInfo[id]?.name ?? id).replace(/^The /, ""))
+                          .join(" + ")}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+              </select>
+              <select
+                aria-label="Set"
+                value={filters.set}
+                onChange={(event) => setFilter({ set: event.target.value })}
+              >
+                <option value="">All sets</option>
+                {sets.map((set) => (
+                  <option key={set.id} value={set.id}>
+                    {set.name}
+                  </option>
                 ))}
-              </ul>
-              {deleting ? (
-                <div
-                  className="studio-actions studio-delete"
-                  role="alertdialog"
-                  aria-label="Delete card"
+              </select>
+              <select
+                aria-label="Type"
+                value={filters.type}
+                onChange={(event) => setFilter({ type: event.target.value })}
+              >
+                <option value="">All types</option>
+                <option value="creature">Creatures</option>
+                <option value="spell">Spells</option>
+                <option value="holding">Holdings</option>
+              </select>
+              <select
+                aria-label="Rarity"
+                value={filters.rarity}
+                onChange={(event) => setFilter({ rarity: event.target.value })}
+              >
+                <option value="">All rarities</option>
+                <option value="common">Common</option>
+                <option value="rare">Rare</option>
+                <option value="legendary">Legendary</option>
+              </select>
+              <select
+                aria-label="Show"
+                value={filters.show}
+                onChange={(event) => setFilter({ show: event.target.value as Filters["show"] })}
+              >
+                <option value="">Any state</option>
+                <option value="no-art">Missing art</option>
+                <option value="no-german">Missing German text</option>
+              </select>
+              {filtered && (
+                <button
+                  className="quiet"
+                  onClick={() => {
+                    setFilters({ ...noFilters, query: filters.query });
+                    setStatFaction(null);
+                  }}
                 >
-                  {deleting.startersUsing.length ? (
-                    <p>
-                      {draft.name} is still in {deleting.startersUsing.join(", ")}. Take it out of
-                      the starter deck first, then delete it.
-                    </p>
-                  ) : (
-                    <p>
-                      Delete {draft.name}? This removes its folder, art and German text from{" "}
-                      <code>assets/cards</code>. Git still has the old version.
-                    </p>
-                  )}
-                  <div>
-                    {!deleting.startersUsing.length && (
-                      <button className="danger solid" onClick={remove}>
-                        Delete card
+                  Clear
+                </button>
+              )}
+            </div>
+            <p className="count" aria-live="polite">
+              {visible.length === cards.length
+                ? `${cards.length} cards`
+                : `${visible.length} of ${cards.length} cards`}
+            </p>
+            {newDrafts.length > 0 && (
+              <div className="draft-list" role="group" aria-label="Unsaved new cards">
+                <p className="count">Unsaved new cards</p>
+                {newDrafts.map(([key, value]) => (
+                  <button
+                    key={key}
+                    className={`draft ${key === currentKey ? "on" : ""}`}
+                    onClick={() => go(key)}
+                  >
+                    <span className="name">{value.draft.name || "Untitled card"}</span>
+                    <small>draft</small>
+                  </button>
+                ))}
+              </div>
+            )}
+            {visible.map((card) => (
+              <button
+                key={card.folder}
+                className={draft && !draft.isNew && draft.folder === card.folder ? "on" : ""}
+                onClick={() => edit(card)}
+              >
+                <Thumb art={card.art} />
+                <span className="name">{card.data.name}</span>
+                <FactionDots members={named(card.data)} />
+                <small title="Cost, Attack/Defense and energy per turn">
+                  {[
+                    glance(card.data),
+                    hasDraft(card.folder) ? "unsaved changes" : card.art ? "" : "no art",
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </small>
+              </button>
+            ))}
+            {!visible.length && (
+              <p className="studio-hint">
+                {cards.length ? "No card matches these filters." : "This folder has no cards yet."}
+              </p>
+            )}
+          </nav>
+          {view === "decks" ? (
+            <DeckBuilder repo={repo} cards={cards} />
+          ) : view === "sets" ? (
+            <SetOverview
+              cards={cards}
+              sets={sets}
+              onCreateSet={() => setCreatingSet(true)}
+              set={activeSet || filters.set}
+              faction={statFaction}
+              onSet={setActiveSet}
+              onFaction={setStatFaction}
+              onOpen={openCards}
+              onCreate={create}
+            />
+          ) : draft ? (
+            <>
+              <main className="studio-edit">
+                <CardForm
+                  draft={draft}
+                  sets={sets}
+                  patch={patch}
+                  hasArt={!!art}
+                  folderLocked={false}
+                  onArt={(file) =>
+                    change((value) => ({ ...value, art: file, artChanged: true, dirty: true }))
+                  }
+                />
+              </main>
+              <aside className="studio-side">
+                <Preview draft={draft} art={art} />
+                <ul className="studio-issues">
+                  {result.errors.map((message) => (
+                    <li key={message} className="error">
+                      {message}
+                    </li>
+                  ))}
+                  {result.warnings.map((message) => (
+                    <li key={message}>{message}</li>
+                  ))}
+                </ul>
+                {deleting ? (
+                  <div
+                    className="studio-actions studio-delete"
+                    role="alertdialog"
+                    aria-label="Delete card"
+                  >
+                    {deleting.startersUsing.length ? (
+                      <p>
+                        {draft.name} is still in {deleting.startersUsing.join(", ")}. Take it out of
+                        the starter deck first, then delete it.
+                      </p>
+                    ) : (
+                      <p>
+                        Delete {draft.name}? This removes its folder, art and German text from{" "}
+                        <code>assets/cards</code>. Git still has the old version.
+                      </p>
+                    )}
+                    <div>
+                      {!deleting.startersUsing.length && (
+                        <button className="danger solid" onClick={remove}>
+                          Delete card
+                        </button>
+                      )}
+                      <button onClick={() => setDeleting(null)}>
+                        {deleting.startersUsing.length ? "Close" : "Keep it"}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="studio-actions">
+                    <button className="primary" disabled={!!result.errors.length} onClick={save}>
+                      Save card
+                    </button>
+                    {!draft.isNew && <button onClick={duplicate}>Duplicate</button>}
+                    {!draft.isNew && (
+                      <button className="danger" onClick={askDelete}>
+                        Delete
                       </button>
                     )}
-                    <button onClick={() => setDeleting(null)}>
-                      {deleting.startersUsing.length ? "Close" : "Keep it"}
-                    </button>
                   </div>
-                </div>
-              ) : (
-                <div className="studio-actions">
-                  <button className="primary" disabled={!!result.errors.length} onClick={save}>
-                    Save card
-                  </button>
-                  {!draft.isNew && <button onClick={duplicate}>Duplicate</button>}
-                  {!draft.isNew && (
-                    <button className="danger" onClick={askDelete}>
-                      Delete
+                )}
+                {creatingSet && (
+                  <SetCreator
+                    repo={repo}
+                    sets={sets}
+                    onCancel={() => setCreatingSet(false)}
+                    onCreated={async (set) => {
+                      setSets((current) =>
+                        [...current, set].sort((a, b) => a.id.localeCompare(b.id)),
+                      );
+                      setActiveSet(set.id);
+                      setStatFaction(null);
+                      setCreatingSet(false);
+                    }}
+                  />
+                )}
+                {entry?.dirty && (
+                  <p className="studio-draft">
+                    Unsaved changes are kept while you look at other cards.{" "}
+                    <button className="quiet" onClick={discard}>
+                      {draft.isNew ? "Discard this card" : "Discard changes"}
                     </button>
-                  )}
-                </div>
-              )}
-              {entry?.dirty && (
-                <p className="studio-draft">
-                  Unsaved changes are kept while you look at other cards.{" "}
-                  <button className="quiet" onClick={discard}>
-                    {draft.isNew ? "Discard this card" : "Discard changes"}
-                  </button>
-                </p>
-              )}
+                  </p>
+                )}
+                {status && (
+                  <p role="status" className="studio-status">
+                    {status}
+                  </p>
+                )}
+                {problem && (
+                  <p role="alert" className="studio-problem">
+                    {problem}
+                  </p>
+                )}
+              </aside>
+            </>
+          ) : (
+            <main className="studio-empty">
+              <p>Pick a card to edit, or start a new one.</p>
               {status && (
                 <p role="status" className="studio-status">
                   {status}
                 </p>
               )}
-              {problem && (
-                <p role="alert" className="studio-problem">
-                  {problem}
-                </p>
-              )}
-            </aside>
-          </>
-        ) : (
-          <main className="studio-empty">
-            <p>Pick a card to edit, or start a new one.</p>
-            {status && (
-              <p role="status" className="studio-status">
-                {status}
-              </p>
-            )}
-          </main>
-        )}
-      </div>
+            </main>
+          )}
+        </div>
+      )}
     </div>
   );
 }

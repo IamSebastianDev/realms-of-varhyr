@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "maelin-warden-of-the-ford",
+  "revision": 1,
+  "name": "Maelin, Warden of the Ford",
+  "deckLimitKey": "maelin-warden-of-the-ford",
+  "type": "creature",
+  "factions": [
+    "bright-marches"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "bright-marches": 2
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "bright-marches": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "guard",
+      "params": {}
+    }
+  ],
+  "lore": "An invitation may open a hall. At his ford, a promise must hold both banks.",
+  "set": "faces-of-the-realm"
+}

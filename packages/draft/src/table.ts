@@ -1,5 +1,5 @@
 import type { Registry } from "@realms/contracts";
-import { makeRng } from "@realms/quest/rng";
+import { makeRng } from "@realms/core/rng";
 import {
   botFaction,
   botPick,

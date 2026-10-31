@@ -188,6 +188,17 @@ export const searchLibraryByCost =
       first: first === undefined ? false : read(first, params),
       source: ctx.source.id,
     });
+/** The player takes up to `count` creatures from the library for the hand, one choice at a time, with a combined energy cost of at most `budget`. */
+export const searchLibraryForCreatures =
+  (count: Value<number>, budget: Value<number>): Effect =>
+  (ctx, params) =>
+    ctx.issue({
+      type: "search-creatures",
+      player: ctx.source.controller,
+      count: read(count, params),
+      budget: read(budget, params),
+      source: ctx.source.id,
+    });
 export const ransack = (): Effect => (ctx) =>
   ctx.issue({ type: "ransack", player: ctx.source.controller, source: ctx.source.id });
 export const gainEnergy =

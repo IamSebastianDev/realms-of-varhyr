@@ -116,7 +116,8 @@ export function useLobbyCollection(c: ReturnType<typeof useLobbyNavigation>) {
         if (inspected) setInspected(null);
         else if (booster) setBooster(null);
         else if (setup) setSetup(null);
-        else if (screen !== "menu" && screen !== "quest" && screen !== "draft") navigate("menu");
+        else if (screen !== "menu" && screen !== "adventure" && screen !== "draft")
+          navigate("menu");
       }
     };
     window.addEventListener("keydown", close);

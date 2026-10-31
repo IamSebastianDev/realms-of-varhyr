@@ -18,6 +18,7 @@ export function useMatchUiState(c: ReturnType<typeof useMatchBasics>) {
   const [attackers, setAttackers] = useState<string[]>([]),
     [lanes, setLanes] = useState<Record<string, number>>({});
   const [mulliganPick, setMulliganPick] = useState<string[]>([]),
+    [handOrder, setHandOrder] = useState<string[]>([]),
     [logOpen, setLogOpen] = useState(false),
     [panel, setPanel] = useState<
       "rules" | "menu" | "settings" | "journal" | "debug" | "discard" | null
@@ -55,6 +56,8 @@ export function useMatchUiState(c: ReturnType<typeof useMatchBasics>) {
     lanes,
     setLanes,
     mulliganPick,
+    handOrder,
+    setHandOrder,
     setMulliganPick,
     logOpen,
     setLogOpen,

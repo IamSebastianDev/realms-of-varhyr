@@ -50,7 +50,7 @@ export function MenuScreen() {
           startSession={onAttach}
           learn={startTutorialMatch}
           beginMatch={onBegin}
-          questFight={!!setup?.quest && !state.outcome}
+          adventureFight={!!setup?.adventure && !state.outcome}
           draftFight={!!setup?.draft && !state.outcome}
         />
         {error && (

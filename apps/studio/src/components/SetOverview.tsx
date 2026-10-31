@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { factionInfo, setDefinitions } from "@realms/content";
+import { factionInfo, type SetDefinition } from "@realms/content";
 import { groupOf, setStats, type Filters, type Stored } from "../lib/model";
 
 const short = (id: string) => (factionInfo[id]?.name ?? id).replace(/^The /, "");
@@ -36,6 +36,8 @@ export function SetOverview({
   onFaction,
   onOpen,
   onCreate,
+  sets,
+  onCreateSet,
 }: {
   cards: Stored[];
   set: string;
@@ -44,19 +46,21 @@ export function SetOverview({
   onFaction: (id: string | null) => void;
   onOpen: (filters: Partial<Filters>) => void;
   onCreate: (where: { set: string; faction?: string }) => void;
+  sets: readonly SetDefinition[];
+  onCreateSet: () => void;
 }) {
   const ids = useMemo(
     () =>
       [
         ...new Set([
-          ...setDefinitions.map((definition) => definition.id),
+          ...sets.map((definition) => definition.id),
           ...cards.map((card) => card.data.set as string),
         ]),
       ].filter(Boolean),
-    [cards],
+    [cards, sets],
   );
   const current = ids.includes(set) ? set : ids[0];
-  const definition = setDefinitions.find((entry) => entry.id === current);
+  const definition = sets.find((entry) => entry.id === current);
   const factionOrder = useMemo(() => Object.keys(factionInfo).filter((id) => id !== "neutral"), []);
   const inSet = useMemo(() => cards.filter((card) => card.data.set === current), [cards, current]);
   const scoped = useMemo(
@@ -89,10 +93,11 @@ export function SetOverview({
               onSet(id);
             }}
           >
-            {setDefinitions.find((entry) => entry.id === id)?.name ?? id}
+            {sets.find((entry) => entry.id === id)?.name ?? id}
             <small>{count(id)}</small>
           </button>
         ))}
+        <button onClick={onCreateSet}>+ New set</button>
       </div>
 
       <header className="set-head">

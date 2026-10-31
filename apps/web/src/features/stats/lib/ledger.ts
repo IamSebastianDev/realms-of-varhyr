@@ -9,7 +9,8 @@ export const LEDGER_VERSION = 1;
 export const MAX_MATCHES = 2000;
 const MAX_FILE_MATCHES = 10000;
 
-export type MatchMode = "practice" | "hotseat" | "online" | "quest" | "draft";
+/** "quest" only appears in matches recorded before adventures replaced the quest mode. */
+export type MatchMode = "practice" | "hotseat" | "online" | "adventure" | "quest" | "draft";
 export type Outcome = "won" | "lost" | "draw";
 /** The opponent as far as their played cards show: the factions they lean on, strongest first. Empty means nothing was seen. */
 export type Opponent = { factions: string[] };
@@ -53,7 +54,7 @@ export function deckVersion(cards: readonly string[]): string {
 }
 
 const outcomes: Outcome[] = ["won", "lost", "draw"];
-const modes: MatchMode[] = ["practice", "hotseat", "online", "quest", "draft"];
+const modes: MatchMode[] = ["practice", "hotseat", "online", "adventure", "quest", "draft"];
 const text = (value: unknown, max = 80): value is string =>
   typeof value === "string" && value.length > 0 && value.length <= max;
 const count = (value: unknown): value is number =>

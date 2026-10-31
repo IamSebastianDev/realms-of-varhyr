@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { cardAssetsPlugin } from "../../tools/src/card-assets-plugin";
-import { questAssetsPlugin } from "../../tools/src/quest-assets-plugin";
+import { adventureAssetsPlugin } from "../../tools/src/adventure-assets-plugin";
 import { webpArtPlugin } from "../../tools/src/webp-art-plugin";
 
 const repo = resolve(import.meta.dirname, "../..");
@@ -10,6 +10,6 @@ const repo = resolve(import.meta.dirname, "../..");
 export default defineConfig({
   root: import.meta.dirname,
   publicDir: resolve(repo, "public"),
-  plugins: [cardAssetsPlugin(repo), questAssetsPlugin(repo), react(), webpArtPlugin()],
+  plugins: [cardAssetsPlugin(repo), adventureAssetsPlugin(repo), react(), webpArtPlugin()],
   server: { fs: { allow: [repo] }, watch: { ignored: ["**/.card-import-*/**"] } },
 });

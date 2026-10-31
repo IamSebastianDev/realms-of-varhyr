@@ -6,7 +6,6 @@ import {
   drawBooster,
   packCards,
   packIds,
-  questAlignments,
 } from "@realms/content/boosters";
 import {
   boosterPrice,
@@ -22,14 +21,6 @@ const [pack] = boosterPacks;
 const funded = (crowns: number) => ({ ...emptyCollection(), crowns });
 
 describe("the booster", () => {
-  it("is one pack that draws from every faction", () => {
-    expect(boosterPacks).toHaveLength(1);
-    const cards = Object.values(registry.cards),
-      pool = packCards(cards, pack!);
-    expect(pool.length).toBe(cards.length);
-    for (const alignment of questAlignments)
-      for (const faction of alignment.factions) expect(pack!.factions).toContain(faction);
-  });
   it("is what every older pack ID stands for", () => {
     for (const id of [packIds.good, packIds.neutral, packIds.evil, "nonsense", undefined])
       expect(boosterFor(id).id).toBe(packIds.realms);

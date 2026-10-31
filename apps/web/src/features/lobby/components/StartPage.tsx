@@ -14,7 +14,7 @@ import {
   rerollGoal,
   useGoals,
 } from "../../goals/stores/goalsStore";
-import { useQuestRun } from "../../quest/stores/questStore";
+import { useAdventureRun } from "../../adventure/stores/adventureStore";
 import { useDraftInProgress } from "../../draft/stores/draftStore";
 import "../styles/start-hall.css";
 import { cardArtUrl } from "../../../lib/cardArtUrl";
@@ -27,7 +27,7 @@ type Props = {
   play: () => void;
   draft: () => void;
   resume: () => void;
-  newQuest: () => void;
+  newAdventure: () => void;
 };
 
 const art = (id: string) => ({ backgroundImage: `url(${cardArtUrl(id)})` });
@@ -82,7 +82,7 @@ function Medal({
   );
 }
 
-/** Home: three big art cards to start playing, with daily goals and quest progress along the bottom. */
+/** Home: three big art cards to start playing, with daily goals and adventure progress along the bottom. */
 export function StartPage({
   inert,
   collection,
@@ -91,11 +91,11 @@ export function StartPage({
   play,
   draft,
   resume,
-  newQuest,
+  newAdventure,
 }: Props) {
   useLanguage();
   const goals = useGoals();
-  const run = useQuestRun();
+  const run = useAdventureRun();
   const drafting = useDraftInProgress();
   const closest = closestAchievement(goals, externalOf(collection));
   return (
@@ -129,24 +129,24 @@ export function StartPage({
             <ArrowRight className="go" size={22} />
           </button>
           <button
-            className="home-mode quest"
+            className="home-mode adventure"
             style={art("the-lonely-wanderer")}
-            onClick={canResume ? resume : newQuest}
+            onClick={canResume ? resume : newAdventure}
           >
             {canResume ? <Play size={26} /> : <Scroll size={26} />}
             <b>
               {canResume
                 ? msg("Continue match")
                 : run && run.stage !== "over"
-                  ? msg("Continue expedition")
-                  : msg("Quest")}
+                  ? msg("Continue adventure")
+                  : msg("Adventure")}
             </b>
             <small>
               {canResume
                 ? msg(resumeLabel)
                 : run && run.stage !== "over"
-                  ? msg("{v0} life · {v1} silver", { v0: run.life, v1: run.silver })
-                  : msg("Explore the map, fight and trade")}
+                  ? msg("{v0} cards · {v1} silver", { v0: run.deck.length, v1: run.silver })
+                  : msg("Choose a route, fight and build your deck")}
             </small>
             <ArrowRight className="go" size={22} />
           </button>

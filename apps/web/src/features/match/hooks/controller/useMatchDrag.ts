@@ -6,6 +6,7 @@ import {
   resolveDrop,
   resolveLaneDrop,
 } from "../../lib/cardInteraction";
+import { handDropIndex, moveInOrder, orderedHand } from "../../lib/handOrder";
 import { type PlayerId } from "@realms/contracts";
 import { laneBlocks, other } from "@realms/core";
 import { t as msg } from "@realms/ui/i18n";
@@ -48,7 +49,9 @@ export function useMatchDrag(
     setAttackers,
     setDraft,
     damagePick,
+    handOrder,
     setError,
+    setHandOrder,
     setHovered,
     setLanes,
     setPreview,
@@ -74,6 +77,21 @@ export function useMatchDrag(
         },
       },
       registry.cards[view.cards[point.cardId]?.definitionId]?.type === "spell",
+    );
+  }
+  // The hand is arranged by the player: dragging a card along it moves it, and letting go inside the hand keeps it there.
+  const hand = orderedHand(view.hand, handOrder);
+  function handSlot(point: CardDrag): number | null {
+    if (view.cards[point.cardId]?.zone !== "hand") return null;
+    const boxes = Object.fromEntries(
+      hand.map((id) => [id, maybeRectOf(document.getElementById(`hand-${id}`))]),
+    );
+    return handDropIndex(
+      point,
+      point.cardId,
+      hand,
+      maybeRectOf(document.querySelector(".hand-scroll")),
+      boxes,
     );
   }
   const dragEnabled = live && !panel && !view.pending && !state.outcome && stage === "none";
@@ -103,6 +121,11 @@ export function useMatchDrag(
         setSelected(null);
         return;
       }
+      const slot = handSlot(point);
+      if (slot !== null) {
+        setHandOrder(moveInOrder(hand, point.cardId, slot));
+        return;
+      }
       const drop = resolveDrop(view, viewer, registry, point.cardId, hitZone(point));
       if (!drop) {
         setError(
@@ -125,6 +148,8 @@ export function useMatchDrag(
       setError("");
     },
   );
+  const handSpot = drag ? handSlot(drag) : null;
+  const handIds = drag && handSpot !== null ? moveInOrder(hand, drag.cardId, handSpot) : hand;
   const dragDef =
     drag && view.cards[drag.cardId] ? registry.cards[view.cards[drag.cardId].definitionId] : null;
   const dropZone = drag ? hitZone(drag) : null;
@@ -172,6 +197,7 @@ export function useMatchDrag(
   };
   return {
     dragEnabled,
+    handIds,
     drag,
     startDrag,
     suppressClick,

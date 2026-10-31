@@ -5,8 +5,10 @@ import {
   draftFromFiles,
   germanIncomplete,
   matches,
+  newBinding,
   newDraft,
   noFilters,
+  paramFields,
   serialize,
   setStats,
   validate,
@@ -309,5 +311,22 @@ describe("ability parameters", () => {
     expect(errors.length).toBeGreaterThan(0);
     draft.cast = [{ id: "bolster", params: { defense: 2 } }];
     expect(validate(draft, new Set(), true).errors).toEqual([]);
+  });
+});
+
+describe("optional text parameters", () => {
+  it("start absent, so a new binding saves without them", () => {
+    expect(paramFields("costReduction").find((f) => f.key === "subtype")).toMatchObject({
+      kind: "text",
+      optional: true,
+      seed: false,
+    });
+    expect(newBinding("costReduction").params).not.toHaveProperty("subtype");
+  });
+  it("stay required where the schema requires them", () => {
+    expect(paramFields("hive").find((f) => f.key === "subtype")).toMatchObject({
+      optional: false,
+      seed: true,
+    });
   });
 });

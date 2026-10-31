@@ -1,7 +1,6 @@
 /* Black and bronze: one plate for every panel, dialog and sheet. Tokens and the corner brackets live in packages/ui/src/bronze.css, shared with the card studio. Loaded last so it replaces the older green surfaces. */
 .profile-stage,
 .builder-dialog,
-.quest-dialog,
 .privacy-card,
 .result-dialog,
 .side-panel,
@@ -24,20 +23,11 @@
 }
 .builder-dialog h2,
 .privacy-card h2,
-.result-dialog h2,
-.quest-dialog h2 {
+.result-dialog h2 {
   color: var(--bronze-text);
 }
 /* Buttons on a plate: bronze chrome, serif. */
-:is(
-    .builder-dialog,
-    .quest-dialog,
-    .privacy-card,
-    .result-dialog,
-    .side-panel,
-    .game-setup-pane,
-    .profile-stage
-  )
+:is(.builder-dialog, .privacy-card, .result-dialog, .side-panel, .game-setup-pane, .profile-stage)
   .outline-button {
   border: 1px solid;
   border-color: rgb(var(--shade-rgb) / 0.6) rgb(var(--edge-rgb) / 0.1) rgb(var(--edge-rgb) / 0.13)
@@ -48,27 +38,11 @@
   color: var(--bronze-text);
   font: 500 15px var(--serif);
 }
-:is(
-    .builder-dialog,
-    .quest-dialog,
-    .privacy-card,
-    .result-dialog,
-    .side-panel,
-    .game-setup-pane,
-    .profile-stage
-  )
+:is(.builder-dialog, .privacy-card, .result-dialog, .side-panel, .game-setup-pane, .profile-stage)
   .outline-button:hover:not(:disabled) {
   border-color: rgb(var(--bronze-rgb) / 0.6);
 }
-:is(
-    .builder-dialog,
-    .quest-dialog,
-    .privacy-card,
-    .result-dialog,
-    .side-panel,
-    .game-setup-pane,
-    .profile-stage
-  )
+:is(.builder-dialog, .privacy-card, .result-dialog, .side-panel, .game-setup-pane, .profile-stage)
   .outline-button
   svg {
   color: var(--bronze);
@@ -212,7 +186,7 @@
   .builder-dialog-close,
   .preview-close,
   .booster-close,
-  .quest-x,
+  .adv-x,
   .coach-skip
 ) {
   border: 1px solid;
@@ -239,7 +213,7 @@
     .builder-dialog-close,
     .preview-close,
     .booster-close,
-    .quest-x,
+    .adv-x,
     .coach-skip
   ):hover:not(:disabled) {
   border-color: rgb(var(--bronze-rgb) / 0.6);
@@ -262,7 +236,7 @@
   .builder-dialog-close,
   .preview-close,
   .booster-close,
-  .quest-x,
+  .adv-x,
   .coach-skip
 )[aria-selected="true"],
 :is(
@@ -282,7 +256,7 @@
   .builder-dialog-close,
   .preview-close,
   .booster-close,
-  .quest-x,
+  .adv-x,
   .coach-skip
 ).active,
 :is(
@@ -302,7 +276,7 @@
   .builder-dialog-close,
   .preview-close,
   .booster-close,
-  .quest-x,
+  .adv-x,
   .coach-skip
 ).on {
   border-color: rgb(var(--bronze-rgb) / 0.8);
@@ -326,7 +300,7 @@
     .builder-dialog-close,
     .preview-close,
     .booster-close,
-    .quest-x,
+    .adv-x,
     .coach-skip
   )
   svg {

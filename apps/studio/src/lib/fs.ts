@@ -1,4 +1,5 @@
 /** The studio reads and writes the repository directly through the browser's File System Access API (Chrome and Edge). */
+import { parseSetDefinition, type SetDefinition } from "@realms/content/setDefinition";
 type Perm = { mode: "readwrite" };
 type Dir = FileSystemDirectoryHandle & {
   queryPermission(o: Perm): Promise<PermissionState>;
@@ -243,6 +244,43 @@ export async function writeFaction(repo: Repo, file: string, data: Record<string
   await write(await dir(repo, "assets/factions", true), file, JSON.stringify(data, null, 2) + "\n");
 }
 
+/** Set definitions are edited in the repository, so newly created sets are available without reloading the studio. */
+export async function readSets(repo: Repo): Promise<SetDefinition[]> {
+  let folder: Dir;
+  try {
+    folder = await dir(repo, "assets/sets");
+  } catch {
+    return [];
+  }
+  const sets: SetDefinition[] = [];
+  for await (const entry of folder.values()) {
+    if (entry.kind !== "file" || !entry.name.endsWith(".json")) continue;
+    try {
+      const parsed = parseSetDefinition(
+        JSON.parse(await (await (entry as FileSystemFileHandle).getFile()).text()),
+      );
+      if (entry.name !== `${parsed.id}.json`)
+        throw new Error("The filename must match the set ID.");
+      sets.push(parsed);
+    } catch (error) {
+      throw new Error(`${entry.name}: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  return sets.sort((a, b) => a.id.localeCompare(b.id));
+}
+export async function createSet(repo: Repo, set: SetDefinition) {
+  const parsed = parseSetDefinition(set);
+  const folder = await dir(repo, "assets/sets", true);
+  try {
+    await folder.getFileHandle(`${parsed.id}.json`);
+  } catch (error) {
+    if (!(error instanceof DOMException) || error.name !== "NotFoundError") throw error;
+    await write(folder, `${parsed.id}.json`, JSON.stringify(parsed, null, 2) + "\n");
+    return;
+  }
+  throw new Error(`A set with the ID '${parsed.id}' already exists.`);
+}
+
 /** Any image becomes the PNG the importer requires. */
 export async function toPng(file: Blob): Promise<Blob> {
   if (file.type === "image/png") return file;
@@ -259,43 +297,77 @@ export async function toPng(file: Blob): Promise<Blob> {
   );
 }
 
-/** The quest map: assets/quest/map.json next to the painted map image it describes. */
-const imageName = /\.(png|jpe?g|webp)$/i;
-async function questDir(repo: Repo, create: boolean) {
+/** Adventure definitions and paintings are stored alongside the game assets. */
+export type StoredAdventure = {
+  folder: string;
+  data: import("@realms/adventure").AdventureDef;
+  art: Record<string, Blob>;
+};
+export async function readAdventures(repo: Repo): Promise<StoredAdventure[]> {
+  let base: Dir;
   try {
-    return await dir(repo, "assets/quest", create);
+    base = await dir(repo, "assets/adventures");
   } catch {
-    return null;
+    return [];
   }
-}
-export async function readQuestMap(repo: Repo): Promise<string | null> {
-  const folder = await questDir(repo, false);
-  return folder ? readText(folder, "map.json") : null;
-}
-export async function writeQuestMap(repo: Repo, text: string) {
-  const folder = await questDir(repo, true);
-  await write(folder!, "map.json", text);
-}
-/** Image files in assets/quest. The committed map is preferred over the local placeholder. */
-export async function listQuestImages(repo: Repo): Promise<string[]> {
-  const folder = await questDir(repo, false),
-    names: string[] = [];
-  if (folder)
-    for await (const entry of folder.values())
-      if (entry.kind === "file" && imageName.test(entry.name)) names.push(entry.name);
-  const rank = (name: string) => (name.startsWith("placeholder") ? 1 : 0);
-  return names.sort((a, b) => rank(a) - rank(b) || (a < b ? -1 : 1));
-}
-export async function readQuestImage(repo: Repo, name: string): Promise<Blob | null> {
-  const folder = await questDir(repo, false);
-  if (!folder) return null;
-  try {
-    return await (await folder.getFileHandle(name)).getFile();
-  } catch {
-    return null;
+  const result: StoredAdventure[] = [];
+  for await (const entry of base.values()) {
+    if (entry.kind !== "directory") continue;
+    const folder = entry as FileSystemDirectoryHandle;
+    const raw = await readText(folder, "adventure.json");
+    if (!raw) continue;
+    let data: StoredAdventure["data"];
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      throw new Error(`Invalid adventure.json in ${entry.name}.`);
+    }
+    const art: Record<string, Blob> = {};
+    try {
+      const directory = (await folder.getDirectoryHandle("art")) as Dir;
+      for await (const file of directory.values()) {
+        if (file.kind === "file" && file.name.endsWith(".webp"))
+          art[file.name.slice(0, -5)] = await (file as FileSystemFileHandle).getFile();
+      }
+    } catch {
+      /* An adventure can be authored before its art exists. */
+    }
+    result.push({ folder: entry.name, data, art });
   }
+  return result.sort((a, b) => a.folder.localeCompare(b.folder));
 }
-export async function writeQuestImage(repo: Repo, name: string, image: Blob) {
-  const folder = await questDir(repo, true);
-  await write(folder!, name, image);
+export async function writeAdventure(
+  repo: Repo,
+  folder: string,
+  data: import("@realms/adventure").AdventureDef,
+  images: Record<string, Blob>,
+) {
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(folder))
+    throw new Error("Adventure ID must use lowercase letters, numbers and hyphens.");
+  const target = await dir(repo, `assets/adventures/${folder}`, true);
+  const art = await target.getDirectoryHandle("art", { create: true });
+  for (const [name, image] of Object.entries(images)) {
+    if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(name)) throw new Error(`Invalid art name: ${name}`);
+    await write(art, `${name}.webp`, image);
+  }
+  await write(target, "adventure.json", JSON.stringify(data, null, 2) + "\n");
+}
+export async function toWebp(file: Blob): Promise<Blob> {
+  if (file.type === "image/webp") return file;
+  const image = await createImageBitmap(file);
+  const canvas = document.createElement("canvas");
+  canvas.width = image.width;
+  canvas.height = image.height;
+  canvas.getContext("2d")!.drawImage(image, 0, 0);
+  image.close();
+  return new Promise((resolve, reject) =>
+    canvas.toBlob(
+      (blob) =>
+        blob?.type === "image/webp"
+          ? resolve(blob)
+          : reject(new Error("This browser could not convert the image to WebP.")),
+      "image/webp",
+      0.9,
+    ),
+  );
 }

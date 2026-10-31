@@ -20,6 +20,20 @@
   --gilt-bright: #f2d99a;
   --gilt-pale: #f6e8bd;
   --gilt-white: #fff2cf;
+  /* Adventure board: wooden table, parchment sheet, ivory and bronze inlay */
+  --wood-dark: #1f140d;
+  --wood: #3b2616;
+  --wood-light: #5a3b22;
+  --wood-rgb: 59 38 22;
+  --parchment: #d8c59a;
+  --parchment-dark: #a98d59;
+  --parchment-rgb: 216 197 154;
+  --ink-brown: #4a3620;
+  --ink-brown-rgb: 74 54 32;
+  --ivory: #f1e8d0;
+  --torchlight: #f4ac62;
+  --adventure-halo: #ffe698;
+  --adventure-halo-light: #fffdf2;
   /* Text */
   --ink-2: #9d9b97;
   --ink-3: #beb8ab;

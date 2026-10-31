@@ -6,7 +6,7 @@ import { SettingsPage } from "../../../settings/components/SettingsPage";
 import { StartPage } from "../StartPage";
 import { Store } from "../../../store/components/Store";
 import { t as msg } from "@realms/ui/i18n";
-import { readRun } from "../../../quest/stores/questStore";
+import { readRun } from "../../../adventure/stores/adventureStore";
 
 import { CollectionBrowser } from "./CollectionBrowser";
 import { useLobbyContext } from "../../LobbyContext.tsx";
@@ -53,10 +53,10 @@ export function ScreenBody() {
           play={() => openSetup("practice")}
           draft={() => openSetup("draft")}
           resume={() => navigate("match")}
-          newQuest={() => {
+          newAdventure={() => {
             const run = readRun();
-            if (run) navigate("quest");
-            else openSetup("quest");
+            if (run) navigate("adventure");
+            else openSetup("adventure");
           }}
         />
       ) : screen === "profile" ? (

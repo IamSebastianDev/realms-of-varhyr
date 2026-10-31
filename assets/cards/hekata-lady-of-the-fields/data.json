@@ -1,7 +1,6 @@
 {
   "$schema": "../../schemas/card.schema.json",
   "id": "hekata-lady-of-the-fields",
-  "set": "foundations",
   "revision": 5,
   "name": "Hekata, Lady of the Fields",
   "deckLimitKey": "hekata-lady-of-the-fields",
@@ -37,13 +36,8 @@
       "params": {
         "amount": 3
       }
-    },
-    {
-      "id": "charge",
-      "params": {
-        "amount": 2
-      }
     }
   ],
-  "lore": "Let the weaklings keep their towers. The gold within them belongs to her."
+  "lore": "Let the weaklings keep their towers. The gold within them belongs to her.",
+  "set": "foundations"
 }

@@ -3,7 +3,7 @@ import { collectionRules } from "../../../collection/lib/collection";
 import { t as msg } from "@realms/ui/i18n";
 import { registry } from "@realms/content";
 import { setWantsDraftScreen } from "../../../draft/stores/draftStore";
-import { setWantsQuestScreen } from "../../../quest/stores/questStore";
+import { setWantsAdventureScreen } from "../../../adventure/stores/adventureStore";
 
 import { useMatch } from "../../MatchContext";
 
@@ -56,8 +56,8 @@ export function SummaryLayer() {
                 : null
             }
             onMenu={() => {
-              if (setup?.quest) {
-                setWantsQuestScreen(true);
+              if (setup?.adventure) {
+                setWantsAdventureScreen(true);
                 leave();
               } else if (setup?.draft) {
                 setWantsDraftScreen(true);
@@ -65,7 +65,7 @@ export function SummaryLayer() {
               } else navigate("menu");
             }}
             menuLabel={setup?.draft ? msg("Back to the draft overview") : undefined}
-            onAgain={local && !setup?.quest && !setup?.draft ? () => reset(false) : undefined}
+            onAgain={local && !setup?.adventure && !setup?.draft ? () => reset(false) : undefined}
             onExport={watching ? undefined : exportReplay}
             reviewLabel={watching ? msg("Watch again") : undefined}
             onReview={

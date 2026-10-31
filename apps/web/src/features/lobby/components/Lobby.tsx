@@ -1,11 +1,11 @@
 import { DraftPage } from "../../draft/components/DraftPage";
-import { QuestPage } from "../../quest/components/QuestPage";
+import { AdventurePage } from "../../adventure/components/AdventurePage";
 import { useLobby } from "../hooks/lobby/useLobby";
 import { LobbyProvider } from "../LobbyContext";
 import type { LobbyProps } from "../lib/lobbyTypes";
 import { LobbyShell } from "./shell/LobbyShell";
 
-/** The menu: the home page, your decks, packs, the store and the rest. The draft and the quest take the whole window instead. */
+/** The menu: the home page, your decks, packs, the store and the rest. The draft and the adventure take the whole window instead. */
 export function Lobby(props: LobbyProps) {
   const lobby = useLobby(props);
   const { navigate } = lobby;
@@ -20,12 +20,12 @@ export function Lobby(props: LobbyProps) {
         attachMatch={props.startSession}
       />
     );
-  if (props.screen === "quest")
+  if (props.screen === "adventure")
     return (
-      <QuestPage
+      <AdventurePage
         reduced={props.reduced}
         leave={() => navigate("menu")}
-        liveMatch={props.questFight}
+        liveMatch={props.adventureFight}
         resume={() => navigate("match")}
         beginFight={props.beginMatch}
       />

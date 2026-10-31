@@ -1,0 +1,5 @@
+{
+  "$schema": "../../schemas/card-translation.schema.json",
+  "name": "Draxus, verräterischer Gesandter",
+  "lore": "Er versprach jedem Herrn eine leichtere Last, solange keiner half, die eines anderen zu tragen."
+}

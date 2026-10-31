@@ -1,3 +1,4 @@
+import { describeAbility } from "@realms/extensions/describeAbility";
 import * as v from "valibot";
 import { describe, expect, it } from "vitest";
 import { combatForecast } from "../src/features/match/lib/combatForecast";
@@ -15,6 +16,7 @@ import {
   autoPayment,
   createMatch,
   decisionPlayer,
+  effectiveCost,
   effectiveStats,
   legalActions,
   projectForPlayer,
@@ -967,9 +969,20 @@ describe("simultaneous combat and response energy", () => {
         .blocks;
     it("intercepts attacks aimed at an adjacent lane, empty or not, but not farther lanes", () => {
       const { s, guard } = guardSetup(2);
-      const attacker = fixture(s, "wild-guardian", "p1", "board", 0);
+      const attacker = fixture(s, "wild-guardian", "p1", "board", 1);
       expect(attack(s, { [attacker]: 1 })).toEqual([{ attacker, blocker: guard }]);
       expect(attack(s, { [attacker]: 0 })).toEqual([]);
+    });
+    it("never pulls an attacker two lanes across: it only steps in when the attacker could reach it", () => {
+      const { s, guard } = guardSetup(2);
+      // From position 0 an attacker reaches lanes 0 and 1; the Guard stands two lanes away.
+      const far = fixture(s, "wild-guardian", "p1", "board", 0);
+      expect(attack(s, { [far]: 1 })).toEqual([]);
+      // From position 3 the same Guard is one lane away, on either side of the target lane.
+      const near = fixture(s, "grove-keeper", "p1", "board", 3);
+      expect(attack(s, { [near]: 3 })).toEqual([{ attacker: near, blocker: guard }]);
+      const edge = fixture(s, "crown-recruit", "p1", "board", 4);
+      expect(attack(s, { [edge]: 3 })).toEqual([]);
     });
     it("always blocks in its own lane and stops only one attacker per combat", () => {
       const { s, guard } = guardSetup(2);
@@ -2065,6 +2078,324 @@ describe("simultaneous combat and response energy", () => {
       for (const card of s.players.p1.deck) s.cards[card].definitionId = "dear-creature";
       const r = step(s, { type: "play", cardId: id, slot: 0 }, "p1", searchRegistry);
       expect(r.pending).toBeNull();
+    });
+  });
+  describe("searchForCreatures", () => {
+    const priced = (generic: number, factions: Record<string, number> = {}) => ({
+      generic,
+      factions,
+    });
+    const multiRegistry = compileContent([
+      ...raw,
+      {
+        ...registry.cards["wild-guardian"],
+        id: "multi-scout",
+        deckLimitKey: "multi-scout",
+        abilities: [{ id: "searchForCreatures", params: { count: 3, maxTotalCost: 5 } }],
+      },
+      {
+        ...registry.cards["wild-guardian"],
+        id: "pair-scout",
+        deckLimitKey: "pair-scout",
+        abilities: [{ id: "searchForCreatures", params: { count: 2, maxTotalCost: 20 } }],
+      },
+      {
+        ...registry.cards["cleansing-light"],
+        id: "multi-spell",
+        deckLimitKey: "multi-spell",
+        cast: [{ id: "searchForCreatures", params: { count: 3, maxTotalCost: 5 } }],
+      },
+      {
+        ...registry.cards["crown-recruit"],
+        id: "cheap-creature",
+        deckLimitKey: "cheap-creature",
+        cost: priced(1, { crownlands: 1 }),
+      },
+      {
+        ...registry.cards["crown-recruit"],
+        id: "mid-creature",
+        deckLimitKey: "mid-creature",
+        cost: priced(1, { crownlands: 2 }),
+      },
+      {
+        ...registry.cards["crown-recruit"],
+        id: "dear-creature",
+        deckLimitKey: "dear-creature",
+        cost: priced(1, { crownlands: 3 }),
+      },
+      {
+        ...registry.cards["wayfarer"],
+        id: "cheap-holding",
+        deckLimitKey: "cheap-holding",
+        type: "holding",
+        abilities: [],
+        stats: { attack: 0, defense: 3, energyOutputs: [] },
+        cost: priced(1),
+      },
+    ]);
+    const rich = (s: GameState) => {
+      s.players.p1.energy = {
+        neutral: 9,
+        elderwood: 9,
+        ironbound: 9,
+        crownlands: 9,
+        ashen: 9,
+        clans: 9,
+        conclave: 9,
+        abyssal: 9,
+        tidebound: 9,
+      };
+    };
+    /** A library of nothing but dear creatures, with these cards on top (first entry on top). */
+    const stock = (s: GameState, topDown: string[]) => {
+      for (const card of s.players.p1.deck) s.cards[card].definitionId = "dear-creature";
+      const ids = s.players.p1.deck.slice(-topDown.length).reverse();
+      topDown.forEach((definitionId, i) => (s.cards[ids[i]].definitionId = definitionId));
+      return ids;
+    };
+    /** The searching card, in hand before the library is rewritten. */
+    const scout = (s: GameState, card = "multi-scout") => {
+      const id = fixture(s, "wild-guardian", "p1", "hand");
+      s.cards[id].definitionId = card;
+      return id;
+    };
+    const play = (s: GameState, id: string) => {
+      rich(s);
+      return step(s, { type: "play", cardId: id, slot: 0 }, "p1", multiRegistry);
+    };
+    const choose = (s: GameState, option: string | number, picks?: string[]) =>
+      step(s, { type: "choose", choiceId: s.pending!.id, option, picks }, "p1", multiRegistry);
+    it("offers every matching creature in one choice and takes the applied set", () => {
+      const s = setup(multiRegistry);
+      const id = scout(s);
+      const [cheapA, cheapB, mid, holding] = stock(s, [
+        "cheap-creature",
+        "cheap-creature",
+        "mid-creature",
+        "cheap-holding",
+      ]);
+      let r = play(s, id);
+      expect(r.pending).toMatchObject({ kind: "library-pick", limit: { picks: 3, budget: 5 } });
+      // Dear creatures (cost 4) fit a single card's limit of 5, holdings never do; cheapest first, every copy listed.
+      expect(r.pending!.options).toContain(cheapA);
+      expect(r.pending!.options).toContain(cheapB);
+      expect(r.pending!.options).not.toContain(holding);
+      expect(r.pending!.options.slice(0, 2)).toEqual(expect.arrayContaining([cheapA, cheapB]));
+      r = choose(r, "apply", [cheapA, mid]);
+      expect(r.pending).toBeNull();
+      expect(r.cards[cheapA].zone).toBe("hand");
+      expect(r.cards[mid].zone).toBe("hand");
+      expect(r.cards[cheapB].zone).toBe("deck");
+      assertInvariants(r);
+    });
+    it("rejects sets over the budget, over the count, with duplicates or strangers", () => {
+      const s = setup(multiRegistry);
+      const id = scout(s);
+      const [cheapA, cheapB, mid, holding] = stock(s, [
+        "cheap-creature",
+        "cheap-creature",
+        "mid-creature",
+        "cheap-holding",
+      ]);
+      const r = play(s, id);
+      // 2 + 2 + 3 = 7 > 5.
+      expect(() => choose(r, "apply", [cheapA, cheapB, mid])).toThrow();
+      expect(() => choose(r, "apply", [cheapA, cheapA])).toThrow();
+      expect(() => choose(r, "apply", [holding])).toThrow();
+      expect(() => choose(r, cheapA)).toThrow();
+      expect(() => choose(r, "apply")).toThrow();
+    });
+    it("lets the player cancel and take nothing", () => {
+      const s = setup(multiRegistry);
+      const id = scout(s);
+      const [cheapA] = stock(s, ["cheap-creature"]);
+      let r = play(s, id);
+      r = choose(r, "stop");
+      expect(r.pending).toBeNull();
+      expect(r.cards[cheapA].zone).toBe("deck");
+      assertInvariants(r);
+    });
+    it("takes at most the count even when budget is left", () => {
+      const s = setup(multiRegistry);
+      const id = scout(s, "pair-scout");
+      const [a, b, c] = stock(s, ["cheap-creature", "mid-creature", "dear-creature"]);
+      const r = play(s, id);
+      expect(() => choose(r, "apply", [a, b, c])).toThrow();
+      const done = choose(r, "apply", [b, c]);
+      expect(done.cards[b].zone).toBe("hand");
+      expect(done.cards[c].zone).toBe("hand");
+      expect(done.cards[a].zone).toBe("deck");
+    });
+    it("lets the bot take the most valuable set within the limits", () => {
+      const s = setup(multiRegistry);
+      const id = scout(s);
+      stock(s, ["cheap-creature", "mid-creature", "cheap-creature"]);
+      const r = play(s, id);
+      const command = botCommand(r, multiRegistry);
+      expect(command).toMatchObject({ type: "choose", option: "apply" });
+      const done = step(r, command, "p1", multiRegistry);
+      expect(done.pending).toBeNull();
+      assertInvariants(done);
+    });
+    it("does not open a choice when no creature qualifies", () => {
+      const s = setup(multiRegistry);
+      const id = scout(s);
+      for (const card of s.players.p1.deck) s.cards[card].definitionId = "cheap-holding";
+      const r = play(s, id);
+      expect(r.pending).toBeNull();
+      expect(r.events.some((e) => e.type === "card.searched")).toBe(true);
+    });
+    it("works as a spell operation", () => {
+      let s = setup(multiRegistry);
+      const id = fixture(s, "cleansing-light", "p1", "hand");
+      s.cards[id].definitionId = "multi-spell";
+      const [cheap] = stock(s, ["cheap-creature"]);
+      rich(s);
+      s = step(s, { type: "play", cardId: id }, "p1", multiRegistry);
+      expect(s.pending).toMatchObject({ kind: "library-pick", limit: { picks: 3 } });
+      s = choose(s, "apply", [cheap]);
+      expect(s.cards[cheap].zone).toBe("hand");
+    });
+    it("rejects a count below two", () => {
+      expect(() =>
+        compileContent([
+          ...raw,
+          {
+            ...registry.cards["wild-guardian"],
+            id: "one-scout",
+            deckLimitKey: "one-scout",
+            abilities: [{ id: "searchForCreatures", params: { count: 1, maxTotalCost: 5 } }],
+          },
+        ]),
+      ).toThrow();
+    });
+  });
+  describe("costReduction", () => {
+    const priced = (generic: number, factions: Record<string, number> = {}) => ({
+      generic,
+      factions,
+    });
+    const keeper = (id: string, params: Record<string, unknown>) => ({
+      ...registry.cards["wild-guardian"],
+      id,
+      deckLimitKey: id,
+      abilities: [{ id: "costReduction", params }],
+    });
+    const discRegistry = compileContent([
+      ...raw,
+      keeper("crown-keeper", { amount: 1, energy: "crownlands" }),
+      keeper("generic-keeper", { amount: 1, energy: "neutral", subtype: "tester" }),
+      keeper("big-keeper", { amount: 5, energy: "neutral" }),
+      {
+        ...registry.cards["crown-recruit"],
+        id: "tester-a",
+        deckLimitKey: "tester-a",
+        subtypes: ["tester"],
+        cost: priced(2, { crownlands: 1 }),
+      },
+      {
+        ...registry.cards["crown-recruit"],
+        id: "other-b",
+        deckLimitKey: "other-b",
+        subtypes: [],
+        cost: priced(2, { crownlands: 1 }),
+      },
+      {
+        ...registry.cards["wayfarer"],
+        id: "tester-hold",
+        deckLimitKey: "tester-hold",
+        type: "holding",
+        abilities: [],
+        subtypes: ["tester"],
+        stats: { attack: 0, defense: 3, energyOutputs: [] },
+        cost: priced(2),
+      },
+    ]);
+    const board = (s: GameState, card: string, slot: number) => {
+      const id = fixture(s, "wild-guardian", "p1", "board", slot);
+      s.cards[id].definitionId = card;
+      return id;
+    };
+    const hand = (s: GameState, card: string, base = "crown-recruit", owner: PlayerId = "p1") => {
+      const id = fixture(s, base, owner, "hand");
+      s.cards[id].definitionId = card;
+      return id;
+    };
+    it("takes off only the named energy type", () => {
+      const s = setup(discRegistry);
+      board(s, "crown-keeper", 0);
+      const a = hand(s, "tester-a");
+      // 2 generic + 1 crown, minus 1 crown: two generic.
+      expect(effectiveCost(s, a, discRegistry)).toEqual({
+        generic: 2,
+        factions: { crownlands: 0 },
+      });
+    });
+    it("without a subtype applies to every creature and holding, never to spells", () => {
+      const s = setup(discRegistry);
+      board(s, "crown-keeper", 0);
+      const a = hand(s, "tester-a"),
+        b = hand(s, "other-b"),
+        spell = hand(s, "cleansing-light", "cleansing-light");
+      expect(effectiveCost(s, a, discRegistry).factions.crownlands).toBe(0);
+      expect(effectiveCost(s, b, discRegistry).factions.crownlands).toBe(0);
+      expect(effectiveCost(s, spell, discRegistry)).toEqual(
+        discRegistry.cards["cleansing-light"].cost,
+      );
+    });
+    it("with a subtype applies to creatures and holdings of it only", () => {
+      const s = setup(discRegistry);
+      board(s, "generic-keeper", 0);
+      const a = hand(s, "tester-a"),
+        b = hand(s, "other-b"),
+        h = hand(s, "tester-hold", "wayfarer");
+      expect(effectiveCost(s, a, discRegistry).generic).toBe(1);
+      expect(effectiveCost(s, b, discRegistry).generic).toBe(2);
+      expect(effectiveCost(s, h, discRegistry).generic).toBe(1);
+    });
+    it("stacks and never goes below zero", () => {
+      const s = setup(discRegistry);
+      board(s, "big-keeper", 0);
+      const a = hand(s, "tester-a");
+      expect(effectiveCost(s, a, discRegistry)).toEqual({
+        generic: 0,
+        factions: { crownlands: 1 },
+      });
+      board(s, "big-keeper", 1);
+      expect(effectiveCost(s, a, discRegistry).generic).toBe(0);
+    });
+    it("does not help the opponent and ends when the card leaves the battlefield", () => {
+      const s = setup(discRegistry);
+      const k = board(s, "big-keeper", 0);
+      const theirs = hand(s, "tester-a", "wayfarer", "p2");
+      expect(effectiveCost(s, theirs, discRegistry).generic).toBe(2);
+      const mine = hand(s, "tester-a");
+      expect(effectiveCost(s, mine, discRegistry).generic).toBe(0);
+      s.cards[k].zone = "discard";
+      s.players.p1.board[0] = null;
+      expect(effectiveCost(s, mine, discRegistry).generic).toBe(2);
+    });
+    it("is what the player pays", () => {
+      let s = setup(discRegistry);
+      board(s, "big-keeper", 0);
+      const a = hand(s, "tester-a");
+      s.players.p1.energy = { crownlands: 1 };
+      expect(legalActions(s, discRegistry).playable.some((x) => x.cardId === a)).toBe(true);
+      s = step(s, { type: "play", cardId: a, slot: 1 }, "p1", discRegistry);
+      expect(s.cards[a].zone).toBe("board");
+      expect(s.players.p1.energy.crownlands ?? 0).toBe(0);
+    });
+    it("rejects a non-positive amount and reads in plain words", () => {
+      expect(() =>
+        compileContent([...raw, keeper("bad-keeper", { amount: 0, energy: "neutral" })]),
+      ).toThrow();
+      const text = describeAbility(
+        { id: "costReduction", params: { amount: 1, energy: "crownlands", subtype: "tester" } },
+        discRegistry.abilities.costReduction,
+      ).description;
+      expect(text).toBe(
+        "Friendly tester creatures and holdings cost 1 less Crownlands energy to play.",
+      );
     });
   });
   describe("ransack", () => {

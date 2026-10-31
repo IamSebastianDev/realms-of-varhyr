@@ -7,9 +7,10 @@
     "./*": "./src/*.ts"
   },
   "scripts": {
-    "generate": "node src/ensure-generated.mjs && tsx src/import-cards.ts",
+    "generate": "node src/ensure-generated.mjs && tsx src/import-cards.ts && tsx src/import-adventures.ts",
     "schema:cards": "tsx src/generate-card-schema.ts",
     "check:css": "node src/check-css.mjs",
+    "adventures": "tsx src/validate-adventures.ts",
     "simulate": "tsx src/simulate.ts",
     "audit:bot": "tsx src/audit-bot.ts",
     "audit:balance": "tsx src/audit-first-player.ts",
@@ -19,12 +20,12 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@realms/adventure": "*",
     "@realms/content": "*",
     "@realms/contracts": "*",
     "@realms/core": "*",
     "@realms/draft": "*",
     "@realms/extensions": "*",
-    "@realms/quest": "*",
     "@valibot/to-json-schema": "^1.8.0",
     "sharp": "^0.35.5",
     "valibot": "^1.1.0"

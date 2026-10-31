@@ -22,9 +22,9 @@ export function SetupDialog() {
           opponentId={props.opponentId}
           setOpponentId={props.setOpponentId}
           start={props.start}
-          startQuest={() => {
+          startAdventure={() => {
             setSetup(null);
-            navigate("quest");
+            navigate("adventure");
           }}
           openDraft={(preset) => {
             setActiveDraft(preset);

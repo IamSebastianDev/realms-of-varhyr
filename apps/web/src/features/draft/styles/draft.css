@@ -5,10 +5,9 @@
 .draft-stripe[aria-checked="true"] {
   border-color: var(--tint, var(--gilt));
 }
-.draft-blade .quest-stripes {
-  display: grid;
-  gap: 10px;
-  margin-bottom: 18px;
+.draft-goal {
+  margin: 0;
+  color: rgb(231 230 228);
 }
 .draft-blade .draft-stripe {
   min-height: 112px;

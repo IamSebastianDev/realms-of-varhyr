@@ -3,7 +3,7 @@ import { creatureActions } from "../../lib/creatureActions";
 import { effectiveStats } from "@realms/core";
 import { t as msg } from "@realms/ui/i18n";
 import { registry } from "@realms/content";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import type { useMatchBasics } from "./useMatchBasics";
 import type { useMatchUiState } from "./useMatchUiState";
@@ -51,16 +51,21 @@ export function useMatchOverlays(
     view,
     viewer,
   } = c;
+  // Only what the preview depends on is watched, not the objects around it: every new game state brings a new `view.pending`
+  // and `state.outcome` object, and treating that as a change closed the card info whenever anything happened.
+  const pendingKind = view.pending?.kind,
+    over = !!state.outcome,
+    dragging = !!drag;
   useEffect(() => {
     setPreview(null);
     if (
       !previewRequest ||
       actionCard ||
-      drag ||
+      dragging ||
       panel ||
       covered ||
-      (view.pending && view.pending.kind !== "mulligan") ||
-      state.outcome
+      (pendingKind && pendingKind !== "mulligan") ||
+      over
     )
       return;
     if (previewRequest.pinned) {
@@ -69,11 +74,26 @@ export function useMatchOverlays(
     }
     const timer = setTimeout(() => setPreview(previewRequest), 420);
     return () => clearTimeout(timer);
-  }, [previewRequest, actionCard, drag, panel, covered, view.pending, state.outcome]);
+  }, [previewRequest, actionCard, dragging, panel, covered, pendingKind, over]);
+  // A new game state closes the preview only when the card it shows has left its place; otherwise the card info stays open
+  // while the opponent plays or the clock runs. A different viewer always closes it.
+  const shownAt = useRef<string | null>(null);
+  const where = (id: string | undefined) => {
+    const card = id ? view.cards[id] : undefined;
+    return card ? `${card.zone}:${card.controller}:${card.slot}` : null;
+  };
+  useEffect(() => {
+    shownAt.current = where(previewRequest?.cardId);
+  }, [previewRequest]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!previewRequest || where(previewRequest.cardId) === shownAt.current) return;
+    setPreviewRequest(null);
+    setPreview(null);
+  }, [view.revision]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     setPreviewRequest(null);
     setPreview(null);
-  }, [view.revision, viewer]);
+  }, [viewer]);
   useEffect(() => {
     const clear = (e: KeyboardEvent) => {
       if (e.key === msg("Escape")) {

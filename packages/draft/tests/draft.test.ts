@@ -34,7 +34,7 @@ import {
   winsOf,
   type DraftRun,
 } from "../src";
-import { makeRng } from "@realms/quest/rng";
+import { makeRng } from "@realms/core/rng";
 
 const preset = draftPresets[0]!;
 const pod = "bright-marches",

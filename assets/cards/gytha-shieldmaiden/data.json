@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "gytha-shieldmaiden",
+  "revision": 1,
+  "name": "Gytha, Shieldmaiden",
+  "deckLimitKey": "gytha-shieldmaiden",
+  "type": "creature",
+  "factions": [
+    "bright-marches"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 1,
+    "factions": {
+      "bright-marches": 2
+    }
+  },
+  "stats": {
+    "attack": 2,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "bright-marches": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "shield-wall",
+      "params": {
+        "amount": 2
+      }
+    }
+  ],
+  "lore": "Her lord withheld his oath. Gytha brought her shield all the same.",
+  "set": "faces-of-the-realm"
+}

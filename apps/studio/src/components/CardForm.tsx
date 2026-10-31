@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { factionInfo, setDefinitions } from "@realms/content";
+import { factionInfo, type SetDefinition } from "@realms/content";
 import { spellSubtypes } from "@realms/contracts";
 import { AbilityPicker } from "./AbilityPicker";
 import {
@@ -242,12 +242,18 @@ function Bindings({
                   <input
                     aria-label={field.key}
                     value={String(binding.params[field.key] ?? "")}
-                    onChange={(event) =>
+                    placeholder={field.optional ? "Any" : undefined}
+                    onChange={(event) => {
+                      // An optional text that is emptied is left out, not saved as an empty word.
+                      const { [field.key]: _left, ...rest } = binding.params;
                       set(index, {
                         ...binding,
-                        params: { ...binding.params, [field.key]: event.target.value },
-                      })
-                    }
+                        params:
+                          field.optional && !event.target.value
+                            ? rest
+                            : { ...rest, [field.key]: event.target.value },
+                      });
+                    }}
                   />
                 )}
               </div>
@@ -294,12 +300,14 @@ export function CardForm({
   onArt,
   hasArt,
   folderLocked,
+  sets,
 }: {
   draft: Draft;
   patch: Patch;
   onArt: (file: File) => void;
   hasArt: boolean;
   folderLocked: boolean;
+  sets: readonly SetDefinition[];
 }) {
   const field = draft.type !== "spell",
     picks = Object.keys(factionInfo).filter((id) => id !== "neutral");
@@ -376,7 +384,7 @@ export function CardForm({
           </Field>
           <Field title="Set">
             <select value={draft.set} onChange={(event) => patch({ set: event.target.value })}>
-              {setDefinitions.map((set) => (
+              {sets.map((set) => (
                 <option key={set.id} value={set.id}>
                   {set.name}
                 </option>

@@ -132,25 +132,6 @@
   font: 600 15px/1.2 var(--sans, inherit);
   color: #f1ead0;
 }
-.quest-track {
-  display: flex;
-  gap: 5px;
-  width: min(100%, 260px);
-  margin-top: 12px;
-}
-.quest-track i {
-  flex: 1;
-  height: 8px;
-  border-radius: 4px;
-  background: rgb(var(--edge-rgb) / 0.2);
-  box-shadow:
-    inset 0 1px 3px #000a,
-    inset 0 0 0 1px rgb(var(--edge-rgb) / 0.13);
-}
-.quest-track i.on {
-  background: linear-gradient(180deg, #f0d98f, #c9a24f);
-  box-shadow: 0 0 10px rgb(var(--gilt-rgb) / 0.33);
-}
 .home-achievement small {
   color: #c9c7c2;
   font-size: 12px;

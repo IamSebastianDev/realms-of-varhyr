@@ -14,7 +14,7 @@
   "legendary": false,
   "rarity": "common",
   "cost": {
-    "generic": 2,
+    "generic": 1,
     "factions": {
       "ember-fields": 1
     }
@@ -24,7 +24,7 @@
     "defense": 3,
     "energyOutputs": [
       {
-        "ember-fields": 2
+        "ember-fields": 1
       }
     ]
   },

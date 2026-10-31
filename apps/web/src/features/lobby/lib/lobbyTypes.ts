@@ -14,7 +14,7 @@ export type Screen =
   | "profile"
   | "settings"
   | "multiplayer"
-  | "quest"
+  | "adventure"
   | "draft"
   | "match";
 
@@ -38,10 +38,10 @@ export type LobbyProps = {
   startSession: (session: MatchSession, setup?: MatchSetup) => void;
   /** Starts the guided first match. */
   learn: () => void;
-  /** Starts a prepared match (quest fights). */
+  /** Starts a prepared match (adventure fights). */
   beginMatch: (setup: MatchSetup) => void;
-  /** A quest fight is open in the background and can be returned to. */
-  questFight: boolean;
+  /** An adventure fight is open in the background and can be returned to. */
+  adventureFight: boolean;
   /** A draft match is open in the background and can be returned to. */
   draftFight?: boolean;
 };

@@ -243,13 +243,14 @@ section(
     "card flow": [
       "draw",
       "searchForCreatureOrHolding",
+      "searchForCreatures",
       "muster",
       "hive",
       "ransack",
       "reprise",
       "raise",
     ],
-    ramp: ["channel", "primal", "trade", "dark-harvest", "sacrifice"],
+    ramp: ["channel", "primal", "trade", "dark-harvest", "sacrifice", "costReduction"],
     defence: ["guard", "armor", "shield-wall", "banner", "rest", "heal", "steadfast"],
   };
   const has = (card: Card, ids: string[]) =>

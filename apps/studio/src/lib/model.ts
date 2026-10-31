@@ -215,7 +215,7 @@ export type ParamField = {
   options?: string[];
   min?: number;
   initial: unknown;
-  /** A number, flag or choice the card may leave out. Flags are set by ticking them; a choice has an "Any" entry that omits it. */
+  /** A number, flag, choice or text the card may leave out. Flags are set by ticking them; a choice has an "Any" entry that omits it. */
   optional?: boolean;
   /** Whether a new binding starts with this field present. */
   seed: boolean;
@@ -267,7 +267,8 @@ export function paramFields(id: string): ParamField[] {
         optional,
         seed,
       };
-    return { key, kind: "text" as const, initial: "", seed };
+    // A text the card may leave out (a subtype limit, say) starts absent and is removed again when emptied.
+    return { key, kind: "text" as const, initial: "", optional: !always, seed: always };
   });
 }
 export const newBinding = (id: string): Binding => ({
@@ -336,12 +337,14 @@ const abilityThemes: Record<string, string[]> = {
     "dirge",
     "prowess",
     "kindle",
+    "costReduction",
   ],
   Energy: ["primal", "channel", "sacrifice", "trade", "accord", "consume", "return"],
   "Cards and library": [
     "draw",
     "muster",
     "searchForCreatureOrHolding",
+    "searchForCreatures",
     "hive",
     "ransack",
     "dark-harvest",

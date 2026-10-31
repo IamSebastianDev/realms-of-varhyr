@@ -1,0 +1,42 @@
+{
+  "$schema": "../../schemas/card.schema.json",
+  "id": "draxus-treacherous-envoy",
+  "revision": 1,
+  "name": "Draxus, Treacherous Envoy",
+  "deckLimitKey": "draxus-treacherous-envoy",
+  "type": "creature",
+  "factions": [
+    "bright-marches"
+  ],
+  "subtypes": [
+    "human"
+  ],
+  "legendary": true,
+  "rarity": "legendary",
+  "cost": {
+    "generic": 2,
+    "factions": {
+      "bright-marches": 1
+    }
+  },
+  "stats": {
+    "attack": 0,
+    "defense": 3,
+    "energyOutputs": [
+      {
+        "bright-marches": 2
+      }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "costReduction",
+      "params": {
+        "amount": 1,
+        "energy": "bright-marches"
+      }
+    }
+  ],
+  "set": "faces-of-the-realm",
+  "lore": "He promised each lord a lighter burden, provided none would help carry another's."
+}

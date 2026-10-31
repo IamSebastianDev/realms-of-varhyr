@@ -58,6 +58,7 @@ export const commandSchema = v.variant("type", [
     choiceId: v.string(),
     option: v.union([v.string(), nonnegative]),
     other: v.optional(v.picklist(["discard", "bottom"])),
+    picks: v.optional(v.array(v.string())),
   }),
   v.object({ type: v.literal("end") }),
   v.object({ type: v.literal("concede") }),
@@ -70,11 +71,11 @@ const requireRule = (condition: unknown, message: string): void => {
   if (!condition) throw new Error(message);
 };
 /** Draft decks are built from what was picked, so only the legendary limit applies; every other copy count is allowed. */
-export type DeckCheck = { draft?: boolean };
+export type DeckCheck = { draft?: boolean; minimumCards?: number };
 export function validateDeck(deck: string[], registry: Registry, check: DeckCheck = {}): string[] {
   const errors: string[] = [];
-  if (deck.length < deckRules.minimumCards)
-    errors.push(`A deck needs at least ${deckRules.minimumCards} cards.`);
+  const minimum = check.minimumCards ?? deckRules.minimumCards;
+  if (deck.length < minimum) errors.push(`A deck needs at least ${minimum} cards.`);
   const counts: Record<string, number> = {};
   for (const id of deck) {
     const card = registry.cards[id];
@@ -264,7 +265,7 @@ export function reachableLanes(slot: number | null): number[] {
 }
 const abilitiesOf = (state: Pick<GameState, "cards">, id: string, registry: Registry) =>
   definition(state, id, registry).abilities;
-/** Guards that would step in for `attacker` aimed at `lane`, nearest slot first. */
+/** Guards that would step in for `attacker` aimed at `lane`, nearest slot first. A Guard only steps in when the attacker could legally attack its position: it redirects an attack, it never creates one that reaches too far. */
 function interceptors(
   state: Pick<GameState, "cards" | "players">,
   attackerId: string,
@@ -272,10 +273,12 @@ function interceptors(
   registry: Registry,
 ): string[] {
   const attacker = state.cards[attackerId],
-    board = state.players[other(attacker.controller)].board;
+    board = state.players[other(attacker.controller)].board,
+    reach = reachableLanes(attacker.slot);
   return [lane - 1, lane + 1].flatMap((slot) => {
     const id = board[slot];
     return id &&
+      reach.includes(slot) &&
       abilitiesOf(state, id, registry).some((b) =>
         registry.abilities[b.id].intercepts?.(state.cards[id], attacker, lane, b.params, registry),
       ) &&
@@ -438,6 +441,8 @@ export function createMatch(
   seed = 731,
   options: {
     mulligan?: boolean;
+    /** Optional minimum for the first player's adventure deck; the opponent keeps normal deck rules. */
+    playerMinimumCards?: number;
     /** Decks come from a draft: copy limits other than the legendary one are waived. */ draft?: boolean;
     /** Fixed card order per library, applied after the shuffle. Used by the tutorial. */ stack?: [
       string[],
@@ -445,10 +450,16 @@ export function createMatch(
     ];
   } = {},
 ): GameState {
-  for (const deck of decks)
+  for (const [index, deck] of decks.entries())
     requireRule(
-      !validateDeck(deck, registry, { draft: options.draft }).length,
-      validateDeck(deck, registry, { draft: options.draft }).join(" "),
+      !validateDeck(deck, registry, {
+        draft: options.draft,
+        minimumCards: index === 0 ? options.playerMinimumCards : undefined,
+      }).length,
+      validateDeck(deck, registry, {
+        draft: options.draft,
+        minimumCards: index === 0 ? options.playerMinimumCards : undefined,
+      }).join(" "),
     );
   const state: GameState = {
     rulesVersion: RULES_VERSION,
@@ -958,6 +969,62 @@ class Transaction {
             cardId: order.source,
           });
         }
+      } else if (order.type === "search-creatures") {
+        requireRule(order.player === "p1" || order.player === "p2", "Invalid search player.");
+        requireRule(
+          Number.isInteger(order.count) && order.count >= 1 && order.count <= 20,
+          "Invalid number of creatures to search for.",
+        );
+        requireRule(Number.isInteger(order.budget) && order.budget >= 0, "Invalid cost limit.");
+        const p = this.state.players[order.player];
+        const sourceName = order.source
+          ? this.registry.cards[this.state.cards[order.source].definitionId].name
+          : "Search";
+        const options = libraryCreatureOptions(
+          this.state,
+          this.registry,
+          order.player,
+          order.budget,
+        );
+        if (!options.length)
+          this.emit(
+            "card.searched",
+            `${p.name} finds no creature costing ${order.budget} or less in the library.`,
+            { player: order.player, cardId: order.source },
+          );
+        else if (this.state.pending) {
+          // A second choice cannot open while one is pending; the topmost matches are taken instead.
+          let left = order.budget,
+            picks = order.count;
+          for (const id of [...p.deck].reverse()) {
+            if (!picks) break;
+            const def = this.registry.cards[this.state.cards[id].definitionId];
+            const price = energyCost(def);
+            if (def.type !== "creature" || price > left) continue;
+            left -= price;
+            picks--;
+            p.deck.splice(p.deck.indexOf(id), 1);
+            this.state.cards[id].zone = "hand";
+            p.hand.push(id);
+            this.emit("card.searched", `${p.name} finds ${def.name} in the library.`, {
+              player: order.player,
+              cardId: id,
+            });
+          }
+        } else {
+          this.state.pending = {
+            id: `search-${this.state.sequence}`,
+            player: order.player,
+            kind: "library-pick",
+            options,
+            sourceName,
+            limit: { picks: order.count, budget: order.budget },
+          };
+          this.emit("card.searched", `${p.name} searches the library.`, {
+            player: order.player,
+            cardId: order.source,
+          });
+        }
       } else if (order.type === "mill") {
         requireRule(
           Number.isInteger(order.amount) && order.amount >= 0 && order.amount <= 100,
@@ -1209,6 +1276,31 @@ class Transaction {
     }
   }
 }
+/** Total energy cost of a card: generic plus faction energy. */
+function energyCost(def: { cost: { generic: number; factions: Record<string, number> } }): number {
+  return def.cost.generic + Object.values(def.cost.factions).reduce((sum, n) => sum + n, 0);
+}
+/** The creatures in a player's library costing at most `budget` each, cheapest first then by name, so the choice does not reveal the library order. */
+function libraryCreatureOptions(
+  state: Pick<GameState, "cards" | "players">,
+  registry: Registry,
+  player: PlayerId,
+  budget: number,
+): string[] {
+  return [...state.players[player].deck]
+    .reverse()
+    .filter((id) => {
+      const def = registry.cards[state.cards[id].definitionId];
+      return def.type === "creature" && energyCost(def) <= budget;
+    })
+    .sort((a, b) => {
+      const da = registry.cards[state.cards[a].definitionId],
+        db = registry.cards[state.cards[b].definitionId];
+      return (
+        energyCost(da) - energyCost(db) || (da.name < db.name ? -1 : da.name > db.name ? 1 : 0)
+      );
+    });
+}
 /** Targets of a ranged deployment effect for a card entering `slot`: enemy creatures in its own and the two neighbouring lanes, plus the enemy player. */
 export function reachTargets(
   state: Pick<GameState, "cards" | "players">,
@@ -1305,14 +1397,37 @@ function repriseChoices(state: GameState, actor: PlayerId, registry: Registry): 
   }
   return options;
 }
+/** What a card costs its owner to play now: the printed cost less the continuous discounts of their battlefield, each taking its own energy type down to zero. Uses public information only, so views can show it. */
+export function effectiveCost(
+  state: Pick<GameState, "cards" | "players"> | Pick<PlayerView, "cards" | "players">,
+  id: string,
+  registry: Registry,
+  base?: Cost,
+): Cost {
+  const card = state.cards[id],
+    cost = structuredClone(base ?? registry.cards[card.definitionId].cost);
+  for (const sid of state.players[card.owner].board) {
+    if (!sid) continue;
+    const source = state.cards[sid];
+    for (const binding of registry.cards[source.definitionId].abilities) {
+      const off = registry.abilities[binding.id].discount?.(source, card, binding.params, registry);
+      if (!off) continue;
+      if (off.energy === "neutral") cost.generic = Math.max(0, cost.generic - off.amount);
+      else if (cost.factions[off.energy])
+        cost.factions[off.energy] = Math.max(0, cost.factions[off.energy] - off.amount);
+    }
+  }
+  return cost;
+}
 function playPayload(state: GameState, card: CardInstance, registry: Registry) {
   // A free cast pays nothing, not even additional costs.
   if (state.freeCast?.cardId === card.id)
     return { cost: { generic: 0, factions: {} }, consume: false };
-  return new Transaction(state, registry).before("card.play.before", card, {
+  const payload = new Transaction(state, registry).before("card.play.before", card, {
     cost: structuredClone(registry.cards[card.definitionId].cost),
     consume: false,
   });
+  return { ...payload, cost: effectiveCost(state, card.id, registry, payload.cost) };
 }
 export function legalActions(state: GameState, registry: Registry): LegalActions {
   const actor = decisionPlayer(state),
@@ -1646,22 +1761,64 @@ export function apply(
         next.freeCast = { player: envelope.actor, cardId: id as string };
       } else if (choice!.kind === "library-pick") {
         const id = command.option;
-        requireRule(
-          typeof id === "string" &&
-            (choice!.options as string[]).includes(id) &&
-            next.cards[id].zone === "deck" &&
-            p.deck.includes(id),
-          "Choose one of the found cards.",
-        );
-        p.deck.splice(p.deck.indexOf(id as string), 1);
-        next.cards[id as string].zone = "hand";
-        p.hand.push(id as string);
-        next.pending = null;
-        tx.emit(
-          "card.searched",
-          `${p.name} finds ${definition(next, id as string, registry).name} in the library.`,
-          { player: envelope.actor, cardId: id as string },
-        );
+        if (choice!.limit) {
+          // A multiple search is one choice: "apply" takes the picked set, "stop" takes nothing.
+          const limit = choice!.limit;
+          if (id === "stop") {
+            requireRule(command.picks === undefined, "Stopping takes no cards.");
+            next.pending = null;
+            tx.emit("card.searched", `${p.name} stops searching.`, { player: envelope.actor });
+          } else {
+            const picks = command.picks;
+            requireRule(
+              id === "apply" &&
+                Array.isArray(picks) &&
+                picks.length <= limit.picks &&
+                new Set(picks).size === picks.length &&
+                picks.every(
+                  (pick) =>
+                    typeof pick === "string" &&
+                    (choice!.options as string[]).includes(pick) &&
+                    next.cards[pick].zone === "deck" &&
+                    p.deck.includes(pick),
+                ),
+              `Choose up to ${limit.picks} of the found creatures.`,
+            );
+            requireRule(
+              picks!.reduce((sum, pick) => sum + energyCost(definition(next, pick, registry)), 0) <=
+                limit.budget,
+              `The creatures may cost ${limit.budget} energy together.`,
+            );
+            next.pending = null;
+            for (const pick of picks!) {
+              p.deck.splice(p.deck.indexOf(pick), 1);
+              next.cards[pick].zone = "hand";
+              p.hand.push(pick);
+              tx.emit(
+                "card.searched",
+                `${p.name} finds ${definition(next, pick, registry).name} in the library.`,
+                { player: envelope.actor, cardId: pick },
+              );
+            }
+          }
+        } else {
+          requireRule(
+            typeof id === "string" &&
+              (choice!.options as string[]).includes(id) &&
+              next.cards[id].zone === "deck" &&
+              p.deck.includes(id),
+            "Choose one of the found cards.",
+          );
+          p.deck.splice(p.deck.indexOf(id as string), 1);
+          next.cards[id as string].zone = "hand";
+          p.hand.push(id as string);
+          next.pending = null;
+          tx.emit(
+            "card.searched",
+            `${p.name} finds ${definition(next, id as string, registry).name} in the library.`,
+            { player: envelope.actor, cardId: id as string },
+          );
+        }
       } else {
         requireRule(
           typeof command.option === "number" &&
