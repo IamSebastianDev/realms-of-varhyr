@@ -4050,3 +4050,15 @@ describe("consume", () => {
     assertInvariants(r);
   });
 });
+
+describe("content version", () => {
+  it("is the same whatever art the page and the opponent's worker load", () => {
+    const cards = Object.values(registry.cards).map((card) => ({ ...card }));
+    const swapped = cards.map((card) => ({
+      ...card,
+      art: card.art.replace(".png", ".webp"),
+      animation: card.animation?.replace(".webm", ".mp4"),
+    }));
+    expect(compileContent(swapped).version).toBe(compileContent(cards).version);
+  });
+});

@@ -1,5 +1,5 @@
 import { toStageX } from "@realms/ui/stage";
-import { type CSSProperties } from "react";
+import { useRef, type CSSProperties } from "react";
 import { CombatArrows } from "../CombatArrows";
 import { t as msg } from "@realms/ui/i18n";
 import { registry } from "@realms/content";
@@ -28,6 +28,7 @@ export function BoardScene() {
     visibleBlocks,
     visibleLanes,
   } = useMatch();
+  const lastHoverLane = useRef<number | null>(null);
   return (
     <div
       ref={boardRef}
@@ -36,10 +37,18 @@ export function BoardScene() {
       onPointerMove={(e) => {
         if (!drag) {
           const lane = laneAtX(toStageX(e.clientX));
-          setHoverLane((current) => (current === lane ? current : lane));
+          if (lastHoverLane.current !== lane) {
+            lastHoverLane.current = lane;
+            setHoverLane(lane);
+          }
         }
       }}
-      onPointerLeave={() => setHoverLane(null)}
+      onPointerLeave={() => {
+        if (lastHoverLane.current !== null) {
+          lastHoverLane.current = null;
+          setHoverLane(null);
+        }
+      }}
     >
       {spellDrop && (
         <span className="spell-drop-hint">

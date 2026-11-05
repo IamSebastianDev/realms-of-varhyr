@@ -230,7 +230,6 @@
 .art-card .card-corners{inset:2.6cqw;border:1px solid var(--ink-faint);border-radius:1.4cqw;
   background:linear-gradient(var(--ink),var(--ink)) left top/7cqw 1px no-repeat,linear-gradient(var(--ink),var(--ink)) left top/1px 7cqw no-repeat,linear-gradient(var(--ink),var(--ink)) right top/7cqw 1px no-repeat,linear-gradient(var(--ink),var(--ink)) right top/1px 7cqw no-repeat,
     linear-gradient(var(--ink),var(--ink)) left bottom/7cqw 1px no-repeat,linear-gradient(var(--ink),var(--ink)) left bottom/1px 7cqw no-repeat,linear-gradient(var(--ink),var(--ink)) right bottom/7cqw 1px no-repeat,linear-gradient(var(--ink),var(--ink)) right bottom/1px 7cqw no-repeat}
-  background:radial-gradient(circle at 35% 30%,#2b2822,#0c0b09 74%);box-shadow:0 0 0 1px #000a,0 1cqw 2.4cqw #000a,inset 0 0 0 .8cqw #0c0b09}
 .art-card .card-cost{background:linear-gradient(#1b1914,var(--surface));border:1px solid var(--ink-dim);border-radius:1.8cqw;box-shadow:0 1cqw 2.4cqw #000a,inset 0 1px 0 rgb(var(--white-rgb) / .07)}
 .art-card .card-header h3{text-shadow:0 1px 0 var(--black),0 0 3cqw #000c}
 .art-card .card-identity{align-self:stretch;display:flex;align-items:center;justify-content:center;gap:2.4cqw}
@@ -305,16 +304,16 @@
 .card-face-overlay>.card-cost{right:3%;width:12%}
 
 /* hover: coins slide out to the right and forward; layers drift with the pointer (parallax) */
-.art-card{--px:0;--py:0}
+.art-card{--card-cost-x:0%;--card-cost-y:0%;--card-art-x:0%;--card-art-y:0%;--card-box-x:0%;--card-box-y:0%}
 .card-art>img,.card-art>video,.card-art>.holographic-foil{transition:translate .25s ease-out,scale .35s ease-out}
 .art-card>.card-box{transition:translate .25s ease-out}
 @media (hover:hover){
   .art-card:hover>.card-cost,.art-card:focus-visible>.card-cost{translate:62% 0;scale:1.12}
 }
 @media (hover:hover) and (prefers-reduced-motion:no-preference){
-  .art-card:hover>.card-cost,.art-card:focus-visible>.card-cost{translate:calc(62% + var(--px)*7%) calc(var(--py)*6%);scale:1.12}
-  .art-card:hover .card-art>img,.art-card:hover .card-art>video,.art-card:hover .card-art>.holographic-foil{scale:1.07;translate:calc(var(--px)*-2.2%) calc(var(--py)*-2.2%)}
-  .art-card:hover>.card-box{translate:calc(var(--px)*1.1%) calc(var(--py)*1.1%)}
+  .art-card:hover>.card-cost,.art-card:focus-visible>.card-cost{translate:calc(62% + var(--card-cost-x)) var(--card-cost-y);scale:1.12}
+  .art-card:hover .card-art>img,.art-card:hover .card-art>video,.art-card:hover .card-art>.holographic-foil{scale:1.07;translate:var(--card-art-x) var(--card-art-y);transition:scale .35s ease-out}
+  .art-card:hover>.card-box{translate:var(--card-box-x) var(--card-box-y);transition:none}
 }
 
 /* Battlefield faces sit above the 3D hit targets; no decoration may intercept their pointer events. */

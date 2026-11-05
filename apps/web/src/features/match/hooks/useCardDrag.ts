@@ -30,12 +30,15 @@ export function useCardDrag(
 ) {
   const [drag, setDrag] = useState<CardDrag | null>(null);
   const pointer = useRef<PointerDrag | null>(null),
+    dragFrame = useRef(0),
     suppressUntil = useRef(0);
   const callbacks = useRef({ onDrop, onStart });
   callbacks.current = { onDrop, onStart };
   function finish(drop: boolean) {
     const current = pointer.current;
     pointer.current = null;
+    cancelAnimationFrame(dragFrame.current);
+    dragFrame.current = 0;
     setDrag(null);
     if (!current) return;
     if (current.element?.hasPointerCapture(current.pointerId))
@@ -66,7 +69,13 @@ export function useCardDrag(
       }
       if (current.active) {
         event.preventDefault();
-        setDrag({ cardId: current.cardId, x: current.x, y: current.y });
+        if (!dragFrame.current) {
+          dragFrame.current = requestAnimationFrame(() => {
+            dragFrame.current = 0;
+            const latest = pointer.current;
+            if (latest?.active) setDrag({ cardId: latest.cardId, x: latest.x, y: latest.y });
+          });
+        }
       }
     }
     function up(event: PointerEvent) {

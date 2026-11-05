@@ -403,7 +403,8 @@
   width: 62%;
   height: 70%;
   border-radius: 50%;
-  filter: blur(34px);
+  /* The gradient already fades to transparent; a large animated blur forces
+     an expensive full-board filter pass on WebKit. */
   opacity: 0.2;
   background: radial-gradient(closest-side, var(--ambient, #d1bd86), transparent);
   animation: mist-drift 38s ease-in-out infinite alternate;

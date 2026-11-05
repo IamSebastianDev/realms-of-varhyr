@@ -185,12 +185,16 @@ export function compileContent(
 
   const bundle = JSON.stringify(
     canonical({
-      // Presentation-only set membership and translations do not invalidate saved matches or change the wire content version.
+      // Presentation-only data (set membership, translations, art and animation URLs) does not invalidate saved matches or change
+      // the wire content version. The art URLs matter in particular: the production build rewrites them per bundle (png to webp),
+      // so hashing them gave the page and the opponent's worker different versions and the worker's moves were all rejected.
       cards: Object.fromEntries(
-        Object.entries(cards).map(([id, { translations: _translations, set: _set, ...card }]) => [
-          id,
-          card,
-        ]),
+        Object.entries(cards).map(
+          ([
+            id,
+            { translations: _translations, set: _set, art: _art, animation: _animation, ...card },
+          ]) => [id, card],
+        ),
       ),
       factions: factionIds,
       extensions: Object.keys(extensions)

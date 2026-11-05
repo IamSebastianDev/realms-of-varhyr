@@ -323,23 +323,54 @@ export function ArtCard({
     window.clearTimeout(hoverTimer.current);
     setHoverRect(null);
   };
-  useEffect(() => () => window.clearTimeout(hoverTimer.current), []);
+  const tiltFrame = useRef(0);
+  const tiltPointer = useRef<{ el: HTMLElement; x: number; y: number } | null>(null);
+  useEffect(
+    () => () => {
+      window.clearTimeout(hoverTimer.current);
+      cancelAnimationFrame(tiltFrame.current);
+    },
+    [],
+  );
   const tilt = (e: React.PointerEvent<HTMLElement>) => {
     if (reduced || e.pointerType === "touch") return;
-    const el = e.currentTarget,
-      r = el.getBoundingClientRect();
-    el.style.setProperty(
-      "--px",
-      String(Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width - 0.5) * 2)).toFixed(3)),
-    );
-    el.style.setProperty(
-      "--py",
-      String(Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height - 0.5) * 2)).toFixed(3)),
-    );
+    // Pointer events can arrive much faster than the screen can draw. Measure
+    // and update the card at most once per frame, using the latest position.
+    tiltPointer.current = { el: e.currentTarget, x: e.clientX, y: e.clientY };
+    if (tiltFrame.current) return;
+    tiltFrame.current = requestAnimationFrame(() => {
+      tiltFrame.current = 0;
+      const pointer = tiltPointer.current;
+      if (!pointer || !pointer.el.isConnected) return;
+      const r = pointer.el.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      const x = Math.max(-1, Math.min(1, ((pointer.x - r.left) / r.width - 0.5) * 2));
+      const y = Math.max(-1, Math.min(1, ((pointer.y - r.top) / r.height - 0.5) * 2));
+      // Precompute percentages: older WebKit cannot multiply inside CSS calc().
+      for (const [name, value] of [
+        ["--card-cost-x", x * 7],
+        ["--card-cost-y", y * 6],
+        ["--card-art-x", x * -2.2],
+        ["--card-art-y", y * -2.2],
+        ["--card-box-x", x * 1.1],
+        ["--card-box-y", y * 1.1],
+      ] as const)
+        pointer.el.style.setProperty(name, `${value.toFixed(3)}%`);
+    });
   };
   const untilt = (el: HTMLElement) => {
-    el.style.removeProperty("--px");
-    el.style.removeProperty("--py");
+    cancelAnimationFrame(tiltFrame.current);
+    tiltFrame.current = 0;
+    tiltPointer.current = null;
+    for (const name of [
+      "--card-cost-x",
+      "--card-cost-y",
+      "--card-art-x",
+      "--card-art-y",
+      "--card-box-x",
+      "--card-box-y",
+    ])
+      el.style.removeProperty(name);
   };
   const preview = hoverRect && (
     <CardHoverDetail card={card} rect={hoverRect} reduced={reduced} appearance={appearance} />

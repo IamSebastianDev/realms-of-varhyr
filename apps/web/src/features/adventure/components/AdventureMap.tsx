@@ -14,6 +14,7 @@ import {
   Suspense,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ComponentType,
@@ -125,24 +126,27 @@ export function AdventureMap({
     el.addEventListener("wheel", wheel, { passive: false });
     return () => el.removeEventListener("wheel", wheel);
   }, [failed]);
-  const reachable = new Set(options(run, def)),
-    visited = new Set(run.visited);
-  const states = new Map(
-    def.nodes.map(
-      (node) =>
-        [
-          node.id,
-          node.id === run.at
-            ? "current"
-            : visited.has(node.id)
-              ? "visited"
-              : reachable.has(node.id)
-                ? "open"
-                : "ahead",
-        ] as const,
-    ),
-  );
-  const byId = new Map(def.nodes.map((node) => [node.id, node]));
+  // Hovering a chip should not reconstruct the scene's route geometry.
+  const reachable = useMemo(() => new Set(options(run, def)), [run, def]);
+  const states = useMemo(() => {
+    const visited = new Set(run.visited);
+    return new Map(
+      def.nodes.map(
+        (node) =>
+          [
+            node.id,
+            node.id === run.at
+              ? "current"
+              : visited.has(node.id)
+                ? "visited"
+                : reachable.has(node.id)
+                  ? "open"
+                  : "ahead",
+          ] as const,
+      ),
+    );
+  }, [def, run.at, run.visited, reachable]);
+  const byId = useMemo(() => new Map(def.nodes.map((node) => [node.id, node])), [def]);
   return (
     <div
       ref={host}
@@ -246,8 +250,9 @@ export function AdventureMap({
                 if (!labels.current.get(node.id)?.matches(":focus-visible"))
                   setHighlighted((current) => (current === node.id ? null : current));
               }}
-              onFocus={() => {
-                focus(node.id);
+              onFocus={(event) => {
+                // Mouse and touch focus should not unexpectedly move the map.
+                if (event.currentTarget.matches(":focus-visible")) focus(node.id);
                 if (state === "open") setHighlighted(node.id);
               }}
               onBlur={() => setHighlighted((current) => (current === node.id ? null : current))}

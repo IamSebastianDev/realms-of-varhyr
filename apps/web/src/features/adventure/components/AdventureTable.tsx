@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useMemo, useRef, type RefObject } from "react";
+import { memo, Suspense, useEffect, useMemo, useRef, type RefObject } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
@@ -51,9 +51,13 @@ export default function AdventureTable(props: Props) {
       dpr={[1, 1.5]}
       shadows
       fallback={null}
-      gl={{ antialias: true, alpha: false, powerPreference: "low-power" }}
+      gl={{ antialias: true, alpha: false }}
       onCreated={({ gl }) => {
         gl.setClearColor(props.palette.wood);
+        // All shadow casters and the directional light are fixed in world space.
+        // Flickering point lights do not cast shadows, so keep this map between frames.
+        gl.shadowMap.autoUpdate = false;
+        gl.shadowMap.needsUpdate = true;
         gl.domElement.addEventListener("webglcontextlost", props.failed, { once: true });
       }}
     >
@@ -91,7 +95,7 @@ function Tabletop({
   ready,
   palette,
 }: Props) {
-  const { camera, size, invalidate } = useThree();
+  const { camera, size, invalidate, gl } = useThree();
   const textures = useLoader(THREE.TextureLoader, mapTextureUrls(def));
   const maps = useMemo(
     () =>
@@ -146,6 +150,13 @@ function Tabletop({
     [],
   );
   const projected = useMemo(() => new THREE.Vector3(), []);
+  const lastProjection = useRef({ z: Number.NaN, width: 0, height: 0 });
+  useEffect(() => {
+    // Suspended assets have now mounted; include them in the cached shadow map.
+    gl.shadowMap.needsUpdate = true;
+    lastProjection.current.z = Number.NaN;
+    invalidate();
+  }, [def, gl, invalidate]);
   useEffect(() => {
     camera.position.z = target.current + 18;
     wake.current = invalidate;
@@ -158,24 +169,30 @@ function Tabletop({
     const z = reduced
       ? target.current
       : THREE.MathUtils.damp(camera.position.z - 18, target.current, 7, Math.min(delta, 0.1));
-    camera.position.set(0, 24, z + 18);
-    camera.lookAt(0, 0, z);
-    const cam = camera as THREE.PerspectiveCamera;
-    // Fit the same table area at every stage aspect ratio, with a fixed viewing angle.
-    const visibleHeight = Math.max(10.5, (24.8 * size.height) / size.width) * 1.1;
-    cam.fov = THREE.MathUtils.radToDeg(2 * Math.atan(visibleHeight / 60));
-    cam.aspect = size.width / size.height;
-    cam.updateProjectionMatrix();
-    camera.updateMatrixWorld();
-    for (const node of def.nodes) {
-      const label = labels.current.get(node.id);
-      if (!label) continue;
-      const [xPos, , zPos] = nodePosition(node);
-      projected.set(xPos, 0.35, zPos).project(camera);
-      const x = (projected.x * 0.5 + 0.5) * size.width;
-      const y = (-projected.y * 0.5 + 0.5) * size.height;
-      label.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
-      label.style.visibility = y < -60 || y > size.height + 60 ? "hidden" : "visible";
+    // Static camera = static DOM hit targets. Moving every label at animation
+    // speed forces WebKit to repeatedly update compositing and hit testing.
+    const previous = lastProjection.current;
+    if (z !== previous.z || size.width !== previous.width || size.height !== previous.height) {
+      camera.position.set(0, 24, z + 18);
+      camera.lookAt(0, 0, z);
+      const cam = camera as THREE.PerspectiveCamera;
+      // Fit the same table area at every stage aspect ratio, with a fixed viewing angle.
+      const visibleHeight = Math.max(10.5, (24.8 * size.height) / size.width) * 1.1;
+      cam.fov = THREE.MathUtils.radToDeg(2 * Math.atan(visibleHeight / 60));
+      cam.aspect = size.width / size.height;
+      cam.updateProjectionMatrix();
+      camera.updateMatrixWorld();
+      for (const node of def.nodes) {
+        const label = labels.current.get(node.id);
+        if (!label) continue;
+        const [xPos, , zPos] = nodePosition(node);
+        projected.set(xPos, 0.35, zPos).project(camera);
+        const x = (projected.x * 0.5 + 0.5) * size.width;
+        const y = (-projected.y * 0.5 + 0.5) * size.height;
+        label.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
+        label.style.visibility = y < -60 || y > size.height + 60 ? "hidden" : "visible";
+      }
+      lastProjection.current = { z, width: size.width, height: size.height };
     }
     if (!displayed.current) {
       displayed.current = true;
@@ -399,7 +416,7 @@ function Routes({ def, states, palette }: Pick<Props, "def" | "states" | "palett
 }
 
 /** Small wooden counters with a bronze rim and inlaid symbol. */
-function Location({
+const Location = memo(function Location({
   type,
   state,
   highlighted,
@@ -516,7 +533,7 @@ function Location({
       </group>
     </>
   );
-}
+});
 
 /** A slow, mottled haze curls around the chip at the height of its face. */
 function ReachableHalo({
